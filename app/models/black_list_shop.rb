@@ -1,0 +1,2 @@
+class BlackListShop < ApplicationRecord
+end

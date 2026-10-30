@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+hr:
+  hello: Pozdrav svijetu
+  admin:
+    getting_started: Vodič za početak
+    watch_video_msg: Pogledajte videozapis, rezervirajte sesiju ili razgovarajte s nama kako biste započeli odmah s COD Kingom!
+    watch_video: Pogledajte video
+    book_session: Sjednica knjige
+    chat_with_us: Razgovarajte s nama sada
+    settings: Postavke
+    log: Zapisnik
+    step1: Korak 1 - Narudžba za COD
+    step1_desc: Kupac stavlja narudžbu COD. App Identificira ga kao COD reda.
+    step2: Korak 2 - Aplikacija šalje OTP kupcu putem SMS-a
+    step2_desc: Jedinstveni OTP šalje se na broj mobitela kupca.
+    step3: Korak 3 - OTP okvir prikazan na stranici Hvala
+    step3_desc: Kupac ulazi OTP i klikne potvrditi.
+    step4: Korak 4 - Filtrirajte svoje narudžbe na temelju ove oznake.
+    step4_desc: Kupac stavlja narudžbu COD. App Identificira ga kao COD reda.
+    step5: Korak 5 - Ušteđeni troškovi dostave
+    step5_desc: Uštedite troškove dostave odbijanjem lažnih naloga Spremljeni novac je zarađen novac.
+    logs: Trupci
+    order_logs: Naručite dnevnike
+    subscription: Pretplata
+    settings_saved: Postavke spremljene
+    settings_saved_msg: "Promjene će se odraziti u vašoj trgovini za nekoliko minuta."
+    activate_sms: Aktiviraj <b>OTP</b> Potvrda
+    activate_cod_fees: Aktiviraj <b>KPK Naknade</b>
+    sms_placeholder: 123456 je vaša jednokratna lozinka za potvrdu COD
+    ios_code_error: Predložak treba sadržavati "kod" ključnu riječ za prikaz OTP u iOS tipkovnici
+    activate_ivr: Aktiviraj <b>IVR</b> Potvrda
+    intro_msg: Uvodna poruka
+    intro_msg_placeholder: Hvala vam što ste naručili.
+    order_confirm_label: Poruka potvrde narudžbe
+    order_confirm_placeholder: Pritisnite 1 da biste potvrdili narudžbu.
+    order_confirm_help: Uputite korisnika da pritisne 1 za potvrdu narudžbe.
+    order_confirm_error: Potvrda poruke treba sadržavati "1" za potvrdu narudžbe
+    order_cancel_label: Poruka o otkazivanju narudžbe
+    order_cancel_placeholder: Pritisnite 2 da biste otkazali narudžbu.
+    order_cancel_help: Uputite korisnika da pritisnete 2 za otkazivanje narudžbe.
+    order_cancel_error: Ova poruka treba sadržavati "2" za otkazivanje narudžbe.
+    test_sms: "Testirajte SMS obavijest"
+    enter_test_number: Unesite testni broj
+    sms_sent_check_mobile: SMS Poslano. Provjerite svoj mobitel
+    enter_country_code: Molimo unesite broj sa svojim kodom zemlje tijekom testiranja ovdje
+    number_cc_example: npr. %{number}
+    send_sms: Pošalji SMS
+    message_template: Predložak poruke
+    test_ivr: Ispitivanje IVR poziva
+    cod_fees: Iznos naknada za COD u
+    cod_fees_help: Iznos novca koji želite dodati, ako kupac postavi narudžbu COD.
+    cod_label: Oznaka koju treba priložiti za naknade za COD
+    cod_label_help: Oznaka koja će se prikazati uz dodatne naknade
+    cod_instruction: Upute za isporuku COD-a
+    cod_instruction_help: Ova poruka će biti prikazana kupcima na stranici Hvala kada je narudžba dovršena.
+    please_check_mobile: Provjerite svoj mobitel
+    call_now: Nazovite sada
+    unsaved: Nespremljene promjene
+    x_chars_used: "%{count} / %{total} upotrijebljeni znakovi"
+    deactivate: Deaktiviraj
+    save: Spremi
+    discard: Odbaci
+    free_plan: Besplatni plan
+    pro_plan: Pro Plan
+    vip_plan: Vip Plan
+    feature_1: počinje $0.02 po SMS
+    feature_2: počinje $0.06 po IVR
+    feature_3: 1 do 1 poziv na brodu
+    feature_4: Prioritetna podrška
+    feature_1_pro: Za trgovine više od 100 narudžbi COD mjesečno
+    custom_plan: Plan integracije mrežnog davatelja
+    subscribe: Pretplatite se
+    subscribed: Pretplaćeni
+    recommended: Preporučena
+    sms_template_default: "{{otp}} je vaš kontrolni kôd za potvrdu narudžbe COD stavljene na %{store}"
+    retry_template_default: "Hvala što ste naručili COD na %{store}. Molimo potvrdite svoju narudžbu posjetom linku {{link}} birdch"
+    prepaid_template_default: "pretvoriti svoju narudžbu u prepaid klikom na link. {{link}}"
+    order_confirm_template_default: "Hvala na kupnji na %{store}. Vaša narudžba je potvrđena - Broj narudžbe {{number}}"
+    fulfilment_template_default: "Vaša narudžba je poslana sa %{store} - Pratite svoju narudžbu na {{tracking_url}}"
+    ivr_introduction: "Hvala vam što ste naručili na %{domain}."
+    ivr_confirm_message: Pritisnite 1 da biste potvrdili narudžbu.
+    ivr_cancel_message: Pritisnite 2 da biste otkazali narudžbu.
+    confirmed_thank_you: Vaša narudžba je potvrđena, hvala.
+    cancelled_thank_you: Vaša narudžba je otkazana, hvala.
+    invalid_thank_you: Nevažeći izbor, Molim vas pokušajte ponovo, hvala.
+    no_logs_yet: Još nema trupaca
+    try_changing_search: Pokušajte promijeniti pojam za pretraživanje
+    order: Narudžba
+    date: Datum
+    customer: Kupac
+    total: Ukupno
+    status: Status
+    network: Mreža
+    prev: Prethodna (J)
+    next: Sljedeća (K)
+    no_resource_found: Nije pronađeno %{resource}
+    search_resource: Traži %{resource} s brojem narudžbe ili imenom kupca
+    all: Sve
+    enter_valid_phone: Unesite važeći telefonski broj
+    enable_region: Obratite nam se kako biste omogućili svoju regiju
+    x_total_orders: "%{count} ukupnih narudžbi"
+    x_verified_orders: "%{count} provjerenih narudžbi"
+    x_pending_orders: "%{count} narudžbe na čekanju"
+    x_prepaid_orders: "%{count} prepaid naloga"
+    x_cancelled_orders: "%{count} otkazanih narudžbi"
+    order_stats: Statistika narudžbe
+    boost_checkout: Bešavne Blagajna
+    recommended_setup_to: Preporučeno postavljanje za poboljšanje iskustva naplate
+    copy: Kopiraj
+    copied: Kopirano
+    starts: Počinje
+    ends: Završava
+    recommended_steps: Preporučeni koraci
+    checkout_settings: Idite na postavke naplate
+    additional_scripts_text_box: I zalijepite donji tekst u <b>Dodatne skripte</b> tekstni okvir
+    one_time_pass: Jednokraka lozinka
+    customer_first_name: Ime kupca
+    order_total_amount: Ukupan iznos narudžbe
+    link_text: Link za potvrdu narudžbe jednim klikom
+    available_variables: Dostupne varijable za lijepljenje u predlošku poruke
+    free_limit_exhausted: Besplatno ograničenje testiranja iscrpljeno. Molimo kontaktirajte nas za obnovu.
+    x_success_sms: "%{count} SMS"
+    x_billed_sms: "%{count} naplaćeno sms"
+    x_failed_sms: "%{count} SMS"
+    usage_charged_created: "Naplata za korištenje stvorena"
+    x_ivr: "%{count} ivr"
+    refresh: Osvježi
+    complete_setup: Samo jedan posljednji korak
+    complete_setup_msg: Postavke spremljene. Da biste dovršili postavljanje, molimo <b>pretplatite se ovdje</b>.
+    view_plans: Pogledaj planove
+    prepay_template: Predložak unaprijed
+    send_payment_link: Veza za plaćanje
+    submit: Pošaljite
+    bulk_submit: Bulk Pošalji
+    amount: Iznos
+    date_time: Datum i vrijeme
+    mobile: Mobitel
+    something_went_wrong: Nešto je pošlo po zlu, pokušajte ponovo kasnije.
+    message_sent: Poruka poslana
+    send: Pošalji
+    cancel: Odustani
+    upto_x_orders: Upto %{count} Narudžbe mjesečno
+    unlimited_orders: Neograničen broj narudžbi za provjeru
+    export: Izvoz
+    emailed_orders: Poslani dnevnici na e-poštu
+    comma_separated_order_ids: ID-ovi reda odvojeni zarezima
+    order_ids: "Unesite ID kao što su: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Bulk Potvrdi
+    bulk_verify_template: "Bok %{name}, Molimo kliknite na link %{link} da biste potvrdili svoju narudžbu #%{number} od %{amount} stavljen na %{store}"
+    bulk_processing_title: Obrada rasutih naloga
+    bulk_processing_desc: Vidjet ćete zapovijedi u dnevnicima u jednom trenutku.
+    bulk_processing_error: Nešto je pošlo krivo
+    bulk_processing_error_desc: Pokušajte ponovno ili nam se obratite ako se problem nastavi.
+    reach_out_title: Značajka još nije omogućena.
+    reach_out_desc: Obratite nam se kako biste omogućili ovu značajku.
+    order_cancelled: Narudžba je otkazana
+    order_details_title: Detalji narudžbe (Molimo kliknite na otkazati ili potvrditi)
+    react_out_to_us: Obratite nam se za rasute narudžbe
+    react_out_locked_title: Potrebno je odobrenje.
+    react_out_locked_desc: Obratite nam se putem <b>e-pošte ili chat</b> kako biste omogućili svoj račun.
+    view_cost: Pogledaj SMS troškova.
+    pricing_for_country: "Zadana SMS zadana naknada za <b>%{country}</b> je <b>$%{charge}</b> po sms"
+    view_complete_pricing: Pregledajte tablicu cijena za sve zemlje
+    chat_for_bulk_integration: Razgovarajte s nama za skupnu cijenu ili prilagođenu integraciju.
+    advance_settings: Napredne postavke
+    link_settings: Postavke veze za provjeru
+    show_cancel_button: Prikaži gumb za otkazivanje
+    show_cancel_button_help: podržan samo tijekom toka provjere veze.
+    auto_verify: Automatska provjera
+    auto_verify_help: Automatska provjera narudžbe klikom na vezu za provjeru.
+    otp_settings: OTP postavke
+    max_retries: Maksimalni pokušaji SMS-a po narudžbi
+    otp_wait_time: Ponovno pošaljite OTP vrijeme čekanja
+    otp_fallback_text: OTP podrška ili rezervni tekst
+    otp_fallback_text_help: HTML podržan
+    network_provider_integration: Integracija davatelja mreže
+    network_provider: Mrežni pružatelj
+    required: Obavezno
+    phone_number: Telefonski broj
+    integration_cost_reduce: Integracija smanjuje vaš ukupni trošak na gotovo trećinu
+    need_help: Trebate pomoć?
+    create_x_account: Kreiraj %{brand} račun
+    x_configuration: "%{brand} Konfiguracija"
+    need_more_sms: Razgovarajte s nama kako biste se pretplatili i cijene.
+    price_for_country: "$%{price} po poruci u %{country}"
+    sms_cost_included: SMS troškovi uključeni
+    sms_cost_extra: SMS možete platiti izravno davatelju usluga
+    view: Pogled
+    order_number: Broj narudžbe
+    get_access_token: Generiranje pristupnog tokena
+    goto_orders: Idite na narudžbe
+    whatsapp_approval_request_sent: Poslan zahtjev za odobrenje WhatsAppa
+    whatsapp_approval_request_sent_failure: 'Nije uspjelo: - Zahtjev za odobrenje WhatsApp nije uspio'
+  script:
+    submit: Pošaljite
+    mobile_phone_number: Broj bez 0 i pozivni broj države
+    enter_valid_phone: Unesite važeći telefonski broj
+    verify_for_smooth_delivery: Provjerite svoj telefonski broj radi lakšeg isporuke narudžbe COD
+    click_verify_link: Link je poslan na vaš broj - <b>%{number}</b>
+    enter_otp_msg: "Unesite OTP poslan na <b>%{number}</b>"
+    enter_otp: Unesite OTP
+    change: Promijeni
+    invalid_otp: Nevažeći OTP, pokušajte ponovo
+    resend_otp: Ponovno pošalji OTP
+    confirm_order: Potvrdite narudžbu
+    sending: "Šaljem..."
+    order_being_processed: Vaša narudžba se obrađuje.
+    if_not_redirected: Ako niste automatski preusmjereni, osvježite ovu stranicu.
+    resend_in_x_seconds: "Ponovno pošaljite OTP za %{count} sekundi"
+    max_retries_reached: Maksimalno ograničenje ponovnih pokušaja postignut
+    order_details: Detalji narudžbe
+    send_code_on_whatsapp: Nabavite kôd na Whatsappu

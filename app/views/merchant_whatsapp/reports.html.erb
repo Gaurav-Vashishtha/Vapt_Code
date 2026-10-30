@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merchant WhatsApp — Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <h1 class="text-xl font-semibold text-gray-900">Reports</h1>
+      <%= link_to "Back", merchant_whatsapp_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+    </div>
+  </div>
+  <%= render 'shared/support_navigation' %>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h2 class="font-medium text-gray-900 mb-3">Last 30 days — overall funnel</h2>
+    <div class="grid grid-cols-3 md:grid-cols-6 gap-4 mb-8">
+      <% %w[sent delivered read replied failed queued].each do |s| %>
+        <div class="bg-white rounded-lg p-4 border border-gray-200"><div class="text-2xl font-bold text-gray-900"><%= @funnel[s].to_i %></div><div class="text-sm text-gray-500 capitalize"><%= s %></div></div>
+      <% end %>
+    </div>
+
+    <h2 class="font-medium text-gray-900 mb-3">By rule</h2>
+    <div class="bg-white rounded-lg border border-gray-200">
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-gray-500 border-b border-gray-100"><th class="px-4 py-2">Rule</th><th class="px-4 py-2">Sent</th><th class="px-4 py-2">Delivered</th><th class="px-4 py-2">Read</th><th class="px-4 py-2">Replied</th><th class="px-4 py-2">Failed</th></tr></thead>
+        <tbody>
+          <% rule_ids = @by_rule.keys.map(&:first).uniq %>
+          <% rule_ids.each do |rid| %>
+            <% get = ->(status) { @by_rule[[rid, status]].to_i } %>
+            <tr class="border-b border-gray-50">
+              <td class="px-4 py-2 font-medium"><%= @rules[rid]&.name || rid %></td>
+              <td class="px-4 py-2"><%= get.call("sent") %></td>
+              <td class="px-4 py-2"><%= get.call("delivered") %></td>
+              <td class="px-4 py-2"><%= get.call("read") %></td>
+              <td class="px-4 py-2"><%= get.call("replied") %></td>
+              <td class="px-4 py-2"><%= get.call("failed") %></td>
+            </tr>
+          <% end %>
+          <% if rule_ids.empty? %><tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">No sends yet.</td></tr><% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>

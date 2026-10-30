@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; margin: 0; padding: 0; background-color: #f2f2f2; }
+      p { margin-bottom: 20px; color: #333333; font-size: 18px; }
+      a { color: #ff6600; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .btn { background-color: #ff6600; color: #ffffff; padding: 12px 24px; border-radius: 5px; text-decoration: none; display: inline-block; transition: all 0.3s ease; }
+      .btn:hover { background-color: #4d4d4d; color: #ffffff; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; background-color: #ffffff; }
+      h1 { font-size: 24px; font-weight: 700; margin-top: 0; margin-bottom: 30px; color: #ff6600; text-align: center; }
+      .small-text { font-size: 18px; color: #333333; margin-bottom: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>WhatsApp branding update</h1>
+
+      <p>Hello <%= @name %>,</p>
+
+      <p>
+        Your plan has been changed to one that does not include a branded (onboarded) WhatsApp number. We have therefore removed your branded WhatsApp number from COD King.
+      </p>
+
+      <p>
+        WhatsApp notifications for your store will now be sent via the <strong>COD King default number</strong>. Your customers will continue to receive OTPs and other WhatsApp messages as before; only the sending number will be the default COD King number.
+      </p>
+
+      <p>
+        If you would like to use your own branded WhatsApp number again, you can upgrade to our <strong>Enterprise</strong> or <strong>India Budget</strong> plan. Once you upgrade, you can get an onboarded number and configure it in the app.
+      </p>
+
+      <p style="text-align: center;">
+        <a href="<%= @subscription_url %>" target="_blank" class="btn">View subscription plans</a>
+      </p>
+
+      <p>
+        If you have any questions, our team is here to help.
+      </p>
+
+      <p style="text-align: center;">
+        <a href="<%= @crisp_url %>" target="_blank" class="btn">Chat with us</a>
+      </p>
+
+      <p class="small-text">Best regards,</p>
+      <p class="small-text">The COD King Team</p>
+    </div>
+  </body>
+</html>

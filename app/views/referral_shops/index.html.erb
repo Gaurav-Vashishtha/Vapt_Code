@@ -1,0 +1,71 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Shops - Referral Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">My Shops</h1>
+      <%= link_to "Add New Shop", new_referral_shop_path, 
+                  class: "bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" %>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @shops.each do |shop| %>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-start mb-4">
+            <h3 class="text-xl font-bold text-gray-800"><%= shop.shop_domain %></h3>
+            <span class="<%= shop.active? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-2 py-1 rounded-full text-xs font-medium">
+              <%= shop.active? ? 'Active' : 'Inactive' %>
+            </span>
+          </div>
+          
+          <div class="space-y-3 mb-4">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Revenue (30 days):</span>
+              <span class="font-semibold">$<%= number_with_precision(shop.total_revenue(:last_30_days), precision: 2) %></span>
+            </div>
+            
+            <div class="flex justify-between">
+              <span class="text-gray-600">Commission (30 days):</span>
+              <span class="font-semibold text-green-600">$<%= number_with_precision(shop.total_commission(:last_30_days), precision: 2) %></span>
+            </div>
+            
+            <div class="flex justify-between">
+              <span class="text-gray-600">Total Revenue:</span>
+              <span class="font-semibold">$<%= number_with_precision(shop.total_revenue(:all_time), precision: 2) %></span>
+            </div>
+            
+            <div class="flex justify-between">
+              <span class="text-gray-600">Total Commission:</span>
+              <span class="font-semibold text-green-600">$<%= number_with_precision(shop.total_commission(:all_time), precision: 2) %></span>
+            </div>
+          </div>
+          
+          <div class="flex space-x-2">
+            <%= link_to "View Details", referral_shop_path(shop),
+                        class: "flex-1 bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+    
+    <% if @shops.empty? %>
+      <div class="text-center py-12">
+        <div class="bg-white rounded-lg shadow-md p-8 max-w-md mx-auto">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">No Shops Yet</h3>
+          <p class="text-gray-600 mb-6">Start earning commissions by adding your first referral shop.</p>
+          <%= link_to "Add Your First Shop", new_referral_shop_path,
+                      class: "bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</body>
+</html>
+ERB

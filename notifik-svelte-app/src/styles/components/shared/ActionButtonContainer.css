@@ -1,0 +1,20 @@
+.action-button-container {
+  background: var(--address-selection-bg, #ffffff);
+  border-radius: var(--address-selection-border-radius-card, 8px);
+  border: 1px solid var(--address-selection-border-color, var(--hairline));
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom, 0));
+  overflow: hidden;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  margin-left: 0;
+  margin-right: 0;
+  margin-bottom: 0;
+}
+.action-button-container .button { margin: 0; width: 100%; }

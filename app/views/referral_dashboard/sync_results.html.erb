@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sync Results - Referral Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Flash Messages -->
+    <% if flash[:notice] %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+    
+    <% if flash[:alert] %>
+      <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Earnings Sync Results</h1>
+      <%= link_to "Back to Dashboard", referral_dashboard_path, 
+                  class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+    </div>
+    
+    <!-- Sync Results -->
+    <div class="space-y-6">
+      <% @sync_results.each do |result| %>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-gray-800">
+              <%= result[:shop].shop_domain %>
+            </h3>
+            <span class="<%= result[:success] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-3 py-1 rounded-full text-sm font-medium">
+              <%= result[:success] ? 'Success' : 'Failed' %>
+            </span>
+          </div>
+          
+          <% if result[:success] %>
+            <!-- Success Details -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div class="bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold text-gray-700">Total Revenue</h4>
+                <p class="text-2xl font-bold text-blue-600">
+                  $<%= number_with_precision(result[:earnings_data][:total_earnings] || 0, precision: 2) %>
+                </p>
+              </div>
+              
+              <div class="bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold text-gray-700">Total Commission</h4>
+                <p class="text-2xl font-bold text-green-600">
+                  $<%= number_with_precision(result[:total_commission] || 0, precision: 2) %>
+                </p>
+              </div>
+              
+              <div class="bg-gray-50 p-4 rounded">
+                <h4 class="font-semibold text-gray-700">Transactions</h4>
+                <p class="text-2xl font-bold text-gray-600">
+                  <%= result[:earnings_data][:total_transactions] || 0 %>
+                </p>
+              </div>
+            </div>
+            
+            <!-- Commission Breakdown -->
+            <% if result[:commission_data] && result[:commission_data].any? %>
+              <div class="mt-4">
+                <h4 class="font-semibold text-gray-700 mb-2">Commission Breakdown</h4>
+                <div class="space-y-2">
+                  <% result[:commission_data].each do |commission| %>
+                    <div class="flex justify-between items-center py-2 px-3 bg-gray-50 rounded">
+                      <div>
+                        <span class="font-medium capitalize">
+                          <%= commission[:transaction_type].to_s.humanize %>
+                        </span>
+                        <span class="text-sm text-gray-500">
+                          ($<%= number_with_precision(commission[:revenue_amount] || 0, precision: 2) %> × <%= commission[:commission_rate] || 0 %>%)
+                        </span>
+                      </div>
+                      <span class="font-bold text-green-600">
+                        $<%= number_with_precision(commission[:commission_amount] || 0, precision: 2) %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            
+            <!-- Sync Period Info -->
+            <% if result[:sync_period] %>
+              <div class="mt-4 text-sm text-gray-600">
+                <strong>Sync Period:</strong> 
+                <%= result[:sync_period][:from]&.strftime('%m/%d/%Y') || 'Unknown' %> - 
+                <%= result[:sync_period][:to]&.strftime('%m/%d/%Y') || 'Unknown' %>
+              </div>
+            <% end %>
+            
+          <% else %>
+            <!-- Error Details -->
+            <div class="bg-red-50 border border-red-200 rounded p-4">
+              <h4 class="font-semibold text-red-800 mb-2">Error Details</h4>
+              <p class="text-red-700"><%= result[:error] %></p>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+    
+    <!-- Summary -->
+    <div class="mt-8 bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Sync Summary</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="text-center">
+          <p class="text-2xl font-bold text-blue-600"><%= @sync_results&.count || 0 %></p>
+          <p class="text-gray-600">Total Shops</p>
+        </div>
+        
+        <div class="text-center">
+          <p class="text-2xl font-bold text-green-600"><%= @sync_results&.count { |r| r[:success] } || 0 %></p>
+          <p class="text-gray-600">Successful</p>
+        </div>
+        
+        <div class="text-center">
+          <p class="text-2xl font-bold text-red-600"><%= @sync_results&.count { |r| !r[:success] } || 0 %></p>
+          <p class="text-gray-600">Failed</p>
+        </div>
+      </div>
+      
+      <% if @sync_results&.any? { |r| r[:success] } %>
+        <div class="mt-6 text-center">
+          <div class="text-lg font-semibold text-green-600 mb-2">
+            Total Commission Earned: $<%= number_with_precision(@sync_results.select { |r| r[:success] }.sum { |r| r[:total_commission] || 0 }, precision: 2) %>
+          </div>
+        </div>
+      <% end %>
+      
+      <div class="mt-6 text-center">
+        <%= link_to "Sync Again", referral_sync_path, method: :post,
+                    class: "bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 mr-4" %>
+        <%= link_to "View Dashboard", referral_dashboard_path,
+                    class: "bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700" %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

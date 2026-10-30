@@ -1,0 +1,2 @@
+class PersistedSetting < ApplicationRecord
+end

@@ -1,0 +1,87 @@
+{
+  "text": {
+    "message": { "from": "919876543210", "id": "wamid.TEXT1", "timestamp": "1760600000", "type": "text", "text": { "body": "Where is my order?" } },
+    "expect": { "kind": "text", "body": "Where is my order?", "counts_for_window": true }
+  },
+  "image": {
+    "message": { "from": "919876543210", "id": "wamid.IMAGE1", "timestamp": "1760600010", "type": "image",
+                 "image": { "id": "media-image-1", "mime_type": "image/jpeg", "sha256": "abc", "caption": "Damaged box" } },
+    "expect": { "kind": "image", "body": "Damaged box", "media_id": "media-image-1", "counts_for_window": true }
+  },
+  "video": {
+    "message": { "from": "919876543210", "id": "wamid.VIDEO1", "timestamp": "1760600020", "type": "video",
+                 "video": { "id": "media-video-1", "mime_type": "video/mp4", "sha256": "def" } },
+    "expect": { "kind": "video", "body": null, "media_id": "media-video-1", "counts_for_window": true }
+  },
+  "audio": {
+    "message": { "from": "919876543210", "id": "wamid.AUDIO1", "timestamp": "1760600030", "type": "audio",
+                 "audio": { "id": "media-audio-1", "mime_type": "audio/ogg; codecs=opus", "sha256": "ghi", "voice": true } },
+    "expect": { "kind": "audio", "body": null, "media_id": "media-audio-1", "content": { "voice": true }, "counts_for_window": true }
+  },
+  "document": {
+    "message": { "from": "919876543210", "id": "wamid.DOC1", "timestamp": "1760600040", "type": "document",
+                 "document": { "id": "media-doc-1", "mime_type": "application/pdf", "sha256": "jkl", "filename": "invoice.pdf", "caption": "Invoice" } },
+    "expect": { "kind": "document", "body": "Invoice", "media_id": "media-doc-1", "file_name": "invoice.pdf", "counts_for_window": true }
+  },
+  "sticker": {
+    "message": { "from": "919876543210", "id": "wamid.STICKER1", "timestamp": "1760600050", "type": "sticker",
+                 "sticker": { "id": "media-sticker-1", "mime_type": "image/webp", "sha256": "mno", "animated": false } },
+    "expect": { "kind": "sticker", "body": null, "media_id": "media-sticker-1", "counts_for_window": true }
+  },
+  "location": {
+    "message": { "from": "919876543210", "id": "wamid.LOC1", "timestamp": "1760600060", "type": "location",
+                 "location": { "latitude": 28.6139, "longitude": 77.209, "name": "Home", "address": "Connaught Place, Delhi" } },
+    "expect": { "kind": "location", "body": "Home", "content": { "latitude": 28.6139, "longitude": 77.209, "name": "Home" }, "counts_for_window": true }
+  },
+  "contacts": {
+    "message": { "from": "919876543210", "id": "wamid.CONTACT1", "timestamp": "1760600070", "type": "contacts",
+                 "contacts": [{ "name": { "formatted_name": "Aman Gupta", "first_name": "Aman" }, "phones": [{ "phone": "+91 99999 11111", "wa_id": "919999911111", "type": "CELL" }] }] },
+    "expect": { "kind": "contacts", "body": "Aman Gupta", "counts_for_window": true }
+  },
+  "reaction": {
+    "message": { "from": "919876543210", "id": "wamid.REACT1", "timestamp": "1760600080", "type": "reaction",
+                 "reaction": { "message_id": "wamid.TEXT1", "emoji": "👍" } },
+    "expect": { "kind": "reaction", "body": null, "content": { "target_meta_message_id": "wamid.TEXT1" }, "counts_for_window": false }
+  },
+  "button": {
+    "message": { "from": "919876543210", "id": "wamid.BUTTON1", "timestamp": "1760600090", "type": "button",
+                 "context": { "from": "15550001111", "id": "wamid.OUTBOUND1" },
+                 "button": { "payload": "cod_confirm", "text": "Confirm order" } },
+    "expect": { "kind": "button", "body": "Confirm order", "content": { "payload": "cod_confirm" }, "reply_to": "wamid.OUTBOUND1", "counts_for_window": true }
+  },
+  "interactive_button": {
+    "message": { "from": "919876543210", "id": "wamid.INTB1", "timestamp": "1760600100", "type": "interactive",
+                 "interactive": { "type": "button_reply", "button_reply": { "id": "track", "title": "Track order" } } },
+    "expect": { "kind": "interactive", "body": "Track order", "content": { "payload": "track" }, "counts_for_window": true }
+  },
+  "interactive_list": {
+    "message": { "from": "919876543210", "id": "wamid.INTL1", "timestamp": "1760600110", "type": "interactive",
+                 "interactive": { "type": "list_reply", "list_reply": { "id": "size_m", "title": "Medium", "description": "M" } } },
+    "expect": { "kind": "interactive", "body": "Medium", "content": { "payload": "size_m" }, "counts_for_window": true }
+  },
+  "interactive_flow": {
+    "message": { "from": "919876543210", "id": "wamid.NFM1", "timestamp": "1760600120", "type": "interactive",
+                 "interactive": { "type": "nfm_reply", "nfm_reply": { "name": "flow", "body": "Sent", "response_json": "{\"flow_token\":\"x\"}" } } },
+    "expect": { "kind": "interactive", "body": "Form submitted", "counts_for_window": true }
+  },
+  "order": {
+    "message": { "from": "919876543210", "id": "wamid.ORDER1", "timestamp": "1760600130", "type": "order",
+                 "order": { "catalog_id": "cat-1", "text": "Please deliver soon", "product_items": [{ "product_retailer_id": "sku1", "quantity": 2, "item_price": 499, "currency": "INR" }] } },
+    "expect": { "kind": "order", "body": "Cart sent", "content": { "items_count": 2 }, "counts_for_window": true }
+  },
+  "system": {
+    "message": { "from": "919876543210", "id": "wamid.SYS1", "timestamp": "1760600140", "type": "system",
+                 "system": { "body": "User changed number", "type": "user_changed_number", "new_wa_id": "919876500000" } },
+    "expect": { "kind": "system", "body": "User changed number", "counts_for_window": false }
+  },
+  "unsupported": {
+    "message": { "from": "919876543210", "id": "wamid.UNSUP1", "timestamp": "1760600150", "type": "unsupported",
+                 "errors": [{ "code": 131051, "title": "Message type unknown" }] },
+    "expect": { "kind": "unsupported", "body": null, "content": { "meta_type": "unsupported" }, "counts_for_window": false }
+  },
+  "referral_text": {
+    "message": { "from": "919876543210", "id": "wamid.REF1", "timestamp": "1760600160", "type": "text", "text": { "body": "Is this available?" },
+                 "referral": { "source_url": "https://fb.me/ad", "source_type": "ad", "source_id": "123", "headline": "Festive sale" } },
+    "expect": { "kind": "text", "body": "Is this available?", "content": { "referral": { "headline": "Festive sale" } }, "counts_for_window": true }
+  }
+}

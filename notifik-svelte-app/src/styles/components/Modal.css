@@ -1,0 +1,186 @@
+/* Full-screen overlay with blur (matching notifik-js-app) */
+.modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  /* Use CSS variable set by JavaScript (contains pixel value) */
+  height: var(--visual-viewport-height) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(3px) !important;
+  -webkit-backdrop-filter: blur(3px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2147483647 !important;
+  font-family: var(--font-family-base) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  animation: modalOverlayIn var(--motion-medium, 260ms) var(--ease-smooth) forwards;
+  isolation: isolate;
+}
+
+/* Scoped input field font size - only applies within modal popup */
+.modal-overlay input[type="text"],
+.modal-overlay input[type="tel"],
+.modal-overlay input[type="email"],
+.modal-overlay input[type="number"],
+.modal-overlay textarea {
+  font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+}
+
+@keyframes modalOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal card - Uses flexbox; open animation via Tailwind animate-modal-in */
+.modal-card {
+  position: relative;
+  width: min(480px, 100vw);
+  min-width: 0;
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  margin: 0 auto;
+}
+
+/* Content area with smooth scrolling */
+.modal-content {
+  flex: 1;
+  overflow: visible;
+  position: relative;
+  min-height: 0;
+  width: 100%;
+  /* Base padding - mobile will override with minimal padding */
+  padding-bottom: max(env(safe-area-inset-bottom, 0), 150px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* When any BottomSlider is open, the modal itself must NOT scroll.
+   This avoids the “second scrollbar” + background footer peeking underneath. */
+html[ddata-bottom-slier-open="true"] .modal-card,
+html[data-bottom-slider-open="true"] .modal-content,
+html[data-bottom-slider-open="true"] .screen-transition {
+  overflow: hidden !important;
+}
+
+/* Smooth screen transitions (consistent with sheet/modal motion) */
+.screen-transition {
+  width: 100%;
+  min-height: 100%;
+  flex: 1;
+  position: relative;
+  z-index: 2;
+  opacity: 1 !important;
+  left: 0;
+  animation: screenSlideIn var(--motion-medium, 260ms) var(--ease-smooth) forwards;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+}
+
+/* Mobile and Desktop styles are in separate files:
+ * - Modal.mobile.css (for viewport <= 640px)
+ * - Modal.desktop.css (for viewport >= 641px)
+ */
+
+@keyframes screenSlideIn {
+  from {
+    opacity: 0.96;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalCardIn {
+  from {
+    opacity: 0.94;
+    transform: scale(0.98) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay {
+    animation-duration: 0.01ms;
+  }
+  .modal-card {
+    animation-duration: 0.01ms;
+  }
+  .screen-transition {
+    animation-duration: 0.01ms;
+  }
+}
+
+/* Smooth scrollbar (matching notifik-js-app) */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Error state */
+.error-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Phone screen background when OTP is shown */
+.phone-screen-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 1;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Ensure OTP screen appears above background */
+.screen-transition {
+  position: relative;
+  z-index: 2;
+}
+
+/* Mobile and Desktop styles are in separate files:
+ * - Modal.mobile.css (for viewport <= 640px)
+ * - Modal.desktop.css (for viewport >= 641px)
+ */

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Reprocess Partial Order — Support Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Reprocess Partial Order</h1>
+          <p class="text-sm text-gray-500">Re-run the partial-order-edit flow for a single order (flow version 2 only)</p>
+        </div>
+        <%= link_to "← Back to dashboard", support_dashboard_path,
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Form -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+      <%= form_with url: support_dashboard_reprocess_partial_order_path, method: :post, local: true do |f| %>
+        <div class="grid grid-cols-1 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Shopify domain</label>
+            <%= f.text_field :shopify_domain, value: @domain,
+                placeholder: "example.myshopify.com",
+                class: "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500" %>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Shopify order ID</label>
+            <%= f.text_field :shopify_order_id, value: @order_id,
+                placeholder: "5234376540458",
+                class: "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500" %>
+            <p class="text-xs text-gray-400 mt-1">Numeric order ID (not the order name like #1001).</p>
+          </div>
+          <div>
+            <%= f.submit "Reprocess",
+                class: "inline-flex items-center rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Result -->
+    <% if @result.present? %>
+      <% ok = @result[:ok] %>
+      <div class="rounded-lg border p-5 <%= ok ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200' %>">
+        <div class="flex items-start gap-3">
+          <span class="text-lg"><%= ok ? '✅' : '⚠️' %></span>
+          <div class="flex-1">
+            <p class="font-semibold <%= ok ? 'text-emerald-800' : 'text-red-800' %>">
+              <%= ok ? 'Done' : 'Not processed' %>
+            </p>
+            <p class="text-sm <%= ok ? 'text-emerald-700' : 'text-red-700' %> mt-1"><%= @result[:message] %></p>
+
+            <% oc = @result[:order_confirmation] %>
+            <% if oc.present? %>
+              <dl class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                <div><dt class="text-gray-500 inline">OrderConfirmation ID:</dt> <dd class="inline font-medium text-gray-900">#<%= oc.id %></dd></div>
+                <div><dt class="text-gray-500 inline">Order ID:</dt> <dd class="inline font-medium text-gray-900"><%= oc.order_id %></dd></div>
+                <div><dt class="text-gray-500 inline">Status:</dt> <dd class="inline font-medium text-gray-900"><%= oc.status %></dd></div>
+                <% if oc.respond_to?(:order_status_url) && oc.order_status_url.present? %>
+                  <div class="sm:col-span-2">
+                    <dt class="text-gray-500 inline">Order URL:</dt>
+                    <dd class="inline"><%= link_to oc.order_status_url, oc.order_status_url, target: "_blank", class: "text-sky-700 hover:underline break-all" %></dd>
+                  </div>
+                <% end %>
+              </dl>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="mt-6 text-xs text-gray-400 leading-relaxed">
+      <p><strong>How it works:</strong> If an OrderConfirmation already exists for the order, the partial-order-edit job is re-run inline (normal mode) and the final status is shown above. If no OrderConfirmation exists, the order is fetched from Shopify and the create job is run inline — that job enqueues the partial-order-edit job to run in the background. Shops not on partial_payment_flow_version 2 are skipped without processing.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

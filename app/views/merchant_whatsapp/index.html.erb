@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merchant WhatsApp</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Merchant WhatsApp</h1>
+          <p class="text-sm text-gray-500">Lifecycle WhatsApp notifications to merchants</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <%= link_to "Sender", merchant_whatsapp_sender_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Templates", merchant_whatsapp_templates_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Queue", merchant_whatsapp_queue_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Reports", merchant_whatsapp_reports_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if flash[:notice].present? %><div class="mb-4 rounded-md bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm text-emerald-800"><%= flash[:notice] %></div><% end %>
+    <% if flash[:alert].present? %><div class="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"><%= flash[:alert] %></div><% end %>
+
+    <div class="mb-6 rounded-md px-4 py-3 text-sm <%= @live ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-amber-50 border border-amber-200 text-amber-800' %>">
+      <% if @live %>
+        <strong>LIVE</strong> — messages are sending. Sender: <%= @account&.ready_to_send? ? "ready (#{@account.display_phone_number})" : "not ready" %>.
+      <% elsif @enabled %>
+        <strong>PREVIEW (dry-run)</strong> — rules run and the queue fills, but nothing sends. Set <code>MERCHANT_WA_DRY_RUN=off</code> to go live.
+      <% else %>
+        <strong>OFF</strong> — set <code>MERCHANT_WA_ENABLED=on</code> to build the preview queue; nothing sends.
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-4 mb-6">
+      <% %w[queued sent delivered read replied failed].each do |s| %>
+        <div class="bg-white rounded-lg p-4 border border-gray-200">
+          <div class="text-2xl font-bold text-gray-900"><%= @funnel[s].to_i %></div>
+          <div class="text-sm text-gray-500 capitalize"><%= s %> (30d)</div>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 mb-6">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <h2 class="font-medium text-gray-900">Rules</h2>
+        <div class="flex items-center gap-2">
+          <%= button_to "Run scheduler now", merchant_whatsapp_run_scheduler_path, method: :post, class: "text-sm bg-gray-900 text-white rounded px-3 py-1.5" %>
+          <%= link_to "+ New rule", merchant_whatsapp_rule_form_path, class: "text-sm bg-sky-600 text-white rounded px-3 py-1.5" %>
+        </div>
+      </div>
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-gray-500 border-b border-gray-100">
+          <th class="px-4 py-2">Rule</th><th class="px-4 py-2">Category</th><th class="px-4 py-2">Trigger</th><th class="px-4 py-2">Template</th><th class="px-4 py-2">Active</th><th class="px-4 py-2"></th>
+        </tr></thead>
+        <tbody>
+          <% @rules.each do |rule| %>
+            <tr class="border-b border-gray-50">
+              <td class="px-4 py-2 font-medium text-gray-900"><%= rule.name %></td>
+              <td class="px-4 py-2"><%= rule.category %></td>
+              <td class="px-4 py-2"><%= rule.trigger_type == "scheduled" ? "#{rule.date_rule_value}#{rule.date_rule_type.to_s.include?('hours') ? 'h' : 'd'} after #{rule.date_rule_column}" : "event: #{rule.event_key}" %></td>
+              <td class="px-4 py-2"><%= rule.owner_whatsapp_template&.name || "—" %></td>
+              <td class="px-4 py-2"><span class="text-xs px-2 py-0.5 rounded-full <%= rule.active? ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500' %>"><%= rule.active? ? "on" : "off" %></span></td>
+              <td class="px-4 py-2 text-right">
+                <%= link_to "Edit", merchant_whatsapp_rule_form_path(id: rule.id), class: "text-sky-600 hover:underline mr-3" %>
+                <%= button_to (rule.active? ? "Pause" : "Activate"), merchant_whatsapp_toggle_rule_path(id: rule.id), method: :post, class: "text-gray-600 hover:underline inline" %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @rules.empty? %><tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">No rules yet.</td></tr><% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-sm text-gray-500">
+      Queue: <%= @queue_counts.map { |k, v| "#{v} #{k}" }.join(" · ").presence || "empty" %> · Templates: <%= @templates_count %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+/* Desktop-specific styles for AddressFormScreen component */
+/* Applied when viewport width >= 641px */
+
+@media (min-width: 641px) {
+  /* Keep the footer fixed via layout (not sticky). The form itself scrolls. */
+  .address-form-button-container {
+    position: relative !important;
+    bottom: auto !important;
+  }
+
+  /* Slightly roomier padding on larger screens */
+  .frame-1171276906,
+  .frame-11712769073,
+  .frame-11712769092 {
+    padding: 16px;
+  }
+  .frame-1171276906 {
+    padding-top: 16px !important;
+  }
+}

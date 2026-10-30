@@ -1,0 +1,64 @@
+.otp-input-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 10%;
+  width: 100%;
+}
+.otp-input-wrapper {
+  flex: 1 1 0;
+  height: 40px;
+  position: relative;
+  cursor: text;
+}
+.otp-box {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--color-blue) 22%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease;
+}
+/* Focus/active: a single blue border, no ring — same as the phone input. */
+.otp-box.active {
+  border-color: var(--color-blue);
+}
+.otp-box.error {
+  background: #fff8f8;
+  border-color: var(--color-error, #eb0d14);
+}
+.otp-box.error.active {
+  border-color: var(--color-error, #eb0d14);
+}
+.otp-input-visible {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-family: var(--font-family-base);
+  font-weight: 600;
+  text-align: center;
+  color: var(--color-text-primary, #121212);
+  outline: none;
+  caret-color: var(--color-blue);
+  font-variant-numeric: tabular-nums;
+  overflow: hidden;
+  text-overflow: clip;
+}
+/* Kill the global input focus ring — the blue border on .otp-box is the only cue. */
+.otp-input-visible:focus,
+.otp-input-visible:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+.otp-box.error .otp-input-visible {
+  color: var(--color-error, #eb0d14);
+  caret-color: var(--color-error, #eb0d14);
+}

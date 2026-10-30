@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+hi:
+  hello: हैलो दुनिया
+  admin:
+    getting_started: आरंभ करने की मार्गदर्शिका
+    watch_video_msg: वीडियो देखें, एक सत्र बुक करें या सीओडी किंग के साथ सही शुरू करने के लिए हमारे साथ चैट करें!
+    watch_video: वीडियो देखें
+    book_session: पुस्तक सत्र
+    chat_with_us: अब हमारे साथ चैट करें
+    settings: सेटिंग्स
+    log: लॉग
+    step1: चरण 1 - कॉड ऑर्डर रखा गया
+    step1_desc: ग्राहक COD ऑर्डर देता है। ऐप इसे COD ऑर्डर के रूप में पहचानता है।
+    step2: चरण 2 - ऐप ग्राहक को एसएमएस के माध्यम से ओटीपी भेजता है
+    step2_desc: यूनीक OTP ग्राहक के मोबाइल नंबर पर भेजा जाता है।
+    step3: चरण 3 - थैंक यू पेज में दिखाया गया ओटीपी बॉक्स
+    step3_desc: ग्राहक ओटीपी दर्ज करता है और सत्यापन पर क्लिक करता है।
+    step4: चरण 4 - इस टैग के आधार पर अपने ऑर्डर फ़िल्टर करें।
+    step4_desc: ग्राहक COD ऑर्डर देता है। ऐप इसे COD ऑर्डर के रूप में पहचानता है।
+    step5: चरण 5 - शिपिंग लागत बचाई गई
+    step5_desc: नकली आदेशों को अस्वीकार करके शिपिंग लागत बचाएं बचाया गया पैसा कमाया गया पैसा है।
+    logs: लॉग्स
+    order_logs: ऑर्डर लॉग
+    subscription: सब्सक्रिप्शन
+    settings_saved: सेटिंग्स सहेजी गई
+    settings_saved_msg: "कुछ ही मिनटों में आपके स्टोर में परिवर्तन दिखाई देंगे।"
+    activate_sms: <b>OTP</b> पुष्टिकरण सक्रिय करें
+    activate_cod_fees: <b>COD शुल्क</b>सक्रिय करें
+    sms_placeholder: 123456 सीओडी की पुष्टि करने के लिए आपका एक बार पासवर्ड है
+    ios_code_error: आईओएस कीबोर्ड में ओटीपी दिखाने के लिए टेम्पलेट में “कोड” कीवर्ड शामिल होना चाहिए
+    activate_ivr: <b>आईवीआर</b> पुष्टिकरण सक्रिय करें
+    intro_msg: परिचय संदेश
+    intro_msg_placeholder: आदेश देने के लिए धन्यवाद।
+    order_confirm_label: ऑर्डर पुष्टिकरण संदेश
+    order_confirm_placeholder: कृपया अपने ऑर्डर की पुष्टि करने के लिए 1 दबाएँ।
+    order_confirm_help: आदेश की पुष्टि करने के लिए 1 प्रेस करने के लिए उपयोगकर्ता गाइड।
+    order_confirm_error: पुष्टि करें संदेश में ऑर्डर पुष्टिकरण के लिए “1" शामिल होना चाहिए
+    order_cancel_label: आदेश रद्दीकरण संदेश
+    order_cancel_placeholder: अपना ऑर्डर रद्द करने के लिए कृपया 2 दबाएँ।
+    order_cancel_help: आदेश रद्द करने के लिए 2 प्रेस करने के लिए उपयोगकर्ता गाइड।
+    order_cancel_error: इस संदेश में ऑर्डर रद्दीकरण के लिए “2" शामिल होना चाहिए।
+    test_sms: "परीक्षण एसएमएस अधिसूचना"
+    enter_test_number: परीक्षण संख्या दर्ज करें
+    sms_sent_check_mobile: एसएमएस भेजा गया। कृपया अपने मोबाइल की जाँच करें
+    enter_country_code: यहां परीक्षण करते समय कृपया अपने देश कोड के साथ नंबर दर्ज करें
+    number_cc_example: उदा. %{number}
+    send_sms: एसएमएस भेजें
+    message_template: संदेश टैम्प्लेट
+    test_ivr: टेस्ट आईवीआर कॉल
+    cod_fees: में COD शुल्क के लिए राशि
+    cod_fees_help: यदि ग्राहक COD ऑर्डर देता है, तो आप जिस राशि को जोड़ना चाहते हैं, वह राशि।
+    cod_label: COD शुल्क के लिए संलग्न करने के लिए लेबल
+    cod_label_help: अतिरिक्त शुल्क के लिए प्रदर्शित किया जाने वाला लेबल
+    cod_instruction: COD वितरण अनुदेश
+    cod_instruction_help: यह संदेश ग्राहकों को धन्यवाद पेज में दिखाया जाएगा जब ऑर्डर पूरा हो जाएगा।
+    please_check_mobile: कृपया अपने मोबाइल की जाँच करें
+    call_now: अभी कॉल करें
+    unsaved: सहेजे नहीं गए परिवर्तन
+    x_chars_used: "%{count} / %{total} अक्षर इस्तेमाल किया"
+    deactivate: निष्क्रिय करें
+    save: सहेजें
+    discard: त्यागें
+    free_plan: 'नि: शुल्क योजना'
+    pro_plan: प्रो प्लान
+    vip_plan: वीआईपी योजना
+    feature_1: '$0.02 प्रति एसएमएस शुरू होता है'
+    feature_2: '$0.04 प्रति आईवीआर शुरू होता है'
+    feature_3: शुरू करने के लिए 1 से 1 कॉल
+    feature_4: प्राथमिकता समर्थन
+    feature_1_pro: दुकानों के लिए प्रति माह 100 से अधिक सीओडी आदेश
+    custom_plan: नेटवर्क प्रदाता एकीकरण योजना
+    subscribe: सदस्यता लें
+    subscribed: सब्सक्राइब किया
+    recommended: अनुशंसित
+    sms_template_default: "{{otp}} पर रखा सीओडी आदेश की पुष्टि करने के लिए अपने सत्यापन कोड है %{store}"
+    retry_template_default: "%{store}पर COD ऑर्डर देने के लिए धन्यवाद। कृपया लिंक {{link}} बर्डच पर जाकर अपने आदेश की पुष्टि करें"
+    prepaid_template_default: "लिंक पर क्लिक करके अपने आदेश को प्रीपेड में परिवर्तित करें। {{link}}"
+    order_confirm_template_default: "%{store}पर आपकी खरीदारी के लिए धन्यवाद। आपके आदेश की पुष्टि हो गई है - ऑर्डर नंबर {{number}}"
+    fulfilment_template_default: "आपका ऑर्डर %{store} से शिप कर दिया गया है - अपने ऑर्डर को {{tracking_url}}पर ट्रैक करें"
+    ivr_introduction: "पर आदेश देने के लिए धन्यवाद %{domain}।"
+    ivr_confirm_message: कृपया अपने ऑर्डर की पुष्टि करने के लिए 1 दबाएँ।
+    ivr_cancel_message: अपना ऑर्डर रद्द करने के लिए कृपया 2 दबाएँ।
+    confirmed_thank_you: आपका आदेश पुष्टि की है, धन्यवाद।
+    cancelled_thank_you: आपका आदेश रद्द कर दिया गया है, धन्यवाद।
+    invalid_thank_you: अमान्य विकल्प, फिर से प्रयास करें, धन्यवाद।
+    no_logs_yet: अभी तक कोई लॉग नहीं
+    try_changing_search: खोज शब्द बदलने का प्रयास करें
+    order: आदेश
+    date: तारीख़
+    customer: ग्राहक
+    total: कुल
+    status: स्थिति
+    network: नेटवर्क
+    prev: पिछला (जम्मू)
+    next: अगला (K)
+    no_resource_found: कोई %{resource} नहीं मिला
+    search_resource: ऑर्डर नंबर या ग्राहक नाम के साथ %{resource} खोजें
+    all: सब
+    enter_valid_phone: कृपया एक वैध फ़ोन नंबर दर्ज करें
+    enable_region: कृपया अपने क्षेत्र को सक्षम करने के लिए हमसे संपर्क करें
+    x_total_orders: "%{count} कुल आदेश"
+    x_verified_orders: "%{count} सत्यापित आदेश"
+    x_pending_orders: "%{count} लंबित आदेश"
+    x_prepaid_orders: "%{count} प्रीपेड ऑर्डर"
+    x_cancelled_orders: "%{count} रद्द किए गए ऑर्डर"
+    order_stats: ऑर्डर आँकड़े
+    boost_checkout: निर्बाध चेकआउट
+    recommended_setup_to: चेकआउट अनुभव को बेहतर बनाने के लिए अनुशंसित सेटअप
+    copy: नक़ल करें
+    copied: नक़ल
+    starts: प्रारंभ
+    ends: समाप्त होता है
+    recommended_steps: अनुशंसित कदम
+    checkout_settings: चेकआउट सेटिंग्स पर जाएं
+    additional_scripts_text_box: और नीचे दिए गए पाठ को <b>अतिरिक्त स्क्रिप्ट</b> टेक्स्ट बॉक्स में पेस्ट करें
+    one_time_pass: एक बार पासवर्ड
+    customer_first_name: ग्राहक का पहला नाम
+    order_total_amount: कुल राशि ऑर्डर करें
+    link_text: एक क्लिक आदेश पुष्टिकरण लिंक
+    available_variables: संदेश टेम्पलेट में पेस्ट करने के लिए उपलब्ध चर
+    free_limit_exhausted: 'नि: शुल्क परीक्षण सीमा समाप्त हो गई। नवीनीकृत करने के लिए कृपया हमसे संपर्क करें।'
+    x_success_sms: "%{count} एसएमएस"
+    x_billed_sms: "%{count} बिल एसएमएस"
+    x_failed_sms: "%{count} एसएमएस"
+    usage_charged_created: "उपयोग शुल्क बनाया गया"
+    x_ivr: "%{count} आईवीआर"
+    refresh: रिफ्रेश
+    complete_setup: सिर्फ एक आखिरी कदम
+    complete_setup_msg: सेटिंग्स सहेजी गई। सेटअप पूरा करने के लिए, कृपया <b>सदस्यता लें यहाँ</b>।
+    view_plans: प्लान्स देखें
+    prepay_template: प्रीपे टेम्पलेट
+    send_payment_link: भुगतान लिंक
+    submit: सबमिट करें
+    bulk_submit: बल्क सबमिट करें
+    amount: रकम
+    date_time: दिनांक और समय
+    mobile: मोबाइल
+    something_went_wrong: कुछ गलत हो गया, बाद में फिर से कोशिश करें।
+    message_sent: संदेश भेजा गया
+    send: भेजें
+    cancel: रद्द करें
+    upto_x_orders: प्रति माह %{count} ऑर्डर तक
+    unlimited_orders: सत्यापन के लिए असीमित संख्या में ऑर्डर
+    export: एक्सपोर्ट
+    emailed_orders: ईमेल पर भेजे गए लॉग
+    comma_separated_order_ids: कॉमा से अलग ऑर्डर आईडी
+    order_ids: "आईडी दर्ज करें जैसे: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: बल्क वेरीफाई
+    bulk_verify_template: "हाय %{name}, कृपया अपने आदेश को सत्यापित करने के लिए लिंक %{link} पर क्लिक करें #%{number} में से %{amount} को %{store}पर रखा गया"
+    bulk_processing_title: थोक आदेशों को संसाधित करना
+    bulk_processing_desc: आप कुछ समय में लॉग में अपने आदेश देखेंगे।
+    bulk_processing_error: कुछ गलत हो गया
+    bulk_processing_error_desc: कृपया फिर से कोशिश करें, या अगर समस्या बनी रहती है तो हमारे पास पहुंचें।
+    reach_out_title: सुविधा अभी तक सक्षम नहीं है।
+    reach_out_desc: कृपया इस सुविधा को सक्षम करने के लिए हमसे संपर्क करें।
+    order_cancelled: आप ऑर्डर रद्द कर दिया गया है
+    order_details_title: ऑर्डर विवरण (कृपया रद्द करें या पुष्टि करें पर क्लिक करें)
+    react_out_to_us: कृपया थोक आदेशों के लिए हमसे संपर्क करें
+    react_out_locked_title: अनुमोदन आवश्यक है।
+    react_out_locked_desc: कृपया अपने खाते को सक्षम करने के लिए <b>ईमेल या चैट</b> के माध्यम से हमसे संपर्क करें।
+    view_cost: एसएमएस कॉस्ट देखें।
+    pricing_for_country: "ऐप का डिफ़ॉल्ट एसएमएस चार्ज <b>%{country}</b> के लिए <b>$%{charge}</b> प्रति एसएमएस है"
+    view_complete_pricing: सभी देशों के लिए मूल्य निर्धारण तालिका देखें
+    chat_for_bulk_integration: थोक मूल्य निर्धारण या कस्टम एकीकरण के लिए हमारे साथ चैट करें।
+    advance_settings: उन्नत सेटिंग
+    link_settings: सत्यापन लिंक सेटिंग
+    show_cancel_button: रद्द करें बटन दिखाएं
+    show_cancel_button_help: केवल लिंक सत्यापन प्रवाह के दौरान समर्थित है।
+    auto_verify: ऑटो सत्यापित करें
+    auto_verify_help: सत्यापन लिंक पर क्लिक करने पर ऑटो सत्यापित करें।
+    otp_settings: ओटीपी सेटिंग
+    max_retries: अधिकतम एसएमएस प्रति ऑर्डर रिट्राई करता है
+    otp_wait_time: OTP प्रतीक्षा समय फिर से भेजें
+    otp_fallback_text: ओटीपी समर्थन या फॉलबैक टेक्स्ट
+    otp_fallback_text_help: एचटीएमएल समर्थित
+    network_provider_integration: नेटवर्क प्रदाता एकीकरण
+    network_provider: नेटवर्क प्रोवाइडर
+    required: ज़रूरी
+    phone_number: फ़ोन नम्बर
+    integration_cost_reduce: एकीकरण आपकी समग्र लागत को लगभग एक तिहाई तक कम कर देता है
+    need_help: मदद चाहिए?
+    create_x_account: '%{brand} खाता बनाएँ'
+    x_configuration: "%{brand} कॉन्फ़िगरेशन"
+    need_more_sms: सदस्यता लेने और मूल्य निर्धारण करने के लिए हमारे साथ चैट करें।
+    price_for_country: "$%{price} प्रति संदेश %{country}में"
+    sms_cost_included: एसएमएस की लागत शामिल है
+    sms_cost_extra: आप प्रदाता को सीधे एसएमएस के लिए भुगतान कर सकते हैं
+    view: देखें
+    order_number: ऑर्डर नंबर
+    get_access_token: एक्सेस टोकन जेनरेट करें
+    goto_orders: ऑर्डर पर जाएं
+    whatsapp_approval_request_sent: WhatsApp अनुमोदन अनुरोध भेजा गया
+    whatsapp_approval_request_sent_failure: 'असफल: - WhatsApp अनुमोदन अनुरोध विफल'
+  script:
+    submit: सबमिट करें
+    mobile_phone_number: 0 और देश कोड के बिना संख्या
+    enter_valid_phone: वैध फ़ोन नंबर दर्ज करें
+    verify_for_smooth_delivery: अपने COD ऑर्डर की आसान डिलीवरी के लिए कृपया अपना फ़ोन नंबर सत्यापित करें
+    click_verify_link: एक लिंक आपके नंबर पर भेजा गया है - <b>%{number}</b>
+    enter_otp_msg: "OTP पर भेजा दर्ज करें <b>%{number}</b>"
+    enter_otp: ओटीपी दर्ज करें
+    change: बदलें
+    invalid_otp: 'अवैध OTP, कृपया पुन: प्रयास करें'
+    resend_otp: ओटीपी फिर से भेंट करें
+    confirm_order: <b>सीओडी</b>(डिलीवरी पर नकद) आदेश की पुष्टि करें
+    sending: "भेजा जा रहा है..."
+    order_being_processed: आपका ऑर्डर संसाधित किया जा रहा है।
+    if_not_redirected: यदि आप स्वचालित रूप से रीडायरेक्ट नहीं होते हैं, तो इस पृष्ठ को रीफ्रेश करें।
+    resend_in_x_seconds: "ओटीपी को %{count} सेकंड में फिर से भेजें"
+    max_retries_reached: अधिकतम रीट्रीज़ सीमा तक पहुंच गई।
+    order_details: ऑर्डर का विवरण
+    send_code_on_whatsapp: WhatsApp पर कोड प्राप्त करें

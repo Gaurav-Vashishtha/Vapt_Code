@@ -1,0 +1,295 @@
+.payment-screen-wrapper .login-info-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 2px;
+}
+
+.payment-screen-wrapper {
+  padding-bottom: 45px !important;
+}
+
+.payment-brand-footer {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: 16px;
+}
+
+.shipping-section {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--hairline);
+  padding: 8px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shipping-section:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-color: var(--hairline);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  color: #404040;
+  font-size: 14px;
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.shipping-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.original-shipping-price {
+  color: #404040;
+  font-size: 14px;
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  text-decoration: line-through;
+  line-height: 18px;
+}
+
+.shipping-cost {
+  color: #404040;
+  font-size: 14px;
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.free-badge {
+  padding: 4px 8px;
+  background: #e6f8eb;
+  border-radius: 16px;
+  color: #009826;
+  font-size: 12px;
+  font-family: var(--font-family-base);
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 640px) {
+  .shipping-section {
+    padding: 8px 12px 12px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .section-title {
+    font-size: 13px;
+  }
+
+  .original-shipping-price,
+  .shipping-cost {
+    font-size: 13px;
+  }
+
+  .free-badge {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shipping-section {
+    padding: 8px 12px 12px;
+    border-radius: 6px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .original-shipping-price,
+  .shipping-cost {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .free-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    line-height: 14px;
+  }
+}
+
+/* Sticky button container - combined Continue and Logout in one card */
+/* Mobile: sticky at bottom, Desktop: normal flow inside content */
+/* z-index above footer (T&C) so it never overlaps the button when scrolling */
+.sticky-button-container {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  padding-bottom: calc(8px + env(safe-area-inset-bottom, 0));
+  overflow: visible;
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  flex-shrink: 0;
+  isolation: isolate;
+  /* Break out of screen-content padding for full-width edge-to-edge */
+  /* margin-left: -14px;
+  margin-right: -14px; */
+  /* width: calc(100% + 28px); */
+  max-width: calc(100% + 28px);
+  box-sizing: border-box;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+  margin-top: 16px;
+  margin-bottom: 0;
+}
+
+.login-info-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: none;
+}
+
+.login-info-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: baseline;
+}
+
+.login-label {
+  color: #8c8c8c;
+  font-size: 11px;
+  font-family: var(--font-family-base);
+  font-weight: 400;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.phone-number {
+  color: #404040;
+  font-size: 14px;
+  font-family: var(--font-family-base);
+
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: white;
+  box-shadow: 0px 1px 4px rgba(24.73, 32.61, 60.56, 0.08);
+  border-radius: 6px;
+  border: 1px solid #656565;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+}
+
+.logout-button:hover {
+  background: #f5f5f5;
+  box-shadow: 0px 2px 8px rgba(24.73, 32.61, 60.56, 0.12);
+}
+
+.logout-button:active {
+  background: #eeeeee;
+  box-shadow: 0px 1px 4px rgba(24.73, 32.61, 60.56, 0.1);
+}
+
+.logout-icon {
+  flex-shrink: 0;
+  color: #404040;
+  width: 14px;
+  height: 14px;
+}
+
+.logout-text {
+  color: #404040;
+  font-size: 12px;
+  font-family: var(--font-family-base);
+  font-weight: 600;
+  line-height: 21px;
+  white-space: nowrap;
+}
+
+.filled-button,
+.filled-button * {
+  box-sizing: border-box;
+}
+
+.filled-button {
+  background: #000000;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 40px;
+  position: relative;
+  box-shadow: var(
+    --neutral-shadow-02-box-shadow,
+    0px 1px 4px 0px rgba(25, 33, 61, 0.08)
+  );
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filled-button:active {
+  opacity: 0.9;
+}
+
+.filled-button:hover:not(:disabled) {
+  background: #333;
+}
+
+.filled-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.button-text {
+  color: #ffffff;
+  text-align: center;
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  line-height: 21px;
+  font-weight: 500;
+  position: relative;
+}
+
+/* Mobile styles are in PaymentScreen.mobile.css */

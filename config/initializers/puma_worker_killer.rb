@@ -1,0 +1,1 @@
+PumaWorkerKiller.enable_rolling_restart(3 * 3600) 

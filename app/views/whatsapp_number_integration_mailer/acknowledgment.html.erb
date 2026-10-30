@@ -1,0 +1,60 @@
+<!-- app/views/whatsapp_number_integration_mailer/acknowledgment.html.erb -->
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    .header { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .content { 
+      padding: 30px;
+      background: white;
+      border: 1px solid #e5e5e5;
+      border-radius: 0 0 8px 8px;
+    }
+    .details {
+      background: #f9f9f9;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>WhatsApp Number Integration Request Received</h1>
+  </div>
+  
+  <div class="content">
+    <p>Hi there,</p>
+    
+    <p>Thank you for requesting to integrate your WhatsApp number with Cod King. We've received your request and our team will get back to you soon.</p>
+    
+    <div class="details">
+      <h3>Your Request Details:</h3>
+      <p><strong>Contact Email:</strong> <%= @integration_request.email %></p>
+      <p><strong>Phone Number:</strong> <%= @integration_request.phone_number %></p>
+      <% if @integration_request.preferred_time.present? %>
+        <p><strong>Preferred Time to Contact:</strong> <%= @integration_request.preferred_time %></p>
+      <% end %>
+    </div>
+    
+    <p><strong>What happens next?</strong></p>
+    <ol>
+      <li>Our agent will coordinate with you on the contact details you provided</li>
+      <li>You will receive an invitation to the operator account</li>
+      <li>You will need to login to the operator account and connect with your Meta Business account</li>
+    </ol>
+    
+    <p>Our team typically responds within 24-48 hours. We'll reach out to you at the email and phone number you provided.</p>
+    
+    <p>Best regards,<br>
+    The Cod King Support Team</p>
+  </div>
+</body>
+</html>
+

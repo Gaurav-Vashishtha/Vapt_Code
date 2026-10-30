@@ -1,0 +1,230 @@
+{
+  "country": "PE",
+  "shopify_provinces": true,
+  "provinces": [
+    {
+      "code": "PE-AMA",
+      "name": "Amazonas"
+    },
+    {
+      "code": "PE-ANC",
+      "name": "Áncash"
+    },
+    {
+      "code": "PE-APU",
+      "name": "Apurímac"
+    },
+    {
+      "code": "PE-ARE",
+      "name": "Arequipa"
+    },
+    {
+      "code": "PE-AYA",
+      "name": "Ayacucho"
+    },
+    {
+      "code": "PE-CAJ",
+      "name": "Cajamarca"
+    },
+    {
+      "code": "PE-CAL",
+      "name": "El Callao"
+    },
+    {
+      "code": "PE-CUS",
+      "name": "Cusco"
+    },
+    {
+      "code": "PE-HUV",
+      "name": "Huancavelica"
+    },
+    {
+      "code": "PE-HUC",
+      "name": "Huánuco"
+    },
+    {
+      "code": "PE-ICA",
+      "name": "Ica"
+    },
+    {
+      "code": "PE-JUN",
+      "name": "Junín"
+    },
+    {
+      "code": "PE-LAL",
+      "name": "La Libertad"
+    },
+    {
+      "code": "PE-LAM",
+      "name": "Lambayeque"
+    },
+    {
+      "code": "PE-LIM",
+      "name": "Lima (Departamento)"
+    },
+    {
+      "code": "PE-LMA",
+      "name": "Lima (Metropolitana)"
+    },
+    {
+      "code": "PE-LOR",
+      "name": "Loreto"
+    },
+    {
+      "code": "PE-MDD",
+      "name": "Madre de Dios"
+    },
+    {
+      "code": "PE-MOQ",
+      "name": "Moquegua"
+    },
+    {
+      "code": "PE-PAS",
+      "name": "Pasco"
+    },
+    {
+      "code": "PE-PIU",
+      "name": "Piura"
+    },
+    {
+      "code": "PE-PUN",
+      "name": "Puno"
+    },
+    {
+      "code": "PE-SAM",
+      "name": "San Martín"
+    },
+    {
+      "code": "PE-TAC",
+      "name": "Tacna"
+    },
+    {
+      "code": "PE-TUM",
+      "name": "Tumbes"
+    },
+    {
+      "code": "PE-UCA",
+      "name": "Ucayali"
+    }
+  ],
+  "cities": {
+    "mode": "by_province",
+    "list": [
+
+    ],
+    "by_province": {
+      "PE-AMA": [
+        "Chachapoyas",
+        "Bagua"
+      ],
+      "PE-ANC": [
+        "Huaraz",
+        "Chimbote"
+      ],
+      "PE-APU": [
+        "Abancay",
+        "Andahuaylas"
+      ],
+      "PE-ARE": [
+        "Arequipa",
+        "Camaná",
+        "Mollendo"
+      ],
+      "PE-AYA": [
+        "Ayacucho",
+        "Huanta"
+      ],
+      "PE-CAJ": [
+        "Cajamarca",
+        "Jaén",
+        "Chota"
+      ],
+      "PE-CAL": [
+        "Callao",
+        "Ventanilla"
+      ],
+      "PE-CUS": [
+        "Cusco",
+        "Sicuani",
+        "Quillabamba"
+      ],
+      "PE-HUV": [
+        "Huancavelica"
+      ],
+      "PE-HUC": [
+        "Huánuco",
+        "Tingo María"
+      ],
+      "PE-ICA": [
+        "Ica",
+        "Chincha Alta",
+        "Pisco",
+        "Nazca"
+      ],
+      "PE-JUN": [
+        "Huancayo",
+        "Tarma",
+        "La Oroya",
+        "Jauja"
+      ],
+      "PE-LAL": [
+        "Trujillo",
+        "Chepén",
+        "Pacasmayo"
+      ],
+      "PE-LAM": [
+        "Chiclayo",
+        "Lambayeque",
+        "Ferreñafe"
+      ],
+      "PE-LIM": [
+        "Huacho",
+        "Huaral",
+        "San Vicente de Cañete",
+        "Barranca"
+      ],
+      "PE-LMA": [
+        "Lima"
+      ],
+      "PE-LOR": [
+        "Iquitos",
+        "Yurimaguas"
+      ],
+      "PE-MDD": [
+        "Puerto Maldonado"
+      ],
+      "PE-MOQ": [
+        "Moquegua",
+        "Ilo"
+      ],
+      "PE-PAS": [
+        "Cerro de Pasco",
+        "Oxapampa"
+      ],
+      "PE-PIU": [
+        "Piura",
+        "Sullana",
+        "Talara",
+        "Paita"
+      ],
+      "PE-PUN": [
+        "Puno",
+        "Juliaca"
+      ],
+      "PE-SAM": [
+        "Tarapoto",
+        "Moyobamba",
+        "Juanjuí"
+      ],
+      "PE-TAC": [
+        "Tacna"
+      ],
+      "PE-TUM": [
+        "Tumbes"
+      ],
+      "PE-UCA": [
+        "Pucallpa"
+      ]
+    }
+  }
+}

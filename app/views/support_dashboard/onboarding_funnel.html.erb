@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Onboarding Funnel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Onboarding Funnel</h1>
+          <p class="text-sm text-gray-500">QuickOnboarding conversion — distinct shops per stage (<%= @range_label %>)</p>
+        </div>
+        <%= link_to support_dashboard_path,
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          ← Back to dashboard
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <%# Active date mode + shop-age, preserved across the country/distribution links. %>
+    <% date_filter = @days ? { days: @days } : { from: @from, to: @to } %>
+    <% keep = date_filter.merge(shop_age: @shop_age).compact %>
+
+    <!-- Filters: time window + custom range + country + shop age -->
+    <div class="mb-6 flex flex-wrap items-center gap-3">
+      <label class="text-sm font-medium text-gray-600">Window:</label>
+      <% [7, 14, 30, 60, 90].each do |d| %>
+        <%= link_to "Last #{d}d", support_dashboard_onboarding_funnel_path(days: d, country: @country, shop_age: @shop_age),
+            class: "px-3 py-1.5 rounded-md text-sm font-medium #{@days == d ? 'bg-sky-600 text-white' : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'}" %>
+      <% end %>
+
+      <span class="mx-1 text-gray-300">|</span>
+      <label class="text-sm font-medium text-gray-600">Range:</label>
+      <form method="get" action="<%= support_dashboard_onboarding_funnel_path %>" class="inline-flex items-center gap-2">
+        <% if @country.present? %><input type="hidden" name="country" value="<%= @country %>" /><% end %>
+        <% if @shop_age.present? %><input type="hidden" name="shop_age" value="<%= @shop_age %>" /><% end %>
+        <input type="date" name="from" value="<%= @from %>"
+            class="px-2 py-1.5 rounded-md text-sm bg-white border <%= @from ? 'border-sky-500' : 'border-gray-300' %> text-gray-700" />
+        <span class="text-gray-400 text-sm">→</span>
+        <input type="date" name="to" value="<%= @to %>"
+            class="px-2 py-1.5 rounded-md text-sm bg-white border <%= @to ? 'border-sky-500' : 'border-gray-300' %> text-gray-700" />
+        <button type="submit"
+            class="px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">Apply</button>
+      </form>
+
+      <span class="mx-1 text-gray-300">|</span>
+      <label class="text-sm font-medium text-gray-600">Country:</label>
+      <form method="get" action="<%= support_dashboard_onboarding_funnel_path %>" class="inline-flex items-center gap-2">
+        <% keep.each do |k, v| %><input type="hidden" name="<%= k %>" value="<%= v %>" /><% end %>
+        <select name="country" onchange="this.form.submit()"
+            class="px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700">
+          <option value="" <%= 'selected' if @country.blank? %>>All countries</option>
+          <% @countries.each do |c| %>
+            <option value="<%= c %>" <%= 'selected' if @country == c %>><%= c %></option>
+          <% end %>
+        </select>
+      </form>
+
+      <label class="text-sm font-medium text-gray-600">Shop age:</label>
+      <form method="get" action="<%= support_dashboard_onboarding_funnel_path %>" class="inline-flex items-center gap-2">
+        <% date_filter.merge(country: @country).compact.each do |k, v| %><input type="hidden" name="<%= k %>" value="<%= v %>" /><% end %>
+        <select name="shop_age" onchange="this.form.submit()"
+            class="px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700">
+          <option value="" <%= 'selected' if @shop_age.blank? %>>All ages</option>
+          <option value="new" <%= 'selected' if @shop_age == 'new' %>>Newer than 3 months</option>
+          <option value="established" <%= 'selected' if @shop_age == 'established' %>>Older than 3 months</option>
+        </select>
+      </form>
+
+      <% if @country.present? || @shop_age.present? %>
+        <%= link_to "Clear", support_dashboard_onboarding_funnel_path(date_filter),
+            class: "px-2 py-1.5 text-sm text-sky-600 hover:underline" %>
+      <% end %>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-sky-50 rounded-lg p-6 border border-gray-200">
+        <span class="text-sm font-medium text-gray-600">Started onboarding</span>
+        <div class="text-3xl font-bold text-gray-900 mt-1"><%= @started_count %></div>
+        <div class="text-sm text-gray-500 mt-1">Unique shops, <%= @range_label %></div>
+      </div>
+      <div class="bg-emerald-50 rounded-lg p-6 border border-gray-200">
+        <span class="text-sm font-medium text-gray-600">Approved billing</span>
+        <div class="text-3xl font-bold text-gray-900 mt-1"><%= @approved_count %></div>
+        <div class="text-sm text-gray-500 mt-1">Reached the end of the funnel</div>
+      </div>
+      <div class="bg-indigo-50 rounded-lg p-6 border border-gray-200">
+        <span class="text-sm font-medium text-gray-600">Overall conversion</span>
+        <div class="text-3xl font-bold text-gray-900 mt-1"><%= @overall_conversion %>%</div>
+        <div class="text-sm text-gray-500 mt-1">Started → Approved billing</div>
+      </div>
+    </div>
+
+    <!-- Funnel bars -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">Stage-by-stage</h2>
+      <p class="text-sm text-gray-500 mb-6">Bar width = % of shops that started. "Step" = conversion from the previous <em>required</em> stage (watch for the biggest drop). Optional steps (greyed) aren't counted as drop-offs — not every shop passes through them.</p>
+
+      <div class="space-y-5">
+        <% @funnel.each_with_index do |row, i| %>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-xs font-semibold text-gray-700"><%= i + 1 %></span>
+                <span class="text-sm font-medium text-gray-800"><%= row[:label] %></span>
+                <% if row[:optional] %>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-gray-100 text-xs font-medium text-gray-500">optional</span>
+                <% end %>
+              </div>
+              <div class="text-sm text-gray-600">
+                <span class="font-semibold text-gray-900"><%= row[:shops] %></span> shops
+                <span class="text-gray-400">·</span> <%= row[:pct_of_top] %>% of started
+                <% if i.positive? %>
+                  <span class="text-gray-400">·</span>
+                  <% if row[:optional] %>
+                    <span class="text-gray-500"><%= row[:pct_of_prev] %>% of prior step</span>
+                  <% else %>
+                    <% drop = (100.0 - row[:pct_of_prev]).round(1) %>
+                    <span class="<%= drop >= 50 ? 'text-red-600 font-semibold' : (drop >= 25 ? 'text-amber-600' : 'text-emerald-600') %>">
+                      step <%= row[:pct_of_prev] %>%<% if drop > 0 %> (−<%= drop %>%)<% end %>
+                    </span>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+            <div class="w-full bg-gray-100 rounded-full h-3">
+              <div class="<%= row[:optional] ? 'bg-sky-300' : 'bg-sky-500' %> h-3 rounded-full" style="width: <%= row[:pct_of_top] %>%"></div>
+            </div>
+            <% if row[:key] == "theme_embed" && row[:shops].positive? %>
+              <div class="mt-1 ml-8 text-xs text-gray-500">
+                <%= @theme_embed_detail[:detected] %> enabled · <%= @theme_embed_detail[:skipped] %> skipped
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Selected by plan -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">Selected by plan<%= " · #{@country}" if @country.present? %></h2>
+      <p class="text-sm text-gray-500 mb-6">Of the shops that picked a plan on the subscription page, which plan they clicked.</p>
+      <% if @selected_by_plan.blank? %>
+        <p class="text-sm text-gray-500">No plan selections recorded in this window<%= " for #{@country}" if @country.present? %>.</p>
+      <% else %>
+        <% total_selected = @selected_by_plan.sum { |r| r[:shops] } %>
+        <div class="space-y-4">
+          <% @selected_by_plan.each do |r| %>
+            <% pct = total_selected.positive? ? (r[:shops] * 100.0 / total_selected).round(1) : 0.0 %>
+            <div>
+              <div class="flex items-center justify-between mb-1 text-sm">
+                <span class="font-medium text-gray-800"><%= r[:plan] %></span>
+                <span class="text-gray-600"><span class="font-semibold text-gray-900"><%= r[:shops] %></span> shops · <%= pct %>%</span>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-3">
+                <div class="bg-sky-500 h-3 rounded-full" style="width: <%= pct %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Approved billing by plan -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">Approved billing by plan<%= " · #{@country}" if @country.present? %></h2>
+      <p class="text-sm text-gray-500 mb-6">Of the shops that approved billing, which plan they landed on.</p>
+      <% if @plan_approved.blank? %>
+        <p class="text-sm text-gray-500">No approved billing in this window<%= " for #{@country}" if @country.present? %>.</p>
+      <% else %>
+        <% total_approved = @plan_approved.sum { |r| r[:shops] } %>
+        <div class="space-y-4">
+          <% @plan_approved.each do |r| %>
+            <% pct = total_approved.positive? ? (r[:shops] * 100.0 / total_approved).round(1) : 0.0 %>
+            <div>
+              <div class="flex items-center justify-between mb-1 text-sm">
+                <span class="font-medium text-gray-800"><%= r[:plan] %></span>
+                <span class="text-gray-600"><span class="font-semibold text-gray-900"><%= r[:shops] %></span> shops · <%= pct %>%</span>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-3">
+                <div class="bg-emerald-500 h-3 rounded-full" style="width: <%= pct %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Country distribution -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">Country distribution</h2>
+      <p class="text-sm text-gray-500 mb-6">Started → approved billing by country (full window; not affected by the country filter above). Click a country to filter the rest of the page.</p>
+      <% if @country_distribution.blank? %>
+        <p class="text-sm text-gray-500">No data in this window.</p>
+      <% else %>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-500 border-b border-gray-200">
+              <th class="py-2 font-medium">Country</th>
+              <th class="py-2 font-medium text-right">Started</th>
+              <th class="py-2 font-medium text-right">Approved</th>
+              <th class="py-2 font-medium text-right">Conversion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @country_distribution.each do |r| %>
+              <tr class="border-b border-gray-100 <%= 'bg-sky-50' if @country == r[:country] %>">
+                <td class="py-2">
+                  <% if r[:country] == "—" %>
+                    <span class="text-gray-400">—</span>
+                  <% else %>
+                    <%= link_to r[:country], support_dashboard_onboarding_funnel_path(date_filter.merge(country: r[:country], shop_age: @shop_age).compact), class: "text-sky-600 hover:underline" %>
+                  <% end %>
+                </td>
+                <td class="py-2 text-right font-semibold text-gray-900"><%= r[:started] %></td>
+                <td class="py-2 text-right text-gray-700"><%= r[:approved] %></td>
+                <td class="py-2 text-right <%= r[:conversion] >= 30 ? 'text-emerald-600' : (r[:conversion] >= 15 ? 'text-amber-600' : 'text-gray-600') %>"><%= r[:conversion] %>%</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+
+    <!-- Feature selection breakdown -->
+    <div class="bg-white rounded-lg border border-gray-200 p-6 mb-8">
+      <h2 class="text-lg font-semibold text-gray-900 mb-1">Feature selection breakdown</h2>
+      <p class="text-sm text-gray-500 mb-6">
+        Of the <strong><%= @feature_selectors_count %></strong> shops that reached "Selected features", how many turned on each feature (sorted by popularity).
+      </p>
+
+      <% if @feature_selectors_count.zero? %>
+        <p class="text-sm text-gray-500">No feature selections recorded in this window.</p>
+      <% else %>
+        <div class="space-y-4">
+          <% @feature_breakdown.each do |f| %>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-medium text-gray-800"><%= f[:label] %></span>
+                <div class="text-sm text-gray-600">
+                  <span class="font-semibold text-gray-900"><%= f[:shops] %></span> shops
+                  <span class="text-gray-400">·</span> <%= f[:pct] %>%
+                </div>
+              </div>
+              <div class="w-full bg-gray-100 rounded-full h-3">
+                <div class="bg-indigo-500 h-3 rounded-full" style="width: <%= f[:pct] %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="flex items-center justify-between text-sm text-gray-500">
+      <span>Total events recorded in window: <strong><%= @total_events %></strong></span>
+      <span>Last updated: <%= @last_updated.strftime("%d %b %Y, %H:%M") %></span>
+    </div>
+
+    <% if @started_count.zero? %>
+      <div class="mt-6 bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+        No onboarding events recorded in this window yet. New events start flowing once the updated
+        QuickOnboarding bundle is deployed and merchants enter the wizard.
+      </div>
+    <% end %>
+  </div>
+</div>
+</body>
+</html>

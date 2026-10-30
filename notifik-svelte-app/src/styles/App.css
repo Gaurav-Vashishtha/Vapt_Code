@@ -1,0 +1,141 @@
+/* Global reset for iframe - MUST be in @layer base for Tailwind v4.
+   Unlayered * { padding: 0 } overrides Tailwind utilities (they're in @layer utilities).
+   See: https://stackoverflow.com/questions/79441698 */
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+}
+
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  /* Mobile: Full height (default) */
+  height: 100% !important;
+  font-family: var(--font-family-base) !important;
+  overflow: hidden !important;
+  /* App-like behavior: Prevent overscroll/bounce */
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
+  -webkit-overflow-scrolling: touch !important;
+  /* Smooth scrolling */
+  scroll-behavior: smooth !important;
+  /* Prevent text selection on long press (optional) */
+  -webkit-tap-highlight-color: transparent !important;
+  /* Safe area insets for notched devices */
+  padding-top: env(safe-area-inset-top) !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  padding-left: env(safe-area-inset-left) !important;
+  padding-right: env(safe-area-inset-right) !important;
+  /* Performance optimizations */
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  text-rendering: optimizeLegibility !important;
+}
+
+#app {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+}
+
+/* Mobile and Desktop styles are in separate files:
+ * - App.mobile.css (for viewport <= 640px)
+ * - App.desktop.css (for viewport >= 641px)
+ */
+
+/* Allow text selection in inputs and text areas */
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  touch-action: manipulation !important;
+  /* Smooth transitions */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Prevent zoom on input focus - iOS Safari */
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"],
+textarea {
+  font-size: 16px !important; /* Prevents zoom on iOS */
+}
+
+.dev-toolbar {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 1000000;
+  font-family: var(--font-family-base);
+}
+
+.dev-toolbar:not(.active) .dev-form,
+.dev-toolbar:not(.active) .dev-message {
+  display: none;
+}
+
+.dev-toggle {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: none;
+  background: #2f2f2f;
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dev-form {
+  display: flex;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 6px;
+  border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.15);
+  backdrop-filter: blur(6px);
+}
+
+.dev-input {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  min-width: 150px;
+  background: #f4f4f5;
+}
+
+.dev-input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px #2f2f2f;
+}
+
+.dev-go {
+  border: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.dev-message {
+  font-size: 11px;
+  color: #2f2f2f;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Mobile dev toolbar styles are in App.mobile.css */

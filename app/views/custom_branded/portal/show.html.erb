@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= @brand_name %> — <%= @client.domain %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <% if @brand_logo %><link rel="icon" href="<%= @brand_logo %>"><% end %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --brand:#ff6801; --brand-dark:#e55d00; --ink:#1a1a1a; }
+    body { font-family:'Poppins',ui-sans-serif,system-ui,sans-serif; color:var(--ink); }
+    .brand-gradient { background:linear-gradient(330deg,#ff00f7,#ff5303); }
+  </style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+  <div class="h-1 brand-gradient"></div>
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <div class="flex items-center gap-3 min-w-0">
+        <% if @brand_logo %>
+          <img src="<%= @brand_logo %>" alt="" class="h-8 w-auto shrink-0">
+          <div class="h-8 w-px bg-gray-200 shrink-0"></div>
+        <% end %>
+        <div class="min-w-0">
+          <h1 class="text-lg font-semibold text-gray-900 truncate"><%= @brand_name %></h1>
+          <p class="text-xs text-gray-500 truncate"><%= @client.domain %></p>
+        </div>
+      </div>
+      <div class="text-xs text-gray-500"><%= @accounts.size %> number<%= 's' unless @accounts.size == 1 %> connected</div>
+    </div>
+  </div>
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div class="flex gap-6 border-b border-gray-200" role="tablist" aria-label="Portal sections">
+      <button type="button" class="cb-tab -mb-px border-b-2 px-1 pb-2.5 text-sm font-medium" role="tab" id="cb-tab-btn-setup" data-tab="setup" aria-controls="cb-tab-setup">Numbers &amp; templates</button>
+      <button type="button" class="cb-tab -mb-px border-b-2 px-1 pb-2.5 text-sm font-medium" role="tab" id="cb-tab-btn-activity" data-tab="activity" aria-controls="cb-tab-activity">Activity</button>
+    </div>
+
+    <div id="cb-tab-setup" class="space-y-6" role="tabpanel" aria-labelledby="cb-tab-btn-setup">
+    <!-- Connected numbers -->
+    <div class="bg-white rounded-xl border border-gray-200">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <div>
+          <h2 class="font-medium text-gray-900">WhatsApp numbers</h2>
+          <p class="text-xs text-gray-500">A brand can connect multiple numbers; one is the default sender.</p>
+        </div>
+        <button id="cb-connect-btn" class="text-sm text-white rounded-md px-3 py-2" style="background:var(--brand)">+ Connect number</button>
+      </div>
+      <div id="cb-signup-error" class="hidden mx-4 mt-3 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"></div>
+      <% if @accounts.any? %>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-500 border-b border-gray-100">
+              <th class="px-4 py-2">Number</th><th class="px-4 py-2">Label</th>
+              <th class="px-4 py-2">Status</th><th class="px-4 py-2">Send readiness</th><th class="px-4 py-2">Quality</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @accounts.each do |acc| %>
+              <tr class="border-b border-gray-50">
+                <td class="px-4 py-2.5">
+                  <div class="font-medium text-gray-900"><%= acc.display_phone_number.presence || acc.phone_number_id %></div>
+                  <div class="text-xs text-gray-500"><%= acc.verified_name %></div>
+                </td>
+                <td class="px-4 py-2.5">
+                  <%= acc.label.presence || '—' %>
+                  <% if acc.is_default %><span class="ml-1 text-xs px-2 py-0.5 rounded-full" style="background:#fff1e8;color:#c65100">default</span><% end %>
+                </td>
+                <td class="px-4 py-2.5">
+                  <span class="text-xs px-2 py-0.5 rounded-full <%= acc.status == 'verified' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' %>"><%= acc.status %></span>
+                </td>
+                <td class="px-4 py-2.5">
+                  <% if acc.ready_to_send? %>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">ready</span>
+                  <% elsif acc.needs_registration? %>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700" title="<%= acc.registration_error %>">needs registration</span>
+                  <% else %>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500"><%= acc.registration_state || 'unknown' %></span>
+                  <% end %>
+                </td>
+                <td class="px-4 py-2.5 text-gray-500"><%= acc.quality_rating.presence || '—' %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="px-4 py-8 text-center text-sm text-gray-500">No number connected yet. Click “Connect number” to start Meta’s signup flow.</div>
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <div>
+          <h2 class="font-medium text-gray-900">Message templates</h2>
+          <p class="text-xs text-gray-500">Templates approved by Meta can be sent to your customers.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-xs text-gray-500"><%= @total %> template<%= 's' unless @total == 1 %></div>
+          <% if @accounts.any? %>
+            <button id="cb-refresh-templates" class="text-sm rounded-md px-3 py-2 border" style="border-color:var(--brand);color:var(--brand)">Refresh templates</button>
+            <button id="cb-new-template" class="text-sm text-white rounded-md px-3 py-2 font-medium shadow-sm" style="background:var(--brand)">+ New template</button>
+          <% end %>
+        </div>
+      </div>
+      <div id="cb-templates-notice" class="hidden mx-4 mt-3 rounded-md px-4 py-2 text-sm"></div>
+
+      <% if @templates.any? %>
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-gray-500 border-b border-gray-100">
+              <th class="px-4 py-2">Template</th><th class="px-4 py-2">Status</th>
+              <th class="px-4 py-2">ParcelX event</th>
+              <th class="px-4 py-2">Number</th><th class="px-4 py-2">Preview</th><th class="px-4 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @templates.each do |t| %>
+              <% body_comp = Array(t.components).find { |c| c.is_a?(Hash) && c['type'].to_s.casecmp?('BODY') } %>
+              <% buttons_comp = Array(t.components).find { |c| c.is_a?(Hash) && c['type'].to_s.casecmp?('BUTTONS') } %>
+              <% mapping = t.custom_branded_template_event %>
+              <tr class="border-b border-gray-50 align-top">
+                <td class="px-4 py-2.5">
+                  <div class="font-medium text-gray-900"><%= t.name %></div>
+                  <div class="mt-0.5 flex items-center gap-1.5 text-xs text-gray-500">
+                    <button type="button" class="cb-copy font-mono rounded bg-gray-100 hover:bg-gray-200 px-1.5 py-0.5 text-gray-700" data-copy="<%= t.id %>" title="Copy template ID">ID <%= t.id %></button>
+                    <span><%= t.language %> · <%= t.category %></span>
+                  </div>
+                </td>
+                <td class="px-4 py-2.5">
+                  <span class="text-xs px-2 py-0.5 rounded-full <%= t.approved? ? 'bg-emerald-100 text-emerald-700' : (t.rejected? ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700') %>"><%= t.status %></span>
+                  <% if t.rejection_reason.present? && t.rejection_reason != 'NONE' %><div class="text-xs text-red-600 mt-0.5"><%= t.rejection_reason %></div><% end %>
+                </td>
+                <td class="px-4 py-2.5">
+                  <% if mapping %>
+                    <button type="button" class="cb-map-btn text-left group" data-template-id="<%= t.id %>">
+                      <span class="inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full border <%= mapping.active ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-gray-200 bg-gray-50 text-gray-600' %>">
+                        <span class="h-1.5 w-1.5 rounded-full <%= mapping.active ? 'bg-emerald-500' : 'bg-gray-400' %>"></span><%= mapping.event_name %>
+                      </span>
+                      <span class="block text-xs mt-0.5 text-gray-500 group-hover:underline"><%= mapping.active ? (mapping.live? ? 'Active · sending' : 'Active · waiting for approval') : 'Inactive' %> · <%= pluralize(mapping.required_variable_keys.size, 'variable') %></span>
+                    </button>
+                  <% else %>
+                    <button type="button" class="cb-map-btn text-xs hover:underline" style="color:var(--brand)" data-template-id="<%= t.id %>">Map to event</button>
+                  <% end %>
+                </td>
+                <td class="px-4 py-2.5 text-xs text-gray-500"><%= t.whatsapp_account&.display_phone_number %></td>
+                <td class="px-4 py-2.5 text-xs text-gray-600 max-w-sm">
+                  <details>
+                    <summary class="cursor-pointer" style="color:var(--brand)">View</summary>
+                    <div class="mt-1 max-w-xs rounded-lg p-2.5 whitespace-pre-line" style="background:#dcf8c6"><%= body_comp&.dig('text') %></div>
+                    <% Array(buttons_comp&.dig('buttons')).each do |b| %>
+                      <div class="mt-1 max-w-xs bg-white border border-gray-200 rounded-md py-1 text-center text-xs" style="color:#1f6feb"><%= b['text'] %></div>
+                    <% end %>
+                  </details>
+                </td>
+                <td class="px-4 py-2.5 text-right whitespace-nowrap">
+                  <% if t.approved? && t.whatsapp_account&.ready_to_send? %>
+                    <button class="cb-test-btn text-xs rounded-md px-2.5 py-1.5 border" style="border-color:var(--brand);color:var(--brand)"
+                            data-template="<%= { id: t.id, name: t.name, language: t.language, components: t.components }.to_json %>">Test</button>
+                  <% else %>
+                    <span class="text-xs text-gray-400" title="Only approved templates on a ready number can be tested">Test</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="px-4 py-10 text-center text-sm text-gray-500">No templates yet.</div>
+      <% end %>
+
+      <% if @total_pages > 1 %>
+        <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 text-sm">
+          <% if @page > 1 %>
+            <a href="?page=<%= @page - 1 %>" class="text-gray-700 hover:underline">← Previous</a>
+          <% else %><span></span><% end %>
+          <span class="text-xs text-gray-500">Page <%= @page %> of <%= @total_pages %></span>
+          <% if @page < @total_pages %>
+            <a href="?page=<%= @page + 1 %>" class="hover:underline" style="color:var(--brand)">Next →</a>
+          <% else %><span></span><% end %>
+        </div>
+      <% end %>
+    </div>
+
+    </div>
+
+    <div id="cb-tab-activity" class="hidden" role="tabpanel" aria-labelledby="cb-tab-btn-activity">
+    <div id="cb-activity-card" class="bg-white rounded-xl border border-gray-200">
+      <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-b border-gray-100">
+        <div>
+          <h2 class="font-medium text-gray-900">Activity</h2>
+          <p class="text-xs text-gray-500">Every WhatsApp message sent for this brand: API calls, portal tests and ParcelX events.</p>
+        </div>
+        <button type="button" id="cb-activity-refresh" class="text-sm rounded-md px-3 py-2 border" style="border-color:var(--brand);color:var(--brand)">Refresh</button>
+      </div>
+      <div id="cb-activity-summary" class="grid grid-cols-3 sm:grid-cols-6 gap-px bg-gray-100 border-b border-gray-100"></div>
+      <div class="flex flex-wrap items-end gap-3 px-4 py-3 border-b border-gray-100">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1" for="cb-activity-status">Status</label>
+          <select id="cb-activity-status" class="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm bg-white">
+            <option value="">All</option>
+            <% WhatsappMessageLog.statuses.keys.each do |s| %><option value="<%= s %>"><%= s.capitalize %></option><% end %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1" for="cb-activity-template">Template</label>
+          <select id="cb-activity-template" class="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm bg-white max-w-[16rem]">
+            <option value="">All templates</option>
+            <% @template_names.sort.each do |name| %><option value="<%= name %>"><%= name %></option><% end %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1" for="cb-activity-to">Recipient</label>
+          <input id="cb-activity-to" type="search" inputmode="numeric" placeholder="Phone number" class="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm w-44">
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="text-left text-xs text-gray-500">
+            <tr>
+              <th class="px-4 py-2 font-medium">Time</th>
+              <th class="px-4 py-2 font-medium">Template</th>
+              <th class="px-4 py-2 font-medium">Recipient</th>
+              <th class="px-4 py-2 font-medium">Source</th>
+              <th class="px-4 py-2 font-medium">Status</th>
+            </tr>
+          </thead>
+          <tbody id="cb-activity-rows"></tbody>
+        </table>
+      </div>
+      <div id="cb-activity-empty" class="hidden px-4 py-10 text-center text-sm text-gray-500"></div>
+      <div id="cb-activity-more-wrap" class="hidden px-4 py-3 border-t border-gray-100 text-center">
+        <button type="button" id="cb-activity-more" class="text-sm hover:underline" style="color:var(--brand)">Load more</button>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- Test-send modal -->
+<div id="cb-test-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100">
+      <div>
+        <h3 class="font-medium text-gray-900">Send a test message</h3>
+        <p id="cb-test-template-name" class="text-xs text-gray-500"></p>
+      </div>
+      <button id="cb-test-close" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
+    </div>
+    <form id="cb-test-form" class="px-5 py-4 space-y-4">
+      <div>
+        <label class="block text-xs font-medium text-gray-700 mb-1">Send to (with country code)</label>
+        <input name="to" type="tel" required placeholder="919876543210" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" style="--tw-ring-color:var(--brand)">
+      </div>
+      <div id="cb-test-fields" class="space-y-3"></div>
+      <div id="cb-test-preview" class="rounded-lg p-3 text-sm whitespace-pre-line" style="background:#dcf8c6"></div>
+      <div id="cb-test-result" class="hidden rounded-md px-4 py-2 text-sm"></div>
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button type="button" id="cb-test-cancel" class="text-sm rounded-md px-3 py-2 border border-gray-300 text-gray-700">Close</button>
+        <button type="submit" id="cb-test-submit" class="text-sm text-white rounded-md px-3 py-2" style="background:var(--brand)">Send test</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const CB_BASE = "/cb/<%= j @client.domain %>";
+  const META_APP_ID = "<%= j @meta_app_id.to_s %>";
+  const META_CONFIG_ID = "<%= j @meta_config_id.to_s %>";
+  const META_GRAPH_API_VERSION = "<%= j @meta_graph_api_version %>";
+
+  let signupData = {};
+  function showSignupError(msg) {
+    const el = document.getElementById("cb-signup-error");
+    el.textContent = msg;
+    el.classList.remove("hidden");
+  }
+  window.addEventListener("message", (event) => {
+    if (!event.origin.endsWith("facebook.com")) return;
+    try {
+      const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+      if (data?.type === "WA_EMBEDDED_SIGNUP") {
+        if (data.event === "FINISH") {
+          signupData.waba_id = data.data?.waba_id;
+          signupData.phone_number_id = data.data?.phone_number_id;
+          maybeSubmitSignup();
+        } else if (data.event === "CANCEL") {
+          showSignupError("Signup was cancelled.");
+        } else if (data.event === "ERROR") {
+          showSignupError(data.data?.error_message || "Signup error");
+        }
+      }
+    } catch (_) {}
+  });
+  function loadFacebookSdk() {
+    return new Promise((resolve, reject) => {
+      if (window.FB) return resolve(window.FB);
+      const script = document.createElement("script");
+      script.id = "facebook-jssdk";
+      script.async = true; script.defer = true; script.crossOrigin = "anonymous";
+      script.src = "https://connect.facebook.net/en_US/sdk.js";
+      script.onload = () => {
+        try {
+          window.FB.init({ appId: META_APP_ID, autoLogAppEvents: true, xfbml: true, version: META_GRAPH_API_VERSION });
+          resolve(window.FB);
+        } catch (err) { reject(err); }
+      };
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+  }
+  async function maybeSubmitSignup() {
+    if (!signupData.code) return;
+    try {
+      const res = await fetch(CB_BASE + "/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(signupData),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to connect");
+      location.reload();
+    } catch (err) { showSignupError(err.message); }
+  }
+  document.getElementById("cb-connect-btn").addEventListener("click", async () => {
+    document.getElementById("cb-signup-error").classList.add("hidden");
+    if (!META_APP_ID || !META_CONFIG_ID) return showSignupError("Meta App ID or Config ID not configured.");
+    try {
+      const FB = await loadFacebookSdk();
+      FB.login((response) => {
+        if (response.authResponse?.code) {
+          signupData.code = response.authResponse.code;
+          maybeSubmitSignup();
+        } else {
+          showSignupError("Login was cancelled or did not return a code.");
+        }
+      }, {
+        config_id: META_CONFIG_ID,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: { setup: {}, featureType: "whatsapp_business_app_onboarding" },
+      });
+    } catch (err) { showSignupError(err?.message || "Failed to load Meta SDK"); }
+  });
+
+  // ---------------------------------------------------------------------
+  // Refresh templates: re-sync every connected number's WABA from Meta.
+  // ---------------------------------------------------------------------
+  const ACCOUNT_IDS = <%= @accounts.map(&:id).to_json.html_safe %>;
+  function templatesNotice(msg, tone) {
+    const el = document.getElementById("cb-templates-notice");
+    el.textContent = msg;
+    el.className = "mx-4 mt-3 rounded-md px-4 py-2 text-sm border " +
+      (tone === "error" ? "bg-red-50 border-red-200 text-red-800" : "bg-emerald-50 border-emerald-200 text-emerald-800");
+  }
+  const refreshBtn = document.getElementById("cb-refresh-templates");
+  if (refreshBtn) refreshBtn.addEventListener("click", async () => {
+    refreshBtn.disabled = true; refreshBtn.textContent = "Refreshing…";
+    let total = 0; const errors = [];
+    for (const accountId of ACCOUNT_IDS) {
+      try {
+        const res = await fetch(CB_BASE + "/templates/sync?account_id=" + accountId, {
+          method: "POST", headers: { "Accept": "application/json" }, credentials: "same-origin",
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Sync failed");
+        total += (data.templates || []).length;
+      } catch (err) { errors.push(err.message); }
+    }
+    if (errors.length) templatesNotice("Refresh finished with errors: " + errors.join("; "), "error");
+    else templatesNotice("Templates refreshed from Meta (" + total + " found). Reloading…");
+    setTimeout(() => location.reload(), errors.length ? 2500 : 900);
+  });
+
+  // ---------------------------------------------------------------------
+  // Test send: build inputs from the template's placeholders, preview the
+  // filled body live, POST to /templates/:id/test (synchronous send).
+  // ---------------------------------------------------------------------
+  const modal = document.getElementById("cb-test-modal");
+  const fieldsEl = document.getElementById("cb-test-fields");
+  const previewEl = document.getElementById("cb-test-preview");
+  const resultEl = document.getElementById("cb-test-result");
+  const form = document.getElementById("cb-test-form");
+  let currentTemplate = null;
+
+  const comp = (t, type) => (t.components || []).find(c => (c?.type || "").toUpperCase() === type);
+  const placeholders = (text) => [...new Set((text || "").match(/\{\{(\d+)\}\}/g) || [])].map(p => Number(p.replace(/\D/g, ""))).sort((a, b) => a - b);
+
+  function field(name, label, placeholder, value) {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = '<label class="block text-xs font-medium text-gray-700 mb-1"></label>' +
+      '<input class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2" style="--tw-ring-color:var(--brand)">';
+    wrap.querySelector("label").textContent = label;
+    const input = wrap.querySelector("input");
+    input.name = name; input.placeholder = placeholder || ""; input.value = value || ""; input.required = true;
+    input.addEventListener("input", renderPreview);
+    return wrap;
+  }
+
+  function openTestModal(t) {
+    currentTemplate = t;
+    document.getElementById("cb-test-template-name").textContent = t.name + " (" + t.language + ")";
+    fieldsEl.innerHTML = ""; resultEl.classList.add("hidden"); form.reset();
+
+    const header = comp(t, "HEADER");
+    const body = comp(t, "BODY");
+    const buttons = (comp(t, "BUTTONS")?.buttons) || [];
+
+    if (header) {
+      const fmt = (header.format || "").toUpperCase();
+      if (fmt === "TEXT" && /\{\{\d+\}\}/.test(header.text || "")) {
+        fieldsEl.appendChild(field("header_text", "Header text {{1}}", "", header.example?.header_text?.[0]));
+      } else if (["IMAGE", "VIDEO", "DOCUMENT"].includes(fmt)) {
+        const f = field("header_" + fmt.toLowerCase() + "_url", fmt.charAt(0) + fmt.slice(1).toLowerCase() + " URL (public https link)", "https://…", "");
+        f.querySelector("input").required = false;
+        f.insertAdjacentHTML("beforeend", '<p class="text-xs text-gray-400 mt-1">Leave blank to use the template\'s saved header media.</p>');
+        fieldsEl.appendChild(f);
+      }
+    }
+
+    const samples = body?.example?.body_text?.[0] || [];
+    placeholders(body?.text).forEach((n, i) => {
+      fieldsEl.appendChild(field("var_" + n, "Body variable {{" + n + "}}", "", samples[i] || ""));
+    });
+
+    buttons.forEach((b, i) => {
+      if ((b.type || "").toUpperCase() !== "URL") return;
+      if (!((b.url || "").includes("{{") || (b.example && b.example.length))) return;
+      fieldsEl.appendChild(field("button_" + i, 'Button "' + (b.text || "URL") + '" — value for ' + (b.url || ""), "", b.example?.[0] || ""));
+    });
+
+    renderPreview();
+    modal.classList.remove("hidden");
+  }
+
+  function renderPreview() {
+    if (!currentTemplate) return;
+    const body = comp(currentTemplate, "BODY");
+    let text = body?.text || "";
+    const fd = new FormData(form);
+    text = text.replace(/\{\{(\d+)\}\}/g, (m, n) => fd.get("var_" + n) || m);
+    previewEl.textContent = text;
+  }
+
+  function closeTestModal() { modal.classList.add("hidden"); currentTemplate = null; }
+  document.getElementById("cb-test-close").addEventListener("click", closeTestModal);
+  document.getElementById("cb-test-cancel").addEventListener("click", closeTestModal);
+  modal.addEventListener("click", (e) => { if (e.target === modal) closeTestModal(); });
+  document.querySelectorAll(".cb-test-btn").forEach(btn => {
+    btn.addEventListener("click", () => openTestModal(JSON.parse(btn.dataset.template)));
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!currentTemplate) return;
+    const fd = new FormData(form);
+    const payload = { to: fd.get("to"), variables: {}, button_params: {} };
+    for (const [k, v] of fd.entries()) {
+      if (k.startsWith("var_")) payload.variables[k.slice(4)] = v;
+      else if (k.startsWith("button_")) payload.button_params[k.slice(7)] = v;
+      else if (k.startsWith("header_") && v) payload[k] = v;
+    }
+    const submit = document.getElementById("cb-test-submit");
+    submit.disabled = true; submit.textContent = "Sending…";
+    resultEl.classList.add("hidden");
+    try {
+      const res = await fetch(CB_BASE + "/templates/" + currentTemplate.id + "/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Send failed");
+      resultEl.className = "rounded-md px-4 py-2 text-sm border bg-emerald-50 border-emerald-200 text-emerald-800";
+      resultEl.textContent = "Sent to " + data.to + " — Meta accepted it (status: " + data.status + ").";
+      if (window.cbReloadActivity) window.cbReloadActivity();
+    } catch (err) {
+      resultEl.className = "rounded-md px-4 py-2 text-sm border bg-red-50 border-red-200 text-red-800";
+      resultEl.textContent = err.message;
+    } finally {
+      resultEl.classList.remove("hidden");
+      submit.disabled = false; submit.textContent = "Send test";
+    }
+  });
+</script>
+<%= render 'custom_branded/portal/event_templates' %>
+</body>
+</html>

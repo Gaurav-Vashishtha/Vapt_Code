@@ -1,0 +1,97 @@
+/* OTPWidget.css */
+
+.otp-widget-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.otp-step h2 {
+  margin-bottom: 20px;
+  font-size: 1.6rem;
+  color: #333;
+}
+
+.otp-input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.otp-input-group {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.otp-digit {
+  width: 20%;
+  padding: 10px;
+  text-align: center;
+  font-size: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.otp-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #000;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.otp-button:hover {
+  background-color: #333;
+}
+
+.cancel-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 4px;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.cancel-button:hover {
+  background-color: #ddd;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
+.checkbox-label input {
+  margin-right: 10px;
+}
+
+.resend-text {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: pointer;
+}
+
+.resend-text:hover {
+  text-decoration: underline;
+}

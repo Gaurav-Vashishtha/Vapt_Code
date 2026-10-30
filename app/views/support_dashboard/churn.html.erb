@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - Churn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= csrf_meta_tags %>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<%
+  s = @summary || {}
+  f = @filters || {}
+  money = ->(v) { v.nil? ? '—' : number_to_currency(v, unit: '$', precision: (v.to_f.abs >= 1000 ? 0 : 2)) }
+  rate = ->(v) { v.nil? ? '—' : "#{v}%" }
+  type_badge = {
+    'uninstalled' => 'bg-red-100 text-red-800',
+    'subscription_cancelled' => 'bg-orange-100 text-orange-800',
+    'downgraded_to_free' => 'bg-yellow-100 text-yellow-800'
+  }
+  filter_query = f.compact
+  num = ->(key) { f[key].nil? ? '' : (f[key] % 1).zero? ? f[key].to_i : f[key].to_f }
+  sync = @sync_status || {}
+  sync_active = @sync_active
+%>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Churned stores, what they were worth, and who came back</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if flash[:notice] %><div class="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-2 text-sm text-green-800"><%= flash[:notice] %></div><% end %>
+    <% if flash[:alert] %><div class="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"><%= flash[:alert] %></div><% end %>
+
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :churn %>
+        </nav>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <!-- Filters + sync -->
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <%= form_with url: support_dashboard_churn_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do %>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+              <input type="date" name="from" value="<%= f[:from] %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+              <input type="date" name="to" value="<%= f[:to] %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">LTV ≥ ($)</label>
+              <input type="number" name="min_ltv" min="0" step="any" value="<%= num.call(:min_ltv) %>" placeholder="Any"
+                     class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-24">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Last 30d revenue ≥ ($)</label>
+              <input type="number" name="min_last_30d" min="0" step="any" value="<%= num.call(:min_last_30d) %>" placeholder="Any"
+                     class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-24">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Orders ≥</label>
+              <input type="number" name="min_orders" min="0" step="1" value="<%= num.call(:min_orders) %>" placeholder="Any"
+                     class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-20">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Store age (months)</label>
+              <div class="flex items-center gap-1">
+                <input type="number" name="min_store_age_months" min="0" step="any" value="<%= num.call(:min_store_age_months) %>" placeholder="Min"
+                       class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-16">
+                <span class="text-gray-400">–</span>
+                <input type="number" name="max_store_age_months" min="0" step="any" value="<%= num.call(:max_store_age_months) %>" placeholder="Max"
+                       class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-16">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Days with COD King</label>
+              <div class="flex items-center gap-1">
+                <input type="number" name="min_tenure_days" min="0" step="1" value="<%= num.call(:min_tenure_days) %>" placeholder="Min"
+                       class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-16">
+                <span class="text-gray-400">–</span>
+                <input type="number" name="max_tenure_days" min="0" step="1" value="<%= num.call(:max_tenure_days) %>" placeholder="Max"
+                       class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-16">
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Churn type</label>
+              <select name="churn_type" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 bg-white">
+                <option value="">All</option>
+                <% ChurnedStore::TYPES.each do |key, label| %>
+                  <option value="<%= key %>" <%= 'selected' if f[:churn_type] == key %>><%= label %></option>
+                <% end %>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Came back</label>
+              <select name="returned" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 bg-white">
+                <option value="">All</option>
+                <option value="yes" <%= 'selected' if f[:returned] == 'yes' %>>Yes</option>
+                <option value="no" <%= 'selected' if f[:returned] == 'no' %>>No</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Sort by</label>
+              <select name="sort" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 bg-white">
+                <% { 'recent' => 'Most recent', 'ltv' => 'LTV', 'last_30d' => 'Last 30d revenue', 'orders' => 'Orders',
+                     'tenure' => 'Days with COD King', 'store_age' => 'Oldest store' }.each do |key, label| %>
+                  <option value="<%= key %>" <%= 'selected' if (f[:sort].presence || 'recent') == key %>><%= label %></option>
+                <% end %>
+              </select>
+            </div>
+            <div class="flex gap-2">
+              <button type="submit" class="px-3 py-1.5 rounded-md text-sm font-medium bg-gray-900 text-white hover:bg-gray-800">Apply</button>
+              <%= link_to 'Reset', support_dashboard_churn_path, class: "px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+              <%= link_to 'Export CSV', support_dashboard_churn_path(filter_query.merge(format: :csv)), class: "px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+            </div>
+          <% end %>
+
+          <div class="border border-gray-200 rounded-lg p-3 bg-gray-50 min-w-[280px]" id="churn-sync">
+            <%= form_with url: support_dashboard_churn_sync_path(filter_query), method: :post, local: true, id: "churn-sync-form", class: "flex items-end gap-2" do %>
+              <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Resync churned stores, last</label>
+                <div class="flex items-center gap-1">
+                  <input type="number" name="days" min="1" max="<%= Churn::ChurnedStoresSyncJob::MAX_DAYS %>" value="7"
+                         class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-16">
+                  <span class="text-sm text-gray-600">days</span>
+                </div>
+              </div>
+              <button type="submit" id="churn-sync-button" <%= 'disabled' if sync_active %>
+                      class="px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                Sync from DB + Partner API
+              </button>
+            <% end %>
+            <p class="mt-2 text-xs text-gray-600" id="churn-sync-status" data-active="<%= sync_active %>">
+              <% if sync.blank? %>
+                Not synced yet.
+              <% elsif sync_active %>
+                <span class="text-blue-700 font-medium"><%= sync['state'] == 'queued' ? 'Queued' : 'Running' %></span>
+                <%= sync['step'] %>
+              <% else %>
+                Last sync <%= { 'failed' => 'failed', 'completed' => 'finished' }.fetch(sync['state'], 'did not finish') %>
+                <%= sync['finished_at'].present? ? time_ago_in_words(Time.zone.parse(sync['finished_at'])) + ' ago' : '' %>
+                (<%= sync['days'] %>d, <%= sync['triggered_by'] %>)<%= sync['message'].present? ? " — #{sync['message']}" : '' %>
+              <% end %>
+            </p>
+          </div>
+        </div>
+
+        <% if s[:unsynced_uninstalls].to_i.positive? %>
+          <div class="rounded-md bg-yellow-50 border border-yellow-200 px-4 py-2 text-sm text-yellow-800">
+            <%= pluralize(s[:unsynced_uninstalls], 'uninstalled store') %> in this period are not synced yet — run a sync to include them.
+          </div>
+        <% end %>
+        <% unless s[:baseline_complete] %>
+          <div class="rounded-md bg-yellow-50 border border-yellow-200 px-4 py-2 text-sm text-yellow-800">
+            Partner revenue before <%= (f[:from] - 30).strftime('%b %d') if f[:from] %> is incomplete, so the revenue churn rate may be overstated. A sync pulls it in.
+          </div>
+        <% end %>
+
+        <!-- Aggregates -->
+        <div>
+          <h2 class="text-sm font-semibold text-gray-900 mb-3">
+            <%= f[:from]&.strftime('%b %d, %Y') %> – <%= f[:to]&.strftime('%b %d, %Y') %>
+          </h2>
+          <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Store churn rate</div>
+              <div class="text-2xl font-semibold text-red-600 mt-1"><%= rate.call(s[:store_churn_rate]) %></div>
+              <div class="text-xs text-gray-500 mt-1"><%= s[:uninstalls] %> uninstalls of <%= number_with_delimiter(s[:active_at_start]) %> installed at start<% if s[:uninstalls_returned].to_i.positive? %> · <%= s[:uninstalls_returned] %> reinstalled, excluded<% end %></div>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Subscription churn rate</div>
+              <div class="text-2xl font-semibold text-orange-600 mt-1"><%= rate.call(s[:subscription_churn_rate]) %></div>
+              <div class="text-xs text-gray-500 mt-1"><%= s[:paying_lost].to_i %> paying stores lost of <%= number_with_delimiter(s[:paying_at_start]) %> paying at start (<%= s[:paying_lost_uninstalled].to_i %> uninstalled, <%= s[:paying_lost_subscription].to_i %> cancelled / downgraded)<% if s[:subscription_churn_returned].to_i.positive? %> · <%= s[:subscription_churn_returned] %> resubscribed, excluded<% end %></div>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Revenue churn</div>
+              <div class="text-2xl font-semibold text-red-600 mt-1"><%= rate.call(s[:revenue_churn_rate]) %></div>
+              <div class="text-xs text-gray-500 mt-1"><%= money.call(s.dig(:totals, :revenue_lost)) %>/30d lost of <%= money.call(s[:revenue_base]) %> baseline</div>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">LTV of churned stores</div>
+              <div class="text-2xl font-semibold text-gray-900 mt-1"><%= money.call(s.dig(:totals, :ltv)) %></div>
+              <div class="text-xs text-gray-500 mt-1">Subscription <%= money.call(s.dig(:totals, :subscription)) %> · Usage <%= money.call(s.dig(:totals, :usage)) %></div>
+            </div>
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="text-xs uppercase tracking-wide text-gray-500">Came back</div>
+              <div class="text-2xl font-semibold text-green-700 mt-1"><%= s.dig(:totals, :returned).to_i %></div>
+              <div class="text-xs text-gray-500 mt-1"><%= money.call(s.dig(:totals, :recovered)) %> earned since returning · not counted as churn</div>
+            </div>
+          </div>
+
+          <div class="mt-4 overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                <tr>
+                  <th class="text-left px-4 py-2">Churn type</th>
+                  <th class="text-right px-4 py-2">Churned</th>
+                  <th class="text-right px-4 py-2">Rate</th>
+                  <th class="text-right px-4 py-2">Revenue lost / 30d</th>
+                  <th class="text-right px-4 py-2">Revenue churn</th>
+                  <th class="text-right px-4 py-2">LTV (net)</th>
+                  <th class="text-right px-4 py-2">Subscription</th>
+                  <th class="text-right px-4 py-2">Usage</th>
+                  <th class="text-right px-4 py-2">Came back</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <% ChurnedStore::TYPES.each do |key, label| %>
+                  <% row = s.dig(:by_type, key) || {} %>
+                  <% denominator = key == 'uninstalled' ? s[:active_at_start] : s[:paying_at_start] %>
+                  <tr>
+                    <td class="px-4 py-2"><span class="px-2 py-0.5 rounded text-xs <%= type_badge[key] %>"><%= label %></span></td>
+                    <td class="px-4 py-2 text-right font-medium"><%= row[:count].to_i %><% if row[:returned].to_i.positive? %> <span class="text-xs text-gray-400 font-normal">of <%= row[:gross_count].to_i %></span><% end %></td>
+                    <td class="px-4 py-2 text-right"><%= denominator.to_i.positive? ? "#{(row[:count].to_f * 100 / denominator).round(2)}%" : '—' %></td>
+                    <td class="px-4 py-2 text-right"><%= money.call(row[:revenue_lost]) %></td>
+                    <td class="px-4 py-2 text-right"><%= s[:revenue_base].to_f.positive? ? "#{(row[:revenue_lost].to_f * 100 / s[:revenue_base]).round(2)}%" : '—' %></td>
+                    <td class="px-4 py-2 text-right"><%= money.call(row[:ltv]) %></td>
+                    <td class="px-4 py-2 text-right"><%= money.call(row[:subscription]) %></td>
+                    <td class="px-4 py-2 text-right"><%= money.call(row[:usage]) %></td>
+                    <td class="px-4 py-2 text-right"><%= row[:returned].to_i %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-2 text-xs text-gray-500">
+            Stores that came back (reinstalled or resubscribed) are excluded from churn counts, rates, revenue lost and LTV, and shown under "Came back".
+            Store churn is measured against installed stores; subscription churn counts paying stores lost (cancelled, downgraded, or uninstalled while paying) against stores that paid in the 30 days before the period.
+            Revenue is net of Shopify's share (Partner API, USD). The list filters (LTV, revenue, orders, age, days with COD King) only apply to the list below.
+          </p>
+        </div>
+
+        <!-- Churned stores -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold text-gray-900">Churned stores <span class="text-gray-500 font-normal">(<%= @stores.total_count %>)</span></h2>
+            <% if s[:last_synced_at] %>
+              <span class="text-xs text-gray-500">Partner data updated <%= time_ago_in_words(s[:last_synced_at]) %> ago</span>
+            <% end %>
+          </div>
+
+          <% if @stores.any? %>
+            <div class="overflow-x-auto rounded-lg border border-gray-200">
+              <table class="min-w-full text-sm">
+                <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                  <tr>
+                    <th class="text-left px-4 py-2">Store</th>
+                    <th class="text-left px-4 py-2">Churn</th>
+                    <th class="text-left px-4 py-2">Plan</th>
+                    <th class="text-right px-4 py-2">LTV (net)</th>
+                    <th class="text-right px-4 py-2">Orders</th>
+                    <th class="text-left px-4 py-2">With COD King</th>
+                    <th class="text-left px-4 py-2">Features</th>
+                    <th class="text-left px-4 py-2">Contact</th>
+                    <th class="text-left px-4 py-2">Came back</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 align-top">
+                  <% @stores.each do |store| %>
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-3 max-w-[220px]">
+                        <a href="https://<%= store.shopify_domain %>" target="_blank" rel="noopener" class="font-medium text-blue-600 hover:underline break-all"><%= store.shopify_domain %></a>
+                        <div class="text-xs text-gray-500"><%= store.owner_name.presence || '—' %><%= " · #{store.country}" if store.country.present? %></div>
+                        <% if store.prior_churn_count.to_i.positive? %>
+                          <div class="text-xs text-gray-500 mt-0.5">Churned <%= pluralize(store.prior_churn_count, 'time') %> before</div>
+                        <% end %>
+                        <% if store.sync_error.present? %>
+                          <div class="text-xs text-red-600 mt-0.5" title="<%= store.sync_error %>">Partner data missing</div>
+                        <% end %>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded text-xs <%= type_badge[store.churn_type] %>"><%= store.type_label %></span>
+                        <div class="text-xs text-gray-600 mt-1"><%= store.churned_at.in_time_zone('Asia/Kolkata').strftime('%b %d, %Y %H:%M') %></div>
+                        <% if store.uninstall_reason.present? %>
+                          <div class="text-xs text-gray-500 mt-1 max-w-[180px] whitespace-normal" title="<%= store.uninstall_feedback %>">“<%= truncate(store.uninstall_reason, length: 60) %>”</div>
+                        <% end %>
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div><%= store.plan_name.presence || '—' %></div>
+                        <% if store.plan_amount %><div class="text-xs text-gray-500"><%= money.call(store.plan_amount) %>/mo</div><% end %>
+                      </td>
+                      <td class="px-4 py-3 text-right whitespace-nowrap">
+                        <div class="font-semibold text-gray-900"><%= money.call(store.ltv_net) %></div>
+                        <div class="text-xs text-gray-500">Sub <%= money.call(store.subscription_net) %> · Usage <%= money.call(store.usage_net) %></div>
+                        <% if store.adjustment_net.to_f.nonzero? %><div class="text-xs text-gray-500">Adj <%= money.call(store.adjustment_net) %></div><% end %>
+                        <div class="text-xs text-gray-500" title="Net revenue in the 30 days before churn (subscription only for downgrades)">Lost / 30d <%= money.call(store.last_30d_net) %></div>
+                      </td>
+                      <td class="px-4 py-3 text-right"><%= store.orders_processed.nil? ? '—' : number_with_delimiter(store.orders_processed) %></td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        <div><%= store.tenure_days.nil? ? '—' : pluralize(store.tenure_days, 'day') %></div>
+                        <% if store.installed_at %><div class="text-xs text-gray-500">since <%= store.installed_at.strftime('%b %d, %Y') %></div><% end %>
+                        <div class="text-xs text-gray-500">Store age: <%= store.store_age_days.nil? ? '—' : (store.store_age_days >= 365 ? "#{(store.store_age_days / 365.0).round(1)} yrs" : pluralize(store.store_age_days, 'day')) %></div>
+                      </td>
+                      <td class="px-4 py-3 max-w-[220px]">
+                        <% if Array(store.features).any? %>
+                          <div class="flex flex-wrap gap-1">
+                            <% Array(store.features).each do |feature| %>
+                              <span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-xs"><%= feature %></span>
+                            <% end %>
+                          </div>
+                        <% else %>
+                          <span class="text-xs text-gray-400">None recorded</span>
+                        <% end %>
+                      </td>
+                      <td class="px-4 py-3 text-xs max-w-[200px]">
+                        <% if store.email.present? %><a href="mailto:<%= store.email %>" class="text-blue-600 hover:underline break-all"><%= store.email %></a><% end %>
+                        <% if store.phone.present? %>
+                          <div class="mt-1"><a href="https://wa.me/<%= store.phone.gsub(/[^0-9]/, '') %>" target="_blank" rel="noopener" class="text-green-700 hover:underline"><%= store.phone %></a></div>
+                        <% end %>
+                        <% if store.email.blank? && store.phone.blank? %><span class="text-gray-400">—</span><% end %>
+                      </td>
+                      <td class="px-4 py-3 text-xs whitespace-nowrap">
+                        <% if store.returned %>
+                          <div class="text-green-700 font-medium"><%= store.churn_type == 'uninstalled' ? 'Reinstalled' : 'Resubscribed' %> <%= store.returned_at&.strftime('%b %d') %></div>
+                          <div class="text-gray-500">after <%= pluralize(store.return_gap_days.to_i, 'day') %></div>
+                          <div class="text-gray-500"><%= store.still_installed ? "Installed · #{store.current_plan_name.presence || 'no plan'}" : 'Not installed now' %></div>
+                          <% unless store.orders_since_return.nil? %><div class="text-gray-500"><%= number_with_delimiter(store.orders_since_return) %> orders since</div><% end %>
+                          <div class="text-gray-500"><%= money.call(store.net_since_return) %> earned since</div>
+                        <% else %>
+                          <span class="text-gray-400">No</span>
+                          <% if store.churn_type != 'uninstalled' && store.still_installed %><div class="text-gray-500">Still installed · <%= store.current_plan_name.presence || 'no plan' %></div><% end %>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-4"><%= paginate @stores if respond_to?(:paginate) %></div>
+          <% else %>
+            <div class="text-center py-12 border border-dashed border-gray-300 rounded-lg">
+              <h3 class="text-sm font-medium text-gray-900">No churned stores match</h3>
+              <p class="mt-1 text-sm text-gray-500">Widen the dates or LTV filter, or run a sync to pull the latest uninstalls and cancellations.</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('churn-sync-form');
+    var button = document.getElementById('churn-sync-button');
+    var statusEl = document.getElementById('churn-sync-status');
+    var statusUrl = '<%= support_dashboard_churn_sync_status_path %>';
+    var pollTimer = null;
+    var wasActive = statusEl.dataset.active === 'true';
+
+    function render(s) {
+      var active = !!(s && s.active);
+      button.disabled = !!active;
+      if (!s || !s.state) { statusEl.textContent = 'Not synced yet.'; return active; }
+      if (active) {
+        statusEl.textContent = '';
+        var badge = document.createElement('span');
+        badge.className = 'text-blue-700 font-medium';
+        badge.textContent = s.state === 'queued' ? 'Queued' : 'Running';
+        statusEl.appendChild(badge);
+        statusEl.appendChild(document.createTextNode(' ' + (s.step || '')));
+      } else {
+        var finished = s.state === 'failed' ? 'failed' : (s.state === 'completed' ? 'finished' : 'did not finish');
+        var msg = 'Last sync ' + finished + ' (' + s.days + 'd, ' + s.triggered_by + ')';
+        if (s.message) msg += ' — ' + s.message;
+        statusEl.textContent = msg;
+      }
+      return active;
+    }
+
+    function poll() {
+      fetch(statusUrl, { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (s) {
+          var active = render(s);
+          if (active) { pollTimer = setTimeout(poll, 4000); }
+          else if (wasActive && s.state === 'completed') { window.location.reload(); }
+          wasActive = active;
+        })
+        .catch(function () { pollTimer = setTimeout(poll, 10000); });
+    }
+
+    form.addEventListener('submit', function (e) {
+      if (!window.fetch) return;
+      e.preventDefault();
+      button.disabled = true;
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+      })
+        .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, json: j }; }); })
+        .then(function (res) {
+          render(res.json && res.json.status);
+          if (!res.ok && res.json && res.json.error) statusEl.textContent = res.json.error;
+          wasActive = true;
+          clearTimeout(pollTimer);
+          pollTimer = setTimeout(poll, 2000);
+        })
+        .catch(function (err) { button.disabled = false; statusEl.textContent = 'Could not start sync: ' + err.message; });
+    });
+
+    if (wasActive) poll();
+  })();
+</script>
+</body>
+</html>

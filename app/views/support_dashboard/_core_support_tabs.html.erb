@@ -1,0 +1,38 @@
+<% active = (local_assigns[:active] || :home).to_sym %>
+<% lead_q = (local_assigns[:support_lead_filters] || {}).to_h.compact %>
+  <%= link_to support_dashboard_support_lead_queue_path(lead_q), class: support_core_tab_class(active, :support_lead_queue) do %>
+    Support leads
+  <% end %>
+  <%= link_to support_dashboard_uninstalled_path, class: support_core_tab_class(active, :uninstalled) do %>
+    Uninstalled Follow-ups
+  <% end %>
+  <%= link_to support_dashboard_churn_path, class: support_core_tab_class(active, :churn) do %>
+    Churn
+  <% end %>
+  <%= link_to support_dashboard_churn_feedback_path, class: support_core_tab_class(active, :churn_feedback) do %>
+    Churned feedback
+  <% end %>
+  <%= link_to support_dashboard_risk_customers_path, class: support_core_tab_class(active, :risk_customers) do %>
+    Risk customers
+  <% end %>
+  <%= link_to support_dashboard_followups_path, class: support_core_tab_class(active, :followups) do %>
+    Follow-ups
+  <% end %>
+  <%= link_to support_dashboard_callbacks_path, class: support_core_tab_class(active, :callbacks) do %>
+    Callbacks
+  <% end %>
+  <%= link_to support_dashboard_whatsapp_integration_requests_path, class: support_core_tab_class(active, :whatsapp_integration) do %>
+    WhatsApp Integration
+  <% end %>
+  <%= link_to engagement_dashboard_path, class: support_core_tab_class(active, :engagement) do %>
+    Engagement
+  <% end %>
+  <%= link_to support_dashboard_otp_campaign_path, class: support_core_tab_class(active, :otp_campaign) do %>
+    OTP Campaign
+  <% end %>
+  <%= link_to support_dashboard_feature_shops_path, class: support_core_tab_class(active, :feature_shops) do %>
+    COD Form / WhatsApp
+  <% end %>
+  <%= link_to support_dashboard_whatsapp_retries_path, class: support_core_tab_class(active, :whatsapp_retries) do %>
+    WhatsApp Retries
+  <% end %>

@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GST Invoice — Support Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #invoice-preview, #invoice-preview * { visibility: visible; }
+      #invoice-preview { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none !important; border: 0 !important; }
+    }
+  </style>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">GST Invoice</h1>
+          <p class="text-sm text-gray-500">Generate a tax invoice from <%= GstInvoiceSeller::NAME %> and download it as a PDF</p>
+        </div>
+        <%= link_to "← Back to dashboard", support_dashboard_path,
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- ===== Form ===== -->
+      <div class="lg:col-span-5 space-y-6">
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5">
+          <h2 class="text-sm font-semibold text-gray-900 mb-3">Seller</h2>
+          <dl class="text-sm text-gray-700 space-y-1">
+            <div><dt class="inline text-gray-500">Name:</dt> <dd class="inline font-medium"><%= GstInvoiceSeller::NAME %></dd></div>
+            <div><dt class="inline text-gray-500">Address:</dt> <dd class="inline"><%= GstInvoiceSeller::ADDRESS %></dd></div>
+            <div><dt class="inline text-gray-500">GSTIN:</dt> <dd class="inline font-mono"><%= GstInvoiceSeller::GSTIN %></dd></div>
+            <div><dt class="inline text-gray-500">State:</dt> <dd class="inline"><%= GstInvoiceSeller::STATE %> (<%= GstInvoiceSeller::STATE_CODE %>)</dd></div>
+          </dl>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5">
+          <h2 class="text-sm font-semibold text-gray-900 mb-3">Invoice details</h2>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Invoice number <span class="text-red-500">*</span></label>
+              <input id="f-number" type="text" placeholder="NT/2026-27/001" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Invoice date <span class="text-red-500">*</span></label>
+              <input id="f-date" type="date" value="<%= Date.current.iso8601 %>" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Due date</label>
+              <input id="f-due" type="date" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">GST rate (%)</label>
+              <input id="f-rate" type="number" min="0" max="100" step="0.01" value="18" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500">
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5">
+          <h2 class="text-sm font-semibold text-gray-900 mb-3">Buyer (Bill to)</h2>
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Name <span class="text-red-500">*</span></label>
+              <input id="f-buyer-name" type="text" placeholder="Acme Retail Pvt Ltd" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Address <span class="text-red-500">*</span></label>
+              <textarea id="f-buyer-address" rows="3" placeholder="Street, City, State - PIN" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">GSTIN</label>
+                <input id="f-buyer-gstin" type="text" maxlength="15" placeholder="29ABCDE1234F1Z5" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm font-mono uppercase focus:border-sky-500 focus:ring-sky-500">
+                <p id="gstin-hint" class="text-xs text-gray-400 mt-1">Leave blank for an unregistered buyer.</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">State <span class="text-red-500">*</span></label>
+                <select id="f-buyer-state" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500"></select>
+                <p class="text-xs text-gray-400 mt-1">Auto-filled from GSTIN. Also used as place of supply.</p>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Email / phone (optional)</label>
+              <input id="f-buyer-contact" type="text" placeholder="billing@acme.in · +91 98765 43210" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500">
+            </div>
+            <div>
+              <span class="block text-sm font-medium text-gray-700 mb-1">Tax type</span>
+              <div class="flex gap-4 text-sm text-gray-700">
+                <label class="flex items-center gap-1"><input type="radio" name="taxtype" value="auto" checked> Auto <span id="taxtype-auto-label" class="text-gray-400"></span></label>
+                <label class="flex items-center gap-1"><input type="radio" name="taxtype" value="intra"> CGST + SGST</label>
+                <label class="flex items-center gap-1"><input type="radio" name="taxtype" value="inter"> IGST</label>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">Auto picks CGST + SGST when the buyer is in <%= GstInvoiceSeller::STATE %>, otherwise IGST.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold text-gray-900">Line items</h2>
+            <button type="button" id="add-item" class="text-sm text-sky-700 hover:underline">+ Add item</button>
+          </div>
+          <div id="items" class="space-y-3"></div>
+          <p class="text-xs text-gray-400 mt-3">Amounts are exclusive of GST. SAC 998315 covers SaaS / hosting &amp; IT infrastructure provisioning; change it per line if needed.</p>
+        </div>
+
+        <div class="bg-white rounded-lg border border-gray-200 p-5">
+          <h2 class="text-sm font-semibold text-gray-900 mb-3">Extras</h2>
+          <div class="grid grid-cols-1 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Bank details (printed on invoice)</label>
+              <textarea id="f-bank" rows="3" placeholder="Account name, bank, A/C no., IFSC, UPI" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500"></textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Notes / terms</label>
+              <textarea id="f-notes" rows="2" class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-sky-500 focus:ring-sky-500">Payment due within 7 days of invoice date. Subject to Bangalore jurisdiction.</textarea>
+            </div>
+            <p class="text-xs text-gray-400">Bank details and notes are remembered in this browser for next time.</p>
+          </div>
+        </div>
+
+        <div id="form-errors" class="hidden rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"></div>
+
+        <div class="flex items-center gap-3">
+          <button type="button" id="download-pdf" class="inline-flex items-center rounded-md bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2">
+            Download PDF
+          </button>
+          <button type="button" id="print-invoice" class="inline-flex items-center rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+            Print
+          </button>
+        </div>
+      </div>
+
+      <!-- ===== Preview ===== -->
+      <div class="lg:col-span-7">
+        <div class="sticky top-6">
+          <p class="text-xs text-gray-400 mb-2">Live preview — the PDF follows this layout.</p>
+          <div id="invoice-preview" class="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-[13px] text-gray-800 leading-snug">
+            <div class="flex justify-between items-start">
+              <div>
+                <div class="text-lg font-bold text-gray-900"><%= GstInvoiceSeller::NAME %></div>
+                <div class="whitespace-pre-line text-gray-600"><%= GstInvoiceSeller::ADDRESS_LINES.join("\n") %></div>
+                <div class="mt-1">GSTIN: <span class="font-mono"><%= GstInvoiceSeller::GSTIN %></span></div>
+                <div>State: <%= GstInvoiceSeller::STATE %>, Code <%= GstInvoiceSeller::STATE_CODE %></div>
+              </div>
+              <div class="text-right">
+                <div class="text-2xl font-bold tracking-wide text-gray-900">TAX INVOICE</div>
+                <div class="text-gray-500">Original for recipient</div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-6 mt-6">
+              <div class="border border-gray-200 rounded p-3">
+                <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Bill to</div>
+                <div class="font-semibold" data-pv="buyer_name">—</div>
+                <div class="whitespace-pre-line text-gray-600" data-pv="buyer_address"></div>
+                <div class="mt-1" data-pv="buyer_gstin_line"></div>
+                <div data-pv="buyer_state_line"></div>
+                <div class="text-gray-600" data-pv="buyer_contact"></div>
+              </div>
+              <div class="border border-gray-200 rounded p-3">
+                <table class="w-full">
+                  <tr><td class="text-gray-500 pr-2 py-0.5">Invoice no.</td><td class="font-semibold text-right" data-pv="number">—</td></tr>
+                  <tr><td class="text-gray-500 pr-2 py-0.5">Invoice date</td><td class="text-right" data-pv="date">—</td></tr>
+                  <tr data-pv-row="due"><td class="text-gray-500 pr-2 py-0.5">Due date</td><td class="text-right" data-pv="due">—</td></tr>
+                  <tr><td class="text-gray-500 pr-2 py-0.5">Place of supply</td><td class="text-right" data-pv="pos">—</td></tr>
+                  <tr><td class="text-gray-500 pr-2 py-0.5">Reverse charge</td><td class="text-right">No</td></tr>
+                </table>
+              </div>
+            </div>
+
+            <table class="w-full mt-6 border-collapse">
+              <thead>
+                <tr class="bg-gray-100 text-xs uppercase tracking-wide text-gray-600">
+                  <th class="border border-gray-200 px-2 py-1.5 text-left w-8">#</th>
+                  <th class="border border-gray-200 px-2 py-1.5 text-left">Description</th>
+                  <th class="border border-gray-200 px-2 py-1.5 text-left w-20">SAC/HSN</th>
+                  <th class="border border-gray-200 px-2 py-1.5 text-right w-14">Qty</th>
+                  <th class="border border-gray-200 px-2 py-1.5 text-right w-24">Rate</th>
+                  <th class="border border-gray-200 px-2 py-1.5 text-right w-28">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="pv-items"></tbody>
+            </table>
+
+            <div class="flex justify-end mt-4">
+              <table class="w-72">
+                <tr><td class="text-gray-500 py-0.5">Taxable value</td><td class="text-right" data-pv="subtotal">0.00</td></tr>
+                <tbody id="pv-taxes"></tbody>
+                <tr data-pv-row="roundoff"><td class="text-gray-500 py-0.5">Round off</td><td class="text-right" data-pv="roundoff">0.00</td></tr>
+                <tr class="border-t border-gray-300 font-bold text-base"><td class="py-1">Total</td><td class="text-right py-1" data-pv="total">Rs. 0.00</td></tr>
+              </table>
+            </div>
+            <div class="mt-2"><span class="text-gray-500">Amount in words:</span> <span class="font-medium" data-pv="words"></span></div>
+
+            <div class="grid grid-cols-2 gap-6 mt-6">
+              <div>
+                <div data-pv-row="bank">
+                  <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Bank details</div>
+                  <div class="whitespace-pre-line text-gray-700" data-pv="bank"></div>
+                </div>
+                <div data-pv-row="notes" class="mt-3">
+                  <div class="text-xs uppercase tracking-wide text-gray-500 mb-1">Notes</div>
+                  <div class="whitespace-pre-line text-gray-700" data-pv="notes"></div>
+                </div>
+              </div>
+              <div class="text-right flex flex-col justify-end">
+                <div class="font-semibold">For <%= GstInvoiceSeller::NAME %></div>
+                <div class="h-12"></div>
+                <div class="text-gray-600">Authorised Signatory</div>
+              </div>
+            </div>
+            <div class="mt-6 text-center text-xs text-gray-400">This is a computer-generated invoice.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var SELLER = <%= raw({
+    name: GstInvoiceSeller::NAME,
+    address_lines: GstInvoiceSeller::ADDRESS_LINES,
+    gstin: GstInvoiceSeller::GSTIN,
+    state: GstInvoiceSeller::STATE,
+    state_code: GstInvoiceSeller::STATE_CODE
+  }.to_json) %>;
+  var STATES = <%= raw(GstInvoiceSeller::STATES.to_json) %>;
+  var DEFAULT_SAC = "998315";
+  var LS_KEY = "support_gst_invoice_prefs";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var pv = function (key) { return document.querySelector('[data-pv="' + key + '"]'); };
+  var pvRow = function (key) { return document.querySelector('[data-pv-row="' + key + '"]'); };
+
+  // ---------- state select ----------
+  var stateSel = $("f-buyer-state");
+  Object.keys(STATES).sort(function (a, b) { return STATES[a].localeCompare(STATES[b]); }).forEach(function (code) {
+    var o = document.createElement("option");
+    o.value = code; o.textContent = STATES[code] + " (" + code + ")";
+    stateSel.appendChild(o);
+  });
+  stateSel.value = SELLER.state_code;
+
+  // ---------- line items ----------
+  var itemsEl = $("items");
+  function addItem(data) {
+    data = data || {};
+    var row = document.createElement("div");
+    row.className = "item-row grid grid-cols-12 gap-2 items-start";
+    row.innerHTML =
+      '<div class="col-span-12 sm:col-span-5"><input data-f="desc" type="text" placeholder="Description" class="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"></div>' +
+      '<div class="col-span-4 sm:col-span-2"><input data-f="sac" type="text" placeholder="SAC" class="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm font-mono"></div>' +
+      '<div class="col-span-3 sm:col-span-1"><input data-f="qty" type="number" min="0" step="any" placeholder="Qty" class="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-right"></div>' +
+      '<div class="col-span-4 sm:col-span-3"><input data-f="rate" type="number" min="0" step="0.01" placeholder="Rate (Rs.)" class="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-right"></div>' +
+      '<div class="col-span-1 flex items-center justify-end"><button type="button" data-remove class="text-gray-400 hover:text-red-600 text-lg leading-none" title="Remove">&times;</button></div>';
+    row.querySelector('[data-f="desc"]').value = data.desc || "";
+    row.querySelector('[data-f="sac"]').value = data.sac || DEFAULT_SAC;
+    row.querySelector('[data-f="qty"]').value = data.qty != null ? data.qty : 1;
+    row.querySelector('[data-f="rate"]').value = data.rate != null ? data.rate : "";
+    row.querySelector("[data-remove]").addEventListener("click", function () {
+      if (itemsEl.querySelectorAll(".item-row").length > 1) row.remove();
+      else row.querySelectorAll("input").forEach(function (i) { i.value = i.dataset.f === "sac" ? DEFAULT_SAC : (i.dataset.f === "qty" ? 1 : ""); });
+      render();
+    });
+    itemsEl.appendChild(row);
+    return row;
+  }
+  $("add-item").addEventListener("click", function () { addItem().querySelector("input").focus(); render(); });
+
+  // ---------- helpers ----------
+  var inr = new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function money(n) { return "Rs. " + inr.format(round2(n)); }
+  function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+  function fmtDate(iso) {
+    if (!iso) return "";
+    var p = iso.split("-");
+    if (p.length !== 3) return iso;
+    var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return p[2] + " " + months[parseInt(p[1], 10) - 1] + " " + p[0];
+  }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  // Indian-system number to words
+  var ONES = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+  var TENS = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+  function below100(n) { return n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? " " + ONES[n % 10] : ""); }
+  function below1000(n) {
+    var h = Math.floor(n / 100), r = n % 100, s = "";
+    if (h) s += ONES[h] + " Hundred";
+    if (r) s += (s ? " " : "") + below100(r);
+    return s;
+  }
+  function intWords(n) {
+    if (n === 0) return "Zero";
+    var parts = [], crore = Math.floor(n / 10000000); n %= 10000000;
+    var lakh = Math.floor(n / 100000); n %= 100000;
+    var thou = Math.floor(n / 1000); n %= 1000;
+    if (crore) parts.push(intWords(crore) + " Crore");
+    if (lakh) parts.push(below100(lakh) + " Lakh");
+    if (thou) parts.push(below100(thou) + " Thousand");
+    if (n) parts.push(below1000(n));
+    return parts.join(" ");
+  }
+  function amountWords(amt) {
+    amt = round2(amt);
+    var rupees = Math.floor(amt), paise = Math.round((amt - rupees) * 100);
+    var s = "Rupees " + intWords(rupees);
+    if (paise) s += " and " + below100(paise) + " Paise";
+    return s + " Only";
+  }
+
+  // ---------- gather ----------
+  function taxTypeChoice() { return document.querySelector('input[name="taxtype"]:checked').value; }
+  function gather() {
+    var items = [];
+    itemsEl.querySelectorAll(".item-row").forEach(function (row) {
+      var g = function (f) { return row.querySelector('[data-f="' + f + '"]').value.trim(); };
+      var qty = parseFloat(g("qty")), rate = parseFloat(g("rate"));
+      if (!g("desc") && isNaN(rate)) return;
+      items.push({ desc: g("desc"), sac: g("sac"), qty: isNaN(qty) ? 0 : qty, rate: isNaN(rate) ? 0 : rate, amount: round2((isNaN(qty) ? 0 : qty) * (isNaN(rate) ? 0 : rate)) });
+    });
+    var stateCode = stateSel.value;
+    var choice = taxTypeChoice();
+    var intra = choice === "auto" ? stateCode === SELLER.state_code : choice === "intra";
+    var rate = parseFloat($("f-rate").value); if (isNaN(rate) || rate < 0) rate = 0;
+    var subtotal = round2(items.reduce(function (s, i) { return s + i.amount; }, 0));
+    var taxes = [];
+    if (intra) {
+      var half = round2(subtotal * rate / 200);
+      taxes.push({ label: "CGST @ " + (rate / 2) + "%", amount: half });
+      taxes.push({ label: "SGST @ " + (rate / 2) + "%", amount: half });
+    } else {
+      taxes.push({ label: "IGST @ " + rate + "%", amount: round2(subtotal * rate / 100) });
+    }
+    var taxTotal = round2(taxes.reduce(function (s, t) { return s + t.amount; }, 0));
+    var gross = round2(subtotal + taxTotal);
+    var total = Math.round(gross);
+    var roundoff = round2(total - gross);
+    return {
+      number: $("f-number").value.trim(),
+      date: $("f-date").value,
+      due: $("f-due").value,
+      buyer: {
+        name: $("f-buyer-name").value.trim(),
+        address: $("f-buyer-address").value.trim(),
+        gstin: $("f-buyer-gstin").value.trim().toUpperCase(),
+        state_code: stateCode,
+        state: STATES[stateCode] || "",
+        contact: $("f-buyer-contact").value.trim()
+      },
+      intra: intra, gst_rate: rate, items: items, subtotal: subtotal, taxes: taxes, tax_total: taxTotal, roundoff: roundoff, total: total,
+      words: amountWords(total),
+      bank: $("f-bank").value.trim(),
+      notes: $("f-notes").value.trim()
+    };
+  }
+
+  function validate(d) {
+    var errs = [];
+    if (!d.number) errs.push("Invoice number is required.");
+    if (!d.date) errs.push("Invoice date is required.");
+    if (!d.buyer.name) errs.push("Buyer name is required.");
+    if (!d.buyer.address) errs.push("Buyer address is required.");
+    if (d.buyer.gstin && !/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z][1-9A-Z]Z[0-9A-Z]$/.test(d.buyer.gstin)) errs.push("Buyer GSTIN doesn't look valid (15 characters, e.g. 29ABCDE1234F1Z5).");
+    if (!d.items.length) errs.push("Add at least one line item.");
+    d.items.forEach(function (i, idx) {
+      if (!i.desc) errs.push("Line " + (idx + 1) + ": description is required.");
+      if (!(i.qty > 0)) errs.push("Line " + (idx + 1) + ": quantity must be greater than 0.");
+      if (!(i.rate > 0)) errs.push("Line " + (idx + 1) + ": rate must be greater than 0.");
+    });
+    return errs;
+  }
+
+  // ---------- preview ----------
+  function render() {
+    var d = gather();
+    pv("buyer_name").textContent = d.buyer.name || "—";
+    pv("buyer_address").textContent = d.buyer.address;
+    pv("buyer_gstin_line").textContent = d.buyer.gstin ? "GSTIN: " + d.buyer.gstin : "Unregistered (B2C)";
+    pv("buyer_state_line").textContent = d.buyer.state ? "State: " + d.buyer.state + ", Code " + d.buyer.state_code : "";
+    pv("buyer_contact").textContent = d.buyer.contact;
+    pv("number").textContent = d.number || "—";
+    pv("date").textContent = fmtDate(d.date) || "—";
+    pvRow("due").style.display = d.due ? "" : "none";
+    pv("due").textContent = fmtDate(d.due);
+    pv("pos").textContent = d.buyer.state ? d.buyer.state + " (" + d.buyer.state_code + ")" : "—";
+
+    var tb = $("pv-items"); tb.innerHTML = "";
+    if (!d.items.length) tb.innerHTML = '<tr><td colspan="6" class="border border-gray-200 px-2 py-3 text-center text-gray-400">No line items yet</td></tr>';
+    d.items.forEach(function (i, idx) {
+      tb.innerHTML += '<tr>' +
+        '<td class="border border-gray-200 px-2 py-1.5">' + (idx + 1) + '</td>' +
+        '<td class="border border-gray-200 px-2 py-1.5">' + esc(i.desc) + '</td>' +
+        '<td class="border border-gray-200 px-2 py-1.5 font-mono">' + esc(i.sac) + '</td>' +
+        '<td class="border border-gray-200 px-2 py-1.5 text-right">' + esc(i.qty) + '</td>' +
+        '<td class="border border-gray-200 px-2 py-1.5 text-right">' + inr.format(i.rate) + '</td>' +
+        '<td class="border border-gray-200 px-2 py-1.5 text-right">' + inr.format(i.amount) + '</td></tr>';
+    });
+    pv("subtotal").textContent = inr.format(d.subtotal);
+    var tx = $("pv-taxes"); tx.innerHTML = "";
+    d.taxes.forEach(function (t) { tx.innerHTML += '<tr><td class="text-gray-500 py-0.5">' + esc(t.label) + '</td><td class="text-right">' + inr.format(t.amount) + '</td></tr>'; });
+    pvRow("roundoff").style.display = d.roundoff ? "" : "none";
+    pv("roundoff").textContent = (d.roundoff > 0 ? "+" : "") + inr.format(d.roundoff);
+    pv("total").textContent = money(d.total);
+    pv("words").textContent = d.words;
+    pvRow("bank").style.display = d.bank ? "" : "none";
+    pv("bank").textContent = d.bank;
+    pvRow("notes").style.display = d.notes ? "" : "none";
+    pv("notes").textContent = d.notes;
+    $("taxtype-auto-label").textContent = "(" + (d.intra ? "CGST + SGST" : "IGST") + ")";
+  }
+
+  // ---------- PDF ----------
+  function buildPdf(d) {
+    var jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF({ unit: "mm", format: "a4" });
+    var W = doc.internal.pageSize.getWidth(), M = 15, y = M;
+    var GRAY = [90, 90, 90], DARK = [20, 20, 20], LINE = [200, 200, 200];
+
+    // Header
+    doc.setFont("helvetica", "bold").setFontSize(15).setTextColor.apply(doc, DARK);
+    doc.text(SELLER.name, M, y + 5);
+    doc.setFontSize(18); doc.text("TAX INVOICE", W - M, y + 5, { align: "right" });
+    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor.apply(doc, GRAY);
+    doc.text("Original for recipient", W - M, y + 10, { align: "right" });
+    var yy = y + 10;
+    SELLER.address_lines.forEach(function (l) { doc.text(l, M, yy); yy += 4.2; });
+    doc.setTextColor.apply(doc, DARK);
+    doc.text("GSTIN: " + SELLER.gstin, M, yy); yy += 4.2;
+    doc.text("State: " + SELLER.state + ", Code " + SELLER.state_code, M, yy); yy += 4.2;
+    y = yy + 4;
+    doc.setDrawColor.apply(doc, LINE); doc.line(M, y, W - M, y); y += 6;
+
+    // Bill to + meta boxes
+    var colW = (W - 2 * M - 6) / 2, boxTop = y;
+    doc.setFontSize(8).setTextColor.apply(doc, GRAY); doc.text("BILL TO", M + 3, y + 5);
+    doc.setFontSize(10).setTextColor.apply(doc, DARK).setFont("helvetica", "bold");
+    doc.text(d.buyer.name, M + 3, y + 10.5);
+    doc.setFont("helvetica", "normal").setFontSize(9).setTextColor.apply(doc, GRAY);
+    var addrLines = doc.splitTextToSize(d.buyer.address, colW - 6);
+    doc.text(addrLines, M + 3, y + 15);
+    var by = y + 15 + addrLines.length * 4.2;
+    doc.setTextColor.apply(doc, DARK);
+    doc.text(d.buyer.gstin ? "GSTIN: " + d.buyer.gstin : "Unregistered (B2C)", M + 3, by); by += 4.2;
+    if (d.buyer.state) { doc.text("State: " + d.buyer.state + ", Code " + d.buyer.state_code, M + 3, by); by += 4.2; }
+    if (d.buyer.contact) { doc.setTextColor.apply(doc, GRAY); doc.text(d.buyer.contact, M + 3, by); by += 4.2; }
+
+    var metaX = M + colW + 6, my = y + 5.5;
+    var meta = [["Invoice no.", d.number], ["Invoice date", fmtDate(d.date)]];
+    if (d.due) meta.push(["Due date", fmtDate(d.due)]);
+    meta.push(["Place of supply", d.buyer.state + " (" + d.buyer.state_code + ")"]);
+    meta.push(["Reverse charge", "No"]);
+    meta.forEach(function (m, i) {
+      doc.setTextColor.apply(doc, GRAY).setFont("helvetica", "normal"); doc.text(m[0], metaX + 3, my);
+      doc.setTextColor.apply(doc, DARK).setFont("helvetica", i === 0 ? "bold" : "normal"); doc.text(m[1], metaX + colW - 3, my, { align: "right" });
+      my += 5;
+    });
+    var boxH = Math.max(by, my) - boxTop + 1;
+    doc.setDrawColor.apply(doc, LINE);
+    doc.roundedRect(M, boxTop, colW, boxH, 1.5, 1.5);
+    doc.roundedRect(metaX, boxTop, colW, boxH, 1.5, 1.5);
+    y = boxTop + boxH + 8;
+
+    // Items table
+    doc.autoTable({
+      startY: y, margin: { left: M, right: M },
+      head: [["#", "Description", "SAC/HSN", "Qty", "Rate (Rs.)", "Amount (Rs.)"]],
+      body: d.items.map(function (i, idx) { return [idx + 1, i.desc, i.sac, String(i.qty), inr.format(i.rate), inr.format(i.amount)]; }),
+      theme: "grid",
+      styles: { font: "helvetica", fontSize: 9, cellPadding: 2.2, lineColor: LINE, lineWidth: 0.2, textColor: DARK },
+      headStyles: { fillColor: [243, 244, 246], textColor: [60, 60, 60], fontStyle: "bold" },
+      columnStyles: { 0: { cellWidth: 9 }, 2: { cellWidth: 20 }, 3: { cellWidth: 14, halign: "right" }, 4: { cellWidth: 28, halign: "right" }, 5: { cellWidth: 32, halign: "right" } }
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    // Totals
+    var tW = 80, tX = W - M - tW;
+    var rows = [["Taxable value", inr.format(d.subtotal)]];
+    d.taxes.forEach(function (t) { rows.push([t.label, inr.format(t.amount)]); });
+    if (d.roundoff) rows.push(["Round off", (d.roundoff > 0 ? "+" : "") + inr.format(d.roundoff)]);
+    doc.setFontSize(9).setFont("helvetica", "normal");
+    rows.forEach(function (r) {
+      doc.setTextColor.apply(doc, GRAY); doc.text(r[0], tX, y);
+      doc.setTextColor.apply(doc, DARK); doc.text(r[1], W - M, y, { align: "right" });
+      y += 5;
+    });
+    doc.setDrawColor.apply(doc, LINE); doc.line(tX, y - 2.5, W - M, y - 2.5); y += 1.5;
+    doc.setFont("helvetica", "bold").setFontSize(11);
+    doc.text("Total", tX, y); doc.text(money(d.total), W - M, y, { align: "right" });
+    y += 7;
+    doc.setFont("helvetica", "normal").setFontSize(9);
+    doc.setTextColor.apply(doc, GRAY); doc.text("Amount in words:", M, y);
+    doc.setTextColor.apply(doc, DARK).setFont("helvetica", "bold");
+    doc.text(doc.splitTextToSize(d.words, W - 2 * M - 30), M + 30, y);
+    doc.setFont("helvetica", "normal");
+    y += 10;
+
+    // Bank + notes (left), signature (right)
+    var leftY = y;
+    function block(title, text) {
+      if (!text) return;
+      doc.setFontSize(8).setTextColor.apply(doc, GRAY); doc.text(title, M, leftY); leftY += 4;
+      doc.setFontSize(9).setTextColor.apply(doc, DARK);
+      var ls = doc.splitTextToSize(text, colW); doc.text(ls, M, leftY); leftY += ls.length * 4.2 + 3;
+    }
+    block("BANK DETAILS", d.bank);
+    block("NOTES", d.notes);
+    var sigY = Math.max(leftY, y + 8);
+    doc.setFontSize(9).setFont("helvetica", "bold").setTextColor.apply(doc, DARK);
+    doc.text("For " + SELLER.name, W - M, y + 2, { align: "right" });
+    doc.setFont("helvetica", "normal").setTextColor.apply(doc, GRAY);
+    doc.text("Authorised Signatory", W - M, Math.max(sigY, y + 22), { align: "right" });
+
+    doc.setFontSize(8).setTextColor(150, 150, 150);
+    doc.text("This is a computer-generated invoice.", W / 2, doc.internal.pageSize.getHeight() - 10, { align: "center" });
+    return doc;
+  }
+
+  function showErrors(errs) {
+    var box = $("form-errors");
+    if (!errs.length) { box.classList.add("hidden"); box.innerHTML = ""; return; }
+    box.classList.remove("hidden");
+    box.innerHTML = "<ul class='list-disc pl-5 space-y-0.5'>" + errs.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul>";
+  }
+
+  $("download-pdf").addEventListener("click", function () {
+    var d = gather(), errs = validate(d);
+    showErrors(errs);
+    if (errs.length) return;
+    if (!window.jspdf || !window.jspdf.jsPDF) { showErrors(["PDF library failed to load. Check your connection and reload, or use Print instead."]); return; }
+    savePrefs();
+    var fname = "Invoice-" + d.number.replace(/[^A-Za-z0-9._-]+/g, "_") + ".pdf";
+    buildPdf(d).save(fname);
+  });
+  $("print-invoice").addEventListener("click", function () {
+    var d = gather(), errs = validate(d);
+    showErrors(errs);
+    if (!errs.length) window.print();
+  });
+
+  // ---------- GSTIN -> state ----------
+  $("f-buyer-gstin").addEventListener("input", function () {
+    var v = this.value.toUpperCase(); this.value = v;
+    var code = v.slice(0, 2);
+    if (v.length >= 2 && STATES[code]) { stateSel.value = code; $("gstin-hint").textContent = "State set to " + STATES[code] + " from GSTIN."; }
+    else $("gstin-hint").textContent = "Leave blank for an unregistered buyer.";
+    render();
+  });
+
+  // ---------- prefs ----------
+  function savePrefs() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ bank: $("f-bank").value, notes: $("f-notes").value, last_number: $("f-number").value })); } catch (e) {}
+  }
+  function loadPrefs() {
+    try {
+      var p = JSON.parse(localStorage.getItem(LS_KEY) || "null");
+      if (!p) return;
+      if (p.bank) $("f-bank").value = p.bank;
+      if (p.notes) $("f-notes").value = p.notes;
+      if (p.last_number) $("f-number").placeholder = "Last used: " + p.last_number;
+    } catch (e) {}
+  }
+
+  document.addEventListener("input", render);
+  document.addEventListener("change", render);
+  loadPrefs();
+  addItem({ desc: "COD King app subscription", qty: 1 });
+  render();
+})();
+</script>
+</body>
+</html>

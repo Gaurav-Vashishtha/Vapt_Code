@@ -1,0 +1,12 @@
+<%= content_tag :div,
+  id: "order-verify-react",
+  data: {
+    name: 'COD confirm',
+    order: @order,
+    shop: @shop,
+    auto_verify: @auto_verify,
+    show_cancel_button: @show_cancel_button,
+    order_summary: @order_summary,
+    order_not_found: @order_not_found
+}.to_json do %>
+<% end %>

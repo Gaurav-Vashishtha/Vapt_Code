@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - WhatsApp Languages</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= csrf_meta_tags %>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+<%
+  status_style = {
+    'not_started' => 'bg-gray-100 text-gray-600', 'draft' => 'bg-blue-100 text-blue-800',
+    'submitted' => 'bg-indigo-100 text-indigo-800', 'pending' => 'bg-yellow-100 text-yellow-800',
+    'approved' => 'bg-green-100 text-green-800', 'rejected' => 'bg-red-100 text-red-800', 'failed' => 'bg-red-100 text-red-800'
+  }
+  status_label = { 'not_started' => 'Not started', 'draft' => 'Draft — review', 'submitted' => 'Submitted',
+                   'pending' => 'In Meta review', 'approved' => 'Approved', 'rejected' => 'Rejected', 'failed' => 'Failed' }
+%>
+<div class="bg-white border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-gray-900">WhatsApp languages</h1>
+      <p class="text-xs text-gray-500">Translations of COD King's default-number MSG91 templates, and the onboarding language per country.</p>
+    </div>
+    <%= link_to '← Support dashboard', support_dashboard_path, class: 'text-sm text-blue-600 hover:underline' %>
+  </div>
+</div>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+  <%= render 'flash' %>
+
+  <% unless @msg91_ready %>
+    <div class="rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 text-sm">MSG91_AUTHKEY / WHATSAPP_NUMBER_DEFAULT is not set — fetching and submitting won't work.</div>
+  <% end %>
+  <% unless @ai_ready %>
+    <div class="rounded-md bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 text-sm">ANTHROPIC_API_KEY is not set — AI drafts are off; translations can still be typed in by hand.</div>
+  <% end %>
+
+  <!-- 1. Template translations -->
+  <section class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3 justify-between">
+      <div>
+        <h2 class="text-lg font-medium text-gray-900">1. Template translations</h2>
+        <p class="text-sm text-gray-500">One approval per template and language serves every store on the default number. Until a template is approved in a language, stores that picked it keep getting that message in English.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <%= button_to 'Fetch templates in use from MSG91', support_dashboard_whatsapp_languages_refresh_path, class: 'px-3 py-2 text-sm rounded-md bg-gray-900 text-white hover:bg-gray-700' %>
+        <%= button_to 'Refresh review status', support_dashboard_whatsapp_languages_sync_statuses_path, class: 'px-3 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-50' %>
+        <% @languages.each do |code, meta| %>
+          <% drafts = (@counts[code] || {})['draft'].to_i %>
+          <% if drafts.positive? %>
+            <%= link_to "Review & submit #{drafts} #{meta[:name]} drafts", support_dashboard_whatsapp_languages_bulk_review_path(language: code),
+                        class: 'px-3 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700' %>
+          <% end %>
+        <% end %>
+        <% if @ai_ready %>
+          <% @languages.each do |code, meta| %>
+            <%= button_to "AI-draft all #{meta[:name]}", support_dashboard_whatsapp_languages_draft_all_path(language: code), class: 'px-3 py-2 text-sm rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50' %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="px-6 py-3 flex flex-wrap gap-6 text-sm text-gray-600 border-b border-gray-100">
+      <% @languages.each do |code, meta| %>
+        <% c = @counts[code] || {} %>
+        <span><b><%= meta[:name] %>:</b> <%= c['approved'].to_i %> approved · <%= c['pending'].to_i + c['submitted'].to_i %> in review · <%= c['draft'].to_i %> to review · <%= c['rejected'].to_i + c['failed'].to_i %> need fixing</span>
+      <% end %>
+    </div>
+
+    <% if @template_names.empty? %>
+      <p class="px-6 py-8 text-sm text-gray-500">No templates yet — click “Fetch templates in use from MSG91”.</p>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left font-medium text-gray-500">Template</th>
+              <th class="px-6 py-3 text-left font-medium text-gray-500">Category</th>
+              <% @languages.each do |code, meta| %>
+                <th class="px-6 py-3 text-left font-medium text-gray-500"><%= meta[:name] %> <span class="text-gray-400"><%= meta[:native] %></span></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% @template_names.each do |name| %>
+              <% rows = (@rows_by_template[name] || []).index_by(&:language) %>
+              <tr>
+                <td class="px-6 py-3 font-mono text-gray-900">
+                  <%= name %>
+                  <% unless @in_use.include?(name) %><span class="ml-1 text-xs text-gray-400">(no longer in use)</span><% end %>
+                </td>
+                <td class="px-6 py-3 text-gray-500"><%= rows.values.first&.category || '—' %></td>
+                <% @languages.each_key do |code| %>
+                  <% row = rows[code] %>
+                  <td class="px-6 py-3">
+                    <% if row %>
+                      <%= link_to edit_support_dashboard_whatsapp_language_path(row), class: 'inline-flex items-center gap-2 hover:underline' do %>
+                        <span class="px-2 py-0.5 rounded-full text-xs <%= status_style[row.status] %>"><%= status_label[row.status] %></span>
+                        <span class="text-blue-600 text-xs">Open</span>
+                      <% end %>
+                      <% if row.rejection_reason.present? && row.status.in?(%w[rejected failed]) %>
+                        <div class="text-xs text-red-600 mt-1 max-w-xs truncate" title="<%= row.rejection_reason %>"><%= row.rejection_reason %></div>
+                      <% end %>
+                    <% else %>
+                      <span class="text-xs text-gray-400">No English source on MSG91</span>
+                    <% end %>
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+
+  <!-- 2. Onboarding language per country -->
+  <section id="countries" class="bg-white shadow rounded-lg">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-medium text-gray-900">2. Onboarding language per country</h2>
+      <p class="text-sm text-gray-500">New stores in a listed country start with this WhatsApp language — once all their notification templates are approved in it. Countries not listed start in English. Merchants can always change it themselves.</p>
+    </div>
+    <div class="px-6 py-4">
+      <%= form_with url: support_dashboard_whatsapp_country_languages_path, method: :post, local: true, class: 'flex flex-wrap items-end gap-3' do %>
+        <label class="text-sm">Country code (ISO-2)
+          <input name="country_code" maxlength="2" placeholder="PK" required class="mt-1 block w-24 rounded-md border border-gray-300 px-2 py-1.5 uppercase">
+        </label>
+        <label class="text-sm">Language
+          <select name="language" class="mt-1 block rounded-md border border-gray-300 px-2 py-1.5">
+            <% @languages.each do |code, meta| %><option value="<%= code %>"><%= meta[:name] %></option><% end %>
+          </select>
+        </label>
+        <button class="px-3 py-2 text-sm rounded-md bg-gray-900 text-white hover:bg-gray-700">Save</button>
+      <% end %>
+    </div>
+    <table class="min-w-full divide-y divide-gray-200 text-sm">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left font-medium text-gray-500">Country</th>
+          <th class="px-6 py-3 text-left font-medium text-gray-500">Onboarding language</th>
+          <th class="px-6 py-3 text-left font-medium text-gray-500">Approved templates</th>
+          <th class="px-6 py-3"></th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        <% if @country_languages.empty? %>
+          <tr><td colspan="4" class="px-6 py-4 text-gray-500">No countries yet — every store starts in English.</td></tr>
+        <% end %>
+        <% @country_languages.each do |cl| %>
+          <% c = @counts[cl.language] || {} %>
+          <tr>
+            <td class="px-6 py-3 font-mono"><%= cl.country_code %></td>
+            <td class="px-6 py-3"><%= WhatsappTemplateTranslation.language_name(cl.language) %></td>
+            <td class="px-6 py-3 text-gray-600"><%= c['approved'].to_i %> of <%= c.values.sum %></td>
+            <td class="px-6 py-3 text-right">
+              <%= button_to 'Remove', support_dashboard_whatsapp_country_language_path(cl), method: :delete, class: 'text-xs text-red-600 hover:underline', form: { onsubmit: "return confirm('Remove this country? New stores there will start in English.')" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,65 @@
+@media (max-width: 640px) {
+  .progress-item {
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .screen-indicator {
+    min-width: 0;
+  }
+
+  .progress-bar {
+    justify-content: flex-end;
+    padding: 4px 0;
+    gap: 0;
+  }
+
+  .screen-indicator {
+    padding: 0 3px;
+    gap: 3px;
+  }
+
+  .screen-check {
+    width: 12px;
+    height: 12px;
+    font-size: 9px;
+  }
+
+  .screen-label {
+    font-size: 11px;
+    line-height: 18px;
+  }
+
+  .screen-indicator:not(.active) .screen-label {
+    display: none;
+  }
+
+  .screen-connector {
+    width: 12px;
+    min-width: 12px;
+  }
+
+  @media (max-width: 400px) {
+    .screen-indicator {
+      padding: 0 2px;
+      gap: 2px;
+    }
+
+    .screen-connector {
+      width: 10px;
+      min-width: 10px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .screen-indicator {
+      padding: 0 2px;
+      gap: 2px;
+    }
+
+    .screen-connector {
+      width: 8px;
+      min-width: 8px;
+    }
+  }
+}

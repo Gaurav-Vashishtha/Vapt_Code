@@ -1,0 +1,93 @@
+/* Desktop-specific styles for BottomSlider component */
+/* Applied when viewport width >= 481px (match modal compact breakpoint) */
+/* Position INSIDE the popup: absolute relative to .modal-content, not viewport-fixed */
+
+@media (min-width: 481px) {
+  /* Backdrop covers only the modal content (dims content behind slider inside popup) */
+  .bottom-slider-backdrop {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 2147483646 !important;
+  }
+
+  /* Slider is at bottom of modal content – same width as popup, contained inside it */
+  .bottom-slider {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: auto !important;
+    /* Default height if custom property not set.
+       Use px + container percentage instead of viewport vh so that on
+       large screens the sheet never covers the full popup and the close
+       button always stays visible. */
+    height: var(--slider-height, 420px) !important;
+    max-height: calc(100% - 80px) !important; /* Always leave gap at top */
+    min-height: auto !important;
+    z-index: 2147483647 !important;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1) !important;
+    background-color: #ffffff !important;
+    /* Motion driven by Svelte transition: slideFromBottom */
+  }
+
+  /* Auto-height mode: shrink-wrap content (with a top gap) */
+  .bottom-slider[data-auto-height="true"] {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: calc(100% - 80px) !important;
+  }
+
+  /* Taller cap for the Add/Edit address sheet (non-scrolling content) so the
+     full form fits without the inner form-wrapper scrolling. Keep a small top
+     gap so the outside close button stays visible. */
+  .bottom-slider[data-auto-height="true"]:has(.slider-content--no-scroll) {
+    max-height: calc(100% - 44px) !important;
+  }
+
+  .bottom-slider[data-auto-height="true"] .slider-content {
+    flex: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  /* When open, visible at bottom of modal; close handled by Svelte transition */
+  .bottom-slider[data-open="true"] {
+    bottom: 0 !important;
+  }
+
+  .slider-content {
+    padding: 0 !important;
+    min-height: 0 !important;
+    flex: 1 !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .slider-content.slider-content--scrollable {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .slider-content.slider-content--no-scroll {
+    overflow: hidden !important;
+  }
+
+  /* Position close button at the top edge of slider on desktop */
+  .slider-close-button--outside {
+    position: absolute !important;
+    top: -35px !important;
+    right: 16px !important;
+    z-index: 2147483648 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure overflow is visible for close button */
+  .bottom-slider {
+    overflow: visible !important;
+  }
+}

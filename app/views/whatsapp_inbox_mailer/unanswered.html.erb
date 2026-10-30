@@ -1,0 +1,7 @@
+<h2><%= copy('heading', minutes: @minutes) %></h2>
+
+<% if @preview.present? %>
+<p><%= copy('body', customer: @customer, preview: @preview) %></p>
+<% end %>
+
+<p><a href="<%= @inbox_url %>"><%= copy('cta') %></a></p>

@@ -1,0 +1,10 @@
+{
+  "watch": ["src"],
+  "ext": "js,svelte,css,json,ts,tsx",
+  "ignore": ["node_modules", "public", "dist", "*.log", ".git"],
+  "exec": "npm run build:dev",
+  "delay": 1000,
+  "verbose": true,
+  "legacyWatch": false,
+  "polling": false
+}

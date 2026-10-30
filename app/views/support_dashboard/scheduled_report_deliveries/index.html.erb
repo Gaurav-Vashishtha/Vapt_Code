@@ -1,0 +1,78 @@
+<div style="max-width: 1200px; margin: 0 auto; padding: 16px;">
+  <h1>Scheduled report emails</h1>
+  <p style="color: #666; margin-top: 4px;">
+    Dispatched emails grouped by day and report type.
+  </p>
+
+  <hr />
+
+  <form method="get" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: end;">
+    <div>
+      <label for="from">From</label><br />
+      <input id="from" name="from" type="date" value="<%= @from %>" />
+    </div>
+    <div>
+      <label for="to">To</label><br />
+      <input id="to" name="to" type="date" value="<%= @to %>" />
+    </div>
+    <div>
+      <label for="status">Status</label><br />
+      <select id="status" name="status">
+        <% ["sent", "failed", ""].each do |s| %>
+          <% label = s.blank? ? "all" : s %>
+          <option value="<%= s %>" <%= "selected" if @status == s %>><%= label %></option>
+        <% end %>
+      </select>
+    </div>
+    <div>
+      <label for="report_kind">Type</label><br />
+      <select id="report_kind" name="report_kind">
+        <option value="">all</option>
+        <% @kinds.each do |k| %>
+          <option value="<%= k %>" <%= "selected" if @report_kind == k %>><%= k %></option>
+        <% end %>
+      </select>
+    </div>
+    <div>
+      <label for="shop_domain">Shop</label><br />
+      <input id="shop_domain" name="shop_domain" placeholder="myshopify domain (optional)" value="<%= @shop_domain %>" />
+    </div>
+    <div>
+      <button type="submit">Apply</button>
+      <a href="<%= support_dashboard_scheduled_report_deliveries_path %>" style="margin-left: 8px;">Reset</a>
+    </div>
+  </form>
+
+  <hr />
+
+  <% if @days.empty? %>
+    <p>No deliveries found for this range.</p>
+  <% else %>
+    <% kinds_in_table = (@report_kind.present? ? [@report_kind] : @kinds) %>
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="text-align:left; border-bottom: 1px solid #ddd; padding: 8px;">Day</th>
+          <% kinds_in_table.each do |k| %>
+            <th style="text-align:right; border-bottom: 1px solid #ddd; padding: 8px;"><%= k %></th>
+          <% end %>
+          <th style="text-align:right; border-bottom: 1px solid #ddd; padding: 8px;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @days.each do |day| %>
+          <% row = @counts_by_day[day] || {} %>
+          <% total = kinds_in_table.sum { |k| row[k].to_i } %>
+          <tr>
+            <td style="border-bottom: 1px solid #f0f0f0; padding: 8px;"><%= day %></td>
+            <% kinds_in_table.each do |k| %>
+              <td style="text-align:right; border-bottom: 1px solid #f0f0f0; padding: 8px;"><%= row[k].to_i %></td>
+            <% end %>
+            <td style="text-align:right; border-bottom: 1px solid #f0f0f0; padding: 8px;"><strong><%= total %></strong></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
+

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= @shop.shop_domain %> - Shop Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800"><%= @shop.shop_domain %></h1>
+        <p class="text-gray-600">Full domain: <%= @shop.full_domain %></p>
+      </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Revenue (30 Days)</h3>
+        <p class="text-3xl font-bold text-blue-600">$<%= number_with_precision(@shop.total_revenue(:last_30_days), precision: 2) %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Commission (30 Days)</h3>
+        <p class="text-3xl font-bold text-green-600">$<%= number_with_precision(@shop.total_commission(:last_30_days), precision: 2) %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Total Revenue</h3>
+        <p class="text-3xl font-bold text-blue-600">$<%= number_with_precision(@shop.total_revenue(:all_time), precision: 2) %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Total Commission</h3>
+        <p class="text-3xl font-bold text-green-600">$<%= number_with_precision(@shop.total_commission(:all_time), precision: 2) %></p>
+      </div>
+    </div>
+    
+    <!-- Revenue Breakdown -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Revenue Breakdown (30 Days)</h3>
+        <% if @revenue_breakdown_30_days.any? %>
+          <% @revenue_breakdown_30_days.each do |type, amount| %>
+            <% next if amount <= 0 %>
+            <div class="flex justify-between py-2 border-b">
+              <span class="capitalize"><%= (type&.humanize || 'Unknown Type') %></span>
+              <span class="font-semibold">$<%= number_with_precision(amount, precision: 2) %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-gray-500">No revenue in the last 30 days</p>
+        <% end %>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Revenue Breakdown (All Time)</h3>
+        <% if @revenue_breakdown_all_time.any? %>
+          <% @revenue_breakdown_all_time.each do |type, amount| %>
+            <% next if amount <= 0 %>
+            <div class="flex justify-between py-2 border-b">
+              <span class="capitalize"><%= (type&.humanize || 'Unknown Type') %></span>
+              <span class="font-semibold">$<%= number_with_precision(amount, precision: 2) %></span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-gray-500">No revenue recorded yet</p>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Earnings History -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <h3 class="text-xl font-bold text-gray-800">Earnings History</h3>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @earnings_all_time.sort_by(&:earning_date).reverse.first(20).each do |earning| %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= earning.earning_date.strftime('%b %d, %Y') %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                  <%= (earning.transaction_type&.humanize || 'Unknown') %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  $<%= number_with_precision(earning.revenue_amount, precision: 2) %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <%= earning.commission_rate %>%
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
+                  $<%= number_with_precision(earning.commission_amount, precision: 2) %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      
+      <% if @earnings_all_time.empty? %>
+        <div class="text-center py-8">
+          <p class="text-gray-500">No earnings recorded yet</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{% assign bc_shopping_cart = '' | split: '' %}
+
+{%- capture bc_shopping_cart -%}
+{%- for item in cart.items -%}
+  {product_id : {{item.product.id}}, price : {{item.variant.price}}, variant_id : {{item.variant.id}}, tags: {{item.product.tags | split: ''}}, quantity: {{item.quantity}}, sku : '{{item.variant.sku}}', collection_ids: {{item.product | map: 'collections' | map: 'id' | split: '' }}} {% if forloop.last == false %},{% endif%}
+{%- endfor -%}
+{%- endcapture -%}
+
+<script type="text/javascript">
+  window.BC_SHOPPING_CART = [{{ bc_shopping_cart }}]
+</script>

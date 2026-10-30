@@ -1,0 +1,28 @@
+:concurrency: 5
+:max_retries: 1
+development:
+  :concurrency: 5
+  :max_retries: 0
+production:
+  :concurrency: 5
+:queues:
+  - [critical,10]
+  - [default,5]
+  - [mailers,3]
+  - [administration,1]
+  - [whatsapp_bsp_campaign,3]
+  - [whatsapp_inbox,6]
+  - [low,2]
+  - [restarts,4]
+  - [sqs,10]
+  - [customer_create_sqs,5]
+  - [db_backup,1]
+  - [global_data_pull, 1]
+  - [notifications,1]
+  - [scheduled_report_delivery,1]
+
+:limits:
+    global_data_pull: 1
+    scheduled_report_delivery: 1
+    customer_create_sqs: 1
+

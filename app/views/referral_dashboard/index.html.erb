@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Referral Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Flash Messages -->
+    <% if flash[:notice] %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+    
+    <% if flash[:alert] %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Referral Dashboard</h1>
+      <%= form_with url: referral_sync_path, method: :post, local: true, class: "inline" do |f| %>
+        <%= f.submit "Sync Earnings", 
+                    class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+      <% end %>
+    </div>
+
+    <!-- Referral Code -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h3 class="text-lg font-semibold text-gray-700 mb-1">Your Referral Code</h3>
+          <p class="text-sm text-gray-500">Share this code with merchants. They can apply it in COD King app → Billing.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <code id="referral-code-value" class="px-3 py-2 rounded bg-gray-100 border border-gray-200 text-base font-semibold tracking-wide text-gray-900">
+            <%= @partner.referral_code.presence || "Not generated" %>
+          </code>
+          <% if @partner.referral_code.present? %>
+            <button
+              type="button"
+              id="copy-referral-code-btn"
+              data-referral-code="<%= @partner.referral_code %>"
+              class="bg-gray-800 text-white px-3 py-2 rounded hover:bg-gray-900 text-sm font-medium"
+            >
+              Copy
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Total Shops</h3>
+        <p class="text-3xl font-bold text-blue-600"><%= @total_shops %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Commission (30 Days)</h3>
+        <p class="text-3xl font-bold text-green-600">$<%= number_with_precision(@total_commission_30_days, precision: 2) %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Total Commission</h3>
+        <p class="text-3xl font-bold text-green-600">$<%= number_with_precision(@total_commission_all_time, precision: 2) %></p>
+      </div>
+      
+      <!-- NEW: Payout Status Card -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Pending Payout</h3>
+        <p class="text-3xl font-bold text-orange-600">$<%= number_with_precision(@payout_summary[:total_unpaid], precision: 2) %></p>
+        <% if @payout_summary[:next_payout_eligible] %>
+          <% if @payout_summary[:next_payout_eligible][:eligible] %>
+            <small class="text-green-600">✓ Eligible for payout</small>
+          <% else %>
+            <small class="text-gray-500">Need $<%= number_with_precision(@payout_summary[:next_payout_eligible][:minimum_required] - @payout_summary[:next_payout_eligible][:amount], precision: 2) %> more</small>
+          <% end %>
+        <% end %>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Commission Rates</h3>
+        <div class="text-sm text-gray-600">
+          <p>Subscription: <%= @partner.subscription_commission_rate %>%</p>
+          <p>Usage: <%= @partner.usage_commission_rate %>%</p>
+          <p>One-time: <%= @partner.onetime_commission_rate %>%</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Verification Alert -->
+    <% unless @partner.account_verified? %>
+      <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <strong>Account verification required</strong> - Please complete your payment details to receive payouts.
+            <%= link_to "Update Account Details", edit_referral_account_details_path, 
+                class: "underline font-semibold hover:text-yellow-900" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Payout Eligibility Banner -->
+    <% if @payout_summary[:next_payout_eligible] && @payout_summary[:next_payout_eligible][:eligible] %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <div>
+              <strong>Payout Ready!</strong> You have $<%= number_with_precision(@payout_summary[:total_unpaid], precision: 2) %> eligible for payout.
+              <% if @payout_summary[:next_payout_eligible][:estimated_payout_date] %>
+                Expected payout date: <%= @payout_summary[:next_payout_eligible][:estimated_payout_date].strftime('%B %d, %Y') %>
+              <% end %>
+            </div>
+          </div>
+          <%= link_to "View Payouts", referral_payouts_path, 
+              class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+        </div>
+      </div>
+    <% end %>
+    
+    <!-- Commission Breakdown and Recent Earnings -->
+    
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Quick Actions</h3>
+      <div class="flex flex-wrap gap-3">
+       
+        
+        <%= link_to "View Payouts", referral_payouts_path, 
+            class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+        
+        <%= link_to "Add New Shop", new_referral_shop_path, 
+            class: "bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700" %>
+        
+        <%= link_to "Account Settings", referral_account_path, 
+            class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" %>
+      </div>
+    </div>
+    
+    <!-- Shops Table -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xl font-bold text-gray-800">Your Shops</h3>
+          <%= link_to "Add New Shop", new_referral_shop_path, 
+                      class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Domain</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission (30 Days)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Commission</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unpaid Amount</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @shops.each do |shop| %>
+              <% commission_30_days = shop.referral_earnings.where(earning_date: 30.days.ago..Date.current).sum(:commission_amount) %>
+              <% total_commission = shop.referral_earnings.sum(:commission_amount) %>
+              <% unpaid_commission = shop.referral_earnings.unpaid.sum(:commission_amount) %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <%= link_to shop.shop_domain, referral_shop_path(shop), 
+                              class: "text-blue-600 hover:text-blue-800 font-medium" %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex flex-col space-y-1">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full <%= shop.approved? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                      <%= shop.approved? ? 'Approved' : 'Pending' %>
+                    </span>
+                    <span class="px-2 py-1 text-xs font-medium rounded-full <%= shop.active? ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' %>">
+                      <%= shop.active? ? 'Active' : 'Inactive' %>
+                    </span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="text-lg font-semibold text-green-600">
+                    $<%= number_with_precision(commission_30_days, precision: 2) %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="font-medium text-green-600">
+                    $<%= number_with_precision(total_commission, precision: 2) %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="font-semibold <%= unpaid_commission > 0 ? 'text-orange-600' : 'text-gray-400' %>">
+                    $<%= number_with_precision(unpaid_commission, precision: 2) %>
+                  </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <%= link_to "View", referral_shop_path(shop), 
+                              class: "text-blue-600 hover:text-blue-800 mr-3" %>
+                  
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      
+      <% if @shops.empty? %>
+        <div class="text-center py-8">
+          <p class="text-gray-500 mb-4">No shops added yet</p>
+          <%= link_to "Add Your First Shop", new_referral_shop_path,
+                      class: "bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Payout Information Section -->
+    <% if @payout_summary[:last_payout] || @payout_summary[:total_unpaid] > 0 %>
+      <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Payout Information</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <h4 class="font-semibold text-gray-700 mb-2">Last Payout</h4>
+            <% if @payout_summary[:last_payout] %>
+              <p class="text-lg font-bold text-green-600">
+                $<%= number_with_precision(@payout_summary[:last_payout].total_amount, precision: 2) %>
+              </p>
+              <p class="text-sm text-gray-500">
+                <%= @payout_summary[:last_payout].payout_date.strftime('%B %d, %Y') %>
+              </p>
+              <p class="text-xs">
+                <span class="px-2 py-1 rounded-full 
+                  <%= case @payout_summary[:last_payout].status
+                      when 'pending' then 'bg-yellow-100 text-yellow-800'
+                      when 'processing' then 'bg-blue-100 text-blue-800'
+                      when 'completed' then 'bg-green-100 text-green-800'
+                      when 'failed', 'cancelled' then 'bg-red-100 text-red-800'
+                      else 'bg-gray-100 text-gray-800'
+                      end %>">
+                  <%= @payout_summary[:last_payout].status&.humanize || 'Unknown' %>
+                </span>
+              </p>
+            <% else %>
+              <p class="text-gray-500">No payouts yet</p>
+            <% end %>
+          </div>
+          
+          <div>
+            <h4 class="font-semibold text-gray-700 mb-2">Pending Earnings</h4>
+            <p class="text-lg font-bold text-orange-600">
+              $<%= number_with_precision(@payout_summary[:total_unpaid], precision: 2) %>
+            </p>
+            <% if @payout_summary[:next_payout_eligible] %>
+              <% if @payout_summary[:next_payout_eligible][:eligible] %>
+                <p class="text-sm text-green-600">✓ Ready for payout</p>
+              <% else %>
+                <p class="text-sm text-gray-500">
+                  $<%= number_with_precision(@payout_summary[:next_payout_eligible][:minimum_required], precision: 2) %> minimum required
+                </p>
+              <% end %>
+            <% end %>
+          </div>
+          
+          <div>
+            <h4 class="font-semibold text-gray-700 mb-2">Total Paid</h4>
+            <p class="text-lg font-bold text-green-600">
+              $<%= number_with_precision(@payout_summary[:total_paid], precision: 2) %>
+            </p>
+            <p class="text-sm text-gray-500">Lifetime earnings paid</p>
+            
+            <div class="mt-2">
+              <%= link_to "View All Payouts", referral_payouts_path, 
+                  class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    
+    <!-- Last Sync Info -->
+    <% if @last_sync %>
+      <div class="mt-6 text-sm text-gray-500 text-center">
+        Last earnings sync: <%= @last_sync.strftime('%B %d, %Y') %>
+      </div>
+    <% end %>
+  </div>
+  <script>
+
+window.addEventListener('DOMContentLoaded', function() {
+  localStorage.setItem('avijeet', 'aman');
+  console.log('window file of my==>',window.Shopify)
+});
+
+localStorage.setItem('avijeet', 'aman');
+
+var copyBtn = document.getElementById('copy-referral-code-btn');
+if (copyBtn) {
+  copyBtn.addEventListener('click', function() {
+    var code = copyBtn.getAttribute('data-referral-code');
+    if (!code) return;
+    navigator.clipboard.writeText(code).then(function() {
+      copyBtn.innerText = 'Copied!';
+      setTimeout(function() { copyBtn.innerText = 'Copy'; }, 1400);
+    }).catch(function() {
+      copyBtn.innerText = 'Copy failed';
+      setTimeout(function() { copyBtn.innerText = 'Copy'; }, 1400);
+    });
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-8">
+  <div class="bg-orange-50 rounded-lg p-6 border border-gray-200">
+    <div class="text-sm font-medium text-gray-600">Active Rules</div>
+    <div class="text-2xl font-bold text-gray-900"><%= @active_rules_count %></div>
+    <div class="text-sm text-gray-500 mt-1">of <%= @rules_count %> total</div>
+  </div>
+  <div class="bg-blue-50 rounded-lg p-6 border border-gray-200">
+    <div class="text-sm font-medium text-gray-600">Templates</div>
+    <div class="text-2xl font-bold text-gray-900"><%= @templates_count %></div>
+  </div>
+  <div class="bg-yellow-50 rounded-lg p-6 border border-gray-200">
+    <div class="text-sm font-medium text-gray-600">Pending</div>
+    <div class="text-2xl font-bold text-gray-900"><%= @pending_deliveries_count %></div>
+    <div class="text-sm text-gray-500 mt-1">scheduled emails</div>
+  </div>
+  <div class="bg-green-50 rounded-lg p-6 border border-gray-200">
+    <div class="text-sm font-medium text-gray-600">Sent</div>
+    <div class="text-2xl font-bold text-gray-900"><%= @sent_deliveries_count %></div>
+  </div>
+  <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+    <div class="text-sm font-medium text-gray-600">Scheduler</div>
+    <div class="text-lg font-bold text-gray-900">Every 6h</div>
+    <div class="text-sm text-gray-500 mt-1">Last run: <%= @last_run ? @last_run.strftime("%b %d, %H:%M") : "—" %></div>
+    <%= button_to "Run now", email_tool_run_now_path, method: :post, class: "mt-2 text-sm text-blue-600 hover:underline" %>
+  </div>
+</div>
+
+<div class="bg-white rounded-lg shadow p-6">
+  <p class="text-gray-600 mb-4">Use <strong>Rules</strong> to define when to send (e.g. 3 days after installation, and only if pre-order OTP and partial payment are off). Use <strong>Templates</strong> for subject/body with variables like <code>{{shop.shopify_domain}}</code> and <code>{{setting.enable_pre_order_otp}}</code>. <strong>Deliveries</strong> lists all scheduled/sent emails (one per rule per shop, no duplicates).</p>
+  <p class="text-sm text-gray-500 mb-4">Unsubscribe link (included automatically in each email; you can also use this URL elsewhere): <code><%= request.base_url %>/unsubscribe?email=RECIPIENT_EMAIL&source=email_tool</code>. Replace RECIPIENT_EMAIL with the recipient’s address. Recipients who unsubscribe are stored and are not sent or scheduled any further emails.</p>
+  <div class="flex gap-4">
+    <%= link_to "Rules", email_tool_rules_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+    <%= link_to "Templates", email_tool_templates_path, class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium" %>
+    <%= link_to "Deliveries", email_tool_deliveries_path, class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium" %>
+  </div>
+</div>

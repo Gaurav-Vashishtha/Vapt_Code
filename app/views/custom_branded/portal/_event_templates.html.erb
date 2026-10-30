@@ -1,0 +1,1181 @@
+<style>
+  .cbx-card { background:#fff; border:1px solid #e5e7eb; border-radius:14px; }
+  .cbx-step { display:inline-flex; align-items:center; justify-content:center; height:22px; width:22px; border-radius:9999px; font-size:12px; font-weight:600; background:#fff1e8; color:#c65100; }
+  .cbx-input { width:100%; border:1px solid #d1d5db; border-radius:8px; padding:8px 12px; font-size:14px; background:#fff; outline:none; transition:border-color .15s, box-shadow .15s; }
+  .cbx-input:focus { border-color:var(--brand); box-shadow:0 0 0 3px rgba(255,104,1,.15); }
+  .cbx-label { display:block; font-size:12px; font-weight:500; color:#374151; margin-bottom:4px; }
+  .cbx-seg { display:inline-flex; padding:3px; background:#f3f4f6; border-radius:10px; gap:2px; }
+  .cbx-seg button { font-size:13px; padding:5px 12px; border-radius:8px; color:#4b5563; }
+  .cbx-seg button[aria-pressed="true"] { background:#fff; color:#111827; box-shadow:0 1px 2px rgba(0,0,0,.08); font-weight:500; }
+  .cbx-chip { display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:4px 10px; border-radius:9999px; border:1px solid #e5e7eb; background:#fff; color:#374151; transition:all .12s; }
+  .cbx-chip:hover { border-color:var(--brand); color:#c65100; background:#fff7f1; }
+  .cbx-chip[data-used="true"] { border-color:#ffd3b5; background:#fff1e8; color:#c65100; }
+  .cbx-editor { position:relative; }
+  .cbx-editor .cbx-backdrop, .cbx-editor textarea { font-family:inherit; font-size:14px; line-height:22px; padding:10px 12px; border-radius:8px; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:break-word; letter-spacing:normal; }
+  .cbx-editor .cbx-backdrop { position:absolute; inset:0; border:1px solid transparent; color:transparent; overflow:hidden; pointer-events:none; background:#fff; }
+  .cbx-editor textarea { position:relative; display:block; width:100%; min-height:150px; border:1px solid #d1d5db; background:transparent; resize:none; overflow:hidden; outline:none; color:#111827; }
+  .cbx-editor textarea:focus { border-color:var(--brand); box-shadow:0 0 0 3px rgba(255,104,1,.15); }
+  .cbx-editor mark { color:transparent; background:#ffe3cf; border-radius:4px; }
+  .cbx-editor mark.cbx-bad { background:#fecaca; }
+  .cbx-phone { background:#e5ddd5; background-image:radial-gradient(rgba(0,0,0,.035) 1px, transparent 1px); background-size:14px 14px; border-radius:18px; padding:14px; }
+  .cbx-bubble { background:#fff; border-radius:0 10px 10px 10px; box-shadow:0 1px 1px rgba(0,0,0,.12); overflow:hidden; font-size:13.5px; line-height:19px; color:#111b21; }
+  .cbx-sample { background:#fff1e8; border-radius:3px; padding:0 2px; }
+  .cbx-wa-btn { background:#fff; border-radius:10px; box-shadow:0 1px 1px rgba(0,0,0,.12); text-align:center; padding:8px; font-size:13.5px; color:#027eb5; margin-top:4px; }
+  .cbx-switch { position:relative; width:38px; height:22px; border-radius:9999px; background:#d1d5db; transition:background .15s; flex-shrink:0; }
+  .cbx-switch::after { content:""; position:absolute; top:2px; left:2px; height:18px; width:18px; border-radius:9999px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:transform .15s; }
+  .cbx-switch[aria-checked="true"] { background:#10b981; }
+  .cbx-switch[aria-checked="true"]::after { transform:translateX(16px); }
+  .cbx-drawer-panel { transform:translateX(100%); transition:transform .22s ease; }
+  .cbx-drawer-open .cbx-drawer-panel { transform:translateX(0); }
+  .cbx-code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; line-height:18px; background:#0f172a; color:#e2e8f0; border-radius:10px; padding:12px; overflow:auto; white-space:pre; }
+  .cbx-pill { display:inline-flex; align-items:center; font-size:11px; font-weight:500; padding:1px 8px; border-radius:9999px; text-transform:capitalize; }
+  .cbx-pill[data-s="queued"] { background:#f3f4f6; color:#4b5563; }
+  .cbx-pill[data-s="sent"] { background:#e0f2fe; color:#0369a1; }
+  .cbx-pill[data-s="delivered"] { background:#dcfce7; color:#15803d; }
+  .cbx-pill[data-s="read"] { background:#d1fae5; color:#047857; }
+  .cbx-pill[data-s="failed"] { background:#fee2e2; color:#b91c1c; }
+  .cbx-pill[data-s="ok"] { background:#dcfce7; color:#15803d; text-transform:none; }
+  .cbx-pill[data-s="err"] { background:#fee2e2; color:#b91c1c; text-transform:none; }
+  @media (prefers-reduced-motion: reduce) { .cbx-drawer-panel, .cbx-switch, .cbx-switch::after { transition:none; } }
+</style>
+
+<div id="cbx-builder" class="hidden fixed inset-0 z-40 bg-gray-50 flex flex-col" role="dialog" aria-modal="true" aria-labelledby="cbx-builder-title">
+  <div class="h-1 brand-gradient shrink-0"></div>
+  <header class="bg-white border-b border-gray-200 shrink-0">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <button type="button" id="cbx-builder-close" class="text-sm text-gray-500 hover:text-gray-900 rounded-md px-2 py-1.5 -ml-2 whitespace-nowrap" aria-label="Back to templates">&larr; Back</button>
+        <h2 id="cbx-builder-title" class="font-semibold text-gray-900 truncate">New template</h2>
+      </div>
+      <div class="flex items-center gap-3 min-w-0">
+        <span id="cbx-hint" class="hidden sm:block text-xs text-gray-500 truncate"></span>
+        <button type="button" id="cbx-submit" class="text-sm text-white rounded-md px-4 py-2 font-medium shadow-sm disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap" style="background:var(--brand)" disabled>Submit for approval</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex-1 overflow-y-auto">
+    <div id="cbx-form-view" class="max-w-6xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+      <div class="space-y-5 min-w-0">
+        <div id="cbx-error" class="hidden rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800" role="alert"></div>
+
+        <section class="cbx-card p-5">
+          <div class="flex items-center gap-2 mb-1"><span class="cbx-step">1</span><h3 class="font-medium text-gray-900">When should this message go out?</h3></div>
+          <p class="text-xs text-gray-500 mb-3 sm:ml-8">Pick the ParcelX shipment event that triggers it. The event decides which order details you can use as variables.</p>
+          <div class="sm:ml-8 relative">
+            <button type="button" id="cbx-event-trigger" class="cbx-input flex items-center justify-between text-left" aria-haspopup="listbox" aria-expanded="false">
+              <span id="cbx-event-current" class="text-gray-400">Loading events…</span>
+              <span class="text-gray-400 text-xs">&#9662;</span>
+            </button>
+            <div id="cbx-event-panel" class="hidden absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
+              <div class="p-2 border-b border-gray-100"><input id="cbx-event-search" type="search" class="cbx-input" placeholder="Search events…" autocomplete="off"></div>
+              <div id="cbx-event-list" class="max-h-72 overflow-y-auto py-1" role="listbox"></div>
+              <div class="flex items-center justify-between px-3 py-2 border-t border-gray-100 bg-gray-50 text-xs text-gray-500">
+                <span>Events come from your ParcelX account</span>
+                <button type="button" id="cbx-event-refresh" class="hover:underline" style="color:var(--brand)">Refresh list</button>
+              </div>
+            </div>
+            <p id="cbx-event-warning" class="hidden mt-2 text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2" role="status"></p>
+            <p id="cbx-event-note" class="hidden mt-2 text-xs rounded-md bg-amber-50 border border-amber-200 text-amber-800 px-3 py-2"></p>
+          </div>
+        </section>
+
+        <section class="cbx-card p-5">
+          <div class="flex items-center gap-2 mb-3"><span class="cbx-step">2</span><h3 class="font-medium text-gray-900">Template details</h3></div>
+          <div class="sm:ml-8 grid gap-4 sm:grid-cols-2">
+            <div class="sm:col-span-2">
+              <label class="cbx-label" for="cbx-name">Template name</label>
+              <input id="cbx-name" class="cbx-input font-mono" placeholder="out_for_delivery" maxlength="512" autocomplete="off">
+              <p class="mt-1 text-xs text-gray-400">Lowercase letters, numbers and underscores. Customers never see this.</p>
+            </div>
+            <div>
+              <label class="cbx-label" for="cbx-language">Language</label>
+              <select id="cbx-language" class="cbx-input"></select>
+            </div>
+            <div>
+              <span class="cbx-label">Category</span>
+              <div class="cbx-seg" id="cbx-category">
+                <button type="button" data-value="UTILITY" aria-pressed="true">Utility</button>
+                <button type="button" data-value="MARKETING" aria-pressed="false">Marketing</button>
+              </div>
+              <p class="mt-1 text-xs text-gray-400">Shipment updates are Utility. Meta may re-categorise promotional wording.</p>
+            </div>
+            <div id="cbx-account-wrap" class="hidden sm:col-span-2">
+              <label class="cbx-label" for="cbx-account">Send from</label>
+              <select id="cbx-account" class="cbx-input"></select>
+            </div>
+          </div>
+        </section>
+
+        <section class="cbx-card p-5">
+          <div class="flex items-center gap-2 mb-3"><span class="cbx-step">3</span><h3 class="font-medium text-gray-900">Write the message</h3></div>
+          <div class="sm:ml-8 space-y-5">
+            <div>
+              <span class="cbx-label">Header <span class="font-normal text-gray-400">(optional)</span></span>
+              <div class="cbx-seg" id="cbx-header-type">
+                <button type="button" data-value="none" aria-pressed="true">None</button>
+                <button type="button" data-value="text" aria-pressed="false">Text</button>
+                <button type="button" data-value="image" aria-pressed="false">Image</button>
+              </div>
+              <input id="cbx-header-text" class="cbx-input mt-2 hidden" maxlength="60" placeholder="Your order is on its way">
+              <div id="cbx-header-image-wrap" class="hidden mt-2">
+                <input id="cbx-header-image" class="cbx-input" type="url" placeholder="https://cdn.yourstore.com/banner.jpg">
+                <p class="mt-1 text-xs text-gray-400">Public https link to a JPG or PNG. It is sent with every message unless ParcelX passes a different image.</p>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-end justify-between mb-1">
+                <label class="cbx-label !mb-0" for="cbx-body">Message</label>
+                <span id="cbx-body-count" class="text-xs text-gray-400">0 / 1024</span>
+              </div>
+              <div class="cbx-editor">
+                <div id="cbx-body-backdrop" class="cbx-backdrop" aria-hidden="true"></div>
+                <textarea id="cbx-body" placeholder="Pick an event above, then write your message and drop in variables below." spellcheck="true"></textarea>
+              </div>
+              <div id="cbx-body-warn" class="hidden mt-1.5 text-xs text-amber-700"></div>
+              <button type="button" id="cbx-suggest" class="hidden mt-2 text-xs rounded-md border border-dashed border-gray-300 px-3 py-1.5 text-gray-600 hover:border-gray-400">Start from a suggested message</button>
+
+              <div id="cbx-vars" class="hidden mt-3 rounded-xl border border-gray-200 bg-gray-50 p-3">
+                <div class="flex items-center justify-between gap-3 mb-2">
+                  <p class="text-xs font-medium text-gray-700">Insert a variable <span class="font-normal text-gray-500">— filled in with each customer's order details</span></p>
+                  <input id="cbx-var-search" type="search" class="cbx-input !w-40 !py-1 !text-xs" placeholder="Filter…" autocomplete="off">
+                </div>
+                <div id="cbx-var-groups" class="space-y-2"></div>
+              </div>
+            </div>
+
+            <div>
+              <label class="cbx-label" for="cbx-footer">Footer <span class="font-normal text-gray-400">(optional)</span></label>
+              <input id="cbx-footer" class="cbx-input" maxlength="60" placeholder="Sent by your store via ParcelX">
+            </div>
+
+            <div>
+              <span class="cbx-label">Buttons <span class="font-normal text-gray-400">(optional, up to 3)</span></span>
+              <div id="cbx-buttons" class="space-y-2"></div>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <button type="button" id="cbx-add-url" class="text-xs rounded-md border border-gray-300 px-3 py-1.5 text-gray-700 hover:border-gray-400 disabled:opacity-40">+ Link button</button>
+                <button type="button" id="cbx-add-reply" class="text-xs rounded-md border border-gray-300 px-3 py-1.5 text-gray-700 hover:border-gray-400 disabled:opacity-40">+ Quick reply</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="cbx-card p-5">
+          <div class="flex items-center gap-2 mb-3"><span class="cbx-step">4</span><h3 class="font-medium text-gray-900">Go live</h3></div>
+          <div class="sm:ml-8 flex items-start gap-3">
+            <button type="button" id="cbx-activate" class="cbx-switch mt-0.5" role="switch" aria-checked="true" aria-labelledby="cbx-activate-label"></button>
+            <div>
+              <p id="cbx-activate-label" class="text-sm text-gray-900">Use this template for the event</p>
+              <p id="cbx-activate-help" class="text-xs text-gray-500 mt-0.5">Only one template is active per event. Messages start going out once Meta approves it.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="space-y-4 lg:sticky lg:top-6 self-start">
+        <div class="cbx-card p-4">
+          <p class="text-xs font-medium text-gray-500 mb-3">Preview with sample data</p>
+          <div class="cbx-phone">
+            <div class="cbx-bubble">
+              <div id="cbx-pv-image" class="hidden bg-gray-200 h-32 bg-cover bg-center flex items-center justify-center text-xs text-gray-500">Header image</div>
+              <div class="px-2.5 pt-2 pb-1.5">
+                <div id="cbx-pv-header" class="hidden font-semibold mb-1"></div>
+                <div id="cbx-pv-body" class="whitespace-pre-wrap break-words text-gray-400">Your message will appear here.</div>
+                <div id="cbx-pv-footer" class="hidden text-xs text-gray-500 mt-1"></div>
+                <div class="text-[10px] text-gray-400 text-right mt-0.5">10:30</div>
+              </div>
+            </div>
+            <div id="cbx-pv-buttons"></div>
+          </div>
+        </div>
+        <div class="cbx-card p-4">
+          <p class="text-sm font-medium text-gray-900">What ParcelX sends</p>
+          <p class="text-xs text-gray-500 mt-0.5 mb-3">Only the variables you use are required with each message.</p>
+          <div id="cbx-required" class="space-y-2"></div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="cbx-success-view" class="hidden max-w-2xl mx-auto px-4 sm:px-6 py-10">
+      <div class="cbx-card p-6 sm:p-8">
+        <div class="h-11 w-11 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl mb-4">&#10003;</div>
+        <h3 class="text-lg font-semibold text-gray-900">Submitted to Meta for review</h3>
+        <p id="cbx-success-sub" class="text-sm text-gray-600 mt-1"></p>
+        <div id="cbx-success-details" class="mt-6"></div>
+        <div class="mt-6 flex justify-end">
+          <button type="button" id="cbx-success-done" class="text-sm text-white rounded-md px-4 py-2 font-medium" style="background:var(--brand)">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="cbx-drawer" class="hidden fixed inset-0 z-50" role="dialog" aria-modal="true" aria-labelledby="cbx-drawer-title">
+  <div id="cbx-drawer-scrim" class="absolute inset-0 bg-black/40"></div>
+  <div class="cbx-drawer-panel absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
+    <div class="flex items-start justify-between px-5 py-4 border-b border-gray-100">
+      <div class="min-w-0">
+        <h3 id="cbx-drawer-title" class="font-medium text-gray-900 truncate"></h3>
+        <p id="cbx-drawer-sub" class="text-xs text-gray-500 mt-0.5"></p>
+      </div>
+      <button type="button" id="cbx-drawer-close" class="text-gray-400 hover:text-gray-600 text-xl leading-none" aria-label="Close">&times;</button>
+    </div>
+    <div id="cbx-drawer-body" class="flex-1 overflow-y-auto px-5 py-4"></div>
+  </div>
+</div>
+
+<div id="cbx-toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-[60] rounded-full bg-gray-900 text-white text-sm px-4 py-2 shadow-lg" role="status" aria-live="polite"></div>
+
+<script>
+  const CBX_TEMPLATES = <%= raw json_escape(@templates.map { |t|
+    { id: t.id, name: t.name, language: t.language, status: t.status, components: t.components,
+      event: CustomBranded::EventTemplateSerializer.call(t) }
+  }.to_json) %>;
+  const CBX_ACCOUNTS = <%= raw json_escape(@accounts.map { |a|
+    { id: a.id, label: [a.display_phone_number.presence || a.phone_number_id, a.label.presence].compact.join(' · '), is_default: a.is_default }
+  }.to_json) %>;
+  const CBX_TEMPLATE_NAMES = <%= raw json_escape(@template_names.to_json) %>;
+  const CBX_MESSAGES_URL = <%= raw json_escape("#{request.base_url}/api/v1/cb/messages".to_json) %>;
+  const CBX_SHOP_DOMAIN = <%= raw json_escape(@client.domain.to_json) %>;
+</script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const TOKEN_RE = /\{\{\s*([A-Za-z0-9_.]+)\s*\}\}/g;
+  const LANGUAGES = [["en", "English"], ["en_US", "English (US)"], ["en_GB", "English (UK)"], ["hi", "Hindi"], ["bn", "Bengali"], ["ta", "Tamil"], ["te", "Telugu"], ["mr", "Marathi"], ["gu", "Gujarati"], ["kn", "Kannada"], ["ml", "Malayalam"], ["pa", "Punjabi"], ["ur", "Urdu"]];
+  const MAX_BUTTONS = 3;
+
+  let events = null;
+  let eventsPromise = null;
+  let eventsError = null;
+  let eventsSource = null;
+  let eventsWarning = null;
+  let dirty = false;
+
+  async function api(path, options) {
+    const res = await fetch(CB_BASE + path, Object.assign({
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      credentials: "same-origin",
+    }, options || {}));
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || "Request failed (HTTP " + res.status + "). Please try again.");
+    return data;
+  }
+
+  function loadEvents(refresh) {
+    if (!refresh && eventsPromise) return eventsPromise;
+    eventsError = null;
+    eventsPromise = api("/events" + (refresh ? "?refresh=1" : ""), { method: "GET" })
+      .then((data) => {
+        events = data.events || [];
+        eventsSource = data.source || null;
+        eventsWarning = data.warning || null;
+        return events;
+      })
+      .catch((err) => { eventsPromise = null; eventsError = err.message; throw err; });
+    return eventsPromise;
+  }
+
+  function showEventWarning(message) {
+    const el = $("cbx-event-warning");
+    if (!el) return;
+    el.textContent = message || "";
+    el.classList.toggle("hidden", !message);
+  }
+
+  let toastTimer = null;
+  function toast(message) {
+    const el = $("cbx-toast");
+    el.textContent = message;
+    el.classList.remove("hidden");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.add("hidden"), 2200);
+  }
+
+  async function copyText(text, label) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (_) {
+      // Clipboard API is blocked inside a cross-origin iframe unless the embedder sets allow="clipboard-write".
+      const ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (__) {}
+      ta.remove();
+    }
+    toast((label || "Copied") + " copied");
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".cbx-copy, .cb-copy");
+    if (btn) copyText(btn.dataset.copy, btn.dataset.copyLabel || "Template ID");
+  });
+
+  function requestBody(ev, values) {
+    const body = Object.assign({}, ev.sample_request, { shop_domain: CBX_SHOP_DOMAIN });
+    if (values) {
+      body.to = values.to || ev.sample_request.to;
+      body.variables = Object.assign({}, ev.sample_request.variables, values.variables);
+      if (values.omitIdempotency) delete body.idempotency_key;
+    }
+    return body;
+  }
+
+  function curlFor(body) {
+    const json = JSON.stringify(body, null, 2).replace(/'/g, "'\\''");
+    return "curl -X POST '" + CBX_MESSAGES_URL + "' \\\n" +
+      "  -H 'Authorization: Bearer <YOUR_API_TOKEN>' \\\n" +
+      "  -H 'Content-Type: application/json' \\\n" +
+      "  -d '" + json + "'";
+  }
+
+  function integrationHtml(template) {
+    const ev = template.event;
+    const rows = ev.required_variables.map((key) => {
+      const v = ev.variables.find((x) => x.key === key);
+      return '<tr class="border-t border-gray-100"><td class="py-1.5 pr-3 font-mono text-xs text-gray-900 break-all">' + esc(key) + "</td>" +
+        '<td class="py-1.5 text-xs text-gray-500">' + esc(v ? v.label + (v.sample ? " · e.g. " + v.sample : "") : "Link button value") + "</td></tr>";
+    }).join("");
+    const sample = curlFor(requestBody(ev));
+    return '' +
+      '<div class="grid grid-cols-2 gap-3">' +
+        '<div class="rounded-xl border border-gray-200 p-3"><p class="text-xs text-gray-500">Template ID</p>' +
+          '<div class="flex items-center justify-between mt-0.5"><span class="text-xl font-semibold text-gray-900 font-mono">' + esc(template.id) + "</span>" +
+          '<button type="button" class="cbx-copy text-xs hover:underline" style="color:var(--brand)" data-copy="' + esc(template.id) + '">Copy</button></div></div>' +
+        '<div class="rounded-xl border border-gray-200 p-3"><p class="text-xs text-gray-500">Event</p>' +
+          '<p class="text-sm font-medium text-gray-900 mt-0.5 truncate" title="' + esc(ev.event_name) + '">' + esc(ev.event_name) + "</p>" +
+          '<p class="text-xs text-gray-500 font-mono">event_id ' + esc(ev.event_id) + "</p></div>" +
+      "</div>" +
+      '<p class="text-xs font-medium text-gray-700 mt-5 mb-1">Variables required with every send</p>' +
+      (rows
+        ? '<table class="w-full"><tbody>' + rows + "</tbody></table>"
+        : '<p class="text-xs text-gray-500">None — this message is the same for every customer.</p>') +
+      '<div class="flex items-center justify-between mt-5 mb-1"><p class="text-xs font-medium text-gray-700">Sample request · cURL</p>' +
+        '<button type="button" class="cbx-copy cbx-curl-copy text-xs hover:underline" style="color:var(--brand)" data-copy-label="Request" data-copy="' + esc(sample) + '">Copy</button></div>' +
+      '<pre class="cbx-code cbx-curl">' + esc(sample) + "</pre>";
+  }
+
+  const state = {};
+  function resetState() {
+    const defaultAccount = CBX_ACCOUNTS.find((a) => a.is_default) || CBX_ACCOUNTS[0];
+    Object.assign(state, {
+      event: null, name: "", nameTouched: false, language: "en", category: "UTILITY",
+      accountId: defaultAccount ? defaultAccount.id : null,
+      headerType: "none", headerText: "", headerImage: "",
+      body: "", footer: "", buttons: [], activate: true, submitting: false,
+    });
+  }
+
+  const variableByKey = (key) => (state.event ? state.event.variables.find((v) => v.key === key) : null);
+  const bodyKeys = () => {
+    const keys = [];
+    state.body.replace(TOKEN_RE, (m, k) => { if (!keys.includes(k)) keys.push(k); return m; });
+    return keys;
+  };
+  const requiredKeys = () => {
+    const keys = bodyKeys().filter(variableByKey);
+    state.buttons.forEach((b) => { if (b.type === "url" && b.variable && !keys.includes(b.variable)) keys.push(b.variable); });
+    return keys;
+  };
+  const compiledLength = () => state.body.trim().replace(TOKEN_RE, "{{1}}").length;
+
+  function slug(text) {
+    return text.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "").slice(0, 60);
+  }
+  function suggestedName(event) {
+    const base = slug(event.event_name) || "event_" + event.event_id;
+    let name = base, n = 2;
+    while (CBX_TEMPLATE_NAMES.includes(name)) name = base + "_v" + n++;
+    return name;
+  }
+
+  function suggestedBody(event) {
+    const has = (k) => event.variables.some((v) => v.key === k);
+    const t = (k, fallback) => (has(k) ? "{{" + k + "}}" : fallback);
+    const greeting = "Hi " + t("consignee_details.name", "there") + ",";
+    const order = "your order " + t("channel_details.order_id", "") + (has("seller_details.name") ? " from {{seller_details.name}}" : "");
+    if (event.group === "ndr_events") {
+      return greeting + " we tried to deliver " + order.trim() + " but could not complete it" +
+        (has("ndr_reason.ndr_reason") ? " ({{ndr_reason.ndr_reason}})" : "") + ".\n\nReply to this message and we will arrange another delivery attempt.";
+    }
+    return greeting + " an update on " + order.trim() + ": " + event.event_name.toLowerCase() + "." +
+      (has("tracking_details.tracking_url") ? "\n\nTrack your shipment: {{tracking_details.tracking_url}}" : "") +
+      "\n\nThank you for shopping with us.";
+  }
+
+  function renderEventList() {
+    const list = $("cbx-event-list");
+    const q = $("cbx-event-search").value.trim().toLowerCase();
+    if (!events && eventsError) {
+      list.innerHTML = '<div class="px-3 py-4 text-sm"><p class="text-red-700">' + esc(eventsError) + '</p>' +
+        '<button type="button" data-retry="1" class="mt-2 text-xs rounded-md border px-3 py-1.5" style="border-color:var(--brand);color:var(--brand)">Try again</button></div>';
+      return;
+    }
+    if (!events) { list.innerHTML = '<p class="px-3 py-4 text-sm text-gray-500">Loading events…</p>'; return; }
+    const matches = events.filter((e) => !q || e.event_name.toLowerCase().includes(q) || e.event_id === q);
+    if (!matches.length) { list.innerHTML = '<p class="px-3 py-4 text-sm text-gray-500">No events match “' + esc(q) + '”.</p>'; return; }
+    let html = "", group = null;
+    matches.forEach((e) => {
+      if (e.group_label !== group) {
+        group = e.group_label;
+        html += '<p class="px-3 pt-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">' + esc(group) + "</p>";
+      }
+      const selected = state.event && state.event.event_id === e.event_id;
+      html += '<button type="button" role="option" aria-selected="' + selected + '" data-event-id="' + esc(e.event_id) + '" class="w-full flex items-center justify-between gap-3 px-3 py-2 text-left text-sm hover:bg-orange-50 ' + (selected ? "bg-orange-50" : "") + '">' +
+        '<span class="min-w-0"><span class="block text-gray-900 truncate">' + esc(e.event_name) + "</span>" +
+        '<span class="block text-xs text-gray-500">' + e.variables.length + " variables" + (e.active_template ? " · active: " + esc(e.active_template.name) : "") + "</span></span>" +
+        (e.active_template ? '<span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">has template</span>' : '<span class="shrink-0 text-[11px] px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">no template</span>') +
+        "</button>";
+    });
+    list.innerHTML = html;
+  }
+
+  function toggleEventPanel(open) {
+    const panel = $("cbx-event-panel");
+    const show = open == null ? panel.classList.contains("hidden") : open;
+    panel.classList.toggle("hidden", !show);
+    $("cbx-event-trigger").setAttribute("aria-expanded", String(show));
+    if (show) { renderEventList(); $("cbx-event-search").focus(); }
+  }
+
+  function selectEvent(eventId) {
+    state.event = events.find((e) => e.event_id === eventId) || null;
+    toggleEventPanel(false);
+    if (!state.event) return;
+    if (!state.nameTouched) { state.name = suggestedName(state.event); $("cbx-name").value = state.name; }
+    state.buttons.forEach((b) => { if (b.variable && !variableByKey(b.variable)) b.variable = ""; });
+    const current = state.event.active_template;
+    state.activate = !current;
+    $("cbx-event-current").className = "text-gray-900 truncate";
+    $("cbx-event-current").textContent = state.event.event_name;
+    const note = $("cbx-event-note");
+    note.classList.toggle("hidden", !current);
+    if (current) note.textContent = "“" + current.name + "” is currently active for this event. Keep it running while Meta reviews the new template, then switch from the templates list.";
+    renderVariables(); renderButtons(); renderAll();
+  }
+
+  function renderVariables() {
+    const wrap = $("cbx-vars");
+    wrap.classList.toggle("hidden", !state.event);
+    if (!state.event) return;
+    const q = $("cbx-var-search").value.trim().toLowerCase();
+    const used = bodyKeys();
+    const sections = {};
+    state.event.variables.forEach((v) => {
+      if (q && !(v.label.toLowerCase().includes(q) || v.key.toLowerCase().includes(q))) return;
+      (sections[v.section] = sections[v.section] || []).push(v);
+    });
+    const names = Object.keys(sections);
+    $("cbx-var-groups").innerHTML = names.length ? names.map((name) =>
+      '<div class="sm:flex gap-2"><span class="block w-24 shrink-0 pt-1 pb-1 text-[11px] font-medium uppercase tracking-wide text-gray-400">' + esc(name) + '</span><div class="flex flex-wrap gap-1.5">' +
+      sections[name].map((v) => '<button type="button" class="cbx-chip" data-key="' + esc(v.key) + '" data-used="' + used.includes(v.key) + '" title="' + esc(v.key + (v.sample ? " — e.g. " + v.sample : "")) + '">' +
+        (used.includes(v.key) ? "&#10003; " : "+ ") + esc(v.label) + "</button>").join("") + "</div></div>").join("")
+      : '<p class="text-xs text-gray-500">No variables match.</p>';
+  }
+
+  function insertToken(key) {
+    const ta = $("cbx-body");
+    const token = "{{" + key + "}}";
+    const start = ta.selectionStart == null ? ta.value.length : ta.selectionStart;
+    const end = ta.selectionEnd == null ? start : ta.selectionEnd;
+    ta.value = ta.value.slice(0, start) + token + ta.value.slice(end);
+    ta.focus();
+    ta.setSelectionRange(start + token.length, start + token.length);
+    state.body = ta.value;
+    renderAll();
+  }
+
+  function renderEditor() {
+    const ta = $("cbx-body");
+    $("cbx-body-backdrop").innerHTML = esc(ta.value).replace(TOKEN_RE, (m, k) => '<mark class="' + (variableByKey(k) ? "" : "cbx-bad") + '">' + m + "</mark>") + "\n";
+    ta.style.height = "auto";
+    ta.style.height = Math.max(150, ta.scrollHeight + 2) + "px";
+    const len = compiledLength();
+    const count = $("cbx-body-count");
+    count.textContent = len + " / 1024";
+    count.className = "text-xs " + (len > 1024 ? "text-red-600 font-medium" : "text-gray-400");
+    const trimmed = state.body.trim();
+    const warn = $("cbx-body-warn");
+    const edge = /^\{\{[^}]+\}\}/.test(trimmed) || /\{\{[^}]+\}\}$/.test(trimmed);
+    warn.classList.toggle("hidden", !edge);
+    if (edge) warn.textContent = "Tip: Meta often rejects messages that start or end with a variable — add a few words around it.";
+    $("cbx-suggest").classList.toggle("hidden", !(state.event && !trimmed));
+  }
+
+  function renderButtons() {
+    const wrap = $("cbx-buttons");
+    const options = state.event
+      ? state.event.variables.map((v) => '<option value="' + esc(v.key) + '">' + esc(v.label) + "</option>").join("")
+      : "";
+    wrap.innerHTML = state.buttons.map((b, i) => {
+      const head = '<div class="flex items-center justify-between mb-2"><span class="text-xs font-medium text-gray-600">' + (b.type === "url" ? "Link button" : "Quick reply") + "</span>" +
+        '<button type="button" class="text-xs text-gray-400 hover:text-red-600" data-remove="' + i + '">Remove</button></div>';
+      const label = '<input class="cbx-input" data-btn="' + i + '" data-field="text" maxlength="25" placeholder="' + (b.type === "url" ? "Track order" : "Need help") + '" value="' + esc(b.text) + '" aria-label="Button label">';
+      if (b.type !== "url") return '<div class="rounded-xl border border-gray-200 p-3">' + head + label + "</div>";
+      return '<div class="rounded-xl border border-gray-200 p-3">' + head + '<div class="grid gap-2 sm:grid-cols-[1fr_2fr]">' + label +
+        '<div class="flex items-stretch gap-1.5"><input class="cbx-input" data-btn="' + i + '" data-field="url" type="url" placeholder="https://yourstore.com/track/" value="' + esc(b.url) + '" aria-label="Link">' +
+        '<select class="cbx-input !w-44 shrink-0" data-btn="' + i + '" data-field="variable" aria-label="Variable appended to the link"><option value="">Fixed link</option>' + options + "</select></div></div>" +
+        '<p class="mt-1.5 text-xs text-gray-400">WhatsApp only allows a variable at the very end of a fixed link (for example your tracking page + AWB number). To send a complete tracking link, put “Tracking link” in the message instead.</p></div>';
+    }).join("");
+    state.buttons.forEach((b, i) => {
+      const select = wrap.querySelector('select[data-btn="' + i + '"]');
+      if (select) select.value = b.variable || "";
+    });
+    $("cbx-add-url").disabled = $("cbx-add-reply").disabled = state.buttons.length >= MAX_BUTTONS;
+  }
+
+  function renderPreview() {
+    const image = $("cbx-pv-image");
+    image.classList.toggle("hidden", state.headerType !== "image");
+    image.style.backgroundImage = /^https:\/\//.test(state.headerImage) ? 'url("' + state.headerImage.trim().replace(/["\\\n]/g, "") + '")' : "";
+    image.textContent = image.style.backgroundImage ? "" : "Header image";
+    const header = $("cbx-pv-header");
+    header.classList.toggle("hidden", !(state.headerType === "text" && state.headerText.trim()));
+    header.textContent = state.headerText;
+    const body = $("cbx-pv-body");
+    if (state.body.trim()) {
+      body.className = "whitespace-pre-wrap break-words";
+      body.innerHTML = esc(state.body.trim()).replace(TOKEN_RE, (m, k) => {
+        const v = variableByKey(k);
+        return v ? '<span class="cbx-sample">' + esc(v.sample || v.label) + "</span>" : '<span class="text-red-600">' + m + "</span>";
+      });
+    } else {
+      body.className = "whitespace-pre-wrap break-words text-gray-400";
+      body.textContent = "Your message will appear here.";
+    }
+    const footer = $("cbx-pv-footer");
+    footer.classList.toggle("hidden", !state.footer.trim());
+    footer.textContent = state.footer;
+    $("cbx-pv-buttons").innerHTML = state.buttons.filter((b) => b.text.trim()).map((b) =>
+      '<div class="cbx-wa-btn">' + (b.type === "url" ? "&#8599; " : "&#8617; ") + esc(b.text) + "</div>").join("");
+  }
+
+  function renderRequired() {
+    const keys = requiredKeys();
+    $("cbx-required").innerHTML = keys.length ? keys.map((k) => {
+      const v = variableByKey(k);
+      return '<div class="rounded-lg bg-gray-50 border border-gray-100 px-3 py-2"><p class="text-xs font-medium text-gray-900">' + esc(v.label) + "</p>" +
+        '<p class="text-[11px] font-mono text-gray-500 break-all">' + esc(k) + "</p></div>";
+    }).join("") : '<p class="text-xs text-gray-500">' + (state.event ? "No variables yet — every customer gets the same text." : "Pick an event to see the variables you can use.") + "</p>";
+  }
+
+  function issues() {
+    const out = [];
+    if (!state.event) out.push("Pick the event that triggers this message");
+    if (!/^[a-z0-9_]+$/.test(state.name)) out.push("Give the template a name (lowercase, numbers, underscores)");
+    if (!state.body.trim()) out.push("Write the message");
+    const unknown = bodyKeys().filter((k) => !variableByKey(k));
+    if (state.event && unknown.length) out.push("{{" + unknown[0] + "}} is not available for this event");
+    if (compiledLength() > 1024) out.push("The message is longer than 1024 characters");
+    if (state.headerType === "text" && !state.headerText.trim()) out.push("Add the header text or switch the header off");
+    if (state.headerType === "image" && !/^https:\/\//.test(state.headerImage.trim())) out.push("Add an https:// link for the header image");
+    state.buttons.forEach((b) => {
+      if (!b.text.trim()) out.push("Every button needs a label");
+      else if (b.type === "url" && !/^https:\/\//.test(b.url.trim())) out.push("The “" + b.text + "” button needs an https:// link");
+    });
+    return out;
+  }
+
+  function renderAll() {
+    renderEditor(); renderVariables(); renderPreview(); renderRequired();
+    const found = issues();
+    $("cbx-submit").disabled = found.length > 0 || state.submitting;
+    $("cbx-hint").textContent = found.length ? found[0] : "Ready to submit";
+    const sw = $("cbx-activate");
+    sw.setAttribute("aria-checked", String(state.activate));
+    $("cbx-activate-help").textContent = state.event && state.event.active_template && state.activate
+      ? "This replaces “" + state.event.active_template.name + "” immediately — messages pause until Meta approves the new template."
+      : "Only one template is active per event. Messages start going out once Meta approves it.";
+  }
+
+  function segmented(id, onChange) {
+    $(id).addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-value]");
+      if (!btn) return;
+      $(id).querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+      onChange(btn.dataset.value);
+      renderAll();
+    });
+  }
+  function setSegment(id, value) {
+    $(id).querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.value === value)));
+  }
+
+  function openBuilder() {
+    resetState();
+    $("cbx-form-view").classList.remove("hidden");
+    $("cbx-success-view").classList.add("hidden");
+    $("cbx-submit").classList.remove("hidden");
+    $("cbx-hint").classList.add("sm:block");
+    $("cbx-error").classList.add("hidden");
+    $("cbx-event-note").classList.add("hidden");
+    ["cbx-name", "cbx-header-text", "cbx-header-image", "cbx-body", "cbx-footer", "cbx-event-search", "cbx-var-search"].forEach((id) => { $(id).value = ""; });
+    $("cbx-language").value = "en";
+    if (state.accountId != null) $("cbx-account").value = String(state.accountId);
+    setSegment("cbx-category", "UTILITY"); setSegment("cbx-header-type", "none");
+    $("cbx-header-text").classList.add("hidden"); $("cbx-header-image-wrap").classList.add("hidden");
+    $("cbx-event-current").className = "text-gray-400";
+    $("cbx-event-current").textContent = "Loading events…";
+    $("cbx-builder").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+    renderButtons(); renderAll();
+    $("cbx-event-trigger").focus();
+    showEventWarning(null);
+    fetchEvents(false);
+  }
+
+  function fetchEvents(refresh) {
+    const button = $("cbx-event-refresh");
+    const previous = events;
+    if (refresh) { events = null; button.disabled = true; button.textContent = "Refreshing…"; }
+    if (!state.event) $("cbx-event-current").textContent = "Loading events…";
+    renderEventList();
+    return loadEvents(refresh).then(() => {
+      showEventWarning(eventsWarning);
+      if (!state.event) $("cbx-event-current").textContent = "Choose an event…";
+      if (refresh) toast(eventsSource === "live" ? "Event list updated from ParcelX" : "ParcelX could not be reached — showing a saved list");
+    }).catch((err) => {
+      events = previous;
+      if (!state.event) $("cbx-event-current").textContent = events ? "Choose an event…" : "Could not load events — click to retry";
+      if (refresh && events) showEventWarning("Refresh failed: " + err.message);
+    }).finally(() => {
+      button.disabled = false; button.textContent = "Refresh list";
+      renderEventList();
+    });
+  }
+
+  function closeBuilder() {
+    $("cbx-builder").classList.add("hidden");
+    document.body.style.overflow = "";
+    if (dirty) location.reload();
+  }
+
+  function showError(message) {
+    const el = $("cbx-error");
+    el.textContent = message;
+    el.classList.remove("hidden");
+    el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+
+  async function submit() {
+    if (issues().length || state.submitting) return;
+    state.submitting = true;
+    $("cbx-submit").textContent = "Submitting…";
+    $("cbx-error").classList.add("hidden");
+    renderAll();
+    try {
+      const data = await api("/event_templates", { method: "POST", body: JSON.stringify({
+        account_id: state.accountId, event_id: state.event.event_id, name: state.name,
+        language: state.language, category: state.category,
+        header: { type: state.headerType, text: state.headerText, image_url: state.headerImage.trim() },
+        body: state.body, footer: state.footer,
+        buttons: state.buttons.map((b) => ({ type: b.type, text: b.text, url: (b.url || "").trim(), variable: b.variable || null })),
+        activate: state.activate,
+      }) });
+      dirty = true;
+      const t = data.template;
+      $("cbx-success-sub").textContent = "“" + t.name + "” is " + t.status + ". Meta usually reviews templates within a few minutes. " +
+        (t.event.active ? "It is the active template for " + t.event.event_name + " and starts sending as soon as it is approved." : "It is saved as inactive — switch it on from the templates list when you are ready.");
+      $("cbx-success-details").innerHTML = integrationHtml(t);
+      $("cbx-form-view").classList.add("hidden");
+      $("cbx-success-view").classList.remove("hidden");
+      $("cbx-submit").classList.add("hidden");
+      $("cbx-hint").classList.remove("sm:block");
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      state.submitting = false;
+      $("cbx-submit").textContent = "Submit for approval";
+      renderAll();
+    }
+  }
+
+  $("cbx-language").innerHTML = LANGUAGES.map(([code, label]) => '<option value="' + code + '">' + label + " — " + code + "</option>").join("");
+  if (CBX_ACCOUNTS.length > 1) {
+    $("cbx-account-wrap").classList.remove("hidden");
+    $("cbx-account").innerHTML = CBX_ACCOUNTS.map((a) => '<option value="' + a.id + '">' + esc(a.label) + (a.is_default ? " (default)" : "") + "</option>").join("");
+  }
+
+  const newBtn = $("cb-new-template");
+  if (newBtn) newBtn.addEventListener("click", openBuilder);
+  $("cbx-builder-close").addEventListener("click", closeBuilder);
+  $("cbx-success-done").addEventListener("click", closeBuilder);
+  $("cbx-submit").addEventListener("click", submit);
+  $("cbx-event-trigger").addEventListener("click", () => {
+    toggleEventPanel();
+    if (!events && !eventsPromise) fetchEvents(false);
+  });
+  $("cbx-event-search").addEventListener("input", renderEventList);
+  $("cbx-event-list").addEventListener("click", (e) => {
+    if (e.target.closest("[data-retry]")) return fetchEvents(false);
+    const btn = e.target.closest("[data-event-id]");
+    if (btn) selectEvent(btn.dataset.eventId);
+  });
+  $("cbx-event-refresh").addEventListener("click", () => fetchEvents(true));
+  document.addEventListener("click", (e) => {
+    if (!document.contains(e.target)) return;
+    if (!$("cbx-event-panel").classList.contains("hidden") && !e.target.closest("#cbx-event-panel, #cbx-event-trigger")) toggleEventPanel(false);
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (!$("cbx-event-panel").classList.contains("hidden")) return toggleEventPanel(false);
+    if (!$("cbx-drawer").classList.contains("hidden")) return closeDrawer();
+  });
+
+  $("cbx-name").addEventListener("input", (e) => {
+    const clean = e.target.value.toLowerCase().replace(/[^a-z0-9_]+/g, "_");
+    if (clean !== e.target.value) e.target.value = clean;
+    state.name = clean; state.nameTouched = true; renderAll();
+  });
+  $("cbx-language").addEventListener("change", (e) => { state.language = e.target.value; });
+  $("cbx-account").addEventListener("change", (e) => { state.accountId = Number(e.target.value); });
+  segmented("cbx-category", (v) => { state.category = v; });
+  segmented("cbx-header-type", (v) => {
+    state.headerType = v;
+    $("cbx-header-text").classList.toggle("hidden", v !== "text");
+    $("cbx-header-image-wrap").classList.toggle("hidden", v !== "image");
+  });
+  $("cbx-header-text").addEventListener("input", (e) => { state.headerText = e.target.value; renderAll(); });
+  $("cbx-header-image").addEventListener("input", (e) => { state.headerImage = e.target.value; renderAll(); });
+  $("cbx-body").addEventListener("input", (e) => { state.body = e.target.value; renderAll(); });
+  $("cbx-footer").addEventListener("input", (e) => { state.footer = e.target.value; renderAll(); });
+  $("cbx-var-search").addEventListener("input", renderVariables);
+  $("cbx-var-groups").addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-key]");
+    if (chip) insertToken(chip.dataset.key);
+  });
+  $("cbx-suggest").addEventListener("click", () => {
+    state.body = suggestedBody(state.event);
+    $("cbx-body").value = state.body;
+    renderAll();
+  });
+  $("cbx-activate").addEventListener("click", () => { state.activate = !state.activate; renderAll(); });
+  $("cbx-add-url").addEventListener("click", () => { state.buttons.push({ type: "url", text: "", url: "", variable: "" }); renderButtons(); renderAll(); });
+  $("cbx-add-reply").addEventListener("click", () => { state.buttons.push({ type: "quick_reply", text: "" }); renderButtons(); renderAll(); });
+  $("cbx-buttons").addEventListener("click", (e) => {
+    const remove = e.target.closest("[data-remove]");
+    if (!remove) return;
+    state.buttons.splice(Number(remove.dataset.remove), 1);
+    renderButtons(); renderAll();
+  });
+  const onButtonField = (e) => {
+    const el = e.target.closest("[data-btn]");
+    if (!el) return;
+    state.buttons[Number(el.dataset.btn)][el.dataset.field] = el.value;
+    renderAll();
+  };
+  $("cbx-buttons").addEventListener("input", onButtonField);
+  $("cbx-buttons").addEventListener("change", onButtonField);
+
+  let drawerTemplate = null;
+  const component = (t, type) => (t.components || []).find((c) => ((c && c.type) || "").toUpperCase() === type);
+  const placeholderCount = (t) => {
+    const found = (((component(t, "BODY") || {}).text || "").match(/\{\{(\d+)\}\}/g) || []).map((p) => Number(p.replace(/\D/g, "")));
+    return found.length ? Math.max.apply(null, found) : 0;
+  };
+  const dynamicButtons = (t) => (((component(t, "BUTTONS") || {}).buttons) || [])
+    .map((b, i) => ({ b, i }))
+    .filter(({ b }) => (b.type || "").toUpperCase() === "URL" && ((b.url || "").includes("{{") || (b.example && b.example.length)));
+
+  function openDrawer(templateId) {
+    drawerTemplate = CBX_TEMPLATES.find((t) => t.id === Number(templateId));
+    if (!drawerTemplate) return;
+    $("cbx-drawer-title").textContent = drawerTemplate.name;
+    $("cbx-drawer-sub").textContent = "Template ID " + drawerTemplate.id + " · " + drawerTemplate.language + " · " + drawerTemplate.status;
+    $("cbx-drawer").classList.remove("hidden");
+    requestAnimationFrame(() => $("cbx-drawer").classList.add("cbx-drawer-open"));
+    drawerTemplate.event ? renderDrawerDetails() : renderDrawerForm();
+  }
+
+  function closeDrawer() {
+    clearInterval(activityTimer);
+    $("cbx-drawer").classList.remove("cbx-drawer-open");
+    setTimeout(() => { $("cbx-drawer").classList.add("hidden"); if (dirty) location.reload(); }, 200);
+  }
+
+  // Kept for the page's lifetime only (never stored) so reopening the drawer
+  // doesn't make the user paste the token again.
+  let testToken = "";
+  let activityTimer = null;
+
+  function testHtml(t) {
+    const ev = t.event;
+    const fields = ev.required_variables.map((key, i) => {
+      const v = ev.variables.find((x) => x.key === key);
+      const sample = v && v.sample ? v.sample : "";
+      return '<div><label class="cbx-label font-mono break-all" for="cbx-test-var-' + i + '">' + esc(key) + "</label>" +
+        '<input type="text" id="cbx-test-var-' + i + '" class="cbx-input" data-var="' + esc(key) + '" value="' + esc(sample) + '" placeholder="' + esc(v ? v.label : "Link button value") + '"></div>';
+    }).join("");
+    return '' +
+      '<div class="mt-6 pt-5 border-t border-gray-100">' +
+        '<p class="text-sm font-medium text-gray-900">Test this request</p>' +
+        '<p class="text-xs text-gray-500 mt-0.5 mb-3">Calls the API with your token and sends a real WhatsApp message to the number below.</p>' +
+        '<div class="space-y-3">' +
+          '<div><label class="cbx-label" for="cbx-test-token">API token</label>' +
+            '<input type="password" id="cbx-test-token" class="cbx-input font-mono" autocomplete="off" spellcheck="false" placeholder="Paste your bearer token" value="' + esc(testToken) + '">' +
+            '<p class="text-xs text-gray-400 mt-1">Used only for this request. Not saved and not shown in the cURL above.</p></div>' +
+          '<div><label class="cbx-label" for="cbx-test-to">Send to (with country code)</label>' +
+            '<input type="tel" id="cbx-test-to" class="cbx-input" inputmode="numeric" placeholder="919876501234"></div>' +
+          fields +
+        "</div>" +
+        '<div class="flex items-center justify-between gap-3 mt-4">' +
+          '<span id="cbx-test-status" class="text-xs text-gray-500"></span>' +
+          '<button type="button" id="cbx-test-send" class="text-sm text-white rounded-md px-4 py-2 font-medium disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap" style="background:var(--brand)">Send test request</button>' +
+        "</div>" +
+        '<pre id="cbx-test-response" class="cbx-code hidden mt-3"></pre>' +
+      "</div>";
+  }
+
+  function testValues() {
+    const variables = {};
+    $("cbx-drawer-body").querySelectorAll("input[data-var]").forEach((i) => { variables[i.dataset.var] = i.value.trim(); });
+    return { to: $("cbx-test-to").value.replace(/\D/g, ""), variables: variables };
+  }
+
+  function wireTest(t) {
+    const ev = t.event;
+    const root = $("cbx-drawer-body");
+    const syncCurl = () => {
+      const curl = curlFor(requestBody(ev, testValues()));
+      root.querySelector(".cbx-curl").textContent = curl;
+      root.querySelector(".cbx-curl-copy").dataset.copy = curl;
+    };
+    root.querySelectorAll("#cbx-test-to, input[data-var]").forEach((i) => i.addEventListener("input", syncCurl));
+    $("cbx-test-token").addEventListener("input", (e) => { testToken = e.target.value.trim(); });
+
+    $("cbx-test-send").addEventListener("click", async () => {
+      const values = testValues();
+      const status = $("cbx-test-status"), out = $("cbx-test-response"), btn = $("cbx-test-send");
+      if (!testToken) { status.innerHTML = '<span class="text-red-600">Paste your API token first.</span>'; $("cbx-test-token").focus(); return; }
+      if (!values.to) { status.innerHTML = '<span class="text-red-600">Enter the recipient number.</span>'; $("cbx-test-to").focus(); return; }
+      const missing = Object.keys(values.variables).filter((k) => !values.variables[k]);
+      if (missing.length) { status.innerHTML = '<span class="text-red-600">Fill in ' + esc(missing[0]) + ".</span>"; return; }
+
+      // No idempotency_key: a test should send every time it is clicked.
+      const body = requestBody(ev, Object.assign(values, { omitIdempotency: true }));
+      btn.disabled = true; btn.textContent = "Sending…"; status.textContent = "";
+      let res, data;
+      try {
+        res = await fetch(CBX_MESSAGES_URL, {
+          method: "POST",
+          credentials: "omit",
+          headers: { "Content-Type": "application/json", "Accept": "application/json", "Authorization": "Bearer " + testToken },
+          body: JSON.stringify(body),
+        });
+        data = await res.json().catch(() => ({}));
+      } catch (err) {
+        status.innerHTML = '<span class="cbx-pill" data-s="err">Network error</span>';
+        out.textContent = err.message; out.classList.remove("hidden");
+        return;
+      } finally {
+        btn.disabled = false; btn.textContent = "Send test request";
+      }
+      status.innerHTML = '<span class="cbx-pill" data-s="' + (res.ok ? "ok" : "err") + '">HTTP ' + res.status + "</span>" +
+        (res.ok ? ' <span class="ml-1">Queued. Watch the status in Activity below.</span>' : "");
+      out.textContent = JSON.stringify(data, null, 2);
+      out.classList.remove("hidden");
+      if (res.ok) pollActivity(t.id);
+    });
+  }
+
+  function activityHtml() {
+    return '' +
+      '<div class="mt-6 pt-5 border-t border-gray-100">' +
+        '<div class="flex items-center justify-between mb-2"><p class="text-sm font-medium text-gray-900">Activity</p>' +
+          '<button type="button" id="cbx-activity-refresh" class="text-xs hover:underline" style="color:var(--brand)">Refresh</button></div>' +
+        '<div id="cbx-activity" class="text-xs text-gray-500">Loading…</div>' +
+      "</div>";
+  }
+
+  function timeAgo(iso) {
+    if (!iso) return "";
+    const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+    if (s < 60) return s + "s ago";
+    if (s < 3600) return Math.floor(s / 60) + "m ago";
+    if (s < 86400) return Math.floor(s / 3600) + "h ago";
+    return new Date(iso).toLocaleString();
+  }
+
+  function activityRow(a) {
+    const vars = a.variables && typeof a.variables === "object" && Object.keys(a.variables).length
+      ? '<details class="mt-1"><summary class="cursor-pointer text-gray-400">Variables</summary><pre class="cbx-code mt-1">' + esc(JSON.stringify(a.variables, null, 2)) + "</pre></details>"
+      : "";
+    const error = a.status === "failed" && (a.error_message || a.error_code)
+      ? '<p class="text-red-700 mt-1 break-words">' + esc([a.error_code, a.error_message].filter(Boolean).join(" · ")) + "</p>"
+      : "";
+    return '<li class="py-2.5 border-t border-gray-100 first:border-t-0">' +
+      '<div class="flex items-center justify-between gap-2">' +
+        '<div class="flex items-center gap-2 min-w-0"><span class="cbx-pill" data-s="' + esc(a.status) + '">' + esc(a.status) + "</span>" +
+          '<span class="text-gray-900 font-mono truncate">+' + esc(a.recipient) + "</span></div>" +
+        '<span class="text-gray-400 whitespace-nowrap" title="' + esc(a.created_at ? new Date(a.created_at).toLocaleString() : "") + '">' + esc(timeAgo(a.created_at)) + "</span></div>" +
+      '<p class="text-gray-500 mt-0.5">' + esc(a.source) + (a.idempotency_key ? " · " + esc(a.idempotency_key) : "") + " · #" + esc(a.id) + "</p>" +
+      error + vars + "</li>";
+  }
+
+  async function loadActivity(templateId) {
+    const box = $("cbx-activity");
+    if (!box) return;
+    const refresh = $("cbx-activity-refresh");
+    if (refresh && !refresh.dataset.wired) { refresh.dataset.wired = "1"; refresh.addEventListener("click", () => loadActivity(templateId)); }
+    try {
+      const data = await api("/templates/" + templateId + "/activity", { method: "GET" });
+      if (!drawerTemplate || drawerTemplate.id !== templateId || !$("cbx-activity")) return;
+      const list = data.activities || [];
+      $("cbx-activity").innerHTML = list.length
+        ? '<ul class="rounded-xl border border-gray-200 px-3">' + list.map(activityRow).join("") + "</ul>"
+        : '<p class="text-gray-500">No messages sent with this template yet.</p>';
+    } catch (err) {
+      if ($("cbx-activity")) $("cbx-activity").innerHTML = '<p class="text-red-700">' + esc(err.message) + "</p>";
+    }
+  }
+
+  // The API queues the send, so status moves queued → sent → delivered over a
+  // few seconds; refresh a handful of times after a test.
+  function pollActivity(templateId) {
+    clearInterval(activityTimer);
+    let runs = 0;
+    loadActivity(templateId);
+    activityTimer = setInterval(() => {
+      runs += 1;
+      if (runs > 6 || !drawerTemplate || drawerTemplate.id !== templateId) { clearInterval(activityTimer); return; }
+      loadActivity(templateId);
+      loadBrandActivity(true);
+    }, 3000);
+  }
+
+  function renderDrawerDetails() {
+    const t = drawerTemplate, ev = t.event;
+    const stateText = !ev.active ? "Inactive — ParcelX will not use this template for the event."
+      : ev.live ? "Active — sending for every “" + ev.event_name + "” event."
+      : "Active — starts sending once the template is approved and the number is ready.";
+    $("cbx-drawer-body").innerHTML =
+      '<div class="flex items-start gap-3 rounded-xl border border-gray-200 p-3 mb-5">' +
+        '<button type="button" id="cbx-drawer-active" class="cbx-switch mt-0.5" role="switch" aria-checked="' + ev.active + '" aria-label="Active for this event"></button>' +
+        '<div><p class="text-sm font-medium text-gray-900">' + (ev.active ? "Active for this event" : "Not active") + "</p>" +
+        '<p class="text-xs text-gray-500 mt-0.5">' + esc(stateText) + " Only one template can be active per event.</p></div></div>" +
+      integrationHtml(t) +
+      testHtml(t) +
+      activityHtml() +
+      '<div id="cbx-drawer-error" class="hidden mt-4 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800" role="alert"></div>' +
+      '<div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-100">' +
+        '<button type="button" id="cbx-drawer-unmap" class="text-xs text-gray-500 hover:text-red-600">Remove event mapping</button>' +
+        '<button type="button" id="cbx-drawer-edit" class="text-sm rounded-md px-3 py-2 border" style="border-color:var(--brand);color:var(--brand)">Change mapping</button></div>';
+
+    wireTest(t);
+    loadActivity(t.id);
+    $("cbx-drawer-active").addEventListener("click", () => saveMapping({ active: !ev.active }, ev.active ? "Template deactivated" : "Template is now active for " + ev.event_name));
+    $("cbx-drawer-edit").addEventListener("click", renderDrawerForm);
+    $("cbx-drawer-unmap").addEventListener("click", async (e) => {
+      if (e.target.dataset.confirm !== "1") { e.target.dataset.confirm = "1"; e.target.textContent = "Click again to remove the mapping"; return; }
+      try {
+        const data = await api("/event_templates/" + drawerTemplate.id, { method: "DELETE" });
+        applyTemplate(data.template); toast("Mapping removed"); renderDrawerForm();
+      } catch (err) { drawerError(err.message); }
+    });
+  }
+
+  function drawerError(message) {
+    const el = $("cbx-drawer-error");
+    if (!el) return;
+    el.textContent = message; el.classList.remove("hidden");
+  }
+
+  function applyTemplate(updated) {
+    drawerTemplate.event = updated.event;
+    dirty = true;
+  }
+
+  async function saveMapping(payload, message) {
+    try {
+      const data = await api("/event_templates/" + drawerTemplate.id, { method: "PATCH", body: JSON.stringify(payload) });
+      applyTemplate(data.template); eventsPromise = null;
+      toast(message);
+      renderDrawerDetails();
+    } catch (err) { drawerError(err.message); }
+  }
+
+  function renderDrawerForm() {
+    const t = drawerTemplate;
+    const body = (component(t, "BODY") || {}).text || "";
+    const count = placeholderCount(t);
+    const buttons = dynamicButtons(t);
+    $("cbx-drawer-body").innerHTML =
+      '<p class="text-sm text-gray-600 mb-4">Link this template to a ParcelX event and tell us which order detail fills each placeholder. ParcelX then only has to send those values.</p>' +
+      '<div class="rounded-lg p-3 text-sm whitespace-pre-wrap mb-5" style="background:#dcf8c6">' + esc(body) + "</div>" +
+      '<label class="cbx-label" for="cbx-map-event">ParcelX event</label>' +
+      '<select id="cbx-map-event" class="cbx-input"><option value="">Loading events…</option></select>' +
+      '<div id="cbx-map-fields" class="mt-4 space-y-3"></div>' +
+      '<div id="cbx-drawer-error" class="hidden mt-4 rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800" role="alert"></div>' +
+      '<div class="flex items-center justify-end gap-2 mt-6 pt-4 border-t border-gray-100">' +
+        (t.event ? '<button type="button" id="cbx-map-cancel" class="text-sm rounded-md px-3 py-2 border border-gray-300 text-gray-700">Cancel</button>' : "") +
+        '<button type="button" id="cbx-map-save" class="text-sm text-white rounded-md px-4 py-2 font-medium disabled:opacity-40" style="background:var(--brand)" disabled>Save mapping</button></div>';
+
+    const eventSelect = $("cbx-map-event");
+    const fields = $("cbx-map-fields");
+    const current = t.event;
+
+    const variableSelect = (name, selected, ev) => {
+      const sections = {};
+      ev.variables.forEach((v) => { (sections[v.section] = sections[v.section] || []).push(v); });
+      return '<select class="cbx-input" data-map="' + name + '"><option value="">Choose a variable…</option>' +
+        Object.keys(sections).map((s) => '<optgroup label="' + esc(s) + '">' + sections[s].map((v) =>
+          '<option value="' + esc(v.key) + '"' + (v.key === selected ? " selected" : "") + ">" + esc(v.label) + (v.sample ? " — " + esc(v.sample) : "") + "</option>").join("") + "</optgroup>").join("") + "</select>";
+    };
+
+    const renderFields = () => {
+      const ev = (events || []).find((e) => e.event_id === eventSelect.value);
+      if (!ev) { fields.innerHTML = ""; $("cbx-map-save").disabled = true; return; }
+      const sameEvent = current && current.event_id === ev.event_id;
+      let html = "";
+      for (let n = 1; n <= count; n++) {
+        const selected = sameEvent && current.variables[n - 1] ? current.variables[n - 1].key : "";
+        html += '<div><label class="cbx-label">Placeholder {{' + n + "}}</label>" + variableSelect("var:" + n, selected, ev) + "</div>";
+      }
+      buttons.forEach(({ b, i }) => {
+        const selected = sameEvent ? (current.button_variables || {})[String(i)] || "" : "";
+        html += '<div><label class="cbx-label">Link button “' + esc(b.text || "URL") + '” <span class="font-normal text-gray-400">(optional)</span></label>' + variableSelect("btn:" + i, selected, ev) + "</div>";
+      });
+      if (!count && !buttons.length) html = '<p class="text-xs text-gray-500">This template has no placeholders, so ParcelX does not need to send any variables.</p>';
+      fields.innerHTML = html;
+      checkReady();
+    };
+
+    const checkReady = () => {
+      const selects = Array.from(fields.querySelectorAll('select[data-map^="var:"]'));
+      $("cbx-map-save").disabled = !eventSelect.value || selects.some((s) => !s.value);
+    };
+
+    loadEvents().then(() => {
+      let html = '<option value="">Choose an event…</option>', group = null;
+      events.forEach((e) => {
+        if (e.group_label !== group) { if (group !== null) html += "</optgroup>"; group = e.group_label; html += '<optgroup label="' + esc(group) + '">'; }
+        html += '<option value="' + esc(e.event_id) + '">' + esc(e.event_name) + "</option>";
+      });
+      eventSelect.innerHTML = html + (group !== null ? "</optgroup>" : "");
+      if (current) eventSelect.value = current.event_id;
+      renderFields();
+    }).catch((err) => drawerError(err.message));
+
+    eventSelect.addEventListener("change", renderFields);
+    fields.addEventListener("change", checkReady);
+    const cancel = $("cbx-map-cancel");
+    if (cancel) cancel.addEventListener("click", renderDrawerDetails);
+    $("cbx-map-save").addEventListener("click", () => {
+      const variables = [], buttonVariables = {};
+      fields.querySelectorAll("select[data-map]").forEach((s) => {
+        const [kind, index] = s.dataset.map.split(":");
+        if (kind === "var") variables[Number(index) - 1] = s.value;
+        else if (s.value) buttonVariables[index] = s.value;
+      });
+      saveMapping({ event_id: eventSelect.value, variables: variables, button_variables: buttonVariables }, "Mapping saved");
+    });
+  }
+
+  document.querySelectorAll(".cb-map-btn").forEach((btn) => btn.addEventListener("click", () => openDrawer(btn.dataset.templateId)));
+  $("cbx-drawer-close").addEventListener("click", closeDrawer);
+  $("cbx-drawer-scrim").addEventListener("click", closeDrawer);
+
+  // ---- Brand-wide Activity card (show.html.erb #cb-activity-card) ----
+  const brandActivity = { nextBeforeId: null, loading: false, seq: 0 };
+
+  function summaryHtml(sum) {
+    if (!sum) return "";
+    const cells = [["Total", sum.total], ["Queued", sum.queued], ["Sent", sum.sent], ["Delivered", sum.delivered], ["Read", sum.read], ["Failed", sum.failed]];
+    return cells.map(([label, n], i) =>
+      '<div class="bg-white px-4 py-2.5"><p class="text-xs text-gray-500">' + esc(label) + (i === 0 ? " · last " + esc(sum.days) + " days" : "") + "</p>" +
+      '<p class="text-lg font-semibold ' + (label === "Failed" && n ? "text-red-600" : "text-gray-900") + '">' + esc(n || 0) + "</p></div>").join("");
+  }
+
+  function brandRow(a) {
+    const vars = a.variables && typeof a.variables === "object" && Object.keys(a.variables).length
+      ? '<details class="mt-1 text-xs"><summary class="cursor-pointer text-gray-400">Variables</summary><pre class="cbx-code mt-1">' + esc(JSON.stringify(a.variables, null, 2)) + "</pre></details>"
+      : "";
+    const error = a.status === "failed" && (a.error_message || a.error_code)
+      ? '<p class="text-xs text-red-700 mt-1 max-w-xs break-words">' + esc([a.error_code, a.error_message].filter(Boolean).join(" · ")) + "</p>"
+      : "";
+    return '<tr class="border-t border-gray-100 align-top">' +
+      '<td class="px-4 py-2.5 whitespace-nowrap text-gray-600" title="' + esc(a.created_at ? new Date(a.created_at).toLocaleString() : "") + '">' + esc(timeAgo(a.created_at)) + "</td>" +
+      '<td class="px-4 py-2.5"><span class="text-gray-900">' + esc(a.template || "—") + "</span>" + vars + "</td>" +
+      '<td class="px-4 py-2.5 font-mono text-xs text-gray-900 whitespace-nowrap">+' + esc(a.recipient) + "</td>" +
+      '<td class="px-4 py-2.5 text-gray-600"><span class="whitespace-nowrap">' + esc(a.source) + "</span>" +
+        (a.idempotency_key ? '<p class="text-xs text-gray-400 font-mono break-all">' + esc(a.idempotency_key) + "</p>" : "") + "</td>" +
+      '<td class="px-4 py-2.5"><span class="cbx-pill" data-s="' + esc(a.status) + '">' + esc(a.status) + "</span>" + error + "</td></tr>";
+  }
+
+  async function loadBrandActivity(reset) {
+    const rows = $("cb-activity-rows");
+    if (!rows) return;
+    if (brandActivity.loading && !reset) return;
+    const seq = ++brandActivity.seq;
+    brandActivity.loading = true;
+    const q = new URLSearchParams();
+    const status = $("cb-activity-status").value, template = $("cb-activity-template").value, to = $("cb-activity-to").value.replace(/\D/g, "");
+    if (status) q.set("status", status);
+    if (template) q.set("template", template);
+    if (to) q.set("to", to);
+    if (!reset && brandActivity.nextBeforeId) q.set("before_id", brandActivity.nextBeforeId);
+    const empty = $("cb-activity-empty");
+    if (reset && !rows.children.length) { empty.textContent = "Loading…"; empty.classList.remove("hidden"); }
+    try {
+      const data = await api("/activity" + (q.toString() ? "?" + q : ""), { method: "GET" });
+      if (seq !== brandActivity.seq) return;
+      const list = data.activities || [];
+      if (reset) rows.innerHTML = "";
+      rows.insertAdjacentHTML("beforeend", list.map(brandRow).join(""));
+      if (reset) $("cb-activity-summary").innerHTML = summaryHtml(data.summary);
+      brandActivity.nextBeforeId = data.next_before_id || null;
+      $("cb-activity-more-wrap").classList.toggle("hidden", !brandActivity.nextBeforeId);
+      const filtered = status || template || to;
+      empty.textContent = filtered ? "No messages match these filters." : "No messages sent yet.";
+      empty.classList.toggle("hidden", rows.children.length > 0);
+    } catch (err) {
+      if (seq !== brandActivity.seq) return;
+      empty.innerHTML = '<span class="text-red-700">' + esc(err.message) + "</span>";
+      empty.classList.remove("hidden");
+    } finally {
+      if (seq === brandActivity.seq) brandActivity.loading = false;
+    }
+  }
+
+  if ($("cb-activity-card")) {
+    let toTimer = null;
+    $("cb-activity-refresh").addEventListener("click", () => loadBrandActivity(true));
+    $("cb-activity-more").addEventListener("click", () => loadBrandActivity(false));
+    $("cb-activity-status").addEventListener("change", () => loadBrandActivity(true));
+    $("cb-activity-template").addEventListener("change", () => loadBrandActivity(true));
+    $("cb-activity-to").addEventListener("input", () => { clearTimeout(toTimer); toTimer = setTimeout(() => loadBrandActivity(true), 350); });
+    let activityLoaded = false;
+    window.cbReloadActivity = () => { if (activityLoaded) loadBrandActivity(true); };
+
+    // Tabs: "setup" (numbers + templates) and "activity". The hash keeps the
+    // tab across reloads; ?page= links for templates land on setup.
+    const tabs = Array.from(document.querySelectorAll(".cb-tab"));
+    const showTab = (name, focus) => {
+      tabs.forEach((btn) => {
+        const on = btn.dataset.tab === name;
+        btn.setAttribute("aria-selected", on);
+        btn.tabIndex = on ? 0 : -1;
+        btn.style.borderColor = on ? "var(--brand)" : "transparent";
+        btn.style.color = on ? "var(--brand)" : "#6b7280";
+        $("cb-tab-" + btn.dataset.tab).classList.toggle("hidden", !on);
+        if (on && focus) btn.focus();
+      });
+      if (name === "activity" && !activityLoaded) { activityLoaded = true; loadBrandActivity(true); }
+    };
+    tabs.forEach((btn, i) => {
+      btn.addEventListener("click", () => {
+        showTab(btn.dataset.tab);
+        history.replaceState(null, "", btn.dataset.tab === "activity" ? "#activity" : location.pathname + location.search);
+      });
+      btn.addEventListener("keydown", (e) => {
+        if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+        const next = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        next.click(); next.focus();
+      });
+    });
+    showTab(location.hash === "#activity" ? "activity" : "setup");
+  }
+})();
+</script>

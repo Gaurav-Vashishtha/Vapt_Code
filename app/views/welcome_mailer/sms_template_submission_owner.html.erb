@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SMS template submitted</title>
+  <style>
+    body { margin: 0; padding: 0; background-color: #f1f5f9; -webkit-font-smoothing: antialiased; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 32px 20px 48px; }
+    .card { background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 28px 24px 32px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06); }
+    h1 { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 600; color: #0f172a; margin: 0 0 8px; line-height: 1.3; }
+    p { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; line-height: 1.55; color: #334155; margin: 0 0 14px; }
+    .lead { color: #475569; margin: 0 0 20px; }
+    .section-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.04em; margin: 22px 0 10px; }
+    .code-block { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 16px; margin: 10px 0 16px; }
+    .btn-wrap { text-align: center; margin: 24px 0 8px; }
+    a.button { display: inline-block; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 600; color: #ffffff !important; background: #1e293b; text-decoration: none; padding: 12px 28px; border-radius: 8px; }
+    .muted { font-size: 13px; color: #64748b; line-height: 1.5; }
+    .divider { height: 1px; background: #e2e8f0; margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Your SMS template is submitted</h1>
+      <p class="lead">Hi <%= @name.presence || "Merchant" %>, your template request was submitted successfully and is now under review.</p>
+
+      <p class="section-title">Request details</p>
+      <p>
+        <strong>Template type:</strong> <%= @approval.template_type_key %><br />
+        <strong>Status:</strong> <%= @approval.status %><br />
+        <strong>Submitted at:</strong> <%= @approval.submitted_at %>
+      </p>
+
+      <p class="section-title">Submitted template</p>
+      <div class="code-block"><%= @approval.body %></div>
+
+      <p>Our team will review and approve it. Once approved, this template will go live automatically.</p>
+
+      <div class="divider"></div>
+      <div class="btn-wrap">
+        <a class="button" href="https://<%= @shopify_domain %>/admin/apps/cod-verification/notifications" target="_blank" rel="noopener">Track request status</a>
+      </div>
+      <p class="muted" style="text-align:center;">You can view updates in Notifications → SMS template Management.</p>
+    </div>
+  </div>
+</body>
+</html>

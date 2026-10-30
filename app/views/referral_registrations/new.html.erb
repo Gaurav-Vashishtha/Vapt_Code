@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>New Referral Partner</title>
+  <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/0655/2089/4070/files/with_bg_logo2.png?v=1770038556">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 antialiased overflow-x-hidden text-slate-900">
+  <div class="min-h-screen py-5 sm:py-8 md:py-10 px-3 sm:px-6">
+    <div class="max-w-7xl mx-auto w-full min-w-0 grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 lg:gap-8 items-start">
+      <%# Mobile: form first; desktop: form left %>
+      <div class="order-1 lg:order-1 min-w-0">
+        <div class="bg-white rounded-lg border border-slate-200 shadow-sm p-5 sm:p-8 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+          <div class="flex items-center gap-3 mb-4">
+            <img
+              src="https://cdn.shopify.com/s/files/1/0655/2089/4070/files/with_bg_logo2.png?v=1770038556"
+              alt="COD King"
+              class="h-9 sm:h-10 w-auto max-w-full"
+            />
+          </div>
+          <h1 class="text-2xl sm:text-3xl font-semibold text-slate-900 tracking-tight mb-2">Partner signup</h1>
+          <p class="text-sm text-slate-600 leading-relaxed mb-4">
+            For agencies and partners who refer Shopify merchants to COD King. Commission accrues on an ongoing basis while referred stores stay on a paid plan.
+          </p>
+
+          <% if flash[:notice] %>
+            <div class="bg-emerald-50 border border-emerald-200/80 text-emerald-900 px-4 py-3 rounded-md mb-4 text-sm">
+              <%= flash[:notice] %>
+            </div>
+          <% end %>
+
+          <% if @partner.errors.any? %>
+            <div class="bg-red-50 border border-red-200/80 text-red-900 px-4 py-3 rounded-md mb-4 text-sm">
+              <ul class="list-disc list-inside space-y-1">
+                <% @partner.errors.full_messages.each do |msg| %>
+                  <li><%= msg %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%= form_with model: @partner, url: referral_signup_path, local: true, class: "space-y-4" do |f| %>
+            <div>
+              <%= f.label :name, class: "block text-sm font-medium text-slate-700" %>
+              <%= f.text_field :name, required: true, autocomplete: "name", placeholder: "Enter partner name",
+                  class: "mt-1 block w-full min-h-[44px] px-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400" %>
+            </div>
+
+            <div>
+              <%= f.label :email, class: "block text-sm font-medium text-slate-700" %>
+              <%= f.email_field :email, required: true, autocomplete: "email", placeholder: "partner@example.com",
+                  class: "mt-1 block w-full min-h-[44px] px-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400" %>
+            </div>
+
+            <div>
+              <%= f.label :phone, "Phone number", class: "block text-sm font-medium text-slate-700" %>
+              <%= f.telephone_field :phone, required: true, autocomplete: "tel", placeholder: "e.g. +1 234 567 8900",
+                  class: "mt-1 block w-full min-h-[44px] px-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400" %>
+            </div>
+
+            <div>
+              <%= f.label :password, class: "block text-sm font-medium text-slate-700" %>
+              <%= f.password_field :password, required: true, autocomplete: "new-password", placeholder: "Enter password",
+                  class: "mt-1 block w-full min-h-[44px] px-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400" %>
+            </div>
+
+            <div>
+              <%= f.label :password_confirmation, "Confirm password", class: "block text-sm font-medium text-slate-700" %>
+              <%= f.password_field :password_confirmation, required: true, autocomplete: "new-password", placeholder: "Confirm password",
+                  class: "mt-1 block w-full min-h-[44px] px-3 py-2.5 text-base sm:text-sm border border-slate-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-slate-400" %>
+            </div>
+
+            <div>
+              <%= f.submit "Create account",
+                  class: "w-full min-h-[44px] flex justify-center items-center py-2.5 px-4 rounded-md text-sm font-medium text-white bg-slate-800 hover:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500" %>
+            </div>
+
+            <p class="text-center text-sm text-slate-600">
+              Already have an account?
+              <%= link_to "Log in", referral_login_path, class: "text-slate-800 underline decoration-slate-300 underline-offset-2 hover:decoration-slate-600 font-medium" %>
+            </p>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="order-2 lg:order-2 min-w-0 space-y-5 sm:space-y-6">
+        <div class="rounded-lg border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+          <h2 class="text-base font-semibold text-slate-900 mb-4">How it works</h2>
+          <div class="space-y-3 text-sm text-slate-700 leading-relaxed">
+            <p><span class="font-medium text-slate-900">Step 1:</span> Sign up and receive your referral code by email.</p>
+            <p><span class="font-medium text-slate-900">Step 2:</span> Add managed stores, then in the COD King app open <span class="font-medium text-slate-900">Billing</span> and enter your referral code.</p>
+            <p><span class="font-medium text-slate-900">Step 3:</span> Add payout details in the partner dashboard and track accrued amounts.</p>
+          </div>
+          <div class="mt-4 pt-4 border-t border-slate-200 space-y-2">
+            <p class="text-sm text-slate-800">
+              When your referred merchant pays their subscription, commission is credited to your partner account.
+            </p>
+            <p class="text-xs text-slate-500 leading-relaxed">
+              When your referral amount crosses <span class="text-slate-700 font-medium">$100 per month</span>, revised subscription rates may apply. Full details are sent to your email after you sign up.
+            </p>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-slate-200 bg-white p-5 sm:p-6 shadow-sm">
+          <h2 class="text-base font-semibold text-slate-900 mb-4">What partners get</h2>
+          <ul class="space-y-2.5 text-sm text-slate-700 list-disc pl-5 marker:text-slate-400">
+            <li>Dashboard with accrued balances and payout history.</li>
+            <li>Clear commission tiers (outlined in your welcome email).</li>
+            <li>Payouts on a regular schedule with a record of each transfer.</li>
+            <li>Earnings continue while the referred store remains on a paid COD King plan.</li>
+          </ul>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
+            <a
+              href="https://apps.shopify.com/cash-on-delivery-cod-order-confirmation"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex w-full items-center justify-center min-h-[44px] rounded-md px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors text-center"
+            >
+              View app on Shopify
+            </a>
+            <a
+              href="https://app.codking.tech/lead_collections/new?purpose=agency_referral_program"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex w-full items-center justify-center min-h-[44px] rounded-md px-4 py-2.5 text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition-colors text-center"
+            >
+              Request a callback
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+{
+  "country": "MA",
+  "shopify_provinces": false,
+  "provinces": [
+    {
+      "code": "01",
+      "name": "Tanger-Tétouan-Al Hoceïma"
+    },
+    {
+      "code": "02",
+      "name": "L'Oriental"
+    },
+    {
+      "code": "03",
+      "name": "Fès-Meknès"
+    },
+    {
+      "code": "04",
+      "name": "Rabat-Salé-Kénitra"
+    },
+    {
+      "code": "05",
+      "name": "Béni Mellal-Khénifra"
+    },
+    {
+      "code": "06",
+      "name": "Casablanca-Settat"
+    },
+    {
+      "code": "07",
+      "name": "Marrakech-Safi"
+    },
+    {
+      "code": "08",
+      "name": "Drâa-Tafilalet"
+    },
+    {
+      "code": "09",
+      "name": "Souss-Massa"
+    },
+    {
+      "code": "10",
+      "name": "Guelmim-Oued Noun"
+    },
+    {
+      "code": "11",
+      "name": "Laâyoune-Sakia El Hamra"
+    },
+    {
+      "code": "12",
+      "name": "Dakhla-Oued Ed-Dahab"
+    }
+  ],
+  "cities": {
+    "mode": "by_province",
+    "list": [
+
+    ],
+    "by_province": {
+      "01": [
+        "Tanger",
+        "Tétouan",
+        "Al Hoceïma",
+        "Larache",
+        "Ksar El Kebir",
+        "Chefchaouen"
+      ],
+      "02": [
+        "Oujda",
+        "Nador",
+        "Berkane",
+        "Taourirt"
+      ],
+      "03": [
+        "Fès",
+        "Meknès",
+        "Taza",
+        "Sefrou",
+        "Ifrane"
+      ],
+      "04": [
+        "Rabat",
+        "Salé",
+        "Kénitra",
+        "Témara",
+        "Khémisset"
+      ],
+      "05": [
+        "Béni Mellal",
+        "Khouribga",
+        "Khénifra",
+        "Fquih Ben Salah"
+      ],
+      "06": [
+        "Casablanca",
+        "Mohammedia",
+        "El Jadida",
+        "Settat",
+        "Berrechid"
+      ],
+      "07": [
+        "Marrakech",
+        "Safi",
+        "Essaouira",
+        "El Kelâa des Sraghna"
+      ],
+      "08": [
+        "Errachidia",
+        "Ouarzazate",
+        "Zagora",
+        "Tinghir"
+      ],
+      "09": [
+        "Agadir",
+        "Inezgane",
+        "Taroudant",
+        "Tiznit",
+        "Aït Melloul"
+      ],
+      "10": [
+        "Guelmim",
+        "Tan-Tan",
+        "Sidi Ifni"
+      ],
+      "11": [
+        "Laâyoune",
+        "Boujdour",
+        "Es-Semara"
+      ],
+      "12": [
+        "Dakhla"
+      ]
+    }
+  }
+}

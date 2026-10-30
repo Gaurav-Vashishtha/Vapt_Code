@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f9;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        width: 100%;
+        max-width: 600px;
+        margin: auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #d33f49;
+        color: #ffffff;
+        padding: 15px;
+        border-radius: 8px 8px 0 0;
+        text-align: center;
+        font-size: 20px;
+      }
+      .content {
+        margin-top: 20px;
+        font-size: 16px;
+        color: #333;
+      }
+      .cta-button {
+        background-color: #4CAF50;
+        color: #ffffff;
+        padding: 15px 25px;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+        font-size: 16px;
+        margin-top: 20px;
+        width: 48%;
+        margin-right: 4%;
+      }
+      .cta-button:last-child {
+        margin-right: 0;
+      }
+      .cta-button:hover {
+        background-color: #45a049;
+      }
+      .image-container {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .footer {
+        font-size: 14px;
+        color: #777;
+        margin-top: 30px;
+        text-align: center;
+      }
+      .footer a {
+        color: #4CAF50;
+        text-decoration: none;
+      }
+      .highlight {
+        font-weight: bold;
+        color: #d33f49;
+      }
+      .email-link {
+        color: #4CAF50;
+      }
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        Account Locked - Action Required
+      </div>
+
+      <div class="content">
+        <p>Hello <%= @name %>,</p>
+
+        <p>Greetings from COD King Team.</p>
+        <p>Your SMS and WhatsApp notifications, including OTP (if enabled), have been temporarily stopped because your account has exceeded the capped amount for this month.</p>
+
+        <h3 class="highlight">To Unlock Your Account:</h3>
+        <ol>
+          <li>Go to the <b>Summary</b> tab in the COD King app.</li>
+          <li>Click on the <b>"Unlock Now"</b> button under the account lock banner.</li>
+          <li>Once clicked, the system will process your request, and you will regain access to your notifications.</li>
+        </ol>
+
+        <h3>Example of the Unlock Button:</h3>
+        <div class="image-container">
+          <img src="https://cdn.shopify.com/s/files/1/0743/3119/3628/files/account_locked.png?v=1745494325" alt="Unlock Now Button Screenshot" style="max-width: 100%; border-radius: 8px;" />
+        </div>
+
+        <div class="button-container">
+          <a href="<%= @shopify_domain %>" class="cta-button" target="_blank">
+            Unlock Now
+          </a>
+          <a href="<%= @crisp_url %>" class="cta-button" target="_blank">
+            Chat with Us Now
+          </a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>If you have any questions or need further assistance, feel free to reach out to us by reaching us through email - support@notifiktech.com or through our <a href="<%= @crisp_url %>" class="email-link" target="_blank">instant chat</a>.</p>
+        <p>Regards,</p>
+        <p><b>COD King Team</b></p>
+      </div>
+    </div>
+  </body>
+</html>

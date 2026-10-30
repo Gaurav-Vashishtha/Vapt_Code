@@ -1,0 +1,232 @@
+/* Screen-specific styles only */
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Legal footer pinned to the bottom of the screen, on its own line. */
+.phone-brand-footer {
+  margin-top: auto;
+  margin-bottom: 16px;
+}
+
+.phone-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.phone-heading-title {
+  margin: 0 0 4px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: normal;
+  color: #111111;
+}
+
+.phone-heading-subtitle {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  line-height: 16px;
+  color: #928f8f;
+}
+
+/* "Send OTP via [WhatsApp]" affordance under the primary button. */
+.send-alt {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  line-height: normal;
+  color: var(--color-text-secondary);
+}
+
+.send-alt-text {
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+}
+
+.send-alt-wa {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  border: 1px solid color-mix(in srgb, var(--color-blue) 22%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s var(--ease-smooth);
+}
+
+.send-alt-wa:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-blue) 6%, transparent);
+}
+
+.send-alt-wa:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.send-alt-wa img {
+  display: block;
+  height: 15px;
+  width: auto;
+}
+
+.send-alt-sms {
+  color: var(--color-text-primary);
+}
+
+.send-alt-sms svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+
+/* Prefill card: same card treatment as the phone input (shadow + border),
+   only the radius differs. A notch points back at the input. */
+.recent-numbers {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  padding: 6px 13px;
+  border-radius: 4px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card-soft);
+  color: #333333;
+  transition: 0.2s;
+}
+
+.recent-numbers::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: 18px;
+  width: 11px;
+  height: 11px;
+  transform: rotate(45deg);
+  background: var(--surface-card);
+  border-top: 1px solid rgba(224, 224, 224, 0.5);
+  border-left: 1px solid rgba(224, 224, 224, 0.5);
+  border-radius: 2px 0 0 0;
+}
+
+.recent-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: #928f8f;
+}
+
+.recent-list {
+  display: block;
+  line-height: 1.9;
+}
+
+.recent-item {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.recent-sep {
+  color: #928f8f;
+  margin: 0 2px 0 1px;
+}
+
+.recent-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+  margin-right: 7px;
+}
+
+.recent-value {
+  color: #3f3c3c;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  line-height: normal;
+  text-decoration-line: underline;
+  text-underline-offset: 2px;
+}
+
+.recent-item:hover .recent-value {
+  color: #000000;
+}
+
+.recent-clear {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-size: 12px;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.header-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.codk-buynow-error {
+  padding: 40px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.codk-buynow-error__icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.codk-buynow-error__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f1f1f;
+}
+
+.codk-buynow-error__message {
+  font-size: 14px;
+  color: #5c5f62;
+  max-width: 360px;
+  line-height: 1.4;
+}
+
+.codk-buynow-error__close {
+  margin-top: 8px;
+  padding: 10px 22px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.codk-buynow-error__close:hover {
+  opacity: 0.9;
+}

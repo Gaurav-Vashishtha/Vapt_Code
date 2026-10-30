@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Session Replay — <%= @recording.shopify_domain %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/rrweb@2.1.6/dist/style.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/rrweb-player@2.1.6/dist/style.css" />
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900"><%= @recording.shopify_domain %></h1>
+          <p class="text-sm text-gray-500">
+            <%= @recording.started_at.in_time_zone("Asia/Kolkata").strftime("%d %b %Y, %I:%M %p") %> ·
+            <%= @recording.duration_label %> ·
+            <%= @recording.event_count %> events
+          </p>
+        </div>
+        <%= link_to "← All recordings", support_dashboard_session_recordings_path,
+            class: "bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+      <!-- Player -->
+      <div class="lg:col-span-3">
+        <div id="player-status" class="mb-3 text-sm text-gray-500">Loading replay…</div>
+        <div id="player" class="bg-white border border-gray-200 rounded-lg overflow-hidden"></div>
+      </div>
+
+      <!-- Funnel timeline: what the merchant's session actually achieved -->
+      <div class="lg:col-span-1">
+        <div class="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+          <h2 class="text-sm font-semibold text-gray-700 mb-2">Outcome</h2>
+          <p class="text-sm">
+            <span class="px-2 py-1 rounded text-xs font-medium <%= @converted ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' %>">
+              <%= @last_stage ? @last_stage[:label] : "No funnel event" %>
+            </span>
+          </p>
+          <dl class="mt-3 space-y-1 text-xs text-gray-500">
+            <div><dt class="inline">Plan:</dt> <dd class="inline text-gray-700"><%= @recording.metadata["plan"] || "—" %></dd></div>
+            <div><dt class="inline">Country:</dt> <dd class="inline text-gray-700"><%= @recording.metadata["country"] || "—" %></dd></div>
+            <div><dt class="inline">Entry:</dt> <dd class="inline text-gray-700"><%= @recording.entry_path %></dd></div>
+            <div><dt class="inline">Last page:</dt> <dd class="inline text-gray-700"><%= @recording.last_path %></dd></div>
+            <div><dt class="inline">Viewport:</dt> <dd class="inline text-gray-700"><%= @recording.viewport_width %>×<%= @recording.viewport_height %></dd></div>
+          </dl>
+        </div>
+
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+          <h2 class="text-sm font-semibold text-gray-700 mb-3">Onboarding events</h2>
+          <% if @markers.empty? %>
+            <p class="text-sm text-gray-500">
+              No funnel events during this session — the merchant never started the wizard.
+            </p>
+          <% else %>
+            <ol class="space-y-2">
+              <% @markers.each do |marker| %>
+                <li>
+                  <button type="button" data-at="<%= marker[:at_ms] %>"
+                          class="marker w-full text-left px-3 py-2 rounded-md border border-gray-200 hover:border-sky-400 hover:bg-sky-50">
+                    <div class="text-sm font-medium text-gray-800"><%= marker[:label] %></div>
+                    <div class="text-xs text-gray-500">
+                      <span class="marker-offset">+<%= (marker[:offset_ms] / 1000.0).round %>s</span>
+                      <%= " · step #{marker[:step]}" if marker[:step].present? %>
+                    </div>
+                  </button>
+                </li>
+              <% end %>
+            </ol>
+            <p class="mt-3 text-xs text-gray-400">Click an event to jump the replay to that moment.</p>
+          <% end %>
+        </div>
+
+        <%# Filled client-side from rrweb custom events: things that happen in the
+            Shopify admin around the app iframe (App Bridge toasts/modals/save
+            bar, redirects to billing) and in-app route changes. None of these
+            are visible in the replay itself. %>
+        <div id="outside-panel" class="bg-white border border-gray-200 rounded-lg p-4 mt-4 hidden">
+          <h2 class="text-sm font-semibold text-gray-700 mb-1">Outside the app frame</h2>
+          <p class="text-xs text-gray-400 mb-3">
+            Shopify admin UI and redirects — not visible in the replay.
+          </p>
+          <ol id="outside-list" class="space-y-2"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/rrweb-player@2.1.6/dist/rrweb-player.umd.min.cjs" crossorigin="anonymous"></script>
+<script>
+  (function () {
+    var status = document.getElementById('player-status');
+    var target = document.getElementById('player');
+    var META = 4, FULL_SNAPSHOT = 2, CUSTOM = 5;
+
+    function fmt(ms) {
+      var s = Math.max(0, Math.round(ms / 1000));
+      return '+' + (s < 60 ? s + 's' : Math.floor(s / 60) + 'm ' + (s % 60) + 's');
+    }
+
+    // Start playback at the first Meta + FullSnapshot pair. Anything before it
+    // (mouse moves, mutations) has no page to apply to and is what renders as
+    // a blank frame with a moving cursor.
+    function playableStart(events) {
+      for (var i = 0; i < events.length; i++) {
+        if (events[i].type !== FULL_SNAPSHOT) continue;
+        for (var j = i - 1; j >= 0; j--) {
+          if (events[j].type === META) return j;
+        }
+        return i;
+      }
+      return -1;
+    }
+
+    function outsideLabel(ev) {
+      var d = ev.data || {}, p = d.payload || {};
+      if (d.tag === 'redirect') return { title: 'Left the app → ' + (p.target || 'new window'), detail: p.url };
+      if (d.tag === 'route') return { title: 'Page: ' + p.path, detail: null };
+      if (d.tag === 'appbridge') {
+        var names = { 'toast': p.isError ? 'Error toast' : 'Toast', 'modal.show': 'Modal opened',
+                      'modal.hide': 'Modal closed', 'saveBar.show': 'Save bar shown', 'saveBar.hide': 'Save bar hidden' };
+        return { title: names[p.action] || p.action, detail: p.detail };
+      }
+      return { title: d.tag, detail: null };
+    }
+
+    fetch('<%= events_support_dashboard_session_recording_path(@recording) %>', { credentials: 'same-origin' })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        var all = (data && data.events) || [];
+        var start = playableStart(all);
+
+        if (start === -1) {
+          status.innerHTML = '<span class="text-amber-700">This recording has no page snapshot — only ' +
+            all.length + ' cursor/interaction events were saved, so there is nothing to draw. ' +
+            'Recordings made before the recorder fix lost their snapshot in transit; new ones include it.</span>';
+          target.style.display = 'none';
+          return;
+        }
+
+        var events = all.slice(start);
+        var origin = events[0].timestamp;
+        if (events.length < 2) {
+          status.textContent = 'This recording is too short to replay.';
+          return;
+        }
+
+        var Player = window.rrwebPlayer && (window.rrwebPlayer.default || window.rrwebPlayer);
+        if (!Player) {
+          status.textContent = 'Could not load the replay player.';
+          return;
+        }
+
+        var player = new Player({
+          target: target,
+          props: {
+            events: events,
+            autoPlay: false,
+            showController: true,
+            width: Math.min(target.clientWidth || 960, 1100),
+            height: 600,
+            skipInactive: true
+          }
+        });
+
+        var trimmed = start > 0 ? ' (skipped ' + start + ' events recorded before the first page snapshot)' : '';
+        status.textContent = events.length + ' events loaded' + trimmed + '.';
+
+        function seek(atMs) { player.goto(Math.max(0, atMs - origin)); }
+
+        // Funnel markers carry absolute times; re-base them on what is played.
+        document.querySelectorAll('.marker').forEach(function (button) {
+          var at = parseInt(button.dataset.at, 10);
+          var offsetEl = button.querySelector('.marker-offset');
+          if (offsetEl && at) offsetEl.textContent = fmt(at - origin);
+          button.addEventListener('click', function () { seek(at); });
+        });
+
+        // Everything outside the iframe, from the recorder's custom events.
+        var outside = all.filter(function (e) { return e.type === CUSTOM; });
+        if (outside.length) {
+          var list = document.getElementById('outside-list');
+          outside.forEach(function (ev) {
+            var label = outsideLabel(ev);
+            var li = document.createElement('li');
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'w-full text-left px-3 py-2 rounded-md border border-gray-200 hover:border-sky-400 hover:bg-sky-50';
+            var title = document.createElement('div');
+            title.className = 'text-sm font-medium text-gray-800 break-all';
+            title.textContent = label.title;
+            var sub = document.createElement('div');
+            sub.className = 'text-xs text-gray-500 break-all';
+            sub.textContent = fmt(ev.timestamp - origin) + (label.detail ? ' · ' + label.detail : '');
+            btn.appendChild(title);
+            btn.appendChild(sub);
+            btn.addEventListener('click', function () { seek(ev.timestamp); });
+            li.appendChild(btn);
+            list.appendChild(li);
+          });
+          document.getElementById('outside-panel').classList.remove('hidden');
+        }
+      })
+      .catch(function (err) {
+        status.textContent = 'Failed to load the recording: ' + err;
+      });
+  })();
+</script>
+</body>
+</html>

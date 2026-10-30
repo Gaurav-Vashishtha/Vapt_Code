@@ -1,0 +1,232 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+.payment_btn {
+  background-color: #004aad;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-size: 0.75rem;
+  border-radius: 0.5rem;
+  font-weight: 650;
+  font-family: inherit;
+  letter-spacing: 1px;
+}
+
+/* Style breadcrumb separators to look better */
+[class*="Breadcrumb"] > *::before,
+[class*="breadcrumb"] > *::before,
+nav[aria-label*="breadcrumb"] > *::before,
+.Polaris-Breadcrumbs__Separator,
+.Polaris-Breadcrumbs__Content::after {
+  color: #6b7280 !important;
+  opacity: 0.6 !important;
+  font-weight: 400 !important;
+  margin: 0 0.5rem !important;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif !important;
+}
+
+/* Ensure proper character rendering for separators */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Built for Shopify: primary buttons use Polaris brand token (SaveBar and native primary buttons).
+ * App Bridge SaveBar is used with data-save-bar so these rules apply (Shopify convention). */
+button[variant="primary"],
+[data-save-bar] button[variant="primary"] {
+  background: var(--p-color-bg-fill-brand) !important;
+  color: var(--p-color-text-brand-on-bg-fill) !important;
+  border: none;
+  border-radius: var(--p-border-radius-200, 8px);
+  font-weight: var(--p-font-weight-semibold, 600);
+  padding: var(--p-space-150, 6px) var(--p-space-300, 12px);
+  min-height: 2.25rem;
+  cursor: pointer;
+  transition: background-color 75ms ease-out;
+}
+button[variant="primary"]:hover:not(:disabled),
+[data-save-bar] button[variant="primary"]:hover:not(:disabled) {
+  background: var(--p-color-bg-fill-brand-hover) !important;
+  color: var(--p-color-text-brand-on-bg-fill-hover) !important;
+}
+button[variant="primary"]:active:not(:disabled),
+[data-save-bar] button[variant="primary"]:active:not(:disabled) {
+  background: var(--p-color-bg-fill-brand-active) !important;
+  color: var(--p-color-text-brand-on-bg-fill-active) !important;
+}
+button[variant="primary"]:disabled,
+[data-save-bar] button[variant="primary"]:disabled {
+  background: var(--p-color-bg-fill-brand-disabled) !important;
+  color: var(--p-color-text-brand-on-bg-fill-disabled) !important;
+  cursor: not-allowed;
+}
+
+/* ========== Admin panel: mobile-friendly layout ========== */
+html {
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+.app-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  background: var(--p-color-bg-fill-secondary, #f6f6f7);
+}
+
+.app-content {
+  width: 100%;
+  max-width: 100%;
+  background: var(--p-color-bg-fill-secondary, #f6f6f7);
+  min-width: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.app-content main {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Consistent side gutter on every screen, so content never sits flush
+ * against the viewport edge on phones (Polaris only adds its own side
+ * padding above ~490px). */
+@media (max-width: 768px) {
+  .app-content main {
+    padding-left: #{"max(8px, env(safe-area-inset-left))"};
+    padding-right: #{"max(8px, env(safe-area-inset-right))"};
+  }
+}
+
+/* Page filter bar: consistent and touch-friendly filter controls */
+.cod-king-page-filters {
+  background: var(--p-color-bg-fill-secondary, #f6f6f7) !important;
+  border-radius: var(--p-border-radius-200, 8px);
+}
+
+.cod-king-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cod-king-filter-item {
+  flex: 1 1 11rem;
+  min-width: 11rem;
+}
+
+/* Summary quick links: Shopify-friendly minimum tap target */
+.cod-king-summary-link-row {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  padding: var(--p-space-300, 12px);
+}
+
+/* Mobile: smooth scroll and scrollable tables */
+@media (max-width: 768px) {
+  .app-wrapper,
+  .app-content,
+  .app-content main {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  [class*="Polaris-DataTable"],
+  .Polaris-IndexTable {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cod-king-page-filters {
+    width: 100%;
+  }
+
+  .cod-king-filter-item {
+    flex-basis: 100%;
+    min-width: 0;
+  }
+
+  /* Keep bottom content tappable above floating chat launchers */
+  .app-content main {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  /* Hard fallback: prevent Crisp launcher from blocking taps in embedded mobile view */
+  body.codking-mobile-chat-hidden #crisp-chatbox,
+  body.codking-mobile-chat-hidden [id^="crisp-"],
+  body.codking-mobile-chat-hidden [class*="crisp-client"] {
+    display: none !important;
+    pointer-events: none !important;
+  }
+}
+
+.Polaris-Tabs__Wrapper,
+.Polaris-LegacyTabs {
+  background-color: #ffffff !important;
+  border: 1px solid #e1e3e5 !important;
+  border-radius: 10px !important;
+  padding: 6px !important;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.Polaris-Tabs__Tab,
+.Polaris-LegacyTabs__Tab {
+  background-color: transparent !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  transition: background-color 0.15s ease;
+}
+
+.Polaris-Tabs__Tab:hover,
+.Polaris-LegacyTabs__Tab:hover {
+  background-color: #f4f5f6 !important;
+}
+
+.Polaris-Tabs__Tab--active,
+.Polaris-Tabs__Tab[aria-selected="true"],
+.Polaris-LegacyTabs__Tab--selected,
+.Polaris-LegacyTabs__Tab[aria-selected="true"] {
+  background-color: #e3e3e3 !important;
+  /* box-shadow: 0 0 0 2px var(--p-color-border-focus) !important; */
+}
+
+.Polaris-Tabs__Tab--active .Polaris-Tabs__Title,
+.Polaris-Tabs__Tab[aria-selected="true"] .Polaris-Tabs__Title,
+.Polaris-LegacyTabs__Tab--selected .Polaris-LegacyTabs__Title,
+.Polaris-LegacyTabs__Tab[aria-selected="true"] .Polaris-LegacyTabs__Title {
+  font-weight: 600 !important;
+  color: #1a1a1a !important;
+}

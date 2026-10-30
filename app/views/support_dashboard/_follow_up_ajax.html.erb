@@ -1,0 +1,57 @@
+<!-- Follow-up forms submit in place (no full page reload) -->
+<div id="follow-up-toast" class="fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-md px-4 py-3 text-sm font-medium shadow-lg"></div>
+<script>
+  (function () {
+    var toast = document.getElementById('follow-up-toast');
+    var toastTimer;
+    function showToast(msg, ok) {
+      toast.textContent = msg;
+      toast.className = 'fixed bottom-4 right-4 z-50 max-w-sm rounded-md px-4 py-3 text-sm font-medium shadow-lg ' +
+        (ok ? 'bg-green-600 text-white' : 'bg-red-600 text-white');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, ok ? 3000 : 6000);
+    }
+
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      var cell = form.closest && form.closest('[data-follow-up-cell]');
+      if (!cell || !window.fetch) return; // not a follow-up form: normal submit
+
+      e.preventDefault();
+      var buttons = form.querySelectorAll('input[type=submit], button[type=submit]');
+      buttons.forEach(function (b) { b.disabled = true; b.dataset.label = b.value || b.textContent; if (b.value) b.value = 'Saving...'; });
+
+      var body = new FormData(form);
+      // Rails form_with(method: :patch) puts _method in the form; POST + _method works.
+      fetch(form.action, {
+        method: 'POST',
+        body: body,
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function (r) {
+        return r.text().then(function (t) {
+          var json = null;
+          try { json = JSON.parse(t); } catch (_) {}
+          return { ok: r.ok, status: r.status, json: json };
+        });
+      })
+      .then(function (res) {
+        if (res.ok && res.json && res.json.success) {
+          cell.innerHTML = res.json.html;
+          cell.classList.add('bg-green-50');
+          setTimeout(function () { cell.classList.remove('bg-green-50'); }, 1500);
+          showToast(res.json.message || 'Saved', true);
+        } else {
+          var msg = (res.json && res.json.error) || ('Request failed (' + res.status + ')');
+          showToast(msg, false);
+          buttons.forEach(function (b) { b.disabled = false; if (b.value) b.value = b.dataset.label; });
+        }
+      })
+      .catch(function (err) {
+        showToast('Network error: ' + err.message, false);
+        buttons.forEach(function (b) { b.disabled = false; if (b.value) b.value = b.dataset.label; });
+      });
+    });
+  })();
+</script>

@@ -1,0 +1,92 @@
+.screen-content {
+  padding: 14px;
+  padding-top: 0px !important;
+  /* padding-bottom: calc(14px + env(safe-area-inset-bottom, 0)); */
+  padding-bottom: 0px !important;
+  display: flex;
+  background: var(--surface-page);
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Scroll stays inside the widget — never chains to the host page. */
+  overscroll-behavior: contain;
+  flex: 1 1 0%;
+  min-height: 0;
+  max-height: 100dvh;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  /* Smooth scrolling */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Smooth scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+  /* Ensure scrolling works */
+  position: relative;
+}
+
+/* Full-screen loading / redirect states own the whole surface: no page padding,
+   no gaps, nothing else visible around them. */
+.screen-content--full-bleed {
+  padding: 0 !important;
+  gap: 0;
+  background: var(--surface-page);
+  overflow: hidden;
+}
+
+/* When a bottom slider is open, prevent BACKGROUND screen scrolling.
+   (Otherwise you get two scrollbars: background + slider.)
+   IMPORTANT: Don't break ScreenContent rendered INSIDE the BottomSlider. */
+html[data-bottom-slider-open="true"] .modal-card .screen-content {
+  overflow: hidden !important;
+}
+
+/* If ScreenContent is rendered inside the BottomSlider, it must remain scrollable. */
+html[data-bottom-slider-open="true"] .bottom-slider .screen-content {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* The BottomSlider (absolute on desktop) is a DOM child of the background
+   .screen-content. While that container is scrolled, it would otherwise be the
+   slider's containing block, offsetting the sheet + backdrop upward by the
+   scroll amount. Drop it as the positioning anchor so the slider resolves to
+   the non-scrolling .modal-content and sits flush at the popup bottom. */
+html[data-bottom-slider-open="true"] .modal-card .screen-content:has(.bottom-slider),
+html[data-bottom-slider-open="true"] .modal-card .screen-content:has(.ck-sheet-root) {
+  position: static !important;
+}
+
+.screen-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.screen-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.screen-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.screen-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Hide scrollbar for .screen-content.has-scrollbar */
+.screen-content.has-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+
+.screen-content.has-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+/* Minimal padding for payment screen - only when scrollbar is present */
+/* .screen-content:has(.payment-screen-wrapper).has-scrollbar {
+  padding-right: 0px !important;
+} */

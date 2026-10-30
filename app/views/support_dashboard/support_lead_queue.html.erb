@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard — Support leads</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Mature Shopify stores · recent app installs</p>
+        </div>
+        <% refresh_lead_q = { shop_age_months: @shop_age_months, installed_within_days: @installed_within_days } %>
+        <% refresh_lead_q[:support_lead_engineer] = @support_lead_engineer if @support_lead_engineer.present? %>
+        <% refresh_lead_q[:support_lead_shopify_domain] = @support_lead_shopify_domain if @support_lead_shopify_domain.present? %>
+        <%= link_to support_dashboard_support_lead_queue_path(refresh_lead_q),
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render "shared/support_navigation" %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <%= link_to support_dashboard_path, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+        ← Back to Dashboard
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <% lead_tab_filters = { shop_age_months: @shop_age_months, installed_within_days: @installed_within_days } %>
+          <% lead_tab_filters[:support_lead_engineer] = @support_lead_engineer if @support_lead_engineer.present? %>
+          <% lead_tab_filters[:support_lead_shopify_domain] = @support_lead_shopify_domain if @support_lead_shopify_domain.present? %>
+          <%= render "support_dashboard/core_support_tabs",
+              active: :support_lead_queue,
+              support_lead_filters: lead_tab_filters %>
+        </nav>
+      </div>
+
+      <div class="p-6">
+        <div class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 class="text-lg font-medium text-gray-900">Support lead queue</h2>
+            <p class="text-sm text-gray-600 mt-1">
+              Shopify store opened more than <strong>N</strong> months ago (<code>shop_created_date</code>), app installed within the last <strong>M</strong> days (<code>shops.created_at</code>).
+              Engineers are assigned from <code class="text-xs bg-gray-100 px-1 rounded">SUPPORT_ENGINEERS</code> (comma-separated).
+            </p>
+          </div>
+        </div>
+
+        <%= form_with url: support_dashboard_support_lead_queue_path, method: :get, local: true, class: "mb-6 flex flex-wrap items-end gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200" do %>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Shop age (months) — store older than</label>
+            <%= number_field_tag :shop_age_months, @shop_age_months, min: 1, max: 60, class: "border rounded px-2 py-1 text-sm w-28" %>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Installed within (days)</label>
+            <%= number_field_tag :installed_within_days, @installed_within_days, min: 1, max: 365, class: "border rounded px-2 py-1 text-sm w-28" %>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Engineer</label>
+            <% engineer_options = [["All engineers", ""]] + [["Unassigned", "unassigned"]] + SupportLeadTracking.engineer_pool.map { |n| [n, n] } %>
+            <%= select_tag :support_lead_engineer,
+                options_for_select(engineer_options, @support_lead_engineer),
+                class: "border rounded px-2 py-1 text-sm min-w-[12rem] max-w-xs" %>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Shopify domain</label>
+            <%= text_field_tag :support_lead_shopify_domain, @support_lead_shopify_domain, placeholder: "e.g. foo.myshopify.com", class: "border rounded px-2 py-1 text-sm min-w-[16rem]" %>
+          </div>
+          <%= submit_tag "Apply filters", class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+        <% end %>
+
+        <% if SupportLeadTracking.engineer_pool.empty? %>
+          <div class="mb-4 p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-900">
+            Set <code>SUPPORT_ENGINEERS</code> (comma-separated names or emails) to populate the <strong>Engineer</strong> column. Rows are still created for each shop on this list; assignment stays blank until this env var is set.
+          </div>
+        <% end %>
+
+        <% if flash[:notice] %>
+          <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800"><%= flash[:notice] %></div>
+        <% end %>
+        <% if flash[:alert] %>
+          <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800"><%= flash[:alert] %></div>
+        <% end %>
+
+        <% lead_queue_nav = { shop_age_months: @shop_age_months, installed_within_days: @installed_within_days } %>
+        <% lead_queue_nav[:support_lead_engineer] = @support_lead_engineer if @support_lead_engineer.present? %>
+        <% lead_queue_nav[:support_lead_shopify_domain] = @support_lead_shopify_domain if @support_lead_shopify_domain.present? %>
+        <% lead_queue_nav[:page] = params[:page] if params[:page].present? %>
+        <% lead_queue_nav[:closed_page] = params[:closed_page] if params[:closed_page].present? %>
+
+        <% if @shops.any? %>
+          <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Shop</th>
+                  <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Engineer</th>
+                  <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Dates</th>
+                  <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide min-w-[28rem]">Progress</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @shops.each do |shop| %>
+                  <% tracking = shop.support_lead_tracking %>
+                  <tr class="hover:bg-gray-50 align-top">
+                    <td class="py-3 px-3">
+                      <div class="font-medium text-gray-900">
+                        <%= link_to shop.shopify_domain, "https://#{shop.shopify_domain}", target: "_blank", class: "text-blue-600 hover:underline" %>
+                      </div>
+                      <div class="text-xs text-gray-500">Plan: <%= shop.plan&.name || "—" %></div>
+                      <div class="text-xs mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                        <%= link_to "Admin shop", "/admin/shops/#{shop.id}", target: "_blank", class: "text-gray-600 hover:underline" %>
+                        <% if shop.setting.present? %>
+                          <%= link_to "Admin setting", "/admin/settings/#{shop.setting.id}", target: "_blank", class: "text-gray-600 hover:underline" %>
+                        <% end %>
+                      </div>
+                    </td>
+                    <td class="py-3 px-3 text-gray-800">
+                      <%= tracking&.assigned_engineer.presence || content_tag(:span, "—", class: "text-gray-400") %>
+                    </td>
+                    <td class="py-3 px-3 text-xs text-gray-600 whitespace-nowrap">
+                      <div>Shop created: <%= shop.shop_created_date.presence || "—" %></div>
+                      <div>App installed: <%= shop.created_at&.strftime("%Y-%m-%d") %></div>
+                    </td>
+                    <td class="py-3 px-3">
+                      <% if tracking %>
+                        <div class="space-y-2">
+                          <%= form_with model: tracking,
+                              url: support_dashboard_update_support_lead_tracking_path(shop_id: shop.id),
+                              method: :patch,
+                              local: true,
+                              class: "space-y-2" do |f| %>
+                            <%= render "support_dashboard/support_lead_queue_hidden_nav", nav: lead_queue_nav %>
+                            <%= render "support_dashboard/support_lead_checkbox_fields", f: f %>
+                            <%= f.submit "Save row", class: "mt-2 bg-gray-800 hover:bg-gray-900 text-white text-xs px-3 py-1.5 rounded" %>
+                          <% end %>
+                          <%= button_to "Close lead",
+                              support_dashboard_close_support_lead_path(shop_id: shop.id),
+                              method: :post,
+                              params: lead_queue_nav,
+                              form: { data: { turbo_confirm: "Close this lead? It will move to Closed leads below." } },
+                              class: "mt-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 text-xs px-3 py-1.5 rounded" %>
+                        </div>
+                      <% else %>
+                        <p class="text-xs text-amber-800">No tracking row yet — refresh the page.</p>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4">
+            <%= paginate @shops, params: lead_queue_nav %>
+          </div>
+          <p class="text-sm text-gray-500 mt-2">Open leads (matching filters): <%= @total_count %></p>
+        <% else %>
+          <p class="text-gray-500 text-sm">No open leads match these filters.</p>
+        <% end %>
+
+        <div class="mt-10 pt-8 border-t border-gray-200">
+          <h3 class="text-md font-semibold text-gray-900 mb-1">Closed leads</h3>
+          <p class="text-sm text-gray-600 mb-4">Same shop-age and install window as above, but the lead was marked closed. You can still update checkboxes or reopen.</p>
+
+          <% if @closed_shops.any? %>
+            <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+              <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Shop</th>
+                    <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Engineer</th>
+                    <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Closed</th>
+                    <th class="py-3 px-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wide min-w-[28rem]">Progress</th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  <% @closed_shops.each do |shop| %>
+                    <% tracking = shop.support_lead_tracking %>
+                    <tr class="hover:bg-gray-50 align-top bg-gray-50/50">
+                      <td class="py-3 px-3">
+                        <div class="font-medium text-gray-900">
+                          <%= link_to shop.shopify_domain, "https://#{shop.shopify_domain}", target: "_blank", class: "text-blue-600 hover:underline" %>
+                        </div>
+                        <div class="text-xs text-gray-500">Plan: <%= shop.plan&.name || "—" %></div>
+                        <div class="text-xs mt-1 flex flex-wrap gap-x-3 gap-y-1">
+                          <%= link_to "Admin shop", "/admin/shops/#{shop.id}", target: "_blank", class: "text-gray-600 hover:underline" %>
+                          <% if shop.setting.present? %>
+                            <%= link_to "Admin setting", "/admin/settings/#{shop.setting.id}", target: "_blank", class: "text-gray-600 hover:underline" %>
+                          <% end %>
+                        </div>
+                      </td>
+                      <td class="py-3 px-3 text-gray-800">
+                        <%= tracking&.assigned_engineer.presence || content_tag(:span, "—", class: "text-gray-400") %>
+                      </td>
+                      <td class="py-3 px-3 text-xs text-gray-700 whitespace-nowrap">
+                        <%= tracking&.closed_at&.strftime("%Y-%m-%d %H:%M %Z") || "—" %>
+                      </td>
+                      <td class="py-3 px-3">
+                        <% if tracking %>
+                          <div class="space-y-2">
+                            <%= form_with model: tracking,
+                                url: support_dashboard_update_support_lead_tracking_path(shop_id: shop.id),
+                                method: :patch,
+                                local: true,
+                                class: "space-y-2" do |f| %>
+                              <%= render "support_dashboard/support_lead_queue_hidden_nav", nav: lead_queue_nav %>
+                              <%= render "support_dashboard/support_lead_checkbox_fields", f: f %>
+                              <%= f.submit "Save row", class: "mt-2 bg-gray-800 hover:bg-gray-900 text-white text-xs px-3 py-1.5 rounded" %>
+                            <% end %>
+                            <%= button_to "Reopen lead",
+                                support_dashboard_reopen_support_lead_path(shop_id: shop.id),
+                                method: :post,
+                                params: lead_queue_nav,
+                                form: { data: { turbo_confirm: "Reopen this lead? It will return to the open queue above." } },
+                                class: "mt-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs px-3 py-1.5 rounded" %>
+                          </div>
+                        <% else %>
+                          <p class="text-xs text-amber-800">Missing tracking row.</p>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-4">
+              <%= paginate @closed_shops, param_name: :closed_page, params: lead_queue_nav %>
+            </div>
+            <p class="text-sm text-gray-500 mt-2">Closed leads (matching filters): <%= @closed_total_count %></p>
+          <% else %>
+            <p class="text-gray-500 text-sm">No closed leads for these filters.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

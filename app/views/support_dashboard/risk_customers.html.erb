@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - Risk customers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= csrf_meta_tags %>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<%
+  risk = @risk
+  query = request.query_parameters.except('page', 'format')
+  usage_label = "$#{risk.min_usage % 1 == 0 ? risk.min_usage.to_i : risk.min_usage}"
+%>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">New stores (installed in the last <%= risk.installed_within %> days) on a paid plan or with usage charges over <%= usage_label %></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :risk_customers %>
+        </nav>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <% rev = @revenue %>
+        <% money = ->(v) { "$#{number_with_precision(v, precision: 2, delimiter: ',')}" } %>
+        <%= form_with url: support_dashboard_risk_customers_load_path, method: :post, local: true, class: "rounded-lg border border-gray-200 p-4 space-y-3" do %>
+          <div class="flex flex-wrap items-end gap-3">
+            <div class="text-sm font-semibold text-gray-900 self-center w-full md:w-auto">Revenue: stores installed</div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+              <input type="date" name="rev_from" value="<%= risk.rev_from.iso8601 %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+              <input type="date" name="rev_to" value="<%= risk.rev_to.iso8601 %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300">
+            </div>
+            <div class="text-sm font-semibold text-gray-900 self-center md:ml-4 w-full md:w-auto">List</div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Installed in last (days)</label>
+              <input type="number" name="installed_within" min="1" max="3650" value="<%= risk.installed_within %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-20">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Usage more than (USD)</label>
+              <input type="number" name="min_usage" min="0" step="0.01" value="<%= risk.min_usage %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-24">
+            </div>
+            <button type="submit" class="px-4 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700"
+                    onclick="this.disabled = true; this.innerText = 'Loading…'; this.form.submit();">Load records</button>
+          </div>
+          <div class="text-xs text-gray-600">
+            <% if @risk_building_since %>
+              <span class="font-medium text-blue-700">Loading…</span> started <%= time_ago_in_words(@risk_building_since) %> ago. This page refreshes on its own.
+            <% elsif risk.loaded? %>
+              Loaded <strong><%= time_ago_in_words(risk.generated_at) %> ago</strong> for these settings. Click Load records to refresh.
+            <% else %>
+              Not loaded for these settings yet. Click <strong>Load records</strong>; it runs in the background and takes up to a minute.
+            <% end %>
+          </div>
+          <input type="hidden" name="q" value="<%= @risk_q %>"><input type="hidden" name="sort" value="<%= @risk_sort %>"><input type="hidden" name="filter" value="<%= @risk_filter %>">
+        <% end %>
+        <% if @risk_building_since %>
+          <script>setTimeout(function () { window.location.reload(); }, 10000);</script>
+        <% end %>
+
+        <% if rev %>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="rounded-md bg-blue-50 px-4 py-3">
+              <div class="text-xs text-blue-800">Potential revenue</div>
+              <div class="text-2xl font-semibold text-blue-900"><%= money.(rev[:potential]) %></div>
+              <div class="text-xs text-blue-700">Monthly subscriptions + usage applied</div>
+            </div>
+            <div class="rounded-md bg-gray-50 px-4 py-3">
+              <div class="text-xs text-gray-600">Active subscriptions</div>
+              <div class="text-2xl font-semibold text-gray-900"><%= number_with_delimiter(rev[:subscriptions]) %></div>
+              <div class="text-xs text-gray-500"><%= money.(rev[:subscription_mrr]) %> / month</div>
+            </div>
+            <div class="rounded-md bg-gray-50 px-4 py-3">
+              <div class="text-xs text-gray-600">Usage charges applied</div>
+              <div class="text-2xl font-semibold text-gray-900"><%= money.(rev[:usage_total]) %></div>
+              <div class="text-xs text-gray-500">from <%= number_with_delimiter(rev[:usage_stores]) %> stores (billed or not)</div>
+            </div>
+            <div class="rounded-md bg-gray-50 px-4 py-3">
+              <div class="text-xs text-gray-600">Stores installed</div>
+              <div class="text-2xl font-semibold text-gray-900"><%= number_with_delimiter(rev[:installs]) %></div>
+              <div class="text-xs text-gray-500"><%= rev[:from].strftime('%b %d') %> – <%= rev[:to].strftime('%b %d, %Y') %>, still installed</div>
+              <div class="text-xs text-gray-500"><%= number_with_delimiter(rev[:orders].to_i) %> order confirmations · <%= number_with_delimiter(rev[:customers].to_i) %> customers</div>
+            </div>
+          </div>
+        <% end %>
+
+        <% if risk.loaded? %>
+          <%= form_with url: support_dashboard_risk_customers_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do %>
+            <% risk.params.each do |k, v| %><input type="hidden" name="<%= k %>" value="<%= v %>"><% end %>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Search store</label>
+              <input type="text" name="q" value="<%= @risk_q %>" placeholder="domain" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 w-44">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Show</label>
+              <select name="filter" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 bg-white">
+                <option value="" <%= 'selected' if @risk_filter.nil? %>>All stores</option>
+                <option value="paid_no_features" <%= 'selected' if @risk_filter == 'paid_no_features' %>>Paid, nothing enabled</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Sort by</label>
+              <select name="sort" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 bg-white">
+                <option value="usage" <%= 'selected' if @risk_sort == 'usage' %>>Highest usage charges</option>
+                <option value="plan" <%= 'selected' if @risk_sort == 'plan' %>>Highest plan subscription</option>
+                <option value="orders" <%= 'selected' if @risk_sort == 'orders' %>>Most order confirmations</option>
+                <option value="customers" <%= 'selected' if @risk_sort == 'customers' %>>Most customers</option>
+                <option value="newest" <%= 'selected' if @risk_sort == 'newest' %>>Newest install</option>
+              </select>
+            </div>
+            <button type="submit" class="px-3 py-1.5 rounded-md text-sm font-medium bg-gray-900 text-white hover:bg-gray-800">Apply</button>
+            <%= link_to 'Export CSV', support_dashboard_risk_customers_path(risk.params.merge(q: @risk_q, sort: @risk_sort, filter: @risk_filter, format: :csv)), class: "px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+          <% end %>
+
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold text-gray-900"><%= number_with_delimiter(@risk_rows.total_count) %> stores</h2>
+            <span class="text-xs text-gray-500">Paid plan: <%= number_with_delimiter(@risk_counts[:paid]) %> · Usage over <%= usage_label %>: <%= number_with_delimiter(@risk_counts[:usage]) %> (a store can be both)</span>
+          </div>
+        <% end %>
+
+        <% if !risk.loaded? %>
+        <% elsif @risk_rows.any? %>
+          <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                <tr>
+                  <th class="text-left px-4 py-2">Store</th>
+                  <th class="text-left px-4 py-2">Plan</th>
+                  <th class="text-right px-4 py-2">Usage charges applied</th>
+                  <th class="text-right px-4 py-2">Orders</th>
+                  <th class="text-right px-4 py-2">Customers</th>
+                  <th class="text-left px-4 py-2">Features</th>
+                  <th class="text-left px-4 py-2">Contact</th>
+                  <th class="text-left px-4 py-2">Notes</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 align-top">
+                <% @risk_rows.each do |r| %>
+                  <% shop = @risk_shops[r.shop_id] %>
+                  <% next unless shop %>
+                  <tr>
+                    <td class="px-4 py-3 max-w-[220px]">
+                      <a href="https://<%= shop.shopify_domain %>" target="_blank" rel="noopener" class="font-medium text-blue-600 hover:underline break-all"><%= shop.shopify_domain %></a>
+                      <div class="text-xs text-gray-500"><%= shop.owner_name.presence || shop.shop_owner.presence || '—' %><%= " · #{shop.country_code}" if shop.country_code.present? %></div>
+                      <div class="text-xs text-gray-400">Installed <%= shop.created_at.strftime('%b %d, %Y') %></div>
+                      <% store_created = (Time.zone.parse(shop.shop_created_date.to_s) if shop.shop_created_date.present?) rescue nil %>
+                      <div class="text-xs text-gray-400">Store created <%= store_created ? store_created.strftime('%b %d, %Y') : '—' %></div>
+                    </td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                      <div><%= shop.plan&.name || '—' %></div>
+                      <% if r.paid %><span class="text-xs px-1.5 py-0.5 rounded bg-green-100 text-green-800">Paid · $<%= number_with_precision(r.plan_price, precision: 2, strip_insignificant_zeros: true) %>/mo</span><% end %>
+                    </td>
+                    <td class="px-4 py-3 text-right font-medium">$<%= number_with_precision(r.usage, precision: 2, delimiter: ',') %></td>
+                    <td class="px-4 py-3 text-right"><%= number_with_delimiter(r.orders.to_i) %></td>
+                    <td class="px-4 py-3 text-right"><%= number_with_delimiter(r.customers.to_i) %></td>
+                    <td class="px-4 py-3 max-w-[220px]">
+                      <% feats = Churn::FeatureSet.labels_for_shop(shop) %>
+                      <% if feats.any? %>
+                        <div class="flex flex-wrap gap-1">
+                          <% feats.each do |f| %><span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-700 text-xs"><%= f %></span><% end %>
+                        </div>
+                      <% else %>
+                        <span class="text-xs text-gray-400">None on</span>
+                      <% end %>
+                    </td>
+                    <td class="px-4 py-3 text-xs max-w-[200px]">
+                      <% email = shop.owner_email.presence || shop.customer_email %>
+                      <% if email.present? %><a href="mailto:<%= email %>" class="text-blue-600 hover:underline break-all"><%= email %></a><% end %>
+                      <% if shop.owner_phone.present? %><div class="mt-1"><a href="https://wa.me/<%= shop.owner_phone.gsub(/[^0-9]/, '') %>" target="_blank" rel="noopener" class="text-green-700 hover:underline"><%= shop.owner_phone %></a></div><% end %>
+                      <% if email.blank? && shop.owner_phone.blank? %><span class="text-gray-400">—</span><% end %>
+                    </td>
+                    <td class="px-4 py-3 align-top min-w-[260px]" data-follow-up-cell>
+                      <%= render partial: "support_dashboard/follow_up_column", locals: { shop: shop, source_tab: "Risk customers" } %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4"><%= paginate @risk_rows if respond_to?(:paginate) %></div>
+        <% else %>
+          <div class="text-center py-12 border border-dashed border-gray-300 rounded-lg">
+            <h3 class="text-sm font-medium text-gray-900"><%= @risk_filter ? 'Every paid store has at least one feature on' : 'No stores match' %></h3>
+            <p class="mt-1 text-sm text-gray-500">No store installed in the last <%= risk.installed_within %> days is on a paid plan or over <%= usage_label %> in usage charges.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<%= render 'support_dashboard/follow_up_ajax' %>
+</body>
+</html>

@@ -1,0 +1,1 @@
+json.extract! order_confirmation, :id, :order_id, :order_amount, :customer_name, :customer_number, :status, :confirmed_at, :twilio_logs, :shop_id, :created_at, :updated_at

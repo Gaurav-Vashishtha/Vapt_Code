@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Referral Partner - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Edit Referral Partner</h1>
+        <p class="text-gray-600 mt-2">Update partner information and settings</p>
+      </div>
+      
+      <!-- Form Card -->
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <%= form_with model: [:referral_admin, @partner], local: true, class: "space-y-6" do |form| %>
+          <% if @partner.errors.any? %>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">
+                    <%= pluralize(@partner.errors.count, "error") %> prohibited this partner from being saved:
+                  </h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                      <% @partner.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Basic Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :name, class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_field :name, 
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "Enter partner name" %>
+            </div>
+
+            <div>
+              <%= form.label :email, class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.email_field :email, 
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "partner@example.com" %>
+            </div>
+
+            <div>
+              <%= form.label :phone, "Phone Number", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_field :phone, 
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "e.g. +1 234 567 8900" %>
+            </div>
+          </div>
+
+          <!-- Password Fields (Optional for Edit) -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Change Password (Optional)</h3>
+            <p class="text-sm text-gray-600 mb-4">Leave blank to keep current password</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <%= form.label :password, "New Password", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.password_field :password, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "Enter new password" %>
+              </div>
+
+              <div>
+                <%= form.label :password_confirmation, "Confirm New Password", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.password_field :password_confirmation, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "Confirm new password" %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Commission Rates -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Commission Rates (%)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <%= form.label :subscription_commission_rate, "Subscription Rate", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="relative">
+                  <%= form.number_field :subscription_commission_rate, 
+                      step: 0.01, min: 0, max: 100,
+                      class: "w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                      placeholder: "0.00" %>
+                  <span class="absolute right-3 top-2 text-gray-400">%</span>
+                </div>
+              </div>
+
+              <div>
+                <%= form.label :usage_commission_rate, "Usage Rate", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="relative">
+                  <%= form.number_field :usage_commission_rate, 
+                      step: 0.01, min: 0, max: 100,
+                      class: "w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                      placeholder: "0.00" %>
+                  <span class="absolute right-3 top-2 text-gray-400">%</span>
+                </div>
+              </div>
+
+              <div>
+                <%= form.label :onetime_commission_rate, "One-time Rate", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="relative">
+                  <%= form.number_field :onetime_commission_rate, 
+                      step: 0.01, min: 0, max: 100,
+                      class: "w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                      placeholder: "0.00" %>
+                  <span class="absolute right-3 top-2 text-gray-400">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account Settings -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Account Settings</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="flex items-center">
+                <div class="flex items-center h-5">
+                  <%= form.check_box :active, 
+                      class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                </div>
+                <div class="ml-3">
+                  <%= form.label :active, "Active Partner", 
+                      class: "text-sm font-medium text-gray-700" %>
+                  <p class="text-xs text-gray-500">Partner can receive new referrals</p>
+                </div>
+              </div>
+
+              <div class="flex items-center">
+                <div class="flex items-center h-5">
+                  <%= form.check_box :account_verified, 
+                      class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                </div>
+                <div class="ml-3">
+                  <%= form.label :account_verified, "Account Verified", 
+                      class: "text-sm font-medium text-gray-700" %>
+                  <p class="text-xs text-gray-500">Payment account is verified</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bank Details -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Bank Account Details</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <%= form.label :bank_account_name, "Account Holder Name", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :bank_account_name, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "Enter account holder name" %>
+              </div>
+
+              <div>
+                <%= form.label :bank_account_number, "Account Number", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :bank_account_number, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "Enter account number" %>
+              </div>
+
+              <div>
+                <%= form.label :bank_name, "Bank Name", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :bank_name, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "Enter bank name" %>
+              </div>
+
+              <div>
+                <%= form.label :bank_ifsc_code, "IFSC Code", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :bank_ifsc_code, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "Enter IFSC code" %>
+              </div>
+
+              <div class="md:col-span-2">
+                <%= form.label :paypal_email, "PayPal Email (Alternative)", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.email_field :paypal_email, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "Enter PayPal email" %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="border-t pt-6">
+            <div>
+              <%= form.label :notes, class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_area :notes, rows: 4,
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "Additional notes about this partner..." %>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="border-t pt-6 flex justify-between">
+            <div class="flex space-x-3">
+              <%= link_to 'Cancel', referral_admin_partner_path(@partner), 
+                  class: "px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+              
+              <%= link_to 'View Partner', referral_admin_partner_path(@partner), 
+                  class: "px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            </div>
+            
+            <%= form.submit "Update Partner", 
+                class: "px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+ar:
+  hello: مرحبا بالعالم
+  admin:
+    getting_started: دليل البدء
+    watch_video_msg: شاهد الفيديو، احجز جلسة أو دردشة معنا للبدء مباشرة مع ملك COD!
+    watch_video: شاهد الفيديو
+    book_session: جلسة كتاب
+    chat_with_us: دردش معنا
+    settings: الإعدادات
+    log: سجل
+    step1: الخطوة 1 - تم وضع طلب COD
+    step1_desc: يضع العميل طلب COD. يعرّفها التطبيق على أنها طلب COD.
+    step2: الخطوة 2 - يرسل التطبيق OTP إلى العميل عبر الرسائل القصيرة
+    step2_desc: يتم إرسال OTP الفريد إلى رقم الهاتف المحمول الخاص بالعميل.
+    step3: الخطوة 3 - مربع OTP الموضح في صفحة شكرًا لك
+    step3_desc: يقوم العميل بإدخال OTP والتحقق من النقرات.
+    step4: الخطوة 4 - قم بتصفية طلباتك بناءً على هذه العلامة.
+    step4_desc: يضع العميل طلب COD. يعرّفها التطبيق على أنها طلب COD.
+    step5: الخطوة 5 - توفير تكلفة الشحن
+    step5_desc: وفر تكلفة الشحن عن طريق رفض الطلبات المزيفة الأموال التي يتم توفيرها هي الأموال المكتسبة.
+    logs: سجلات
+    order_logs: سجلات الطلبات
+    subscription: الاشتراك
+    settings_saved: الإعدادات المحفوظة
+    settings_saved_msg: "سوف تنعكس التغييرات في متجرك في بضع دقائق."
+    activate_sms: قم بتفعيل <b>تأكيد OTP</b>
+    activate_cod_fees: تفعيل <b>رسوم COD</b>
+    sms_placeholder: 123456 هي كلمة المرور لمرة واحدة لتأكيد COD
+    ios_code_error: يجب أن يتضمن القالب الكلمة الرئيسية "الكود" لإظهار OTP في لوحة مفاتيح iOS
+    activate_ivr: تفعيل <b>تأكيد IVR</b>
+    intro_msg: رسالة مقدمة
+    intro_msg_placeholder: شكرا لك على تقديم الطلب.
+    order_confirm_label: رسالة تأكيد الطلب
+    order_confirm_placeholder: يرجى الضغط على 1 لتأكيد طلبك.
+    order_confirm_help: دليل المستخدم للضغط على 1 لتأكيد الطلب.
+    order_confirm_error: يجب أن تتضمن رسالة التأكيد «1" لتأكيد الطلب
+    order_cancel_label: رسالة إلغاء الطلب
+    order_cancel_placeholder: يرجى الضغط على 2 لإلغاء طلبك.
+    order_cancel_help: قم بتوجيه المستخدم للضغط على 2 لإلغاء الطلب.
+    order_cancel_error: يجب أن تتضمن هذه الرسالة «2" لإلغاء الطلب.
+    test_sms: "إشعار اختبار الرسائل القصيرة"
+    enter_test_number: أدخل رقم الاختبار
+    sms_sent_check_mobile: تم إرسال الرسائل القصيرة. يرجى التحقق من هاتفك المحمول
+    enter_country_code: يرجى إدخال رقم مع رمز بلدك أثناء الاختبار هنا
+    number_cc_example: على سبيل المثال %{number}
+    send_sms: إرسال رسالة نصية
+    message_template: قالب رسالة
+    test_ivr: اختبار مكالمة IVR
+    cod_fees: مبلغ رسوم COD في
+    cod_fees_help: مبلغ المال الذي تريد إضافته، إذا وضع العميل طلب COD.
+    cod_label: التسمية لإرفاقها لرسوم COD
+    cod_label_help: سيتم عرض الملصق مقابل رسوم إضافية
+    cod_instruction: تعليمات تسليم COD
+    cod_instruction_help: سيتم عرض هذه الرسالة للعملاء في صفحة شكرًا عند اكتمال الطلب.
+    please_check_mobile: يرجى التحقق من هاتفك المحمول
+    call_now: اتصل الآن
+    unsaved: التغييرات غير المحفوظة
+    x_chars_used: "%{count} / %{total} حرف مستخدم"
+    deactivate: إلغاء التنشيط
+    save: حفظ
+    discard: تجاهل
+    free_plan: خطة مجانية
+    pro_plan: برو بلان
+    vip_plan: خطة كبار الشخصيات
+    feature_1: يبدأ 0.02 دولار لكل رسالة نصية
+    feature_2: يبدأ 0.04 دولار لكل IVR
+    feature_3: مكالمة واحدة إلى 1 على متن الطائرة
+    feature_4: دعم الأولوية
+    feature_1_pro: للمتاجر أكثر من 100 طلب COD شهريًا
+    custom_plan: خطة تكامل مزود الشبكة
+    subscribe: اشترك
+    subscribed: مشترك
+    recommended: الموصى به
+    sms_template_default: "{{otp}} هو رمز التحقق الخاص بك لتأكيد طلب COD الذي تم وضعه على %{store}"
+    retry_template_default: "شكرًا على تقديم طلب COD على %{store}. يرجى تأكيد طلبك من خلال زيارة الرابط {{link}} birdch"
+    prepaid_template_default: "تحويل طلبك إلى الدفع المسبق بالنقر على الرابط. {{link}}"
+    order_confirm_template_default: "شكرًا على الشراء على %{store}. تم تأكيد طلبك - رقم الطلب {{number}}"
+    fulfilment_template_default: "تم شحن طلبك من %{store} - تابع طلبك على {{tracking_url}}"
+    ivr_introduction: "شكرا لك على تقديم الطلب على %{domain}."
+    ivr_confirm_message: يرجى الضغط على 1 لتأكيد طلبك.
+    ivr_cancel_message: يرجى الضغط على 2 لإلغاء طلبك.
+    confirmed_thank_you: تم تأكيد طلبك، شكرا لك.
+    cancelled_thank_you: تم إلغاء طلبك، شكرًا لك.
+    invalid_thank_you: اختيار غير صالح، يرجى المحاولة مرة أخرى، شكرا لك.
+    no_logs_yet: لا توجد سجلات حتى الآن
+    try_changing_search: حاول تغيير مصطلح البحث
+    order: طلب
+    date: التاريخ
+    customer: العميل
+    total: الإجمالي
+    status: الحالة
+    network: شبكة
+    prev: السابق (J)
+    next: التالي (K)
+    no_resource_found: لم يتم العثور على %{resource}
+    search_resource: ابحث عن %{resource} برقم الطلب أو اسم العميل
+    all: الكل
+    enter_valid_phone: الرجاء إدخال رقم هاتف صالح
+    enable_region: يرجى التواصل معنا لتمكين منطقتك
+    x_total_orders: "%{count} إجمالي الطلبات"
+    x_verified_orders: "%{count} أوامر تم التحقق منها"
+    x_pending_orders: "%{count} أوامر معلقة"
+    x_prepaid_orders: "%{count} أوامر مسبقة الدفع"
+    x_cancelled_orders: "%{count} أوامر ملغاة"
+    order_stats: إحصائيات الطلب
+    boost_checkout: الخروج السلس
+    recommended_setup_to: الإعداد الموصى به لتحسين تجربة الخروج
+    copy: نسخ
+    copied: تم نسخها
+    starts: يبدأ
+    ends: ينتهي
+    recommended_steps: الخطوات الموصى بها
+    checkout_settings: انتقل إلى إعدادات الخروج
+    additional_scripts_text_box: ولصق النص أدناه في <b>نصوص إضافية</b> مربع نص
+    one_time_pass: كلمة مرور لمرة واحدة
+    customer_first_name: الاسم الأول للعميل
+    order_total_amount: المبلغ الإجمالي للطلب
+    link_text: رابط تأكيد الطلب بنقرة واحدة
+    available_variables: المتغيرات المتاحة للصقها في قالب الرسالة
+    free_limit_exhausted: استنفد حد الاختبار المجاني. يرجى الاتصال بنا لتجديد.
+    x_success_sms: "%{count} سمز"
+    x_billed_sms: "%{count} رسالة نصية"
+    x_failed_sms: "%{count} سمز"
+    usage_charged_created: "تم إنشاء رسوم الاستخدام"
+    x_ivr: "%{count} فر"
+    refresh: تحديث
+    complete_setup: خطوة أخيرة واحدة فقط
+    complete_setup_msg: تم حفظ الإعدادات. لإكمال الإعداد، يرجى الاشتراك <b>هنا</b>.
+    view_plans: عرض الخطط
+    prepay_template: قالب الدفع المسبق
+    send_payment_link: رابط الدفع
+    submit: إرسال
+    bulk_submit: إرسال مجمّع
+    amount: المبلغ
+    date_time: التاريخ والوقت
+    mobile: موبايل
+    something_went_wrong: حدث خطأ ما، حاول مرة أخرى لاحقًا.
+    message_sent: الرسالة المرسلة
+    send: إرسال
+    cancel: إلغاء
+    upto_x_orders: ما يصل إلى %{count} طلبيات شهريًا
+    unlimited_orders: عدد غير محدود من الطلبات للتحقق
+    export: تصدير
+    emailed_orders: السجلات المرسلة إلى البريد الإلكتروني
+    comma_separated_order_ids: معرفات ترتيب مفصولة بفواصل
+    order_ids: "أدخل معرفات مثل: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: التحقق بالجملة
+    bulk_verify_template: "مرحبًا %{name}، يرجى النقر على الرابط %{link} للتحقق من طلبك رقم%{number} من %{amount} على %{store}"
+    bulk_processing_title: معالجة الطلبات السائبة
+    bulk_processing_desc: سترى طلباتك في السجلات في وقت ما.
+    bulk_processing_error: حدث خطأ ما
+    bulk_processing_error_desc: يرجى المحاولة مرة أخرى، أو التواصل معنا إذا استمرت المشكلة.
+    reach_out_title: لم يتم تمكين الميزة بعد.
+    reach_out_desc: يرجى التواصل معنا لتمكين هذه الميزة.
+    order_cancelled: تم إلغاء طلبك
+    order_details_title: تفاصيل الطلب (يرجى النقر فوق إلغاء أو تأكيد)
+    react_out_to_us: يرجى التواصل معنا للحصول على الطلبات بالجملة
+    react_out_locked_title: الموافقة مطلوبة.
+    react_out_locked_desc: يرجى التواصل معنا عبر البريد الإلكتروني <b>أو الدردشة</b> لتمكين حسابك.
+    view_cost: عرض تكلفة الرسائل القصيرة.
+    pricing_for_country: "رسوم الرسائل القصيرة الافتراضية للتطبيق لـ <b>%{country}</b> هي <b>$%{charge}</b> لكل رسالة نصية"
+    view_complete_pricing: عرض جدول التسعير لجميع البلدان
+    chat_for_bulk_integration: دردش معنا للحصول على التسعير بالجملة أو التكامل المخصص.
+    advance_settings: إعدادات متقدمة
+    link_settings: إعدادات ارتباط التحقق
+    show_cancel_button: إظهار زر الإلغاء
+    show_cancel_button_help: مدعومة فقط أثناء تدفق التحقق من الارتباط.
+    auto_verify: التحقق التلقائي
+    auto_verify_help: التحقق التلقائي من الأمر عند النقر على رابط التحقق.
+    otp_settings: إعدادات OTP
+    max_retries: الحد الأقصى لإعادة المحاولة عبر الرسائل القصيرة لكل طلب
+    otp_wait_time: إعادة إرسال وقت انتظار OTP
+    otp_fallback_text: دعم OTP أو النص الاحتياطي
+    otp_fallback_text_help: دعم HTML
+    network_provider_integration: تكامل مزود الشبكة
+    network_provider: موفر الشبكة
+    required: مطلوب
+    phone_number: رقم الهاتف
+    integration_cost_reduce: يقلل التكامل من التكلفة الإجمالية إلى ما يقرب من الثلث
+    need_help: هل تحتاج إلى مساعدة؟
+    create_x_account: إنشاء حساب %{brand}
+    x_configuration: "%{brand} التكوين"
+    need_more_sms: تحدث معنا للاشتراك والتسعير.
+    price_for_country: "%{price} دولار لكل رسالة في %{country}"
+    sms_cost_included: تشمل تكلفة الرسائل القصيرة
+    sms_cost_extra: يمكنك الدفع مقابل الرسائل القصيرة إلى المزود مباشرة
+    view: عرض
+    order_number: رقم الطلب
+    get_access_token: إنشاء رمز وصول
+    goto_orders: انتقل إلى الطلبات
+    whatsapp_approval_request_sent: تم إرسال طلب الموافقة على WhatsApp
+    whatsapp_approval_request_sent_failure: 'فشل: - فشل طلب الموافقة على WhatsApp'
+  script:
+    submit: تأكيد
+    mobile_phone_number: رقم بدون 0 ورمز البلد
+    enter_valid_phone: أدخل رقم هاتف صالح
+    verify_for_smooth_delivery: يرجى التحقق من رقم هاتفك لسهولة تسليم طلب COD الخاص بك
+    click_verify_link: تم إرسال رابط على رقمك - <b>%{number}</b>
+    enter_otp_msg: "الرجاء إدخال رمز OTP المرسل الى <b>%{number}</b>"
+    enter_otp: أدخل OTP
+    change: تغيير
+    invalid_otp: OTP غير صالح، يرجى المحاولة مرة أخرى
+    resend_otp: إعادة إرسال OTP
+    confirm_order: تأكيد طلب (الدفع عند الإستلام)
+    sending: "إرسال..."
+    order_being_processed: تتم معالجة طلبك.
+    if_not_redirected: إذا لم تتم إعادة توجيهك تلقائيًا، فقم بتحديث هذه الصفحة.
+    resend_in_x_seconds: "إعادة إرسال OTP في %{count} ثانية"
+    max_retries_reached: الحد الأقصى لإعادة المحاولة الذي تم الوصول إليه.
+    order_details: تفاصيل الطلب
+    send_code_on_whatsapp: احصل على الكود على Whatsapp

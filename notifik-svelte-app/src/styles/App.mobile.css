@@ -1,0 +1,44 @@
+/* Mobile-specific styles for App component */
+/* Applied when viewport width <= 640px */
+
+@media (max-width: 640px) {
+  html,
+  body {
+    /* Use CSS variable set by JavaScript (contains pixel value) */
+    height: var(--visual-viewport-height) !important;
+    min-height: var(--visual-viewport-height) !important;
+    overflow: hidden !important;
+  }
+
+  #app {
+    height: 100% !important;
+    min-height: 100% !important;
+  }
+
+  .dev-toolbar {
+    top: 8px;
+    right: 8px;
+    gap: 4px;
+  }
+
+  .dev-toggle {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .dev-form {
+    padding: 4px;
+    gap: 4px;
+  }
+
+  .dev-input {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-width: 120px;
+  }
+
+  .dev-go {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+}

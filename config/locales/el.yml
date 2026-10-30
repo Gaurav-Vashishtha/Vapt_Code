@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+el:
+  hello: Γεια σου κόσμο
+  admin:
+    getting_started: Οδηγός έναρξης
+    watch_video_msg: Παρακολουθήστε το βίντεο, κλείστε μια συνεδρία ή συνομιλήστε μαζί μας για να ξεκινήσετε αμέσως με το COD King!
+    watch_video: Δείτε το βίντεο
+    book_session: Συνεδρία βιβλίου
+    chat_with_us: Συνομιλήστε μαζί μας τώρα
+    settings: Ρυθμίσεις
+    log: Αρχείο καταγραφής
+    step1: Βήμα 1 - Η παραγγελία COD έγινε
+    step1_desc: Ο πελάτης πραγματοποιεί παραγγελία COD. Η εφαρμογή την αναγνωρίζει ως παραγγελία COD.
+    step2: Βήμα 2 - Η εφαρμογή στέλνει OTP στον πελάτη μέσω SMS
+    step2_desc: Μοναδικό OTP αποστέλλεται στον αριθμό κινητού τηλεφώνου του πελάτη.
+    step3: Βήμα 3 - Το πλαίσιο OTP εμφανίζεται στη σελίδα Ευχαριστώ
+    step3_desc: Ο πελάτης εισάγει το OTP και κάνει κλικ στην επαλήθευση.
+    step4: Βήμα 4 - Φιλτράρετε τις παραγγελίες σας με βάση αυτήν την ετικέτα.
+    step4_desc: Ο πελάτης πραγματοποιεί παραγγελία COD. Η εφαρμογή την αναγνωρίζει ως παραγγελία COD.
+    step5: Βήμα 5 - Εξοικονόμηση κόστους αποστολής
+    step5_desc: Εξοικονομήστε κόστος αποστολής απορρίπτοντας ψεύτικες παραγγελίες Τα χρήματα που εξοικονομήθηκαν είναι χρήματα που κερδίζονται.
+    logs: Αρχεία καταγραφής
+    order_logs: Αρχεία καταγραφής παραγγελιών
+    subscription: Συνδρομή
+    settings_saved: Οι ρυθμίσεις αποθηκεύτηκαν
+    settings_saved_msg: "Οι αλλαγές θα αντικατοπτρίζονται στο κατάστημά σας σε λίγα λεπτά."
+    activate_sms: Ενεργοποιήστε την επιβεβαίωση <b>OTP</b>
+    activate_cod_fees: Ενεργοποιήστε τις χρεώσεις <b>COD</b>
+    sms_placeholder: Το 123456 είναι ο εφάπαξ κωδικός πρόσβασης για επιβεβαίωση του COD
+    ios_code_error: Το πρότυπο πρέπει να περιλαμβάνει λέξη-κλειδί «κώδικας» για να εμφανίσει το OTP στο πληκτρολόγιο iOS
+    activate_ivr: Ενεργοποιήστε την επιβεβαίωση <b>IVR</b>
+    intro_msg: Εισαγωγικό μήνυμα
+    intro_msg_placeholder: Σας ευχαριστούμε που κάνατε την παραγγελία.
+    order_confirm_label: Μήνυμα επιβεβαίωσης παραγγελίας
+    order_confirm_placeholder: Πατήστε 1 για να επιβεβαιώσετε την παραγγελία σας.
+    order_confirm_help: Οδηγήστε τον χρήστη να πατήσει 1 για επιβεβαίωση της παραγγελίας.
+    order_confirm_error: Το μήνυμα επιβεβαίωσης πρέπει να περιλαμβάνει «1" για επιβεβαίωση παραγγελίας
+    order_cancel_label: Μήνυμα ακύρωσης παραγγελίας
+    order_cancel_placeholder: Πατήστε 2 για να ακυρώσετε την παραγγελία σας.
+    order_cancel_help: Οδηγήστε τον χρήστη να πατήσει 2 για ακύρωση παραγγελίας.
+    order_cancel_error: Αυτό το μήνυμα θα πρέπει να περιλαμβάνει «2" για ακύρωση παραγγελίας.
+    test_sms: "Δοκιμή ειδοποίησης SMS"
+    enter_test_number: Εισάγετε τον αριθμό δοκιμής
+    sms_sent_check_mobile: Στάλθηκε SMS. Παρακαλώ ελέγξτε το κινητό σας
+    enter_country_code: Εισαγάγετε τον αριθμό με τον κωδικό της χώρας σας κατά τη δοκιμή εδώ
+    number_cc_example: π.χ. %{number}
+    send_sms: Αποστολή SMS
+    message_template: Πρότυπο μηνύματος
+    test_ivr: Δοκιμή κλήσης IVR
+    cod_fees: Ποσό για τέλη COD σε
+    cod_fees_help: Ποσό χρημάτων που θέλετε να προσθέσετε, εάν ο πελάτης κάνει μια παραγγελία COD.
+    cod_label: Ετικέτα που πρέπει να επισυνάψετε για τέλη COD
+    cod_label_help: Ετικέτα που θα εμφανίζεται για επιπλέον χρεώσεις
+    cod_instruction: Οδηγίες παράδοσης COD
+    cod_instruction_help: Αυτό το μήνυμα θα εμφανιστεί στους πελάτες στη σελίδα Ευχαριστώ όταν ολοκληρωθεί η παραγγελία.
+    please_check_mobile: Παρακαλώ ελέγξτε το κινητό σας
+    call_now: Καλέστε τώρα
+    unsaved: Μη αποθηκευμένες αλλαγές
+    x_chars_used: "%{count} / %{total} χαρακτήρες που χρησιμοποιούνται"
+    deactivate: Απενεργοποίηση
+    save: Αποθήκευση
+    discard: Απορρίψτε
+    free_plan: Δωρεάν Σχέδιο
+    pro_plan: Επαγγελματικό Σχέδιο
+    vip_plan: Σχέδιο Vip
+    feature_1: ξεκινάει από $0.02 ανά SMS
+    feature_2: ξεκινά από 0,06$ ανά IVR
+    feature_3: 1 προς 1 κλήση στο πλοίο
+    feature_4: Υποστήριξη προτεραιότητας
+    feature_1_pro: Για καταστήματα με περισσότερες από 100 παραγγελίες COD ανά μήνα
+    custom_plan: Σχέδιο ενοποίησης παρόχου δικτύου
+    subscribe: Εγγραφείτε
+    subscribed: Εγγεγραμμένος
+    recommended: Προτείνεται
+    sms_template_default: "Το {{otp}} είναι ο κωδικός επαλήθευσής σας για να επιβεβαιώσετε την παραγγελία COD που τοποθετήθηκε στο %{store}"
+    retry_template_default: "Ευχαριστούμε που τοποθετήσατε μια παραγγελία COD στο %{store}. Επιβεβαιώστε την παραγγελία σας μεταβαίνοντας στο σύνδεσμο {{link}} birdch"
+    prepaid_template_default: "μετατρέψτε την παραγγελία σας σε προπληρωμένη κάνοντας κλικ στον σύνδεσμο. {{link}}"
+    order_confirm_template_default: "Ευχαριστούμε για την αγορά σας στο %{store}. Η παραγγελία σας έχει επιβεβαιωθεί - Αριθμός παραγγελίας {{number}}"
+    fulfilment_template_default: "Η παραγγελία σας έχει αποσταλεί από το %{store} - Παρακολουθήστε την παραγγελία σας στο {{tracking_url}}"
+    ivr_introduction: "Σας ευχαριστούμε που κάνατε την παραγγελία στο %{domain}."
+    ivr_confirm_message: Πατήστε 1 για να επιβεβαιώσετε την παραγγελία σας.
+    ivr_cancel_message: Πατήστε 2 για να ακυρώσετε την παραγγελία σας.
+    confirmed_thank_you: Η παραγγελία σας επιβεβαιώθηκε, σας ευχαριστώ.
+    cancelled_thank_you: Η παραγγελία σας ακυρώθηκε, σας ευχαριστώ.
+    invalid_thank_you: Μη έγκυρη επιλογή, Παρακαλώ δοκιμάστε ξανά, Σας ευχαριστώ.
+    no_logs_yet: Δεν υπάρχουν αρχεία καταγραφής ακόμα
+    try_changing_search: Δοκιμάστε να αλλάξετε τον όρο αναζήτησης
+    order: Σειρά
+    date: Ημερομηνία
+    customer: Πελάτης
+    total: Σύνολο
+    status: Κατάσταση
+    network: Δίκτυο
+    prev: Προηγούμενο (J)
+    next: Επόμενο (Κ)
+    no_resource_found: Δεν βρέθηκε %{resource}
+    search_resource: Αναζήτηση %{resource} με αριθμό παραγγελίας ή όνομα πελάτη
+    all: Ολα
+    enter_valid_phone: Εισαγάγετε έναν έγκυρο αριθμό τηλεφώνου
+    enable_region: Επικοινωνήστε μαζί μας για να ενεργοποιήσετε την περιοχή σας
+    x_total_orders: "%{count} σύνολο παραγγελιών"
+    x_verified_orders: "%{count} επαληθευμένες παραγγελίες"
+    x_pending_orders: "%{count} εκκρεμείς παραγγελίες"
+    x_prepaid_orders: "%{count} προπληρωμένες παραγγελίες"
+    x_cancelled_orders: "%{count} ακυρωμένες παραγγελίες"
+    order_stats: Στατιστικά Παραγγελίας
+    boost_checkout: Απρόσκοπτη ολοκλήρωση αγοράς
+    recommended_setup_to: Συνιστώμενη ρύθμιση για βελτίωση της εμπειρίας ολοκλήρωσης αγοράς
+    copy: Αντιγραφή
+    copied: Αντιγράφηκε
+    starts: Ξεκινά
+    ends: Τελειώνει
+    recommended_steps: Συνιστώμενα βήματα
+    checkout_settings: Μεταβείτε στις ρυθμίσεις ολοκλήρωσης αγοράς
+    additional_scripts_text_box: Και επικολλήστε το παρακάτω κείμενο στο πλαίσιο κειμένου <b>Πρόσθετα σενάρια</b>
+    one_time_pass: Κωδικός πρόσβασης μίας χρήσης
+    customer_first_name: Όνομα πελάτη
+    order_total_amount: Συνολικό ποσό παραγγελίας
+    link_text: Σύνδεσμος επιβεβαίωσης παραγγελίας με ένα κλικ
+    available_variables: Διαθέσιμες μεταβλητές για επικόλληση σε πρότυπο μηνύματος
+    free_limit_exhausted: Το ελεύθερο όριο δοκιμών εξαντλήθηκε. Επικοινωνήστε μαζί μας για ανανέωση.
+    x_success_sms: "%{count} γραπτό μήνυμα"
+    x_billed_sms: "%{count} χρεωμένα sms"
+    x_failed_sms: "%{count} γραπτό μήνυμα"
+    usage_charged_created: "Δημιουργήθηκε χρέωση χρήσης"
+    x_ivr: "%{count} IVR"
+    refresh: Ανανέωση
+    complete_setup: Μόνο ένα τελευταίο βήμα
+    complete_setup_msg: Οι ρυθμίσεις αποθηκεύτηκαν. Για να ολοκληρώσετε τη ρύθμιση, παρακαλώ <b>εγγραφείτε εδώ</b>.
+    view_plans: Προβολή σχεδίων
+    prepay_template: Πρότυπο προπληρωμής
+    send_payment_link: Σύνδεσμος πληρωμής
+    submit: Υποβολή
+    bulk_submit: Μαζική υποβολή
+    amount: Ποσό
+    date_time: Ημερομηνία και ώρα
+    mobile: Κινητό
+    something_went_wrong: Κάτι πήγε στραβά, δοκιμάστε ξανά αργότερα.
+    message_sent: Μήνυμα στάλθηκε
+    send: Αποστολή
+    cancel: Ακύρωση
+    upto_x_orders: Έως %{count} Παραγγελίες ανά μήνα
+    unlimited_orders: Απεριόριστος αριθμός παραγγελιών για επαλήθευση
+    export: Εξαγωγή
+    emailed_orders: Αποστολή αρχείων καταγραφής στο ηλεκτρονικό ταχυδρομείο
+    comma_separated_order_ids: Αναγνωριστικά παραγγελίας διαχωρισμένα με κόμμα
+    order_ids: "Εισαγάγετε αναγνωριστικά όπως: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Μαζική επαλήθευση
+    bulk_verify_template: "Γεια %{name}, Κάντε κλικ στο σύνδεσμο %{link} για να επαληθεύσετε την παραγγελία σας #%{number} του %{amount} που τοποθετήθηκε στο %{store}"
+    bulk_processing_title: Επεξεργασία μαζικών παραγγελιών
+    bulk_processing_desc: Θα δείτε τις παραγγελίες σας στα αρχεία καταγραφής κάποια στιγμή.
+    bulk_processing_error: Κάτι πήγε στραβά
+    bulk_processing_error_desc: Δοκιμάστε ξανά, ή επικοινωνήστε μαζί μας εάν το πρόβλημα παραμένει.
+    reach_out_title: Η λειτουργία δεν έχει ενεργοποιηθεί ακόμα.
+    reach_out_desc: Επικοινωνήστε μαζί μας για να ενεργοποιήσετε αυτήν τη λειτουργία.
+    order_cancelled: Η παραγγελία σας ακυρώθηκε
+    order_details_title: Λεπτομέρειες παραγγελίας (Κάντε κλικ στο κουμπί ακύρωση ή επιβεβαίωση)
+    react_out_to_us: Επικοινωνήστε μαζί μας για μαζικές παραγγελίες
+    react_out_locked_title: Απαιτείται έγκριση.
+    react_out_locked_desc: Επικοινωνήστε μαζί μας μέσω <b>email ή συνομιλίας</b> για να ενεργοποιήσετε τον λογαριασμό σας.
+    view_cost: Προβολή κόστους SMS.
+    pricing_for_country: "Η προεπιλεγμένη χρέωση SMS της εφαρμογής για το <b>%{country}</b> είναι <b>$%{charge}</b> ανά sms"
+    view_complete_pricing: Δείτε τον πίνακα τιμών για όλες τις χώρες
+    chat_for_bulk_integration: Συνομιλήστε μαζί μας για μαζική τιμολόγηση ή προσαρμοσμένη ενσωμάτωση.
+    advance_settings: Ρυθμίσεις για προχωρημένους
+    link_settings: Ρυθμίσεις συνδέσμου επαλήθευσης
+    show_cancel_button: Εμφάνιση κουμπιού ακύρωσης
+    show_cancel_button_help: υποστηρίζεται μόνο κατά τη ροή επαλήθευσης συνδέσμων.
+    auto_verify: Αυτόματη επαλήθευση
+    auto_verify_help: Αυτόματη επαλήθευση παραγγελίας κάνοντας κλικ στο σύνδεσμο επαλήθευσης.
+    otp_settings: Ρυθμίσεις OTP
+    max_retries: Μέγιστος αριθμός επαναλήψεων SMS ανά παραγγελία
+    otp_wait_time: Αποστολή ξανά χρόνου αναμονής OTP
+    otp_fallback_text: Υποστήριξη OTP ή εναλλακτικό κείμενο
+    otp_fallback_text_help: Υποστηριζόμενη HTML
+    network_provider_integration: Ενσωμάτωση παροχέα δικτύου
+    network_provider: Πάροχος δικτύου
+    required: Απαιτείται
+    phone_number: Τηλεφωνικό νούμερο
+    integration_cost_reduce: Η ενσωμάτωση μειώνει το συνολικό κόστος σας σχεδόν στο ένα τρίτο
+    need_help: Χρειάζεστε βοήθεια;
+    create_x_account: Δημιουργία λογαριασμού %{brand}
+    x_configuration: "%{brand} Διαμόρφωση"
+    need_more_sms: Συνομιλήστε μαζί μας για εγγραφή και τιμολόγηση.
+    price_for_country: "$%{price} ανά Μήνυμα σε %{country}"
+    sms_cost_included: Συμπεριλαμβάνεται το κόστος SMS
+    sms_cost_extra: Μπορείτε να πληρώσετε για SMS απευθείας στον πάροχο
+    view: Προβολή
+    order_number: Αριθμός παραγγελίας
+    get_access_token: Δημιουργία διακριτικού πρόσβασης
+    goto_orders: Μετάβαση στις παραγγελίες
+    whatsapp_approval_request_sent: Αίτημα έγκρισης WhatsApp στάλθηκε
+    whatsapp_approval_request_sent_failure: 'Αποτυχία: - Το αίτημα έγκρισης WhatsApp απέτυχε'
+  script:
+    submit: Υποβολή
+    mobile_phone_number: Αριθμός χωρίς 0 και κωδικός χώρας
+    enter_valid_phone: Εισαγάγετε έγκυρο αριθμό τηλεφώνου
+    verify_for_smooth_delivery: Επαληθεύστε τον αριθμό τηλεφώνου σας για εύκολη παράδοση της παραγγελίας COD
+    click_verify_link: Έχει σταλεί σύνδεσμος στον αριθμό σας - <b>%{number}</b>
+    enter_otp_msg: "Εισαγάγετε το OTP που αποστέλλεται στο <b>%{number}</b>"
+    enter_otp: Εισαγάγετε OTP
+    change: Αλλαγή
+    invalid_otp: Μη έγκυρο OTP, δοκιμάστε ξανά
+    resend_otp: Αποστολή ξανά του OTP
+    confirm_order: Επιβεβαιώστε την παραγγελία σας
+    sending: "Αποστολή..."
+    order_being_processed: Η παραγγελία σας διεκπεραιώνεται.
+    if_not_redirected: Εάν δεν ανακατευθυνθείτε αυτόματα, ανανεώστε αυτήν τη σελίδα.
+    resend_in_x_seconds: "Στείλτε ξανά το OTP σε %{count} δευτερόλεπτα"
+    max_retries_reached: Επιτεύχθηκε το μέγιστο όριο επαναληπτικών προσπαθειών.
+    order_details: Λεπτομέρειες παραγγελίας
+    send_code_on_whatsapp: Λάβετε κωδικό στο Whatsapp

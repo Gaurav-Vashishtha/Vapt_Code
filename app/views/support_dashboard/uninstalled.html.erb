@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - Uninstalled Follow-ups</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Monitor and manage merchant support requests</p>
+        </div>
+        <%= link_to support_dashboard_uninstalled_path, 
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Navigation -->
+    <div class="mb-6">
+      <%= link_to support_dashboard_path, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+        ← Back to Dashboard
+      <% end %>
+    </div>
+
+    <!-- Content -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :uninstalled %>
+        </nav>
+      </div>
+
+      <div class="p-6">
+        <div class="mb-6 flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h2 class="text-lg font-medium text-gray-900 mb-2">High-Value Uninstalled Shops</h2>
+            <p class="text-sm text-gray-600">
+              Recently uninstalled shops worth following up: 30+ orders, OR 100+ customers,
+              OR a store older than <%= @uninstalled_age_months %> month<%= 's' unless @uninstalled_age_months == 1 %>.
+            </p>
+          </div>
+          <%= form_with url: support_dashboard_uninstalled_path, method: :get, class: "flex items-end gap-2" do %>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Store older than (months)</label>
+              <input type="number" name="uninstalled_age_months" min="0" max="60"
+                  value="<%= @uninstalled_age_months %>"
+                  class="px-2 py-1.5 rounded-md text-sm bg-white border border-gray-300 text-gray-700 w-28" />
+            </div>
+            <button type="submit"
+                class="px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50">Apply</button>
+          <% end %>
+        </div>
+
+        <% if @shops.any? %>
+          <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Shop Domain</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Status</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Uninstalled Date</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Total Orders</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Customers</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Features Enabled</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Owner Phone</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Follow-up Notes</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide whitespace-nowrap">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @shops.each do |shop| %>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                          <%= shop.shop_initials %>
+                        </div>
+                        <div class="min-w-0">
+                          <div class="font-medium text-gray-900">
+                            <%= link_to "https://#{shop.shop_domain}", "https://#{shop.shop_domain}", 
+                                target: "_blank", 
+                                class: "text-blue-600 hover:text-blue-800 hover:underline" %>
+                          </div>
+                          <div class="text-sm text-gray-500 truncate"><%= shop.owner_name || 'Shopify Store' %></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-6 whitespace-nowrap">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        Needs Followup
+                      </span>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap">
+                      <div><%= shop.formatted_created_at %></div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-900 font-medium whitespace-nowrap">
+                      <%= shop.order_count %> orders
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-900 whitespace-nowrap">
+                      <%= shop.customer_count.present? ? shop.customer_count : '—' %>
+                    </td>
+                    <td class="py-4 px-6">
+                      <%
+                        feats = []
+                        feats << "OTP" if shop.enable_pre_order_otp
+                        feats << "Partial Pay" if shop.partial_payment_enabled
+                        feats << "Prepaid" if shop.prepaid_enabled
+                        feats << "COD Fee" if shop.cod_fee_enabled
+                        feats << "COD Show/Hide" if shop.cod_show_hide_enabled
+                        feats << "SMS" if shop.sms
+                        feats << "Confirm SMS" if shop.confirmation_sms_enabled
+                        feats << "Abandoned" if shop.abandoned_cart_enabled
+                        feats << "AC WhatsApp" if shop.ac_whatsapp
+                        feats << "BSP" if shop.bsp_integrated
+                      %>
+                      <% if feats.any? %>
+                        <div class="flex flex-wrap gap-1 max-w-xs">
+                          <% feats.each do |f| %>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800"><%= f %></span>
+                          <% end %>
+                        </div>
+                      <% else %>
+                        <span class="text-gray-400 text-sm">None</span>
+                      <% end %>
+                    </td>
+                    <td class="py-4 px-6 whitespace-nowrap">
+                      <% if shop.phone.present? %>
+                        <%= link_to "https://web.whatsapp.com/send?phone=#{shop.phone.gsub(/[^0-9]/, '')}", 
+                            target: "_blank",
+                            class: "text-green-600 hover:text-green-800 hover:underline flex items-center gap-1" do %>
+                          <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.893 3.488"/>
+                          </svg>
+                          <span class="truncate"><%= shop.phone %></span>
+                        <% end %>
+                      <% else %>
+                        <span class="text-gray-400 text-sm">No phone</span>
+                      <% end %>
+                    </td>
+                    <td class="py-4 px-6 align-top" data-follow-up-cell data-shop-domain="<%= shop.shop_domain %>">
+                      <% follow_up_target = @follow_up_targets[shop.shop_domain] || @snapshot_follow_up_owners[shop.shop_domain] %>
+                      <% if follow_up_target.present? %>
+                        <%= render partial: "support_dashboard/follow_up_column", locals: { shop: follow_up_target, source_tab: "Uninstalled Follow-ups" } %>
+                      <% else %>
+                        <%= form_with url: support_dashboard_create_uninstalled_follow_up_path(shop), 
+                            scope: :follow_up, method: :post, local: true, class: "space-y-2" do |f| %>
+                          <%= hidden_field_tag :source_tab, "Uninstalled Follow-ups" %>
+                          <%= f.text_field :created_by,
+                              placeholder: "Your name *",
+                              required: true,
+                              class: "w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                          <%= f.text_area :notes, 
+                              value: shop.notes, 
+                              placeholder: "Add followup notes...",
+                              rows: 2,
+                              required: true,
+                              class: "w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                          <%= f.submit "Add Follow-up", 
+                              class: "bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm whitespace-nowrap" %>
+                        <% end %>
+                      <% end %>
+                    </td>
+                    <td class="py-4 px-6 whitespace-nowrap">
+                      <div class="flex items-center gap-2">
+                        <%= link_to "/admin/uninstalled_shops/#{shop.id}", 
+                            target: "_blank",
+                            class: "bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-medium" do %>
+                          View
+                        <% end %>
+                        <%= link_to "/support_dashboard/#{shop.id}/crisp", 
+                            target: "_blank",
+                            class: "bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium" do %>
+                          Contact
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="mt-6">
+            <%= paginate @shops if respond_to?(:paginate) %>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No high-value uninstalls</h3>
+            <p class="mt-1 text-sm text-gray-500">No recently uninstalled shops with 30+ orders need follow-up.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Follow-up forms submit in place (no full page reload) -->
+<div id="follow-up-toast" class="fixed bottom-4 right-4 z-50 hidden max-w-sm rounded-md px-4 py-3 text-sm font-medium shadow-lg"></div>
+<script>
+  (function () {
+    var toast = document.getElementById('follow-up-toast');
+    var toastTimer;
+    function showToast(msg, ok) {
+      toast.textContent = msg;
+      toast.className = 'fixed bottom-4 right-4 z-50 max-w-sm rounded-md px-4 py-3 text-sm font-medium shadow-lg ' +
+        (ok ? 'bg-green-600 text-white' : 'bg-red-600 text-white');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () { toast.classList.add('hidden'); }, ok ? 3000 : 6000);
+    }
+
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      var cell = form.closest && form.closest('[data-follow-up-cell]');
+      if (!cell || !window.fetch) return; // not a follow-up form: normal submit
+
+      e.preventDefault();
+      var buttons = form.querySelectorAll('input[type=submit], button[type=submit]');
+      buttons.forEach(function (b) { b.disabled = true; b.dataset.label = b.value || b.textContent; if (b.value) b.value = 'Saving...'; });
+
+      var body = new FormData(form);
+      // Rails form_with(method: :patch) puts _method in the form; POST + _method works.
+      fetch(form.action, {
+        method: 'POST',
+        body: body,
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function (r) {
+        return r.text().then(function (t) {
+          var json = null;
+          try { json = JSON.parse(t); } catch (_) {}
+          return { ok: r.ok, status: r.status, json: json };
+        });
+      })
+      .then(function (res) {
+        if (res.ok && res.json && res.json.success) {
+          cell.innerHTML = res.json.html;
+          cell.classList.add('bg-green-50');
+          setTimeout(function () { cell.classList.remove('bg-green-50'); }, 1500);
+          showToast(res.json.message || 'Saved', true);
+        } else {
+          var msg = (res.json && res.json.error) || ('Request failed (' + res.status + ')');
+          showToast(msg, false);
+          buttons.forEach(function (b) { b.disabled = false; if (b.value) b.value = b.dataset.label; });
+        }
+      })
+      .catch(function (err) {
+        showToast('Network error: ' + err.message, false);
+        buttons.forEach(function (b) { b.disabled = false; if (b.value) b.value = b.dataset.label; });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

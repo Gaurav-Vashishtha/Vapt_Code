@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+uk:
+  hello: Привіт світ
+  admin:
+    getting_started: Початок роботи керівництво
+    watch_video_msg: Дивіться відео, забронюйте сеанс або спілкуйтеся з нами, щоб почати прямо з COD King!
+    watch_video: Дивитися відео
+    book_session: Сесія книги
+    chat_with_us: Спілкуйтеся з нами зараз
+    settings: Налаштування
+    log: Журнал
+    step1: Крок 1 - Замовлення COD розміщено
+    step1_desc: Клієнт розміщує замовлення післяплати. Додаток ідентифікує його як порядок COD.
+    step2: Крок 2 - Додаток надсилає OTP клієнту через SMS
+    step2_desc: Унікальний OTP надсилається на мобільний номер клієнта.
+    step3: Крок 3 - OTP вікно показано на сторінці Спасибі
+    step3_desc: Клієнт вводить OTP і кліки перевіряти.
+    step4: Крок 4 - Фільтруйте свої замовлення на основі цього тегу.
+    step4_desc: Клієнт розміщує замовлення післяплати. Додаток ідентифікує його як порядок COD.
+    step5: Крок 5 - Збережена вартість доставки
+    step5_desc: Зберегти вартість доставки, відхиляючи підроблені замовлення Гроші заощаджені гроші зароблені гроші.
+    logs: журнали
+    order_logs: Замовити журнали
+    subscription: Підписка
+    settings_saved: Налаштування збережені
+    settings_saved_msg: "Зміни будуть відображені в вашому магазині через кілька хвилин."
+    activate_sms: Активувати <b>OTP</b> Підтвердження
+    activate_cod_fees: Активувати <b>Комісії COD</b>
+    sms_placeholder: 123456 - ваш одноразовий пароль для підтвердження COD
+    ios_code_error: Шаблон повинен містити ключове слово «code», щоб показати OTP на клавіатурі iOS
+    activate_ivr: Активувати <b>IVR</b> Підтвердження
+    intro_msg: Вступне повідомлення
+    intro_msg_placeholder: Дякуємо за розміщення замовлення.
+    order_confirm_label: Повідомлення про підтвердження замовлення
+    order_confirm_placeholder: Будь ласка, натисніть 1, щоб підтвердити ваше замовлення.
+    order_confirm_help: Керівництво користувача натиснути 1 для підтвердження замовлення.
+    order_confirm_error: Підтвердити повідомлення має містити «1" для підтвердження замовлення
+    order_cancel_label: Повідомлення про скасування замовлення
+    order_cancel_placeholder: Будь ласка, натисніть 2, щоб скасувати замовлення.
+    order_cancel_help: Керівництво користувача натиснути 2 для скасування замовлення.
+    order_cancel_error: Це повідомлення має містити «2» для скасування замовлення.
+    test_sms: "Тест SMS-повідомлення"
+    enter_test_number: Введіть тестовий номер
+    sms_sent_check_mobile: SMS відправлено. Будь ласка, перевірте свій мобільний телефон
+    enter_country_code: Будь ласка, введіть номер з кодом вашої країни під час тестування тут
+    number_cc_example: напр. %{number}
+    send_sms: Надіслати SMS
+    message_template: Шаблон повідомлення
+    test_ivr: Тестовий виклик IVR
+    cod_fees: Сума комісій післяплати в
+    cod_fees_help: Сума грошей, яку ви хочете додати, якщо клієнт розміщує замовлення післяплатою.
+    cod_label: Етикетка, щоб прикріпити для плати COD
+    cod_label_help: Етикетка буде відображатися за додаткову плату
+    cod_instruction: Інструкція з доставки COD
+    cod_instruction_help: Це повідомлення буде показано клієнтам на сторінці подяки, коли замовлення буде завершено.
+    please_check_mobile: Будь ласка, перевірте свій мобільний телефон
+    call_now: Зателефонуйте зараз
+    unsaved: Незбережені зміни
+    x_chars_used: "%{count} / %{total} символів, які використовуються"
+    deactivate: Деактивувати
+    save: Зберегти
+    discard: Відмовтеся
+    free_plan: Безкоштовний план
+    pro_plan: Про план
+    vip_plan: Vip план
+    feature_1: починається $0.02 за SMS
+    feature_2: починається $0.06 за IVR
+    feature_3: 1 до 1 виклик на борту
+    feature_4: Пріоритет підтримки
+    feature_1_pro: Для магазинів більше 100 замовлень на місяць
+    custom_plan: План інтеграції мережевих провайдерів
+    subscribe: Підписатися
+    subscribed: Підписаний
+    recommended: Рекомендовано
+    sms_template_default: "{{otp}} - це ваш код підтвердження для підтвердження замовлення COD, розміщеного на %{store}"
+    retry_template_default: "Дякуємо за розміщення замовлення COD на %{store}. Будь ласка, підтвердіть своє замовлення, перейшовши за посиланням {{link}} береза"
+    prepaid_template_default: "конвертувати своє замовлення в передплачений, натиснувши посилання. {{link}}"
+    order_confirm_template_default: "Дякуємо за покупку на %{store}. Ваше замовлення підтверджено - Замовлення № {{number}}"
+    fulfilment_template_default: "Ваше замовлення було відправлено з %{store} - Відстежуйте своє замовлення за адресою {{tracking_url}}"
+    ivr_introduction: "Дякуємо за розміщення замовлення на %{domain}."
+    ivr_confirm_message: Будь ласка, натисніть 1, щоб підтвердити ваше замовлення.
+    ivr_cancel_message: Будь ласка, натисніть 2, щоб скасувати замовлення.
+    confirmed_thank_you: Ваше замовлення підтверджено, дякую.
+    cancelled_thank_you: Ваше замовлення скасовано, дякую.
+    invalid_thank_you: Недійсний вибір, Будь ласка, спробуйте ще раз, Дякую.
+    no_logs_yet: Ще немає журналів
+    try_changing_search: Спробуйте змінити пошуковий термін
+    order: Замовити
+    date: Дата
+    customer: Замовник
+    total: Всього
+    status: Статус
+    network: Мережі
+    prev: Попередня (J)
+    next: Далі (K)
+    no_resource_found: Не знайдено %{resource}
+    search_resource: Пошук %{resource} з номером замовлення або ім'ям клієнта
+    all: Всі
+    enter_valid_phone: Будь ласка, введіть дійсний номер телефону
+    enable_region: Будь ласка, звертайтесь до нас, щоб включити ваш регіон
+    x_total_orders: "%{count} всього замовлень"
+    x_verified_orders: "%{count} підтверджених замовлень"
+    x_pending_orders: "%{count} відкладених ордерів"
+    x_prepaid_orders: "%{count} передплачених замовлень"
+    x_cancelled_orders: "%{count} скасованих замовлень"
+    order_stats: Замовити Статистика
+    boost_checkout: Безшовні замовлення
+    recommended_setup_to: Рекомендована настройка для поліпшення досвіду перевірки
+    copy: Копія
+    copied: Скопійовано
+    starts: Стартує
+    ends: Закінчується
+    recommended_steps: Рекомендовані кроки
+    checkout_settings: Перейти в налаштування оформлення
+    additional_scripts_text_box: І вставте текст нижче в <b>Додаткові скрипти</b> текстове поле
+    one_time_pass: Одноразовий пароль
+    customer_first_name: Ім'я клієнта
+    order_total_amount: Загальна сума замовлення
+    link_text: Посилання на підтвердження замовлення в один клік
+    available_variables: Доступні змінні для вставки в шаблон повідомлення
+    free_limit_exhausted: Безкоштовне тестування ліміт вичерпано. Будь ласка, зв'яжіться з нами для оновлення.
+    x_success_sms: "%{count} смс"
+    x_billed_sms: "%{count} виставлені рахунки смс"
+    x_failed_sms: "%{count} смс"
+    usage_charged_created: "Плата за використання створена"
+    x_ivr: "%{count} ивр"
+    refresh: Оновити
+    complete_setup: Лише один останній крок
+    complete_setup_msg: Налаштування збережені. Щоб завершити налаштування, будь ласка, <b>підпишіться тут</b>.
+    view_plans: Переглянути плани
+    prepay_template: Шаблон передоплати
+    send_payment_link: Платіжне посилання
+    submit: Подати
+    bulk_submit: Bulk Надіслати
+    amount: Сума
+    date_time: Дата і час
+    mobile: Мобільні
+    something_went_wrong: Щось пішло не так, спробуйте ще раз пізніше.
+    message_sent: Повідомлення відправлено
+    send: Відправити
+    cancel: Скасувати
+    upto_x_orders: До %{count} Замовлень на місяць
+    unlimited_orders: Необмежена кількість замовлень на верифікацію
+    export: Експорт
+    emailed_orders: Відправлені журнали на електронну пошту
+    comma_separated_order_ids: Ідентифікатори порядків відокремлених
+    order_ids: "Введіть такі ідентифікатори, як: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Масова перевірка
+    bulk_verify_template: "Привіт %{name}, Будь ласка, натисніть на посилання %{link} , щоб підтвердити ваше замовлення #%{number} з %{amount} розміщено на %{store}"
+    bulk_processing_title: Обробка масових замовлень
+    bulk_processing_desc: Ви побачите свої замовлення в журналах в якийсь час.
+    bulk_processing_error: щось пішло не так
+    bulk_processing_error_desc: Будь ласка, спробуйте ще раз, або зверніться до нас, якщо проблема зберігається.
+    reach_out_title: Функція ще не включена.
+    reach_out_desc: Будь ласка, зверніться до нас, щоб включити цю функцію.
+    order_cancelled: Замовлення скасовано
+    order_details_title: Деталі замовлення (Будь ласка, натисніть на скасувати або підтвердити)
+    react_out_to_us: Будь ласка, звертайтесь до нас для масових замовлень
+    react_out_locked_title: Необхідне схвалення.
+    react_out_locked_desc: Будь ласка, зверніться до нас по електронній пошті <b>або в чаті</b> , щоб включити свій обліковий запис.
+    view_cost: Переглянути вартість SMS.
+    pricing_for_country: "Плата за SMS за замовчуванням для <b>%{country}</b> становить <b>$%{charge}</b> за смс"
+    view_complete_pricing: Переглянути таблицю цін для всіх країн
+    chat_for_bulk_integration: Чат з нами для масового ціноутворення або користувальницької інтеграції.
+    advance_settings: Розширені налаштування
+    link_settings: Налаштування посилання для перевірки
+    show_cancel_button: Показати кнопку скасування
+    show_cancel_button_help: підтримується тільки під час перевірки посилань потоку.
+    auto_verify: Автоматичне підтвердження
+    auto_verify_help: Автоматичне підтвердження замовлення при натисканні на посилання підтвердження.
+    otp_settings: Налаштування OTP
+    max_retries: Макс SMS повторних спроб на замовлення
+    otp_wait_time: Повторне завершення очікування код
+    otp_fallback_text: Підтримка OTP або резервний текст
+    otp_fallback_text_help: Підтримується HTML
+    network_provider_integration: Інтеграція провайдера
+    network_provider: Мережевий провайдер
+    required: Необхідний
+    phone_number: Номер телефону
+    integration_cost_reduce: Інтеграція знижує загальну вартість майже до третини
+    need_help: Потрібна допомога?
+    create_x_account: Створити обліковий запис %{brand}
+    x_configuration: "%{brand} Конфігурація"
+    need_more_sms: Спілкуйтеся з нами, щоб підписатися і ціни.
+    price_for_country: "%{price} $ за повідомлення в %{country}"
+    sms_cost_included: Включено вартість SMS
+    sms_cost_extra: Ви можете оплатити SMS провайдеру безпосередньо
+    view: Подивитися
+    order_number: Номер замовлення
+    get_access_token: Створення токена доступу
+    goto_orders: Перейти до замовлень
+    whatsapp_approval_request_sent: Запит на затвердження WhatsApp надіслано
+    whatsapp_approval_request_sent_failure: 'Не вдалося: - Запит на схвалення WhatsApp не вдалося'
+  script:
+    submit: Подати
+    mobile_phone_number: Номер без 0 і коду країни
+    enter_valid_phone: Введіть дійсний номер телефону
+    verify_for_smooth_delivery: Будь ласка, підтвердьте свій номер телефону для легкої доставки замовлення післяплатою
+    click_verify_link: На ваш номер відправлено посилання - <b>%{number}</b>
+    enter_otp_msg: "Будь ласка, введіть код відправлений на <b>%{number}</b>"
+    enter_otp: Введіть код
+    change: Змінити
+    invalid_otp: Некоректний код, спробуйте ще раз
+    resend_otp: Надіслати код ще раз
+    confirm_order: Підтвердьте замовлення
+    sending: "Надсилання..."
+    order_being_processed: Ваше замовлення обробляється.
+    if_not_redirected: Якщо ви не перенаправлені автоматично, оновіть цю сторінку.
+    resend_in_x_seconds: "Повторне завершення код за %{count} секунд"
+    max_retries_reached: Максимальне обмеження повторних спроб досягнуто.
+    order_details: Деталі замовлення
+    send_code_on_whatsapp: Отримати код на Whatsapp

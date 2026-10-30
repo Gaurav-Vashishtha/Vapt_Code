@@ -1,0 +1,18 @@
+<p>A new SMS template approval request has been submitted.</p>
+
+<p>
+  <strong>Shop:</strong> <%= @shop.shopify_domain %> (ID: <%= @shop.id %>)<br />
+  <strong>Owner:</strong> <%= @shop.owner_email %><br />
+  <strong>Template Type:</strong> <%= @approval.template_type_key %><br />
+  <strong>Target Settings Column:</strong> <%= @approval.target_column %><br />
+  <strong>Status:</strong> <%= @approval.status %><br />
+  <strong>Submitted At:</strong> <%= @approval.submitted_at %>
+</p>
+
+<p><strong>Submitted Template:</strong></p>
+<pre><%= @approval.body %></pre>
+
+<p>
+  Review in support dashboard:
+  <a href="https://<%= ENV['APP_HOST'] %>/support_dashboard/sms_template_approvals">Open SMS Template Approvals</a>
+</p>

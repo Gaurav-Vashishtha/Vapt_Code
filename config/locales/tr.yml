@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+tr:
+  hello: Merhaba dünya
+  admin:
+    getting_started: Başlarken kılavuzu
+    watch_video_msg: Videoyu izle, COD King ile hemen başlamak için bir oturum ayırtın veya bizimle sohbet edin!
+    watch_video: Videoyu İzleyin
+    book_session: Kitap Oturumu
+    chat_with_us: Şimdi bizimle sohbet edin
+    settings: Ayarlar
+    log: Log
+    step1: Adım 1 - COD Siparişi
+    step1_desc: Müşteri COD siparişi verir. Uygulama COD sırası olarak tanımlar.
+    step2: Adım 2 - Uygulama SMS yoluyla müşteriye OTP'yi gönderir
+    step2_desc: Benzersiz OTP müşterinin cep telefonu numarasına gönderilir.
+    step3: Adım 3 - Teşekkür sayfasında gösterilen OTP kutusu
+    step3_desc: Müşteri OTP'ye girer ve tıklamaları doğrular.
+    step4: Adım 4 - Siparişlerinizi bu etikete göre filtreleyin.
+    step4_desc: Müşteri COD siparişi verir. Uygulama COD sırası olarak tanımlar.
+    step5: Adım 5 - Nakliye maliyeti kaydedildi
+    step5_desc: Sahte siparişleri reddederek nakliye maliyetinden tasarruf edin Tasarruf edilen para kazanılan paradır.
+    logs: Günlükleri
+    order_logs: Sipariş günlükleri
+    subscription: Abonelik
+    settings_saved: Ayarlar kaydedildi
+    settings_saved_msg: "Değişiklikler birkaç dakika içinde mağazanıza yansıtılacaktır."
+    activate_sms: Etkinleştir <b>OTP</b> Onay
+    activate_cod_fees: Etkinleştir <b>COD Ücretleri</b>
+    sms_placeholder: 123456, COD'yi onaylamak için tek seferli şifreniz
+    ios_code_error: Şablon, iOS klavyesinde OTP'yi göstermek için “kod” anahtar kelimesini içermelidir
+    activate_ivr: Etkinleştir <b>IVR</b> Onay
+    intro_msg: Tanıtım mesajı
+    intro_msg_placeholder: Sipariş verdiğiniz için teşekkür ederiz.
+    order_confirm_label: Sipariş onay mesajı
+    order_confirm_placeholder: Siparişinizi onaylamak için lütfen 1'e basın.
+    order_confirm_help: Siparişi onaylamak için 1 tuşuna basması için kullanıcıya rehberlik edin.
+    order_confirm_error: Onay mesajı sipariş onayı için “1" içermelidir
+    order_cancel_label: Sipariş iptal mesajı
+    order_cancel_placeholder: Siparişinizi iptal etmek için lütfen 2 tuşuna basın.
+    order_cancel_help: Siparişi iptal etmek için 2 tuşuna basmak için kullanıcı kılavuzu.
+    order_cancel_error: Bu mesaj, sipariş iptali için “2" içermelidir.
+    test_sms: "SMS bildirimini test et"
+    enter_test_number: Test numarasını girin
+    sms_sent_check_mobile: SMS Gönderildi. Lütfen cep telefonunuzu kontrol edin
+    enter_country_code: Lütfen buraya test ederken ülke kodunuzu içeren numaranızı girin
+    number_cc_example: örn. %{number}
+    send_sms: SMS Gönder
+    message_template: Mesaj şablonu
+    test_ivr: IVR çağrısını test edin
+    cod_fees: COD ücretleri için miktar
+    cod_fees_help: Eklemek istediğiniz para miktarı, müşteri bir COD siparişi verirse.
+    cod_label: COD ücretleri için eklenecek etiket
+    cod_label_help: Ek ücretler için görüntülenecek etiket
+    cod_instruction: COD teslimat talimatı
+    cod_instruction_help: Bu mesaj, sipariş tamamlandığında Teşekkür sayfasında müşterilere gösterilecektir..
+    please_check_mobile: Lütfen cep telefonunuzu kontrol edin
+    call_now: Hemen Arayın
+    unsaved: Kaydedilmemiş değişiklikler
+    x_chars_used: "%{count} / %{total} karakter kullanıldı"
+    deactivate: Devre dışı bırak
+    save: Kaydet
+    discard: Atın
+    free_plan: Ücretsiz Plan
+    pro_plan: Pro Plan
+    vip_plan: Vip Planı
+    feature_1: SMS başına 0,02$ başlar
+    feature_2: başlar $0.06 başına IVR
+    feature_3: Teknede 1'e 1 çağrı
+    feature_4: Öncelikli destek
+    feature_1_pro: Mağazalar için ayda 100'den fazla COD siparişi
+    custom_plan: Ağ sağlayıcısı entegrasyonu Planı
+    subscribe: Abone ol
+    subscribed: Abone Oldu
+    recommended: Önerilen
+    sms_template_default: "{{otp}} , %{store}'ye verilen COD siparişini onaylamak için doğrulama kodunuzdur"
+    retry_template_default: "COD siparişi verdiğiniz için teşekkürler %{store}. Lütfen bağlantıyı ziyaret ederek siparişinizi onaylayın {{link}} huş ağacı"
+    prepaid_template_default: "linke tıklayarak siparişinizi ön ödemeli olarak dönüştürün. {{link}}"
+    order_confirm_template_default: "Satın aldığınız için teşekkürler %{store}. Siparişiniz onaylandı - Sipariş numarası {{number}}"
+    fulfilment_template_default: "Siparişiniz %{store} 'den gönderildi - Siparişinizi {{tracking_url}}adresinden takip edin"
+    ivr_introduction: "Sipariş verdiğiniz için teşekkür ederiz %{domain}."
+    ivr_confirm_message: Siparişinizi onaylamak için lütfen 1'e basın.
+    ivr_cancel_message: Siparişinizi iptal etmek için lütfen 2 tuşuna basın.
+    confirmed_thank_you: Siparişiniz Onaylandı, teşekkür ederim.
+    cancelled_thank_you: Siparişiniz İptal Edildi, Teşekkürler.
+    invalid_thank_you: Geçersiz seçim, Lütfen tekrar deneyin, teşekkür ederim.
+    no_logs_yet: Henüz günlük yok
+    try_changing_search: Arama terimini değiştirmeyi deneyin
+    order: Sipariş
+    date: Tarih
+    customer: Müşteri
+    total: Toplam
+    status: Durum
+    network: Ağ
+    prev: Önceki (J)
+    next: Sonraki (K)
+    no_resource_found: Hayır %{resource} bulundu
+    search_resource: Sipariş numarası veya müşteri adı ile %{resource} arayın
+    all: Hepsi
+    enter_valid_phone: Lütfen geçerli bir telefon numarası girin
+    enable_region: Bölgenizi etkinleştirmek için lütfen bize ulaşın
+    x_total_orders: "%{count} toplam sipariş"
+    x_verified_orders: "%{count} doğrulanmış sipariş"
+    x_pending_orders: "%{count} bekleyen emir"
+    x_prepaid_orders: "%{count} ön ödemeli sipariş"
+    x_cancelled_orders: "%{count} iptal edilen sipariş"
+    order_stats: Sipariş İstatistikleri
+    boost_checkout: Sorunsuz Ödeme
+    recommended_setup_to: Ödeme deneyimini iyileştirmek için önerilen kurulum
+    copy: Kopyala
+    copied: Kopyalandı
+    starts: Başlar
+    ends: Biter
+    recommended_steps: Önerilen adımlar
+    checkout_settings: Ödeme ayarlarına git
+    additional_scripts_text_box: Ve aşağıdaki metni <b>Ek komut dosyaları</b> metin kutusuna yapıştırın
+    one_time_pass: Tek seferde şifre
+    customer_first_name: Müşterinin adı
+    order_total_amount: Sipariş toplam tutarı
+    link_text: Tek tıkla sipariş onayı bağlantısı
+    available_variables: Mesaj şablonuna yapıştırmak için kullanılabilir değişkenler
+    free_limit_exhausted: Ücretsiz test limiti tükendi. Yenilemek için lütfen bizimle iletişime geçin.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} fatura sms"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Kullanım ücreti oluşturuldu"
+    x_ivr: "%{count} ivr"
+    refresh: Yenile
+    complete_setup: Sadece son bir adım
+    complete_setup_msg: Ayarlar kaydedildi. Kurulumu tamamlamak için, Lütfen <b>buraya abone olun</b>.
+    view_plans: Planları Görüntüle
+    prepay_template: Ön ödeme şablonu
+    send_payment_link: Ödeme bağlantısı
+    submit: Gönder
+    bulk_submit: Toplu Gönder
+    amount: Miktar
+    date_time: Tarih ve Saat
+    mobile: Mobil
+    something_went_wrong: Bir şeyler ters gitti, daha sonra tekrar deneyin.
+    message_sent: Mesaj Gönderildi
+    send: Gönder
+    cancel: İptal
+    upto_x_orders: Ayda %{count} Siparişine kadar
+    unlimited_orders: Doğrulama için sınırsız sayıda sipariş
+    export: İhracat
+    emailed_orders: E-postaya gönderilen günlükler
+    comma_separated_order_ids: Virgülle ayrılmış sipariş kimlikleri
+    order_ids: "Gibi kimlikleri girin: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Toplu Doğrulama
+    bulk_verify_template: "Merhaba %{name}, %{store}adresinde verilen %{amount} veya%{number} numaralı siparişinizi doğrulamak için lütfen %{link} bağlantısına tıklayın"
+    bulk_processing_title: Toplu siparişlerin işlenmesi
+    bulk_processing_desc: Siparişlerinizi bir ara günlüklerde göreceksiniz.
+    bulk_processing_error: Bir şeyler ters gitti
+    bulk_processing_error_desc: Lütfen tekrar deneyin, veya sorun devam ederse bize ulaşın.
+    reach_out_title: Özellik henüz etkin değil.
+    reach_out_desc: Bu özelliği etkinleştirmek için lütfen bize ulaşın.
+    order_cancelled: Siparişiniz iptal edildi
+    order_details_title: Sipariş detayları (Lütfen iptal veya onayla'ya tıklayın)
+    react_out_to_us: Toplu siparişler için lütfen bize ulaşın
+    react_out_locked_title: Onay gerekli.
+    react_out_locked_desc: 'Lütfen bize şu adresten ulaşın: <b>e-posta veya sohbet</b> hesabınızı etkinleştirmek için.'
+    view_cost: SMS Maliyetini Görüntüle.
+    pricing_for_country: "Uygulamanın <b>%{country}</b> için varsayılan SMS ücreti sms başına <b>$%{charge}</b>"
+    view_complete_pricing: Tüm ülkeler için fiyatlandırma tablosunu görüntüleyin
+    chat_for_bulk_integration: Toplu fiyatlandırma veya özel entegrasyon için bizimle sohbet edin.
+    advance_settings: Gelişmiş ayarlar
+    link_settings: Doğrulama bağlantısı ayarları
+    show_cancel_button: İptal düğmesini göster
+    show_cancel_button_help: yalnızca bağlantı doğrulama akışı sırasında desteklenir.
+    auto_verify: Otomatik doğrulama
+    auto_verify_help: Doğrulama bağlantısını tıkladığınızda siparişi otomatik olarak doğrulayın.
+    otp_settings: OTP ayarları
+    max_retries: Sipariş başına maksimum SMS yeniden denemesi
+    otp_wait_time: OTP bekleme süresini yeniden gönderme
+    otp_fallback_text: OTP desteği veya yedek metin
+    otp_fallback_text_help: HTML destekli
+    network_provider_integration: Ağ sağlayıcısı entegrasyonu
+    network_provider: Ağ Sağlayıcısı
+    required: Gerekli
+    phone_number: Telefon Numaranız
+    integration_cost_reduce: Entegrasyon, toplam maliyetinizi neredeyse üçte birine düşürür
+    need_help: Yardıma mı ihtiyacınız var?
+    create_x_account: '%{brand} hesap oluştur'
+    x_configuration: "%{brand} Yapılandırma"
+    need_more_sms: Abone olmak ve fiyatlandırmak için bizimle sohbet edin.
+    price_for_country: "%{price} ileti başına %{country}$"
+    sms_cost_included: SMS maliyeti dahil
+    sms_cost_extra: SMS için doğrudan sağlayıcıya ödeme yapabilirsiniz
+    view: Görüntüle
+    order_number: Sipariş numarası
+    get_access_token: Erişim belirteci oluştur
+    goto_orders: Siparişlere git
+    whatsapp_approval_request_sent: WhatsApp onay isteği gönderildi
+    whatsapp_approval_request_sent_failure: 'Başarısız: - WhatsApp onay talebi başarısız oldu'
+  script:
+    submit: Gönder
+    mobile_phone_number: 0 ve ülke kodu olmayan sayı
+    enter_valid_phone: Geçerli telefon numarasını girin
+    verify_for_smooth_delivery: Siparişin sorunsuz teslimatı için lütfen numaranızı doğrulayın
+    click_verify_link: Numaranıza bir bağlantı gönderildi - <b>%{number}</b>
+    enter_otp_msg: "Lütfen <b>%{number}</b> numarasına gönderilen doğrulama kodunu giriniz"
+    enter_otp: Doğrulama kodunu girin
+    change: Numaramı Değiştir
+    invalid_otp: Geçersiz OTP, lütfen tekrar deneyin
+    resend_otp: Kodu tekrar gönder
+    confirm_order: Siparişinizi onaylayın
+    sending: "Gönderiliyor..."
+    order_being_processed: Siparişiniz işleme alınıyor.
+    if_not_redirected: Otomatik olarak yönlendirilmezseniz bu sayfayı yenileyin.
+    resend_in_x_seconds: "Doğrulama kodunu %{count} saniye içinde yeniden gönderemezsiniz"
+    max_retries_reached: Maksimum yeniden deneme sınırına ulaşıldı.
+    order_details: Sipariş detayları
+    send_code_on_whatsapp: Whatsapp'ta kod alın

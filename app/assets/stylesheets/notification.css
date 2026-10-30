@@ -1,0 +1,82 @@
+.vertical-tabs {
+  display: flex;
+  flex-direction: column;
+  /* width: 100%; */
+  height: 100vh;
+}
+
+.custom-vertical-menu {
+  width: 400px !important; /* adjust the width as needed */
+  background-color: rgba(245, 245, 245, 0.5);
+  padding: 20px; /* add some padding for better layout */
+  border: 1px solid #ddd; /* add a border for better visibility */
+}
+
+.custom-layout-vertical-menu {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.custom-content-section {
+  padding: 0% 1%;
+  width: 100%;
+}
+
+.vertical-tabs button {
+  border: none;
+  background: none;
+  padding: 10px 15px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  color: #202223;
+  font-weight: 400;
+}
+
+.vertical-tabs button.selected {
+  background-color: #2ab49224;
+  font-weight: 600;
+  border-left: 3px solid #008060;
+}
+
+.vertical-tabs button:hover {
+  background-color: #2ab49224;
+}
+
+.settings-card {
+  margin-bottom: 20px;
+}
+
+.modal-image {
+  max-width: 50%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+.checkbox-link {
+  display: block;
+  margin-top: 5px;
+  cursor: pointer;
+}
+.icon-large {
+  font-size: 16px;
+}
+.icon-xl {
+  font-size: 20px;
+}
+@media (max-width: 767px) {
+  .vertical-tabs {
+    display: none;
+  }
+
+  .horizontal-tabs {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  .horizontal-tabs {
+    display: none;
+  }
+}

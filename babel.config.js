@@ -1,0 +1,52 @@
+module.exports = function (api) {
+  var validEnv = ["development", "test", "production"];
+  var currentEnv = api.env();
+
+  if (!validEnv.includes(currentEnv)) {
+    throw new Error(
+      "Please specify a valid `NODE_ENV` or `BABEL_ENV` environment variables. Valid values are " +
+        '"development", "test", and "production". Instead, received: ' +
+        JSON.stringify(currentEnv) +
+        "."
+    );
+  }
+
+  return {
+    presets: [
+      [
+        "@babel/preset-env",
+        {
+          useBuiltIns: "entry",
+          corejs: 3,
+          targets: {
+            browsers: [
+              "last 2 Chrome versions",
+              "Safari >= 13",
+              "Firefox >= 78",
+              "Edge >= 79",
+            ],
+          },
+        },
+      ],
+      "@babel/preset-react",
+    ],
+    plugins: [
+      "babel-plugin-macros",
+      "@babel/plugin-syntax-dynamic-import",
+      currentEnv === "test" && "babel-plugin-dynamic-import-node",
+      "@babel/plugin-transform-destructuring",
+      ["@babel/plugin-proposal-class-properties", { loose: true }],
+      ["@babel/plugin-proposal-object-rest-spread", { useBuiltIns: true }],
+      [
+        "@babel/plugin-transform-runtime",
+        { helpers: false, regenerator: true, corejs: false },
+      ],
+      ["@babel/plugin-transform-regenerator", { async: false }],
+      ["@babel/plugin-proposal-private-property-in-object", { loose: true }],
+      ["@babel/plugin-proposal-private-methods", { loose: true }],
+      "@babel/plugin-proposal-optional-chaining",
+      "@babel/plugin-proposal-nullish-coalescing-operator",
+      "@babel/plugin-transform-for-of",
+    ].filter(Boolean),
+  };
+};

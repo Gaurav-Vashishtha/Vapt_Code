@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merchant WhatsApp — Sender</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <h1 class="text-xl font-semibold text-gray-900">Sender setup</h1>
+      <%= link_to "Back", merchant_whatsapp_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+    </div>
+  </div>
+  <%= render 'shared/support_navigation' %>
+  <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if flash[:alert].present? %><div class="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"><%= flash[:alert] %></div><% end %>
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <p class="text-sm text-gray-500 mb-4">The app-owned WhatsApp Business number that merchants receive messages from. Register its WABA so the Meta webhook can attribute delivery/read/replies.</p>
+      <%= form_tag merchant_whatsapp_sender_path, method: :post, class: "space-y-4" do %>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">WABA ID</label><%= text_field_tag :waba_id, @account.waba_id, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Phone number ID</label><%= text_field_tag :phone_number_id, @account.phone_number_id, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Display phone number</label><%= text_field_tag :display_phone_number, @account.display_phone_number, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">System user token</label><%= password_field_tag :system_user_token, nil, placeholder: (@account.system_user_token.present? ? "•••••• (leave blank to keep)" : ""), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Status</label><%= select_tag :status, options_for_select(OwnerWhatsappAccount::STATUSES, @account.status), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <%= submit_tag "Save sender", class: "bg-sky-600 text-white text-sm font-medium rounded px-4 py-2 cursor-pointer" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

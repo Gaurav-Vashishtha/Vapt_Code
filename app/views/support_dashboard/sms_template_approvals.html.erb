@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SMS Template Approvals</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">SMS Template Approvals</h1>
+          <p class="text-sm text-gray-500">Review and approve merchant SMS templates</p>
+        </div>
+        <%= link_to support_dashboard_sms_template_approvals_path(status: @status_filter),
+            class: "bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          Refresh
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render "shared/support_navigation" %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="bg-white rounded-lg shadow">
+      <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div class="flex gap-2">
+          <% %w[pending approved rejected all].each do |status| %>
+            <%= link_to status.titleize,
+                support_dashboard_sms_template_approvals_path(status: status),
+                class: "px-3 py-1 rounded-md text-sm #{status == @status_filter ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}" %>
+          <% end %>
+        </div>
+        <span class="text-sm text-gray-500">Total: <%= @total_count %></span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Shop</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Type</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Variables</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Submitted</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 bg-white">
+            <% @approvals.each do |approval| %>
+              <tr>
+                <td class="px-4 py-3 text-sm text-gray-800"><%= approval.shop&.shopify_domain %></td>
+                <td class="px-4 py-3 text-sm text-gray-800"><%= approval.template_type_key %></td>
+                <td class="px-4 py-3 text-sm text-gray-700"><%= Array(approval.variables_used).join(", ") %></td>
+                <td class="px-4 py-3 text-sm">
+                  <span class="px-2 py-1 rounded-full text-xs <%= approval.status == 'pending' ? 'bg-yellow-100 text-yellow-800' : approval.status == 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                    <%= approval.status %>
+                  </span>
+                </td>
+                <td class="px-4 py-3 text-sm text-gray-700"><%= approval.submitted_at&.strftime("%Y-%m-%d %H:%M") %></td>
+                <td class="px-4 py-3 text-sm">
+                  <details>
+                    <summary class="cursor-pointer text-blue-600">View</summary>
+                    <p class="mt-2 text-xs text-gray-500"><strong>Target column:</strong> <%= approval.target_column %></p>
+                    <p class="mt-1 text-xs text-gray-500"><strong>Current settings value:</strong></p>
+                    <pre class="mt-1 p-2 bg-gray-50 rounded text-xs whitespace-pre-wrap"><%= approval.setting&.public_send(approval.target_column).to_s %></pre>
+                    <p class="mt-1 text-xs text-gray-500"><strong>Submitted template:</strong></p>
+                    <pre class="mt-2 p-2 bg-gray-100 rounded text-xs whitespace-pre-wrap"><%= approval.body %></pre>
+                  </details>
+                  <% if approval.status == SmsTemplateApproval::STATUSES[:pending] %>
+                    <div class="flex gap-2 mt-2">
+                      <%= button_to "Approve",
+                          support_dashboard_review_sms_template_approval_path(approval, decision: "approved", status_filter: @status_filter),
+                          method: :patch,
+                          class: "px-3 py-1 rounded bg-green-600 text-white text-xs" %>
+                      <%= button_to "Reject",
+                          support_dashboard_review_sms_template_approval_path(approval, decision: "rejected", reason: "Rejected by support", status_filter: @status_filter),
+                          method: :patch,
+                          class: "px-3 py-1 rounded bg-red-600 text-white text-xs" %>
+                    </div>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+            <% if @approvals.empty? %>
+              <tr>
+                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">No template approvals found.</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="p-4">
+        <%= paginate @approvals %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

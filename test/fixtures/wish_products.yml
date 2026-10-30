@@ -1,0 +1,51 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  last_updated: MyString
+  product_brand_name: MyString
+  clean_image: MyString
+  tags: MyText
+  review_status: MyString
+  extra_images: MyText
+  fbw_inbound_approval_status: MyText
+  requested_product_brand_id: MyString
+  variants: MyText
+  parent_sku: MyString
+  wish_product_id: MyString
+  description: MyText
+  main_image: MyString
+  is_promoted: MyString
+  name: MyString
+  localized_default_shipping_price: MyString
+  country_shippings: MyString
+  original_image_url: MyString
+  default_shipping_price: MyString
+  number_saves: MyString
+  product_brand_status: MyString
+  date_uploaded: MyString
+  number_sold: MyString
+
+two:
+  last_updated: MyString
+  product_brand_name: MyString
+  clean_image: MyString
+  tags: MyText
+  review_status: MyString
+  extra_images: MyText
+  fbw_inbound_approval_status: MyText
+  requested_product_brand_id: MyString
+  variants: MyText
+  parent_sku: MyString
+  wish_product_id: MyString
+  description: MyText
+  main_image: MyString
+  is_promoted: MyString
+  name: MyString
+  localized_default_shipping_price: MyString
+  country_shippings: MyString
+  original_image_url: MyString
+  default_shipping_price: MyString
+  number_saves: MyString
+  product_brand_status: MyString
+  date_uploaded: MyString
+  number_sold: MyString

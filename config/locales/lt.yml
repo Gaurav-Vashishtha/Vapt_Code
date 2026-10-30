@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+lt:
+  hello: Labas pasaulis
+  admin:
+    getting_started: Darbo pradžios vadovas
+    watch_video_msg: Žiūrėkite vaizdo įrašą, užsisakykite sesiją ar pabendraukite su mumis, kad pradėtumėte nuo “COD King”!
+    watch_video: Žiūrėti vaizdo įrašą
+    book_session: Knygų sesija
+    chat_with_us: Kalbėkitės su mumis dabar
+    settings: Nustatymai
+    log: Prisijungti
+    step1: 1 žingsnis - pateiktas COD užsakymas
+    step1_desc: Klientas pateikia COD užsakymą. Programa identifikuoja jį kaip COD užsakymą.
+    step2: Žingsnis 2 - App siunčia OTP klientui SMS žinute
+    step2_desc: Unikalus OTP siunčiamas į kliento mobiliojo telefono numerį.
+    step3: Žingsnis 3 - OTP dėžutė parodyta Ačiū puslapyje
+    step3_desc: Klientas įveda OTP ir paspaudžia patikrinti.
+    step4: Žingsnis 4 - Filtruokite savo užsakymus pagal šią žymą.
+    step4_desc: Klientas pateikia COD užsakymą. Programa identifikuoja jį kaip COD užsakymą.
+    step5: 5 žingsnis - išsaugota siuntimo kaina
+    step5_desc: Sutaupykite siuntimo išlaidas, atmesdami padirbtus užsakymus Pinigai sutaupyti yra uždirbti pinigai.
+    logs: Rąstai
+    order_logs: Užsakymo rąstai
+    subscription: prenumerata
+    settings_saved: Nustatymai išsaugoti
+    settings_saved_msg: "Pokyčiai atsispindės jūsų parduotuvėje per kelias minutes."
+    activate_sms: Aktyvuoti <b>OTP</b> patvirtinimą
+    activate_cod_fees: Aktyvuokite <b>COD mokesčius</b>
+    sms_placeholder: 123456 yra jūsų slaptažodis, skirtas patvirtinti COD
+    ios_code_error: Šablonas turėtų apimti “kodas” raktinį žodį parodyti OTP iOS klaviatūros
+    activate_ivr: Aktyvuoti <b>IVR</b> patvirtinimą
+    intro_msg: Įvadas pranešimas
+    intro_msg_placeholder: Dėkojame, kad pateikėte užsakymą.
+    order_confirm_label: Užsakymo patvirtinimo pranešimas
+    order_confirm_placeholder: Prašome paspausti 1, kad patvirtintumėte savo užsakymą.
+    order_confirm_help: Vadovas vartotojui paspausti 1 patvirtinti užsakymą.
+    order_confirm_error: Patvirtinkite pranešimą turėtų būti “1" užsakymo patvirtinimui
+    order_cancel_label: Užsakymo atšaukimo pranešimas
+    order_cancel_placeholder: Norėdami atšaukti užsakymą, paspauskite 2.
+    order_cancel_help: Turistinis vadovas vartotojui paspausti 2 už užsakymo atšaukimą.
+    order_cancel_error: Šiame pranešime turėtų būti “2” užsakymo atšaukimui.
+    test_sms: "Testas SMS pranešimas"
+    enter_test_number: Įveskite testo numerį
+    sms_sent_check_mobile: SMS išsiųstas. Patikrinkite savo mobilųjį telefoną
+    enter_country_code: Testuodami čia įveskite numerį su savo šalies kodu
+    number_cc_example: pvz., %{number}
+    send_sms: Siųsti SMS
+    message_template: Pranešimo šablonas
+    test_ivr: Bandymo IVR skambutis
+    cod_fees: COD mokesčio suma
+    cod_fees_help: Pinigų suma, kurią norite pridėti, jei klientas pateikia COD užsakymą.
+    cod_label: Etiketė, kurią reikia pridėti COD mokesčiams
+    cod_label_help: Etiketė turi būti rodoma už papildomus mokesčius
+    cod_instruction: COD pristatymo instrukcija
+    cod_instruction_help: Šis pranešimas bus rodomas klientams puslapyje Ačiū, kai užsakymas bus baigtas.
+    please_check_mobile: Patikrinkite savo mobilųjį telefoną
+    call_now: Skambinkite dabar
+    unsaved: Neišsaugoti pakeitimai
+    x_chars_used: "Naudojami %{count} / %{total} simboliai"
+    deactivate: Išjungti
+    save: Išsaugoti
+    discard: Išmeskite
+    free_plan: Nemokamas planas
+    pro_plan: Pro planas
+    vip_plan: VIP planas
+    feature_1: prasideda $0.02 už SMS
+    feature_2: prasideda $0.06 už IVR
+    feature_3: 1 į 1 skambutį į laive
+    feature_4: Prioritetinė parama
+    feature_1_pro: Parduotuvėse daugiau nei 100 COD užsakymų per mėnesį
+    custom_plan: Tinklo teikėjo integracijos planas
+    subscribe: Prenumeruoti
+    subscribed: Prenumeruojama
+    recommended: Rekomenduojamas
+    sms_template_default: "{{otp}} yra jūsų patvirtinimo kodas, skirtas patvirtinti COD užsakymą, pateiktą %{store}"
+    retry_template_default: "Ačiū, kad pateiktumėte COD užsakymą %{store}. Prašome patvirtinti savo užsakymą apsilankę nuorodą {{link}} birdch"
+    prepaid_template_default: "konvertuoti užsakymą į išankstinį apmokėjimą spustelėdami nuorodą. {{link}}"
+    order_confirm_template_default: "Ačiū už pirkinį %{store}. Jūsų užsakymas patvirtintas - Užsakymo numeris {{number}}"
+    fulfilment_template_default: "Jūsų užsakymas išsiųstas iš %{store} - stebėkite savo užsakymą adresu {{tracking_url}}"
+    ivr_introduction: "Dėkojame, kad pateikėte užsakymą %{domain}."
+    ivr_confirm_message: Prašome paspausti 1, kad patvirtintumėte savo užsakymą.
+    ivr_cancel_message: Norėdami atšaukti užsakymą, paspauskite 2.
+    confirmed_thank_you: Jūsų užsakymas patvirtintas, ačiū.
+    cancelled_thank_you: Jūsų užsakymas atšauktas, ačiū.
+    invalid_thank_you: Neteisingas pasirinkimas, bandykite dar kartą, ačiū.
+    no_logs_yet: Nėra rąstų dar
+    try_changing_search: Pabandykite pakeisti paieškos terminą
+    order: Užsakymas
+    date: Data
+    customer: Klientas
+    total: Iš viso
+    status: Statusas
+    network: Tinklas
+    prev: Ankstesnis (J)
+    next: Kitas (K)
+    no_resource_found: Ne %{resource} nerasta
+    search_resource: Ieškoti %{resource} su užsakymo numeriu arba kliento vardu
+    all: Visi
+    enter_valid_phone: Įveskite galiojantį telefono numerį
+    enable_region: Prašome susisiekti su mumis, kad jūsų regionas būtų įjungtas
+    x_total_orders: "%{count} viso užsakymų"
+    x_verified_orders: "%{count} patikrintų užsakymų"
+    x_pending_orders: "%{count} laukiančių užsakymų"
+    x_prepaid_orders: "%{count} išankstinio apmokėjimo užsakymų"
+    x_cancelled_orders: "%{count} atšauktų užsakymų"
+    order_stats: Užsakymų statistika
+    boost_checkout: Besiūliai Checkout
+    recommended_setup_to: Rekomenduojama sąranka, siekiant pagerinti kasos patirtį
+    copy: Kopijuoti
+    copied: Nukopijuotas
+    starts: Prasideda
+    ends: Baigiasi
+    recommended_steps: Rekomenduojami žingsniai
+    checkout_settings: Eikite į kasos nustatymus
+    additional_scripts_text_box: Ir įklijuokite žemiau esantį tekstą <b>Papildomi scenarijai</b> teksto laukelis
+    one_time_pass: Vieną kartą slaptažodis
+    customer_first_name: Kliento vardas
+    order_total_amount: Užsakymo bendra suma
+    link_text: Vienu paspaudimu užsakymo patvirtinimo nuoroda
+    available_variables: Galimi kintamieji, kuriuos norite įklijuoti į pranešimo šabloną
+    free_limit_exhausted: Nemokama testavimo riba išnaudota. Prašome susisiekti su mumis atnaujinti.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} išrašų SMS"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Sukurtas naudojimo mokestis"
+    x_ivr: "%{count} ivr"
+    refresh: Atnaujinti
+    complete_setup: Tik vienas paskutinis žingsnis
+    complete_setup_msg: Nustatymai išsaugoti. Norėdami užbaigti sąranką, prašome <b>užsiprenumeruoti čia</b>.
+    view_plans: Peržiūrėti planus
+    prepay_template: Išankstinio apmokėjimo šablonas
+    send_payment_link: Mokėjimo nuoroda
+    submit: Pateikti
+    bulk_submit: Masiniai Pateikti
+    amount: Suma
+    date_time: Data ir laikas
+    mobile: Mobilusis
+    something_went_wrong: Kažkas nutiko, bandykite dar kartą vėliau.
+    message_sent: Išsiųsta žinutė
+    send: Siųsti
+    cancel: Atšaukti
+    upto_x_orders: Upto %{count} Užsakymai per mėnesį
+    unlimited_orders: Neribotas skaičius užsakymų patikrinimui
+    export: Eksportuoti
+    emailed_orders: Išsiųsti žurnalai į el. Paštą
+    comma_separated_order_ids: Kableliais atskirti užsakymo ID
+    order_ids: "Įveskite tokius ID kaip: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Masiniai Patikrinkite
+    bulk_verify_template: "Sveiki, %{name}, spustelėkite nuorodą %{link} , kad patvirtintumėte savo užsakymą Nr.%{number} iš %{amount} , ant %{store}"
+    bulk_processing_title: Apdorojimo birių užsakymų
+    bulk_processing_desc: Kažkada pamatysite savo užsakymus žurnaluose.
+    bulk_processing_error: Kažkas nutiko
+    bulk_processing_error_desc: Bandykite dar kartą arba susisiekite su mumis, jei problema išlieka.
+    reach_out_title: Funkcija dar neįjungta.
+    reach_out_desc: Prašome susisiekti su mumis, kad įjungtumėte šią funkciją.
+    order_cancelled: Jūsų užsakymas buvo atšauktas
+    order_details_title: Užsakymo duomenys (Prašome paspausti ant atšaukti arba patvirtinti)
+    react_out_to_us: Prašome susisiekti su mumis dėl birių užsakymų
+    react_out_locked_title: Reikalingas patvirtinimas.
+    react_out_locked_desc: Prašome susisiekti su mumis per <b>el. Paštu arba pokalbiu</b> , kad įjungtumėte savo paskyrą.
+    view_cost: Peržiūrėti SMS kainą.
+    pricing_for_country: "Programos numatytasis SMS mokestis už <b>%{country}</b> yra <b>$%{charge}</b> už SMS"
+    view_complete_pricing: Peržiūrėti kainodaros lentelę visoms šalims
+    chat_for_bulk_integration: Kalbėkitės su mumis dėl urmu kainodaros ar pasirinktinės integracijos.
+    advance_settings: Išplėstiniai nustatymai
+    link_settings: Tikrinimo nuorodos nustatymai
+    show_cancel_button: Rodyti atšaukimo mygtuką
+    show_cancel_button_help: palaikoma tik per nuorodų tikrinimo srautą.
+    auto_verify: Automatinis patikrinimas
+    auto_verify_help: Automatinis užsakymo patvirtinimas spustelėjus patvirtinimo nuorodą.
+    otp_settings: OTP nustatymai
+    max_retries: Maksimalus SMS pakartotinis užsakymas
+    otp_wait_time: Iš naujo išsiųsti OTP laukimo laiką
+    otp_fallback_text: OTP palaikymas arba “fallback” tekstas
+    otp_fallback_text_help: Palaikoma HTML
+    network_provider_integration: Tinklo teikėjo integracija
+    network_provider: Tinklo teikėjas
+    required: Reikalinga
+    phone_number: Telefono numeris
+    integration_cost_reduce: Integracija sumažina jūsų bendras išlaidas iki beveik trečdalio
+    need_help: Reikia pagalbos?
+    create_x_account: Sukurti %{brand} paskyrą
+    x_configuration: "%{brand} Konfigūracija"
+    need_more_sms: Kalbėkitės su mumis, norėdami užsiprenumeruoti ir kainodarą.
+    price_for_country: "%{price} $ už žinutę %{country}"
+    sms_cost_included: Įskaičiuota SMS kaina
+    sms_cost_extra: Jūs galite mokėti už SMS teikėjui tiesiogiai
+    view: Peržiūrėti
+    order_number: Užsakymo numeris
+    get_access_token: Sukurti prieigos žetoną
+    goto_orders: Eiti į užsakymus
+    whatsapp_approval_request_sent: Išsiųsta “WhatsApp” patvirtinimo užklausa
+    whatsapp_approval_request_sent_failure: 'Nepavyko: - “WhatsApp” patvirtinimo užklausa nepavyko'
+  script:
+    submit: Patvirtinti
+    mobile_phone_number: Skaičius be 0 ir šalies kodo
+    enter_valid_phone: Įveskite galiojantį telefono numerį
+    verify_for_smooth_delivery: Patikrinkite savo telefono numerį, kad galėtumėte lengvai pristatyti COD užsakymą
+    click_verify_link: Nuoroda buvo išsiųsta jūsų numeriu - <b>%{number}</b>
+    enter_otp_msg: "įveskite kodą gautą sms"
+    enter_otp:  Įveskite kodą
+    change: Keisti
+    invalid_otp: Neteisingas OTP, bandykite dar kartą
+    resend_otp: Iš naujo siųsti OTP
+    confirm_order: Patvirtinkite savo užsakymą
+    sending: "Siuntimas..."
+    order_being_processed: Jūsų užsakymas apdorojamas.
+    if_not_redirected: Jei nesate automatiškai peradresuojami, atnaujinkite šį puslapį.
+    resend_in_x_seconds: "Resend OTP in %{count} seconds"
+    max_retries_reached: Pasiekta maksimali pakartotinių bandymų riba.
+    order_details: Užsakymo informacija
+    send_code_on_whatsapp: Gaukite kodą “Whatsapp”

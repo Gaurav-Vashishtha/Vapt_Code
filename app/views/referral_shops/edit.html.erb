@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Shop - <%= @shop.shop_domain %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Edit Shop</h1>
+        <p class="text-gray-600 mt-2">Update shop information and settings</p>
+      </div>
+      
+      <!-- Form Card -->
+      <div class="bg-white rounded-lg shadow-lg p-8">
+        <%= form_with model: @shop, local: true, class: "space-y-6" do |form| %>
+          <% if @shop.errors.any? %>
+            <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">
+                    <%= pluralize(@shop.errors.count, "error") %> prohibited this shop from being saved:
+                  </h3>
+                  <div class="mt-2 text-sm text-red-700">
+                    <ul class="list-disc pl-5 space-y-1">
+                      <% @shop.errors.full_messages.each do |message| %>
+                        <li><%= message %></li>
+                      <% end %>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Shop Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <%= form.label :shop_domain, "Shop Domain", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_field :shop_domain, 
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "myshop.myshopify.com" %>
+            </div>
+
+            <div>
+              <%= form.label :shop_name, "Shop Name", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_field :shop_name, 
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "My Awesome Shop" %>
+            </div>
+          </div>
+
+          <!-- Status and Approval -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Shop Status</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <%= form.label :approval_status, "Approval Status", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.select :approval_status, 
+                    options_for_select([
+                      ['Pending Approval', 'pending'],
+                      ['Approved', 'approved'],
+                      ['Rejected', 'rejected']
+                    ], @shop.approval_status), 
+                    {},
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+              </div>
+
+              <div class="flex items-center">
+                <div class="flex items-center h-5">
+                  <%= form.check_box :active, 
+                      class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+                </div>
+                <div class="ml-3">
+                  <%= form.label :active, "Active Shop", 
+                      class: "text-sm font-medium text-gray-700" %>
+                  <p class="text-xs text-gray-500">Shop is actively earning commissions</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Partner Assignment -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Partner Assignment</h3>
+            <div>
+              <%= form.label :referral_partner_id, "Assigned Partner", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.select :referral_partner_id, 
+                  options_from_collection_for_select(ReferralPartner.active, :id, :name, @shop.referral_partner_id),
+                  { prompt: 'Select a partner' },
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+          </div>
+
+          <!-- Commission Settings -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Commission Override (Optional)</h3>
+            <p class="text-sm text-gray-600 mb-4">Leave blank to use partner's default rates</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <%= form.label :custom_subscription_rate, "Subscription Rate", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="relative">
+                  <%= form.number_field :custom_subscription_rate, 
+                      step: 0.01, min: 0, max: 100,
+                      class: "w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                      placeholder: "Partner default" %>
+                  <span class="absolute right-3 top-2 text-gray-400">%</span>
+                </div>
+              </div>
+
+              <div>
+                <%= form.label :custom_usage_rate, "Usage Rate", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="relative">
+                  <%= form.number_field :custom_usage_rate, 
+                      step: 0.01, min: 0, max: 100,
+                      class: "w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                      placeholder: "Partner default" %>
+                  <span class="absolute right-3 top-2 text-gray-400">%</span>
+                </div>
+              </div>
+
+              <div>
+                <%= form.label :custom_onetime_rate, "One-time Rate", 
+                    class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <div class="relative">
+                  <%= form.number_field :custom_onetime_rate, 
+                      step: 0.01, min: 0, max: 100,
+                      class: "w-full px-3 py-2 pr-8 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                      placeholder: "Partner default" %>
+                  <span class="absolute right-3 top-2 text-gray-400">%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shop Metadata -->
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Additional Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <%= form.label :shop_owner_email, "Owner Email", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.email_field :shop_owner_email, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                    placeholder: "owner@shop.com" %>
+              </div>
+
+              <div>
+                <%= form.label :installation_date, "Installation Date", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.date_field :installation_date, 
+                    class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="border-t pt-6">
+            <div>
+              <%= form.label :notes, "Internal Notes", class: "block text-sm font-medium text-gray-700 mb-2" %>
+              <%= form.text_area :notes, rows: 4,
+                  class: "w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500",
+                  placeholder: "Internal notes about this shop..." %>
+            </div>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="border-t pt-6 flex justify-between">
+            <div class="flex space-x-3">
+              <%= link_to 'Cancel', referral_shop_path(@shop), 
+                  class: "px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+              
+              <%= link_to 'View Shop', referral_shop_path(@shop), 
+                  class: "px-6 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+            </div>
+            
+            <%= form.submit "Update Shop", 
+                class: "px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

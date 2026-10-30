@@ -1,0 +1,18 @@
+<div class="bg-white rounded-lg shadow mb-6">
+  <div class="border-b border-gray-200">
+    <nav class="flex flex-wrap gap-x-8 px-6">
+      <%= link_to email_tool_path, class: "py-4 px-1 border-b-2 font-medium text-sm #{request.path == email_tool_path ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+        Dashboard
+      <% end %>
+      <%= link_to email_tool_rules_path, class: "py-4 px-1 border-b-2 font-medium text-sm #{request.path.include?('rules') ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+        Rules
+      <% end %>
+      <%= link_to email_tool_templates_path, class: "py-4 px-1 border-b-2 font-medium text-sm #{request.path.include?('templates') ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+        Templates
+      <% end %>
+      <%= link_to email_tool_deliveries_path, class: "py-4 px-1 border-b-2 font-medium text-sm #{request.path.include?('deliveries') ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}" do %>
+        Deliveries
+      <% end %>
+    </nav>
+  </div>
+</div>

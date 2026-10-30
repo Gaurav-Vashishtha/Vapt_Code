@@ -1,0 +1,44 @@
+/* Mobile-specific styles for ScreenHeader component */
+/* Applied when viewport width <= 640px */
+
+@media (max-width: 640px) {
+  /* Hide the app header while a full-screen sheet (add/edit address) is open */
+  html[data-full-height-slider-open="true"] .modal-card .screen-header {
+    display: none !important;
+  }
+
+  .header-bar {
+    height: 48px;
+    min-height: 48px;
+    padding: 0 44px;
+  }
+
+  .header-action {
+    width: 32px;
+    height: 32px;
+  }
+
+  .header-action--back {
+    left: 6px;
+  }
+
+  .logo-image {
+    max-width: 130px;
+    height: 26px;
+  }
+
+  .logo-image.logo-image--wide {
+    max-width: 140px;
+  }
+
+  .logo-image.logo-image--square {
+    width: 26px;
+    max-width: 26px;
+    height: 26px;
+  }
+
+  .brand-title {
+    font-size: 14px;
+    line-height: 18px;
+  }
+}

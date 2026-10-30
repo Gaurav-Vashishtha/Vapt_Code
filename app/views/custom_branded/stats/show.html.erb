@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= @brand_name %> — Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <% if @brand_logo %><link rel="icon" href="<%= @brand_logo %>"><% end %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --brand:#ff6801; --brand-dark:#e55d00; --ink:#1a1a1a; }
+    body { font-family:'Poppins',ui-sans-serif,system-ui,sans-serif; color:var(--ink); }
+    .brand-gradient { background:linear-gradient(330deg,#ff00f7,#ff5303); }
+    .tab-active { color:var(--brand); border-color:var(--brand); }
+    .code { background:#0f172a; color:#e2e8f0; border-radius:10px; padding:14px 16px; overflow-x:auto; font-size:12px; line-height:1.55; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .code .c { color:#64748b; }         /* comment */
+    .method { font-family:ui-monospace,monospace; font-size:11px; font-weight:600; padding:2px 8px; border-radius:6px; }
+    .m-get { background:#dbeafe; color:#1d4ed8; } .m-post { background:#dcfce7; color:#15803d; } .m-del { background:#fee2e2; color:#b91c1c; }
+  </style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen">
+  <div class="h-1 brand-gradient"></div>
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <% if @brand_logo %><img src="<%= @brand_logo %>" alt="" class="h-8 w-auto"><div class="h-8 w-px bg-gray-200"></div><% end %>
+          <div>
+            <h1 class="text-lg font-semibold text-gray-900"><%= @brand_name %></h1>
+            <p class="text-xs text-gray-500">Operations panel</p>
+          </div>
+        </div>
+        <% unless @tab == 'docs' %>
+          <form method="get" class="flex items-center gap-2">
+            <input type="hidden" name="tab" value="<%= @tab %>">
+            <select name="brand" class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white" onchange="this.form.submit()">
+              <option value="">All brands (<%= @clients.size %>)</option>
+              <% @clients.each do |c| %>
+                <option value="<%= c.domain %>" <%= 'selected' if @brand&.id == c.id %>><%= c.display_name %></option>
+              <% end %>
+            </select>
+          </form>
+        <% end %>
+      </div>
+      <nav class="flex gap-6 text-sm -mb-px">
+        <% { 'stats' => 'Stats & history', 'webhooks' => 'Webhooks', 'keys' => 'API keys', 'docs' => 'API docs' }.each do |key, label| %>
+          <a href="?tab=<%= key %><%= "&brand=#{@brand.domain}" if @brand && key != 'docs' %>"
+             class="py-3 border-b-2 <%= @tab == key ? 'tab-active font-medium' : 'border-transparent text-gray-500 hover:text-gray-800' %>"><%= label %></a>
+        <% end %>
+      </nav>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+  <% if @tab == 'stats' %>
+    <% total = @totals.values.sum
+       delivered_plus = @totals.fetch('delivered', 0) + @totals.fetch('read', 0)
+       failed = @totals.fetch('failed', 0)
+       rate = total.positive? ? ((delivered_plus.to_f / total) * 100).round(1) : nil
+       last30 = @last_30d.values.sum %>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="bg-white rounded-xl border border-gray-200 p-4"><div class="text-xs text-gray-500">Total messages</div><div class="mt-1 text-2xl font-semibold text-gray-900"><%= total %></div></div>
+      <div class="bg-white rounded-xl border border-gray-200 p-4"><div class="text-xs text-gray-500">Last 30 days</div><div class="mt-1 text-2xl font-semibold text-gray-900"><%= last30 %></div></div>
+      <div class="bg-white rounded-xl border border-gray-200 p-4"><div class="text-xs text-gray-500">Delivered / read</div><div class="mt-1 text-2xl font-semibold text-emerald-600"><%= delivered_plus %></div></div>
+      <div class="bg-white rounded-xl border border-gray-200 p-4"><div class="text-xs text-gray-500">Failed</div><div class="mt-1 text-2xl font-semibold <%= failed.positive? ? 'text-red-600' : 'text-gray-900' %>"><%= failed %></div></div>
+      <div class="bg-white rounded-xl border border-gray-200 p-4"><div class="text-xs text-gray-500">Delivery rate</div><div class="mt-1 text-2xl font-semibold text-gray-900"><%= rate ? "#{rate}%" : '—' %></div></div>
+    </div>
+
+    <% unless @brand %>
+      <div class="bg-white rounded-xl border border-gray-200">
+        <div class="px-4 py-3 border-b border-gray-100"><h2 class="font-medium text-gray-900">Brands</h2></div>
+        <% if @clients.any? %>
+          <table class="w-full text-sm">
+            <thead><tr class="text-left text-gray-500 border-b border-gray-100">
+              <th class="px-4 py-2">Brand</th><th class="px-4 py-2">Numbers</th><th class="px-4 py-2">Total</th>
+              <th class="px-4 py-2">Sent</th><th class="px-4 py-2">Delivered</th><th class="px-4 py-2">Read</th>
+              <th class="px-4 py-2">Failed</th><th class="px-4 py-2"></th>
+            </tr></thead>
+            <tbody>
+              <% @clients.each do |c| %>
+                <% counts = @per_brand[c.id] || {} %>
+                <tr class="border-b border-gray-50">
+                  <td class="px-4 py-2 font-medium text-gray-900"><%= c.display_name %></td>
+                  <td class="px-4 py-2 text-gray-500"><%= c.whatsapp_accounts.size %></td>
+                  <td class="px-4 py-2"><%= counts.values.sum %></td>
+                  <td class="px-4 py-2 text-gray-500"><%= counts.fetch('sent', 0) %></td>
+                  <td class="px-4 py-2 text-emerald-600"><%= counts.fetch('delivered', 0) %></td>
+                  <td class="px-4 py-2 text-emerald-700"><%= counts.fetch('read', 0) %></td>
+                  <td class="px-4 py-2 <%= counts.fetch('failed', 0).positive? ? 'text-red-600' : 'text-gray-400' %>"><%= counts.fetch('failed', 0) %></td>
+                  <td class="px-4 py-2 text-right"><a class="text-xs hover:underline" style="color:var(--brand)" href="?tab=stats&brand=<%= c.domain %>">View →</a></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <div class="px-4 py-6 text-center text-sm text-gray-500">No brands registered yet.</div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="bg-white rounded-xl border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-100">
+        <h2 class="font-medium text-gray-900">Recent messages<%= @brand ? " — #{@brand.display_name}" : '' %></h2>
+      </div>
+      <% if @recent.any? %>
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-gray-500 border-b border-gray-100">
+            <th class="px-4 py-2">ID</th><th class="px-4 py-2">Template</th><th class="px-4 py-2">Recipient</th>
+            <th class="px-4 py-2">Status</th><th class="px-4 py-2">Error</th><th class="px-4 py-2">At</th>
+          </tr></thead>
+          <tbody>
+            <% @recent.each do |log| %>
+              <tr class="border-b border-gray-50">
+                <td class="px-4 py-2 font-mono text-xs text-gray-500"><%= log.id %></td>
+                <td class="px-4 py-2"><%= log.template_name %></td>
+                <td class="px-4 py-2 font-mono text-xs"><%= log.recipient %></td>
+                <td class="px-4 py-2"><span class="text-xs px-2 py-0.5 rounded-full <%= %w[delivered read].include?(log.status) ? 'bg-emerald-100 text-emerald-700' : (log.status == 'failed' ? 'bg-red-100 text-red-700' : (log.status == 'sent' ? 'bg-sky-100 text-sky-700' : 'bg-gray-100 text-gray-600')) %>"><%= log.status %></span></td>
+                <td class="px-4 py-2 text-xs text-red-600 max-w-xs" title="<%= log.error_message %>"><%= log.error_code %> <%= log.error_message&.truncate(60) %></td>
+                <td class="px-4 py-2 text-xs text-gray-500 whitespace-nowrap"><%= log.created_at.strftime('%Y-%m-%d %H:%M') %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="px-4 py-6 text-center text-sm text-gray-500">No messages yet.</div>
+      <% end %>
+    </div>
+
+  <% elsif @tab == 'webhooks' %>
+    <div class="bg-white rounded-xl border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-100">
+        <h2 class="font-medium text-gray-900">Webhook configuration</h2>
+        <p class="text-xs text-gray-500">Delivery statuses, inbound replies and template reviews are forwarded here as they arrive from Meta.</p>
+      </div>
+      <div class="px-4 py-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm border-b border-gray-100">
+        <div>
+          <div class="text-xs text-gray-500 mb-0.5">Forward URL</div>
+          <% if @webhook_forward_url %>
+            <code class="font-mono text-xs bg-gray-100 rounded px-2 py-1 break-all"><%= @webhook_forward_url %></code>
+          <% else %>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Not configured — set CB_WEBHOOK_FORWARD_URL</span>
+          <% end %>
+        </div>
+        <div>
+          <div class="text-xs text-gray-500 mb-0.5">Signature</div>
+          <% if @webhook_secret_set %>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">HMAC secret set</span>
+            <span class="text-xs text-gray-500 ml-1">X-CB-Signature: sha256=HMAC(secret, body)</span>
+          <% else %>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">No secret — deliveries are unsigned</span>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- send a sample webhook -->
+      <div class="px-4 py-3">
+        <div class="text-xs font-medium text-gray-700 mb-2">Send a test webhook <span class="text-gray-400 font-normal">— fires a signed sample at the forward URL (marked X-CB-Test: true, logged below as test:&lt;event&gt;)</span></div>
+        <% if @brand.nil? %>
+          <p class="text-sm text-gray-500">Select a brand from the dropdown above to send a test.</p>
+        <% else %>
+          <div class="flex flex-wrap items-center gap-2">
+            <input id="wt-pk" type="password" placeholder="Partner API key" class="text-sm border border-gray-300 rounded-md px-3 py-2 w-64 font-mono">
+            <select id="wt-event" class="text-sm border border-gray-300 rounded-md px-3 py-2 bg-white">
+              <option value="delivery_status">Delivery status (delivered)</option>
+              <option value="inbound_reply">Inbound reply (button tap)</option>
+              <option value="template_review">Template review (APPROVED)</option>
+            </select>
+            <button id="wt-send" class="text-sm text-white rounded-md px-4 py-2" style="background:var(--brand)">Send test webhook</button>
+            <span id="wt-status" class="text-xs text-gray-400"></span>
+          </div>
+          <div id="wt-result" class="hidden mt-3 rounded-md border px-4 py-3 text-sm"></div>
+        <% end %>
+      </div>
+    </div>
+
+    <% if @brand %>
+      <script>
+        (function () {
+          const pk = document.getElementById("wt-pk");
+          try { pk.value = sessionStorage.getItem("cb_partner_key") || ""; } catch (_) {}
+          document.getElementById("wt-send").addEventListener("click", async () => {
+            const key = pk.value.trim();
+            if (!key) { document.getElementById("wt-status").textContent = "Enter the partner API key."; return; }
+            try { sessionStorage.setItem("cb_partner_key", key); } catch (_) {}
+            const btn = document.getElementById("wt-send");
+            btn.disabled = true; btn.textContent = "Sending…";
+            const box = document.getElementById("wt-result");
+            box.classList.add("hidden");
+            try {
+              const res = await fetch("/api/v1/cb/webhook_tests", {
+                method: "POST",
+                headers: { "Authorization": "Bearer " + key, "Content-Type": "application/json" },
+                body: JSON.stringify({ shop_domain: "<%= j @brand.domain %>", event: document.getElementById("wt-event").value }),
+              });
+              const data = await res.json().catch(() => ({}));
+              box.classList.remove("hidden");
+              if (res.ok && data.delivered) {
+                box.className = "mt-3 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800";
+                box.innerHTML = "✓ Delivered — your endpoint answered <strong>HTTP " + data.response_code + "</strong>" +
+                  (data.signed ? " (signature header included)" : " (unsigned — no CB_WEBHOOK_FORWARD_SECRET)") +
+                  ". It's in the delivery log below — refresh to see it.";
+              } else {
+                box.className = "mt-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800";
+                box.textContent = "✗ " + (data.error || (data.response_code ? "Endpoint answered HTTP " + data.response_code : "Delivery failed"));
+              }
+            } catch (e) {
+              box.classList.remove("hidden");
+              box.className = "mt-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800";
+              box.textContent = "✗ " + e.message;
+            } finally {
+              btn.disabled = false; btn.textContent = "Send test webhook";
+            }
+          });
+        })();
+      </script>
+    <% end %>
+
+    <div class="bg-white rounded-xl border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-100"><h2 class="font-medium text-gray-900">Deliveries<%= @brand ? " — #{@brand.display_name}" : '' %></h2></div>
+      <% if @webhook_deliveries.any? %>
+        <table class="w-full text-sm">
+          <thead><tr class="text-left text-gray-500 border-b border-gray-100">
+            <th class="px-4 py-2">At</th><% unless @brand %><th class="px-4 py-2">Brand</th><% end %>
+            <th class="px-4 py-2">Events</th><th class="px-4 py-2">Result</th><th class="px-4 py-2">Error</th><th class="px-4 py-2">Payload</th>
+          </tr></thead>
+          <tbody>
+            <% @webhook_deliveries.each do |d| %>
+              <tr class="border-b border-gray-50 align-top">
+                <td class="px-4 py-2 text-xs text-gray-500 whitespace-nowrap"><%= d.created_at.strftime('%Y-%m-%d %H:%M:%S') %></td>
+                <% unless @brand %><td class="px-4 py-2 text-xs"><%= @clients_by_id[d.custom_branded_client_id]&.display_name %></td><% end %>
+                <td class="px-4 py-2 text-xs font-mono"><%= d.fields.presence || '—' %></td>
+                <td class="px-4 py-2">
+                  <% if d.delivered? %><span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">HTTP <%= d.response_code %></span>
+                  <% elsif d.response_code.present? %><span class="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">HTTP <%= d.response_code %></span>
+                  <% else %><span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">no response</span><% end %>
+                </td>
+                <td class="px-4 py-2 text-xs text-red-600 max-w-xs"><%= d.error&.truncate(80) %></td>
+                <td class="px-4 py-2">
+                  <details><summary class="text-xs cursor-pointer" style="color:var(--brand)">View</summary>
+                    <pre class="mt-1 code max-w-lg text-[10px]"><%= JSON.pretty_generate(d.payload || {}) %></pre>
+                  </details>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="px-4 py-6 text-center text-sm text-gray-500">No webhook deliveries yet.</div>
+      <% end %>
+    </div>
+
+  <% elsif @tab == 'keys' %>
+    <div class="bg-white rounded-xl border border-gray-200">
+      <div class="px-4 py-3 border-b border-gray-100">
+        <h2 class="font-medium text-gray-900">API keys<%= @brand ? " — #{@brand.display_name}" : '' %></h2>
+        <p class="text-xs text-gray-500">Per-brand bearer keys, minted by the ParcelX team. Actions here require the partner API key — it is kept only in this browser tab.</p>
+      </div>
+      <% if @brand.nil? %>
+        <div class="px-4 py-8 text-center text-sm text-gray-500">Select a brand from the dropdown above to manage its keys.</div>
+      <% else %>
+        <div class="px-4 py-3 border-b border-gray-100 flex flex-wrap items-center gap-2">
+          <input id="pk-input" type="password" placeholder="Partner API key" class="text-sm border border-gray-300 rounded-md px-3 py-2 w-72 font-mono">
+          <button id="pk-save" class="text-sm text-white rounded-md px-3 py-2" style="background:var(--ink)">Use key</button>
+          <span id="pk-status" class="text-xs text-gray-400"></span>
+          <span class="flex-1"></span>
+          <input id="key-label" class="text-sm border border-gray-300 rounded-md px-3 py-2" placeholder="Key label (e.g. production)">
+          <button id="key-mint" class="text-sm text-white rounded-md px-3 py-2" style="background:var(--brand)">Mint key</button>
+        </div>
+        <div id="key-error" class="hidden mx-4 mt-3 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"></div>
+        <div id="key-new" class="hidden mx-4 mt-3 rounded-md bg-amber-50 border border-amber-300 px-4 py-3 text-sm">
+          <div class="font-medium text-amber-900">Copy this key now — it will not be shown again:</div>
+          <code id="key-new-value" class="block mt-1 font-mono text-xs bg-white border border-amber-200 rounded px-2 py-1 select-all"></code>
+        </div>
+        <div id="key-list" class="px-4 py-4 text-sm text-gray-500">Enter the partner API key to load this brand's keys.</div>
+      <% end %>
+    </div>
+
+    <script>
+      const KEYS_BRAND = "<%= j(@brand&.domain.to_s) %>";
+      const pkInput = document.getElementById("pk-input");
+      const pkStatus = document.getElementById("pk-status");
+      function partnerKey() { try { return sessionStorage.getItem("cb_partner_key") || ""; } catch (_) { return ""; } }
+      function setPartnerKey(v) { try { sessionStorage.setItem("cb_partner_key", v); } catch (_) {} }
+
+      function keysErr(msg) {
+        const el = document.getElementById("key-error");
+        el.textContent = msg; el.classList.remove("hidden");
+      }
+      async function keysApi(path, options = {}) {
+        document.getElementById("key-error").classList.add("hidden");
+        const res = await fetch(path, {
+          headers: { "Authorization": "Bearer " + partnerKey(), "Content-Type": "application/json" },
+          ...options,
+          body: options.body ? JSON.stringify(options.body) : undefined,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || ("HTTP " + res.status));
+        return data;
+      }
+      async function loadKeys() {
+        if (!KEYS_BRAND || !partnerKey()) return;
+        try {
+          const data = await keysApi("/api/v1/cb/keys?shop_domain=" + encodeURIComponent(KEYS_BRAND));
+          pkStatus.textContent = "✓ partner key accepted";
+          const rows = data.keys.map((k) =>
+            '<tr class="border-b border-gray-50 ' + (k.revoked ? "opacity-50" : "") + '">' +
+            '<td class="px-4 py-2">' + (k.label || "—") + "</td>" +
+            '<td class="px-4 py-2 font-mono text-xs">' + k.masked + (k.revoked ? ' <span class="text-red-600 text-xs">(revoked)</span>' : "") + "</td>" +
+            '<td class="px-4 py-2 text-xs text-gray-500">' + (k.created_at || "").slice(0, 10) + "</td>" +
+            '<td class="px-4 py-2 text-xs text-gray-500">' + (k.last_used_at ? k.last_used_at.slice(0, 16).replace("T", " ") : "never") + "</td>" +
+            '<td class="px-4 py-2 text-right">' + (k.revoked ? "" : '<button data-id="' + k.key_id + '" class="key-revoke text-xs text-red-600 hover:underline">Revoke</button>') + "</td></tr>"
+          ).join("");
+          document.getElementById("key-list").innerHTML =
+            '<table class="w-full text-sm"><thead><tr class="text-left text-gray-500 border-b border-gray-100">' +
+            '<th class="px-4 py-2">Label</th><th class="px-4 py-2">Key</th><th class="px-4 py-2">Created</th><th class="px-4 py-2">Last used</th><th class="px-4 py-2"></th></tr></thead><tbody>' +
+            (rows || '<tr><td colspan="5" class="px-4 py-6 text-center text-gray-500">No keys yet.</td></tr>') + "</tbody></table>";
+          document.querySelectorAll(".key-revoke").forEach((btn) => btn.addEventListener("click", async () => {
+            if (!confirm("Revoke this key? Requests using it will start failing immediately.")) return;
+            try { await keysApi("/api/v1/cb/keys/" + btn.dataset.id + "?shop_domain=" + encodeURIComponent(KEYS_BRAND), { method: "DELETE" }); loadKeys(); }
+            catch (e) { keysErr(e.message); }
+          }));
+        } catch (e) {
+          pkStatus.textContent = "";
+          keysErr(e.message);
+        }
+      }
+      if (pkInput) {
+        pkInput.value = partnerKey();
+        document.getElementById("pk-save").addEventListener("click", () => { setPartnerKey(pkInput.value.trim()); loadKeys(); });
+        document.getElementById("key-mint").addEventListener("click", async () => {
+          if (!partnerKey()) return keysErr("Enter the partner API key first.");
+          try {
+            const data = await keysApi("/api/v1/cb/keys", { method: "POST", body: { shop_domain: KEYS_BRAND, label: document.getElementById("key-label").value } });
+            document.getElementById("key-new-value").textContent = data.key;
+            document.getElementById("key-new").classList.remove("hidden");
+            loadKeys();
+          } catch (e) { keysErr(e.message); }
+        });
+        if (partnerKey()) loadKeys();
+      }
+    </script>
+
+  <% elsif @tab == 'docs' %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui.min.css">
+    <style>
+      /* Blend Swagger UI with the panel */
+      .swagger-ui .topbar { display:none; }
+      .swagger-ui .info { margin:20px 0; }
+      .swagger-ui .info .title small { display:none; }
+      .swagger-ui .scheme-container { box-shadow:none; background:transparent; padding:8px 0; }
+      .swagger-ui, .swagger-ui .opblock .opblock-summary-description { font-family:'Poppins',sans-serif; }
+      #swagger-wrap { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:8px 16px 24px; }
+    </style>
+
+    <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      Click <strong>Authorize</strong> and paste the partner API key, then use <strong>Try it out</strong> on any endpoint —
+      it runs against this server and shows a ready-to-copy <strong>cURL</strong> for every request.
+    </div>
+
+    <div id="swagger-wrap"><div id="swagger"></div></div>
+
+    <style>
+      .wh-card { border:1px solid #e9d5ff; border-radius:10px; background:#faf5ff; overflow:hidden; }
+      .wh-card > summary { list-style:none; cursor:pointer; padding:10px 14px; display:flex; align-items:center; gap:10px; }
+      .wh-card > summary::-webkit-details-marker { display:none; }
+      .wh-card[open] > summary { border-bottom:1px solid #e9d5ff; }
+      .m-event { background:#f3e8ff; color:#7c3aed; }
+      .wh-body { background:#fff; padding:14px; }
+      .copy-wrap { position:relative; }
+      .copy-btn { position:absolute; top:8px; right:8px; font-size:11px; padding:3px 10px; border-radius:6px; background:#334155; color:#e2e8f0; }
+      .copy-btn:hover { background:#475569; }
+      .sig-tab { font-size:12px; padding:4px 12px; border-radius:6px 6px 0 0; color:#6b7280; cursor:pointer; }
+      .sig-tab.active { background:#0f172a; color:#e2e8f0; }
+      .fieldtbl td, .fieldtbl th { padding:6px 10px; }
+    </style>
+
+    <div class="bg-white rounded-xl border border-gray-200 p-5 space-y-4 max-w-none">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <h2 class="font-semibold text-gray-900 text-lg">Webhooks</h2>
+          <p class="mt-1 text-sm text-gray-600">Events <strong>we push to your server</strong> as they arrive from Meta — one HTTPS POST per brand, in Meta's native payload shape. Respond <code class="bg-gray-100 px-1 rounded text-xs">2xx</code> within 5 seconds; failed deliveries retry with backoff. Handle idempotently — the same event can arrive twice.</p>
+        </div>
+        <a href="?tab=webhooks" class="shrink-0 text-xs text-white rounded-md px-3 py-2" style="background:var(--brand)">Send a test webhook →</a>
+      </div>
+
+      <!-- delivery headers -->
+      <table class="fieldtbl w-full text-xs border border-gray-200 rounded-lg overflow-hidden">
+        <tr class="bg-gray-50 text-left text-gray-500"><th>Header</th><th>Value</th><th>Purpose</th></tr>
+        <tr class="border-t border-gray-100"><td class="font-mono">X-CB-Shop-Domain</td><td class="font-mono text-gray-600">merchantstore.com</td><td class="text-gray-600">The brand this batch belongs to</td></tr>
+        <tr class="border-t border-gray-100"><td class="font-mono">X-CB-Signature</td><td class="font-mono text-gray-600">sha256=&lt;hex digest&gt;</td><td class="text-gray-600">HMAC-SHA256 of the raw body with your webhook secret — verify before trusting</td></tr>
+        <tr class="border-t border-gray-100"><td class="font-mono">X-CB-Test</td><td class="font-mono text-gray-600">true</td><td class="text-gray-600">Present only on test deliveries (sent from the panel or <code>POST /webhook_tests</code>)</td></tr>
+      </table>
+
+      <!-- event 1 -->
+      <details class="wh-card" open>
+        <summary>
+          <span class="method m-event">EVENT</span>
+          <span class="font-mono text-sm font-semibold text-gray-900">message.status</span>
+          <span class="text-xs text-gray-500">Delivery status of a message you sent — sent / delivered / read / failed</span>
+        </summary>
+        <div class="wh-body space-y-3">
+          <p class="text-xs text-gray-600"><strong>Fires:</strong> each time Meta reports progress on an outbound message. Match <code class="bg-gray-100 px-1 rounded">statuses[].id</code> to the <code class="bg-gray-100 px-1 rounded">meta_message_id</code> from <code class="bg-gray-100 px-1 rounded">GET /messages/{id}</code>.</p>
+          <table class="fieldtbl w-full text-xs border border-gray-200 rounded-lg overflow-hidden">
+            <tr class="bg-gray-50 text-left text-gray-500"><th>Field</th><th>Meaning</th></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">entry[].changes[].field</td><td class="text-gray-600">always <code>"messages"</code> for this event</td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.statuses[].id</td><td class="text-gray-600">the message's <code>meta_message_id</code> (wamid)</td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.statuses[].status</td><td class="text-gray-600"><code>sent</code> | <code>delivered</code> | <code>read</code> | <code>failed</code></td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.metadata.phone_number_id</td><td class="text-gray-600">the brand number that sent the message</td></tr>
+          </table>
+          <div class="copy-wrap">
+            <button class="copy-btn" data-copy>Copy</button>
+<pre class="code">{
+  "object": "whatsapp_business_account",
+  "entry": [{
+    "id": "&lt;WABA_ID&gt;",
+    "changes": [{
+      "field": "messages",
+      "value": {
+        "messaging_product": "whatsapp",
+        "metadata": { "display_phone_number": "919876543210", "phone_number_id": "1234567890" },
+        "statuses": [{
+          "id": "wamid.HBgMOTE5ODc2NTQzMjEwFQIAERgS...",
+          "status": "delivered",
+          "timestamp": "1788350000",
+          "recipient_id": "919876543210"
+        }]
+      }
+    }]
+  }]
+}</pre>
+          </div>
+        </div>
+      </details>
+
+      <!-- event 2 -->
+      <details class="wh-card">
+        <summary>
+          <span class="method m-event">EVENT</span>
+          <span class="font-mono text-sm font-semibold text-gray-900">message.inbound</span>
+          <span class="text-xs text-gray-500">A customer replied — free text or a button tap</span>
+        </summary>
+        <div class="wh-body space-y-3">
+          <p class="text-xs text-gray-600"><strong>Fires:</strong> when a customer messages the brand's number. Quick-reply taps arrive as <code class="bg-gray-100 px-1 rounded">type: "button"</code> with the payload; free text as <code class="bg-gray-100 px-1 rounded">type: "text"</code> with <code class="bg-gray-100 px-1 rounded">text.body</code>.</p>
+          <table class="fieldtbl w-full text-xs border border-gray-200 rounded-lg overflow-hidden">
+            <tr class="bg-gray-50 text-left text-gray-500"><th>Field</th><th>Meaning</th></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.messages[].from</td><td class="text-gray-600">the customer's phone number</td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.messages[].type</td><td class="text-gray-600"><code>button</code> | <code>text</code> | <code>interactive</code> | media types</td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.messages[].button.payload</td><td class="text-gray-600">the tapped quick-reply's payload (= its button text)</td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.messages[].context.id</td><td class="text-gray-600">wamid of the message being replied to — join back to your send</td></tr>
+          </table>
+          <div class="copy-wrap">
+            <button class="copy-btn" data-copy>Copy</button>
+<pre class="code">{
+  "object": "whatsapp_business_account",
+  "entry": [{
+    "id": "&lt;WABA_ID&gt;",
+    "changes": [{
+      "field": "messages",
+      "value": {
+        "messaging_product": "whatsapp",
+        "metadata": { "display_phone_number": "919876543210", "phone_number_id": "1234567890" },
+        "messages": [{
+          "id": "wamid.XYZ...",
+          "from": "919876543210",
+          "type": "button",
+          "timestamp": "1788350100",
+          "button": { "payload": "Need help", "text": "Need help" },
+          "context": { "id": "wamid.HBg..." }
+        }]
+      }
+    }]
+  }]
+}</pre>
+          </div>
+        </div>
+      </details>
+
+      <!-- event 3 -->
+      <details class="wh-card">
+        <summary>
+          <span class="method m-event">EVENT</span>
+          <span class="font-mono text-sm font-semibold text-gray-900">template.review</span>
+          <span class="text-xs text-gray-500">Meta reviewed a template — APPROVED / REJECTED / PAUSED</span>
+        </summary>
+        <div class="wh-body space-y-3">
+          <p class="text-xs text-gray-600"><strong>Fires:</strong> when Meta finishes (or changes) a template review. On <code class="bg-gray-100 px-1 rounded">APPROVED</code> the template becomes sendable; on <code class="bg-gray-100 px-1 rounded">REJECTED</code> see <code class="bg-gray-100 px-1 rounded">reason</code>.</p>
+          <table class="fieldtbl w-full text-xs border border-gray-200 rounded-lg overflow-hidden">
+            <tr class="bg-gray-50 text-left text-gray-500"><th>Field</th><th>Meaning</th></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">entry[].changes[].field</td><td class="text-gray-600"><code>"message_template_status_update"</code></td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.event</td><td class="text-gray-600"><code>APPROVED</code> | <code>REJECTED</code> | <code>PAUSED</code></td></tr>
+            <tr class="border-t border-gray-100"><td class="font-mono">value.message_template_name / _language</td><td class="text-gray-600">identifies the template (match to <code>GET /templates</code>)</td></tr>
+          </table>
+          <div class="copy-wrap">
+            <button class="copy-btn" data-copy>Copy</button>
+<pre class="code">{
+  "object": "whatsapp_business_account",
+  "entry": [{
+    "id": "&lt;WABA_ID&gt;",
+    "changes": [{
+      "field": "message_template_status_update",
+      "value": {
+        "event": "APPROVED",
+        "message_template_name": "order_shipped",
+        "message_template_language": "en",
+        "reason": null
+      }
+    }]
+  }]
+}</pre>
+          </div>
+        </div>
+      </details>
+
+      <!-- signature verification -->
+      <div class="border border-gray-200 rounded-lg overflow-hidden">
+        <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+          <span class="text-sm font-medium text-gray-900">Verifying the signature</span>
+          <div class="flex gap-1">
+            <button class="sig-tab active" data-sig="node">Node.js</button>
+            <button class="sig-tab" data-sig="ruby">Ruby</button>
+          </div>
+        </div>
+        <div class="copy-wrap" id="sig-node">
+          <button class="copy-btn" data-copy>Copy</button>
+<pre class="code" style="border-radius:0">const crypto = require("crypto");
+
+function verify(rawBody, sigHeader, secret) {
+  const expected = "sha256=" + crypto.createHmac("sha256", secret)
+                                     .update(rawBody).digest("hex");
+  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(sigHeader));
+}</pre>
+        </div>
+        <div class="copy-wrap hidden" id="sig-ruby">
+          <button class="copy-btn" data-copy>Copy</button>
+<pre class="code" style="border-radius:0">require "openssl"
+
+def verify(raw_body, sig_header, secret)
+  expected = "sha256=" + OpenSSL::HMAC.hexdigest("SHA256", secret, raw_body)
+  ActiveSupport::SecurityUtils.secure_compare(expected, sig_header.to_s)
+end</pre>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.querySelectorAll("[data-copy]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const pre = btn.parentElement.querySelector("pre");
+          try { await navigator.clipboard.writeText(pre.textContent); btn.textContent = "Copied ✓"; }
+          catch (_) { btn.textContent = "Copy failed"; }
+          setTimeout(() => { btn.textContent = "Copy"; }, 1500);
+        });
+      });
+      document.querySelectorAll(".sig-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".sig-tab").forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          document.getElementById("sig-node").classList.toggle("hidden", tab.dataset.sig !== "node");
+          document.getElementById("sig-ruby").classList.toggle("hidden", tab.dataset.sig !== "ruby");
+        });
+      });
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14/swagger-ui-bundle.min.js"></script>
+    <script>
+      SwaggerUIBundle({
+        url: "/cb-docs/openapi.json",
+        dom_id: "#swagger",
+        docExpansion: "list",
+        defaultModelsExpandDepth: -1,
+        tryItOutEnabled: true,
+        persistAuthorization: true,
+        displayRequestDuration: true,
+        requestSnippetsEnabled: true,
+        presets: [SwaggerUIBundle.presets.apis],
+      });
+    </script>
+  <% end %>
+
+  </div>
+</div>
+</body>
+</html>

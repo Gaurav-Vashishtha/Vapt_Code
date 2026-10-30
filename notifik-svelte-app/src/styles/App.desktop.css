@@ -1,0 +1,18 @@
+/* Desktop-specific styles for App component */
+/* Applied when viewport width >= 641px */
+
+@media (min-width: 641px) {
+  html,
+  body {
+    height: auto !important;
+    min-height: 100% !important;
+    overflow: visible !important;
+  }
+
+  #app {
+    height: auto !important;
+    min-height: 100% !important;
+  }
+}
+
+

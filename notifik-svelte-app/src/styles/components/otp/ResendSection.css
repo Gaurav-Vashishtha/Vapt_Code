@@ -1,0 +1,9 @@
+.resend-section { display: flex; flex-direction: column; gap: 8px; }
+.resend-options { display: inline-flex; justify-content: flex-start; align-items: center; gap: 6px; font-weight: 600 !important;}
+.resend-label { color: #4e596f; font-size: 12px; font-family: var(--font-family-base); font-weight: 600 !important; line-height: normal; }
+.resend-or { color: #4e596f; font-size: 12px; font-family: var(--font-family-base); font-weight: 600 !important; line-height: normal; }
+.resend-chip { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 6px; border: 1px solid color-mix(in srgb, var(--color-blue) 22%, transparent);background: transparent; cursor: pointer; transition: all 0.2s var(--ease-smooth); border-radius: 6px !important; }
+.resend-chip:hover:not(:disabled) { border-color: var(--color-blue); background: color-mix(in srgb, var(--color-blue) 6%, transparent); }
+.resend-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+.resend-chip-text { color: var(--color-blue); font-size: 12px; font-family: var(--font-family-base); font-weight: 500; line-height: normal; }
+.resend-wa-icon { display: block; height: 15px; width: auto; }

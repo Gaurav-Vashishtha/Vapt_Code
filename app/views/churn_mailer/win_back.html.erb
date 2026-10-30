@@ -1,0 +1,11 @@
+<p>Hi <%= @owner %>,</p>
+
+<% if @trigger == 'just_churned' %>
+  <p>We noticed you recently removed COD King from <strong><%= @domain %></strong>. We’d genuinely like to understand what didn’t work — and make it right.</p>
+  <p>If there was a setup issue, a missing feature, or anything that got in your way, just reply to this email and our team will help personally.</p>
+<% else %>
+  <p>We noticed COD King on <strong><%= @domain %></strong> hasn’t been fully active lately. If something’s getting in the way of confirming COD orders or recovering revenue, we’d love to help you get value from it.</p>
+  <p>Reply to this email and we’ll set up your flows with you — it usually takes just a few minutes.</p>
+<% end %>
+
+<p>Thanks,<br/>The COD King team</p>

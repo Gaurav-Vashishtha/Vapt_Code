@@ -1,0 +1,104 @@
+/* Mobile-specific styles for BottomSlider component */
+/* Applied when viewport width <= 640px */
+/* Slides up from bottom (60% height) on mobile */
+
+@media (max-width: 640px) {
+  .bottom-slider {
+    /* Mobile: Full width, slides up from bottom, height controlled by CSS custom property */
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    /* Default height if custom property not set */
+    height: var(--slider-height, 60vh) !important;
+    max-height: var(--slider-height, 60vh) !important;
+    min-height: var(--slider-height, 60vh) !important;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1) !important;
+    /* Transform driven by Svelte transition: slideFromBottom (see BottomSlider.svelte) */
+    /* Ensure close button positioning context */
+    overflow: visible !important;
+  }
+
+  /* Auto-height mode: shrink-wrap content (no forced 60vh) */
+  .bottom-slider[data-auto-height="true"] {
+    height: auto !important;
+    min-height: unset !important;
+    max-height: 80vh !important;
+  }
+
+  /* Taller cap for the Add/Edit address sheet (non-scrolling content) so the
+     full form fits in one screen without the inner form-wrapper scrolling. */
+  .bottom-slider[data-auto-height="true"]:has(.slider-content--no-scroll) {
+    max-height: 96vh !important;
+  }
+
+  .bottom-slider[data-auto-height="true"] .slider-content {
+    flex: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  /* Full-screen mode on phones. The sheet is fixed, but .modal-card keeps a
+     transform (modal-in animation, fill:forwards) so it is the containing block
+     for this fixed element — not the viewport. Pin to top:0/bottom:0 of that
+     block instead of a viewport-unit height; a 100dvh height would mismatch the
+     JS-measured card height and overshoot, clipping the sheet's own header. */
+  .bottom-slider[data-full-height="true"][data-auto-height="true"],
+  .bottom-slider[data-full-height="true"] {
+    top: 0 !important;
+    bottom: 0 !important;
+    margin-top: 26px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  /* Let content fill the full-screen sheet (and scroll within it). */
+  .bottom-slider[data-full-height="true"] .slider-content {
+    flex: 1 !important;
+  }
+
+  /* Open state: position at bottom; close is handled by Svelte transition */
+  .bottom-slider[data-open="true"] {
+    bottom: 0 !important;
+    pointer-events: auto !important;
+  }
+
+  .slider-content {
+    padding: 0 !important;
+    min-height: 0 !important;
+    flex: 1 !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .slider-content.slider-content--scrollable {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .slider-content.slider-content--no-scroll {
+    overflow: hidden !important;
+  }
+
+  /* Position close button at the top edge of slider on mobile */
+  .slider-close-button--outside {
+    position: absolute !important;
+    top: -35px !important;
+    right: 16px !important;
+    z-index: 2147483648 !important;
+    pointer-events: auto !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure OrderSummaryDetails close button positioning is correct on mobile */
+  .order-summary-details .header-close-button {
+    position: absolute !important;
+    top: auto !important;
+    right: 0 !important;
+    bottom: auto !important;
+  }
+}

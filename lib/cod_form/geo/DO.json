@@ -1,0 +1,249 @@
+{
+  "country": "DO",
+  "shopify_provinces": false,
+  "provinces": [
+    {
+      "code": "01",
+      "name": "Distrito Nacional"
+    },
+    {
+      "code": "02",
+      "name": "Azua"
+    },
+    {
+      "code": "03",
+      "name": "Baoruco"
+    },
+    {
+      "code": "04",
+      "name": "Barahona"
+    },
+    {
+      "code": "05",
+      "name": "Dajabón"
+    },
+    {
+      "code": "06",
+      "name": "Duarte"
+    },
+    {
+      "code": "07",
+      "name": "Elías Piña"
+    },
+    {
+      "code": "08",
+      "name": "El Seibo"
+    },
+    {
+      "code": "09",
+      "name": "Espaillat"
+    },
+    {
+      "code": "10",
+      "name": "Independencia"
+    },
+    {
+      "code": "11",
+      "name": "La Altagracia"
+    },
+    {
+      "code": "12",
+      "name": "La Romana"
+    },
+    {
+      "code": "13",
+      "name": "La Vega"
+    },
+    {
+      "code": "14",
+      "name": "María Trinidad Sánchez"
+    },
+    {
+      "code": "15",
+      "name": "Monte Cristi"
+    },
+    {
+      "code": "16",
+      "name": "Pedernales"
+    },
+    {
+      "code": "17",
+      "name": "Peravia"
+    },
+    {
+      "code": "18",
+      "name": "Puerto Plata"
+    },
+    {
+      "code": "19",
+      "name": "Hermanas Mirabal"
+    },
+    {
+      "code": "20",
+      "name": "Samaná"
+    },
+    {
+      "code": "21",
+      "name": "San Cristóbal"
+    },
+    {
+      "code": "22",
+      "name": "San Juan"
+    },
+    {
+      "code": "23",
+      "name": "San Pedro de Macorís"
+    },
+    {
+      "code": "24",
+      "name": "Sánchez Ramírez"
+    },
+    {
+      "code": "25",
+      "name": "Santiago"
+    },
+    {
+      "code": "26",
+      "name": "Santiago Rodríguez"
+    },
+    {
+      "code": "27",
+      "name": "Valverde"
+    },
+    {
+      "code": "28",
+      "name": "Monseñor Nouel"
+    },
+    {
+      "code": "29",
+      "name": "Monte Plata"
+    },
+    {
+      "code": "30",
+      "name": "Hato Mayor"
+    },
+    {
+      "code": "31",
+      "name": "San José de Ocoa"
+    },
+    {
+      "code": "32",
+      "name": "Santo Domingo"
+    }
+  ],
+  "cities": {
+    "mode": "by_province",
+    "list": [
+
+    ],
+    "by_province": {
+      "01": [
+        "Santo Domingo"
+      ],
+      "02": [
+        "Azua de Compostela"
+      ],
+      "03": [
+        "Neiba"
+      ],
+      "04": [
+        "Barahona"
+      ],
+      "05": [
+        "Dajabón"
+      ],
+      "06": [
+        "San Francisco de Macorís"
+      ],
+      "07": [
+        "Comendador"
+      ],
+      "08": [
+        "El Seibo"
+      ],
+      "09": [
+        "Moca"
+      ],
+      "10": [
+        "Jimaní"
+      ],
+      "11": [
+        "Higüey",
+        "Punta Cana"
+      ],
+      "12": [
+        "La Romana"
+      ],
+      "13": [
+        "La Vega",
+        "Jarabacoa",
+        "Constanza"
+      ],
+      "14": [
+        "Nagua"
+      ],
+      "15": [
+        "Monte Cristi"
+      ],
+      "16": [
+        "Pedernales"
+      ],
+      "17": [
+        "Baní"
+      ],
+      "18": [
+        "Puerto Plata",
+        "Sosúa"
+      ],
+      "19": [
+        "Salcedo"
+      ],
+      "20": [
+        "Samaná",
+        "Las Terrenas"
+      ],
+      "21": [
+        "San Cristóbal",
+        "Bajos de Haina",
+        "Villa Altagracia"
+      ],
+      "22": [
+        "San Juan de la Maguana"
+      ],
+      "23": [
+        "San Pedro de Macorís"
+      ],
+      "24": [
+        "Cotuí"
+      ],
+      "25": [
+        "Santiago de los Caballeros"
+      ],
+      "26": [
+        "Sabaneta"
+      ],
+      "27": [
+        "Mao"
+      ],
+      "28": [
+        "Bonao"
+      ],
+      "29": [
+        "Monte Plata"
+      ],
+      "30": [
+        "Hato Mayor del Rey"
+      ],
+      "31": [
+        "San José de Ocoa"
+      ],
+      "32": [
+        "Santo Domingo Este",
+        "Santo Domingo Norte",
+        "Santo Domingo Oeste",
+        "Boca Chica",
+        "Los Alcarrizos"
+      ]
+    }
+  }
+}

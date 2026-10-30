@@ -1,0 +1,88 @@
+/* Mobile-specific styles for PaymentScreen component */
+/* Applied when viewport width <= 640px */
+
+@media (max-width: 640px) {
+  .shipping-section {
+    padding: 8px 12px 12px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .section-title {
+    font-size: 13px;
+  }
+
+  .original-shipping-price,
+  .shipping-cost {
+    font-size: 13px;
+  }
+
+  .free-badge {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .sticky-button-container {
+    padding: 12px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+    gap: 10px;
+    margin-top: 12px;
+    margin-left: -14px;
+    margin-right: -14px;
+    margin-bottom: 0;
+    width: calc(100% + 28px);
+    max-width: calc(100% + 28px);
+    position: sticky !important;
+    bottom: 0 !important;
+    z-index: 50 !important;
+  }
+
+  .login-info-section {
+    padding-top: 8px;
+    gap: 8px;
+  }
+
+  .login-info-left {
+    align-items: flex-start;
+  }
+
+  .login-label {
+    font-size: 9px;
+  }
+
+  .phone-number {
+    font-size: 11px;
+  }
+
+  .logout-button {
+    padding: 3px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shipping-section {
+    padding: 8px 12px 12px;
+    border-radius: 6px;
+  }
+
+  .section-title {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .original-shipping-price,
+  .shipping-cost {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .free-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    line-height: 14px;
+  }
+}

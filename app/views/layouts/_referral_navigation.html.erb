@@ -1,0 +1,22 @@
+<% if referral_partner_signed_in? %>
+  <nav class="referral-nav bg-blue-600 text-white p-4">
+    <div class="container mx-auto flex justify-between items-center">
+      <div class="flex space-x-4">
+        <%= link_to "Dashboard", referral_dashboard_path, class: "hover:text-blue-200" %>
+        <%= link_to "Payouts", referral_payouts_path, class: "hover:text-blue-200" %>
+        <%= link_to "My Shops", referral_shops_path, class: "hover:text-blue-200" %>
+        <%= link_to "Account", referral_account_path, class: "hover:text-blue-200" %>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span>Welcome, <%= current_referral_partner.name %>!</span>
+        <% unless current_referral_partner.has_account_details? %>
+          <span class="bg-yellow-500 text-yellow-900 px-2 py-1 rounded text-xs">
+            Setup Payment
+          </span>
+        <% end %>
+        <%= link_to "Logout", referral_logout_path, method: :delete, 
+                    class: "bg-blue-700 px-3 py-1 rounded hover:bg-blue-800" %>
+      </div>
+    </div>
+  </nav>
+<% end %>

@@ -1,0 +1,112 @@
+/* Desktop-specific styles for ContinueButtonWithFooter component */
+/* Applied when viewport width >= 430px */
+
+@media (min-width: 430px) {
+  .continue-button-footer-container {
+    padding: 17px 16px 16px;
+    /* Desktop: Responsive height maintained */
+    height: auto;
+    min-height: auto;
+    /* Remove sticky positioning on desktop */
+    position: relative !important;
+    bottom: auto !important;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+
+  .cta-section {
+    max-width: 399px;
+    margin: 0 auto;
+  }
+
+  .continue-button {
+    /* Desktop: Responsive height with min-height */
+    height: auto;
+    min-height: 40px;
+    max-height: none;
+    padding: 8px;
+  }
+
+  .button-text {
+    font-size: 12px;
+    line-height: 21px;
+  }
+
+  .spinner {
+    width: 16px;
+    height: 16px;
+  }
+
+  .checkbox-wrapper {
+    gap: 8px;
+  }
+
+  .checkbox-input {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+  }
+
+  .checkbox-label {
+    font-size: 12px;
+    line-height: 18px;
+    text-align: right;
+  }
+
+  .legal-footer {
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 0;
+  }
+
+  .legal-links {
+    flex-wrap: nowrap;
+  }
+
+  .legal-text {
+    line-height: 18px;
+  }
+
+  .legal-link {
+    line-height: 18px;
+  }
+
+  .legal-link:hover {
+    color: #404040;
+  }
+
+  .legal-divider {
+    width: 0;
+    height: 18px;
+    border-left: 1px solid var(--hairline);
+    background-color: transparent;
+    margin: 0 2px;
+  }
+
+  .security-section {
+    padding: 4px 7px;
+  }
+
+  .logo-container {
+    height: 11.379px;
+  }
+
+  .cod-logo {
+    height: 11.379px;
+  }
+
+  .continue-button:hover:not(:disabled) {
+    background-color: #1a1a1a;
+  }
+}
+
+/* Tablet and larger screens */
+@media (min-width: 768px) {
+  .continue-button-footer-container {
+    max-width: 474px;
+    margin: 0 auto;
+  }
+}
+
+

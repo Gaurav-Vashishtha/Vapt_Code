@@ -1,0 +1,225 @@
+/* ============================================================================
+ * PREMIUM MOTION ANIMATIONS - Global Animation System
+ * ============================================================================
+ * Reusable animations for premium feel across all screens
+ * ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+ * Keyframe Animations
+ * ---------------------------------------------------------------------------- */
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.03);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes iconSpin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes accentBarSlide {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 100%;
+    opacity: 1;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+ * Easing Curves - Optimized for snappy feel
+ * ---------------------------------------------------------------------------- */
+:root {
+  --ease-spring: ease;
+  --ease-smooth: ease;
+  --ease-bounce: ease;
+  --ease-premium: ease;
+  --ease-sheet: ease;
+
+  /* Motion durations - fast and responsive */
+  --motion-fast: 100ms;
+  --motion-medium: 150ms;
+  --motion-slow: 200ms;
+  --motion-sheet: 200ms;
+}
+
+/* ----------------------------------------------------------------------------
+ * Animation Utility Classes
+ * ---------------------------------------------------------------------------- */
+.animate-slide-in-up {
+  animation: slideInUp var(--motion-slow) var(--ease-premium) backwards;
+}
+
+.animate-slide-in-down {
+  animation: slideInDown var(--motion-slow) var(--ease-premium) backwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft var(--motion-slow) var(--ease-premium) backwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight var(--motion-slow) var(--ease-premium) backwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--motion-medium) var(--ease-smooth) backwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--motion-medium) var(--ease-premium) backwards;
+}
+
+.animate-pulse {
+  animation: pulse 1.6s var(--ease-smooth) infinite;
+}
+
+.animate-bounce {
+  animation: bounce 1.8s var(--ease-smooth) infinite;
+}
+
+.animate-shimmer {
+  background-size: 1000px 100%;
+  animation: shimmer 1.3s linear infinite;
+}
+
+/* Stagger delays for list items */
+.animate-delay-1 {
+  animation-delay: 0.05s;
+}
+
+.animate-delay-2 {
+  animation-delay: 0.1s;
+}
+
+.animate-delay-3 {
+  animation-delay: 0.15s;
+}
+
+.animate-delay-4 {
+  animation-delay: 0.2s;
+}
+
+.animate-delay-5 {
+  animation-delay: 0.25s;
+}
+
+/* Reduced motion: keep UI usable and calm */
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in-up,
+  .animate-slide-in-down,
+  .animate-slide-in-left,
+  .animate-slide-in-right,
+  .animate-fade-in,
+  .animate-scale-in,
+  .animate-pulse,
+  .animate-bounce,
+  .animate-shimmer {
+    animation: none !important;
+  }
+}
+

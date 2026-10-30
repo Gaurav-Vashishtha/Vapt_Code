@@ -1,0 +1,39 @@
+#
+# Basic Crowdin CLI configuration
+# See https://crowdin.github.io/crowdin-cli/configuration for more information
+# See https://support.crowdin.com/developer/configuration-file/ for all available options
+#
+
+#
+# Your Crowdin credentials
+#
+"project_id": "791716"
+"api_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ3UUVxdmhVM3ZMT2EyWGljbVV5VCIsImp0aSI6IjVkMWJjMzY3M2Q3YWEzZjJlYWFlMWVmMDQxNTUzYWEyOWEwMWMxM2JkZWY0YjI3OTRlY2I4YjdlOWQzN2VlMzU2MTBkMWQxNGYxMGRiNDAyIiwiaWF0IjoxNzQ3ODA0NjA5LjUxOTE1NywibmJmIjoxNzQ3ODA0NjA5LjUxOTE1OSwiZXhwIjoxNzc5MzQwNjA5LjQ1MjM4Niwic3ViIjoiMTcxMTQ5MDYiLCJzY29wZXMiOlsicHJvamVjdCJdLCJkb21haW4iOm51bGwsImFzc29jaWF0aW9ucyI6WyIqIl0sImxvZ2luX21ldGhvZCI6bnVsbCwic2Vzc2lvbiI6MH0.G0uHizkkoDlwIN4PZLJfq2pAlFvAc_CHth7XcR7lF4U-xaZajFvU0v-LUtELJTcXDVZsCRD7qb3lDkTFD9NsmW0ISzE25bqoeJARntdqHeTbToxVpTFG3q6R_RPnvVgLOP0Iz7FugiUbpOUuGE-TZBwp8mRj6ZTxPctgD4xTutk874ZGNV1j6WZTIAjp-SMaH1LFj2vUDu7CWtmuOoOAVxWHWJnivE95YKWQdTllbvV9OEt4OODDcujZxuQJy_9wY2X3qSw8HdEaO28em1mhE5I0PGjb4UhbfyJ-QdVwEJL8PO14uueYT315gP2uKiWFrwCY5zuMiRhtv6T-Jwy4rsALqLG3_GjzYcuCuZHkB-8dA5HDw76JuEBbaETSryXPzePsYi9TSWDxz8vY1Ru6aeAB8mBmqmIrZEKgt6CDdjmaIXufbD_EUwM57_wV67MSkp-nvYxQyvEReE-6zzGEmsAZhoxA4A8OHIKSuZOpcc38RThNh_cu7CDdtg-WQYEhF7vqOPmnCxvF0q7bARCR3Y8Dwz8MuE8DArsSyxxMDaCEPUwW1TL08Hcl4NMbGUQM2z5lpqDBcTApjRWc0MYjScD6sq8dO0JPlqTYloQ21KiqE6JPuzMsidGmvPoqHZRoNB01LLkTbtNcxurPa-vcCcmXstdPbTfHC66nm6c5qis"
+"base_path": "."
+"base_url": "https://api.crowdin.com"
+
+#
+# Defines whether to preserve the original directory structure in the Crowdin project
+# Recommended to set to true
+#
+"preserve_hierarchy": true
+
+#
+# Files configuration.
+# See https://support.crowdin.com/developer/configuration-file/ for all available options
+#
+files: [
+  {
+    #
+    # Source files filter
+    # e.g. "/resources/en/*.json"
+    #
+    "source": "/localeJson/en.json",
+
+    #
+    # Translation files filter
+    # e.g. "/resources/%two_letters_code%/%original_file_name%"
+    #
+    "translation": "/localeJson/%two_letters_code%.json",
+  }
+]

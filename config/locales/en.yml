@@ -1,0 +1,305 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   'true': 'foo'
+#
+# To learn more, please read the Rails Internationalization guide
+# available at https://guides.rubyonrails.org/i18n.html.
+
+en:
+  hello: Hello world
+  admin:
+    getting_started: Getting started guide
+    watch_video_msg: Watch the video, book a session or chat with us to start right with COD King!
+    watch_video: Watch Video
+    book_session: Book Session
+    chat_with_us: Chat with us now
+    settings: Settings
+    log: Log
+    step1: Step 1 - COD Order placed
+    step1_desc: Customer places COD order. App Identifies it as COD order.
+    step2: Step 2 - App sends OTP to customer via SMS
+    step2_desc: Unique OTP is sent to customer's mobile number.
+    step3: Step 3 - OTP box shown in Thank you page
+    step3_desc: Customer enters OTP and clicks verify.
+    step4: Step 4 - Filter your orders based on this tag.
+    step4_desc: Customer places COD order. App Identifies it as COD order.
+    step5: Step 5 - Shipping cost saved
+    step5_desc: Save shipping cost by rejecting fake orders Money saved is Money earned.
+
+    logs: Logs
+    order_logs: Order logs
+    subscription: Subscription
+    settings_saved: Settings saved
+    settings_saved_msg: "Changes will be reflected in your store in few minutes."
+    activate_sms: Activate <b>OTP</b> Confirmation
+    activate_cod_fees: Activate <b>COD Fees</b>
+    sms_placeholder: 123456 is your one time password to confirm COD
+    ios_code_error: Template should include "code" keyword to show OTP in the iOS keyboard
+    activate_ivr: Activate <b>IVR</b> Confirmation
+    intro_msg: Introduction message
+    intro_msg_placeholder: Thank you for placing order.
+    order_confirm_label: Order confirmation message
+    order_confirm_placeholder: Please press 1 to confirm your order.
+    order_confirm_help: Guide user to press 1 for confirming order.
+    order_confirm_error: Confirm message should include "1" for order confirmation
+    order_cancel_label: Order cancellation message
+    order_cancel_placeholder: Please press 2 to cancel your order.
+    order_cancel_help: Guide user to press 2 for cancelling order.
+    order_cancel_error: This message should include "2" for order cancellation.
+    test_sms: "Test SMS notification"
+    enter_test_number: Enter test number
+    sms_sent_check_mobile: SMS Sent. Please check your mobile
+    enter_country_code: Please enter number with your country code while testing here
+    number_cc_example: e.g. %{number}
+    send_sms: Send SMS
+    message_template: Message template
+    test_ivr: Test IVR call
+    cod_fees: Amount for COD fees in
+    cod_fees_help: Amount of money you want to add, if customer places a COD order.
+    cod_label: Label to attach for COD fees
+    cod_label_help: Label to be displayed for additional fees
+    cod_instruction: COD delivery instruction
+    cod_instruction_help: This message will be shown to customers in the Thank you page when the order is completed.
+    please_check_mobile: Please check your mobile
+    call_now: Call Now
+    unsaved: Unsaved changes
+    x_chars_used: "%{count} / %{total} characters used"
+    deactivate: Deactivate
+    save: Save
+    discard: Discard
+    free_plan: Free Plan
+    pro_plan: Pro Plan
+    vip_plan: Vip Plan
+    feature_1: starts $0.02 per SMS
+    feature_2: starts $0.06 per IVR
+    feature_3: 1 to 1 call to onboard
+    feature_4: Priority support
+    feature_1_pro: For stores more than 100 COD orders per month
+    custom_plan: Network provider integration Plan
+    subscribe: Subscribe
+    subscribed: Subscribed
+    recommended: Recommended
+    sms_template_default: "{{otp}} is your verification code to confirm COD order placed on %{store}"
+    retry_template_default: "Thanks for placing a COD order on %{store}. Please confirm your order by visiting the link {{link}} birdch"
+    prepaid_template_default: "convert your order to prepaid by clicking the link. {{link}}"
+    order_confirm_template_default: "Thanks for your purchase on %{store}. Your order has been confirmed - Order number {{number}}"
+    fulfilment_template_default: "Your order has been shipped from %{store} - Track your order at {{tracking_url}}"
+    ivr_introduction: "Thank you for placing order on %{domain}."
+    ivr_confirm_message: Please press 1 to confirm your order.
+    ivr_cancel_message: Please press 2 to cancel your order.
+    confirmed_thank_you: Your order is Confirmed, Thank you.
+    cancelled_thank_you: Your order is Cancelled, Thank you.
+    invalid_thank_you: Invalid choice, Please try again, Thank you.
+    no_logs_yet: No logs yet
+    try_changing_search: Try changing the search term
+    order: Order
+    date: Date
+    customer: Customer
+    total: Total
+    status: Status
+    network: Network
+    prev: Previous (J)
+    next: Next (K)
+    no_resource_found: No %{resource} found
+    search_resource: Search %{resource} with order number or customer name
+    all: All
+    enter_valid_phone: Please enter a valid phone number
+    enable_region: Please reach out to us to enable your region
+    x_total_orders: "%{count} total orders"
+    x_verified_orders: "%{count} verified orders"
+    x_pending_orders: "%{count} pending orders"
+    x_prepaid_orders: "%{count} prepaid orders"
+    x_cancelled_orders: "%{count} cancelled orders"
+    order_stats: Order Stats
+    boost_checkout: Seamless Checkout
+    recommended_setup_to: Recommended setup to improve checkout experience
+    copy: Copy
+    copied: Copied
+    starts: Starts
+    ends: Ends
+    recommended_steps: Recommended steps
+    checkout_settings: Go to checkout settings
+    additional_scripts_text_box: And paste the below text in <b>Additional scripts</b> text box
+    one_time_pass: One time password
+    customer_first_name: Customer's first name
+    order_total_amount: Order total amount
+    link_text: One click order confirmation link
+    available_variables: Available variables to paste in message template
+    free_limit_exhausted: Free testing limit exhausted. Please contact us to renew.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} billed sms"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Usage charge created"
+    x_ivr: "%{count} ivr"
+    refresh: Refresh
+    complete_setup: Just one last step
+    complete_setup_msg: Settings saved. To complete the setup, please <b>subscribe here</b>.
+    view_plans: View Plans
+    prepay_template: Prepay template
+    send_payment_link: Payment link
+    submit: Submit
+    bulk_submit: Bulk Submit
+    amount: Amount
+    date_time: Date and Time
+    mobile: Mobile
+    something_went_wrong: Something went wrong, try again later.
+    message_sent: Message Sent
+    send: Send
+    cancel: Cancel
+    upto_x_orders: Upto %{count} Orders per month
+    unlimited_orders: Unlimited number of orders for verification
+    export: Export
+    emailed_orders: Sent logs to email
+    comma_separated_order_ids: Comma separated order IDs
+    order_ids: "Enter ids such as: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Bulk Verify
+    bulk_verify_template: "Hi %{name}, Please click on the link %{link} to verify your order #%{number} of %{amount} placed on %{store}"
+    bulk_processing_title: Processing bulk orders
+    bulk_processing_desc: You will see your orders in the logs in sometime.
+    bulk_processing_error: Something went wrong
+    bulk_processing_error_desc: Please try again, or reach out to us if the issue persists.
+    reach_out_title: Feature not enabled yet.
+    reach_out_desc: Please reach out to us to enable this feature.
+    order_cancelled: You order has been cancelled
+    order_details_title: Order details (Please click on cancel or confirm)
+    react_out_to_us: Please reach out to us to for bulk orders
+    react_out_locked_title: Approval required.
+    react_out_locked_desc: Please reach out to us via <b>email or chat</b> to enable your account.
+    view_cost: View SMS Cost.
+    pricing_for_country: "App's default SMS charge for <b>%{country}</b> is <b>$%{charge}</b> per sms"
+    view_complete_pricing: View pricing table for all countries
+    chat_for_bulk_integration: Chat with us for bulk pricing or custom integration.
+    advance_settings: Advanced settings
+    link_settings: Verification link settings
+    show_cancel_button: Show cancel button
+    show_cancel_button_help: supported only during link verification flow.
+    auto_verify: Auto verify
+    auto_verify_help: Auto verify order on clicking verification link.
+    otp_settings: OTP settings
+    max_retries: Max SMS retries per order
+    otp_wait_time: Resend OTP wait time
+    otp_fallback_text: OTP support or fallback text
+    otp_fallback_text_help: HTML supported
+    network_provider_integration: Network provider integration
+    network_provider: Network Provider
+    required: Required
+    phone_number: Phone Number
+    integration_cost_reduce: Integration reduces your overall cost to almost one third
+    need_help: Need help?
+    create_x_account: Create %{brand} account
+    x_configuration: "%{brand} Configuration"
+    need_more_sms: Chat with us to subscribe and pricing.
+    price_for_country: "$%{price} per Message in %{country}"
+    sms_cost_included: SMS cost included
+    sms_cost_extra: You may pay for SMS to provider directly
+    view: View
+    order_number: Order number
+    get_access_token: Generate access token
+    goto_orders: Go to orders
+    whatsapp_approval_request_sent: WhatsApp approval request sent
+    whatsapp_approval_request_sent_failure: Failed :- WhatsApp approval request failed
+
+  script:
+    submit: Submit
+    mobile_phone_number: Number without 0 and country code
+    enter_valid_phone: Enter valid phone number
+    verify_for_smooth_delivery: Please verify your phone number for easy delivery of your COD order
+    click_verify_link: A link has been sent on your number - <b>%{number}</b>
+    enter_otp_msg: "Please enter the OTP sent on <b>%{number}</b>"
+    enter_otp: Enter OTP
+    change: Change
+    invalid_otp: Invalid OTP, please try again
+    resend_otp: Resend OTP
+    confirm_order: Confirm your order
+    sending: "Sending..."
+    order_being_processed: Your order’s being processed.
+    if_not_redirected: If you're not automatically redirected, refresh this page.
+    resend_in_x_seconds: "Resend OTP in %{count} seconds"
+    max_retries_reached: Maximum retries limit reached.
+    order_details: Order details
+    send_code_on_whatsapp: Get code on Whatsapp
+  whatsapp_inbox_mailer:
+    unanswered:
+      subject: "%{customer} is waiting for a reply on WhatsApp"
+      heading: "A customer has been waiting %{minutes} minutes"
+      body: "%{customer} wrote: \"%{preview}\""
+      cta: "Open the inbox"
+  whatsapp_inbox:
+    order_status:
+      confirmed: "Confirmed"
+      awaiting_confirmation: "Awaiting confirmation"
+      paid_online: "Paid online"
+      cancelled: "Cancelled"
+      rto: "Returned to origin"
+      other: "%{status}"
+    store_team: "Store team"
+  whatsapp_guardrail_mailer:
+    common:
+      there: there
+    campaign_paused:
+      subject_quality_low: 'Your WhatsApp campaign "%{name}" was paused: number quality is low'
+      subject_failure_spike: 'Your WhatsApp campaign "%{name}" was paused: too many messages were blocked'
+      subject_account_blocked: 'Your WhatsApp campaign "%{name}" was paused: WhatsApp blocked sending'
+      greeting: "Hi %{name},"
+      body_quality_low: 'We paused "%{name}" because WhatsApp rated the quality of your number %{number} as low. Sending more messages now could get your number restricted.'
+      body_failure_spike: 'We paused "%{name}" because WhatsApp blocked many of its messages in the last 30 minutes for sending too fast or too often. Continuing could get your number restricted.'
+      body_account_blocked: 'We paused "%{name}" because WhatsApp stopped messages from your number %{number}. This usually means the account is locked, has a payment problem or needs to be registered again.'
+      what_to_do_quality_low: Wait for your number quality to improve before resuming. Messages that are relevant and expected by customers help it recover.
+      what_to_do_failure_spike: Wait a few hours before resuming, and consider sending to a smaller, more engaged audience.
+      what_to_do_account_blocked: Check your WhatsApp Business Account in Meta Business Manager, fix the issue, then resume the campaign.
+      resume_note: Nobody who already got the message will get it again. The campaign stays paused until you resume it.
+      open_app: Open COD King in your Shopify admin
+      sign_off_html: "Thanks,<br/>The COD King team"
+  # COD Form merchant emails (CodFormMailer; docs/cod-form/ARCHITECTURE.md I.6)
+  cod_form_mailer:
+    common:
+      greeting: "Hi %{name},"
+      there: there
+      open_app: Open COD King in your Shopify admin
+      reset_note: The count starts again at the beginning of each calendar month.
+      sign_off_html: "Thanks,<br/>The COD King team"
+    usage_notice:
+      subject_80: "You have used %{percent}% of your COD Form orders this month"
+      subject_100: "You have reached %{cap} COD Form orders this month"
+      intro_80: "%{shop} has placed %{orders} of %{cap} COD Form orders this month (%{percent}%)."
+      intro_100: "%{shop} has reached its %{cap} COD Form orders for this month (%{orders} placed)."
+      warn_fallback: "After %{cap} form orders, your Buy with COD button is switched off until next month. Buyers can still order through your store's normal checkout."
+      warn_grace: "After %{cap} form orders, the next %{grace} orders still go through the form. From order %{limit} on, your Buy with COD button is switched off until next month."
+      warn_flag_only: "Your form keeps working after %{cap} orders. Nothing changes for your buyers."
+      full_fallback: "Your Buy with COD button is now switched off until next month. Buyers can still order through your store's normal checkout."
+      full_grace: "The next %{grace} orders still go through the form. From order %{limit} on, your Buy with COD button is switched off until next month."
+      full_flag_only: "You have passed %{cap} form orders this month. Your form keeps working."
+      upgrade_free: Upgrade your plan to keep the Buy with COD button on for every order.
+      upgrade_paid: A higher plan includes more form orders each month.
+    otp_unavailable_notice:
+      subject: OTP could not be sent for some COD Form orders
+      body:
+        one: "OTP could not be sent for %{count} order on %{shop} in the last 24 hours."
+        other: "OTP could not be sent for %{count} orders on %{shop} in the last 24 hours."
+      what_happened: Those orders were placed without verification, so your buyers did not lose their order. They get your usual post-order verification.
+      what_to_do: Check your message balance.
+      frequency: We send this email at most once every 24 hours.

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pending Payout Summary - Referral Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_admin_navigation' %>
+
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-white">Pending Payout Summary</h1>
+      <div class="flex space-x-3">
+        <%= link_to "Create New Payout", new_referral_admin_payout_path,
+            class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+        <%= link_to "Back to Payouts", referral_admin_payouts_path,
+            class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Pending Amount</h3>
+        <p class="text-3xl font-bold text-orange-600">
+          $<%= number_with_precision(@totals[:total_amount], precision: 2) %>
+        </p>
+        <small class="text-gray-500"><%= @totals[:payout_count] %> payouts</small>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Partners Awaiting Payout</h3>
+        <p class="text-3xl font-bold text-blue-600"><%= @totals[:partner_count] %></p>
+        <small class="text-gray-500">with pending payouts</small>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Unpaid Earnings</h3>
+        <p class="text-3xl font-bold text-purple-600">
+          $<%= number_with_precision(@unpaid_total, precision: 2) %>
+        </p>
+        <small class="text-gray-500">not yet in a payout</small>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Partners w/ Unpaid Earnings</h3>
+        <p class="text-3xl font-bold text-indigo-600"><%= @unpaid_by_partner.size %></p>
+        <small class="text-gray-500">eligible for new payout</small>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow mb-8">
+      <div class="px-6 py-4 border-b">
+        <h3 class="text-xl font-bold text-gray-800">Pending Payouts by Partner</h3>
+      </div>
+
+      <% if @pending_by_partner.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payout ID</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payout Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @pending_by_partner.each do |partner, payouts| %>
+                <% payouts.each_with_index do |payout, i| %>
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <% if i.zero? %>
+                        <% if partner %>
+                          <%= link_to partner.name, referral_admin_partner_path(partner),
+                              class: "text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline" %>
+                          <div class="text-sm text-gray-500"><%= partner.email %></div>
+                        <% else %>
+                          <span class="text-sm text-gray-500">Unknown partner</span>
+                        <% end %>
+                      <% end %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <%= link_to payout.id, referral_admin_payout_path(payout),
+                          class: "text-blue-600 hover:text-blue-800" %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <span class="text-lg font-semibold text-green-600">
+                        $<%= number_with_precision(payout.total_amount, precision: 2) %>
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <%= payout.payout_date&.strftime('%m/%d/%Y') || 'Not set' %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <%= payout.created_at&.strftime('%m/%d/%Y') || 'Unknown' %>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                      <%= link_to "View", referral_admin_payout_path(payout),
+                          class: "text-blue-600 hover:text-blue-800" %>
+                      <%= link_to "Process", process_payout_referral_admin_payout_path(payout),
+                          method: :patch,
+                          class: "text-green-600 hover:text-green-800",
+                          confirm: "Process this payout for $#{number_with_precision(payout.total_amount, precision: 2)}?" %>
+                      <%= link_to "Cancel", cancel_referral_admin_payout_path(payout),
+                          method: :patch,
+                          class: "text-red-600 hover:text-red-800",
+                          confirm: "Cancel this payout?" %>
+                    </td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No pending payouts</h3>
+          <p class="text-gray-500">All payouts have been processed.</p>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <h3 class="text-xl font-bold text-gray-800">Unpaid Earnings by Partner</h3>
+        <p class="text-sm text-gray-500">Commission earned but not yet included in any payout</p>
+      </div>
+
+      <% if @unpaid_by_partner.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unpaid Amount</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @unpaid_by_partner.each do |(partner_name, partner_id), amount| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <%= link_to partner_name, referral_admin_partner_path(partner_id),
+                        class: "text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-lg font-semibold text-purple-600">
+                      $<%= number_with_precision(amount, precision: 2) %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <%= link_to "Create Payout", new_referral_admin_payout_path,
+                        class: "text-green-600 hover:text-green-800" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No unpaid earnings</h3>
+          <p class="text-gray-500">All earnings have been paid out.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+he:
+  hello: שלום עולם
+  admin:
+    getting_started: מדריך תחילת העבודה
+    watch_video_msg: צפו בסרטון, הזמינו פגישה או שוחחו איתנו כדי להתחיל ממש עם COD King!
+    watch_video: צפה בסרטון
+    book_session: פגישת ספר
+    chat_with_us: שוחח איתנו עכשיו
+    settings: הגדרות
+    log: יומן
+    step1: שלב 1 - הזמנת COD בוצעה
+    step1_desc: הלקוח מבצע הזמנת COD. האפליקציה מזהה אותה כהזמנת COD.
+    step2: שלב 2 - האפליקציה שולחת OTP ללקוח באמצעות SMS
+    step2_desc: OTP ייחודי נשלח למספר הנייד של הלקוח.
+    step3: שלב 3 - תיבת OTP המוצגת בדף תודה
+    step3_desc: הלקוח נכנס ל- OTP ולוחץ על אימות.
+    step4: שלב 4 - סנן את ההזמנות שלך על סמך תג זה.
+    step4_desc: הלקוח מבצע הזמנת COD. האפליקציה מזהה אותה כהזמנת COD.
+    step5: שלב 5 - חיסכון בעלויות המשלוח
+    step5_desc: חסוך בעלויות משלוח על ידי דחיית הזמנות מזויפות כסף שנחסך הוא כסף שנצבר.
+    logs: יומנים
+    order_logs: יומני הזמנות
+    subscription: מנוי
+    settings_saved: הגדרות נשמרות
+    settings_saved_msg: "השינויים יבואו לידי ביטוי בחנות שלך תוך מספר דקות."
+    activate_sms: הפעל אישור <b>OTP</b>
+    activate_cod_fees: הפעל עמלות קוד <b></b>
+    sms_placeholder: 123456 היא הסיסמה החד-פעמית שלך לאישור COD
+    ios_code_error: התבנית צריכה לכלול מילת מפתח "קוד" להצגת OTP במקלדת iOS
+    activate_ivr: הפעל אישור <b>IVR</b>
+    intro_msg: הודעת הקדמה
+    intro_msg_placeholder: תודה על ביצוע ההזמנה.
+    order_confirm_label: הודעת אישור הזמנה
+    order_confirm_placeholder: אנא לחץ על 1 כדי לאשר את ההזמנה שלך.
+    order_confirm_help: מדריך למשתמש ללחוץ על 1 לאישור ההזמנה.
+    order_confirm_error: הודעת האישור צריכה לכלול "1" לאישור ההזמנה
+    order_cancel_label: הודעת ביטול הזמנה
+    order_cancel_placeholder: אנא לחץ על 2 כדי לבטל את ההזמנה שלך.
+    order_cancel_help: מדריך למשתמש ללחוץ על 2 לביטול הזמנה.
+    order_cancel_error: הודעה זו צריכה לכלול "2" לביטול הזמנה.
+    test_sms: "בדיקת הודעת SMS"
+    enter_test_number: הזן את מספר הבדיקה
+    sms_sent_check_mobile: SMS נשלח. אנא בדוק את הנייד שלך
+    enter_country_code: אנא הזן מספר עם קוד המדינה שלך בזמן הבדיקה כאן
+    number_cc_example: למשל %{number}
+    send_sms: שלח SMS
+    message_template: תבנית הודעה
+    test_ivr: בדיקת שיחת IVR
+    cod_fees: סכום דמי COD ב
+    cod_fees_help: סכום הכסף שברצונך להוסיף, אם הלקוח מבצע הזמנת COD.
+    cod_label: תווית לצרף עבור דמי COD
+    cod_label_help: תווית תוצג בתשלום נוסף
+    cod_instruction: הוראות משלוח COD
+    cod_instruction_help: הודעה זו תוצג ללקוחות בדף תודה עם השלמת ההזמנה.
+    please_check_mobile: אנא בדוק את הנייד שלך
+    call_now: התקשר עכשיו
+    unsaved: שינויים שלא נשמרו
+    x_chars_used: "שימוש בתווים %{count} / %{total}"
+    deactivate: בטל
+    save: שמור
+    discard: מחק
+    free_plan: תוכנית חינם
+    pro_plan: תוכנית פרו
+    vip_plan: תוכנית Vip
+    feature_1: מתחיל $0.02 לכל SMS
+    feature_2: החל מ-$0.06 לכל IVR
+    feature_3: שיחה 1 עד 1 לספינה
+    feature_4: תמיכה בעדיפות
+    feature_1_pro: לחנויות יותר מ -100 הזמנות COD בחודש
+    custom_plan: תוכנית אינטגרציה של ספקי רשת
+    subscribe: הירשם
+    subscribed: מנוי
+    recommended: מומלץ
+    sms_template_default: "{{otp}} הוא קוד האימות שלך לאישור הזמנת COD שבוצעה ב- %{store}"
+    retry_template_default: "תודה שהזמנת COD ב- %{store}. אנא אשר את ההזמנה שלך על ידי ביקור בקישור {{link}} birdch"
+    prepaid_template_default: "להמיר את ההזמנה שלך לתשלום מראש על ידי לחיצה על הקישור. {{link}}"
+    order_confirm_template_default: "תודה על הרכישה שלך ב- %{store}. ההזמנה שלך אושרה - מספר הזמנה {{number}}"
+    fulfilment_template_default: "ההזמנה שלך נשלחה מ- %{store} - עקוב אחר ההזמנה שלך ב {{tracking_url}}"
+    ivr_introduction: "תודה על ביצוע ההזמנה ב- %{domain}."
+    ivr_confirm_message: אנא לחץ על 1 כדי לאשר את ההזמנה שלך.
+    ivr_cancel_message: אנא לחץ על 2 כדי לבטל את ההזמנה שלך.
+    confirmed_thank_you: ההזמנה שלך אושרה, תודה.
+    cancelled_thank_you: ההזמנה שלך בוטלה, תודה.
+    invalid_thank_you: בחירה לא חוקית, אנא נסה שוב, תודה.
+    no_logs_yet: עדיין אין יומנים
+    try_changing_search: נסה לשנות את מונח החיפוש
+    order: סדר
+    date: תאריך
+    customer: לקוח
+    total: סה"כ
+    status: סטטוס
+    network: רשת
+    prev: הקודם (J)
+    next: הבא (K)
+    no_resource_found: לא נמצאו %{resource}
+    search_resource: חפש %{resource} עם מספר הזמנה או שם לקוח
+    all: הכל
+    enter_valid_phone: אנא הזן מספר טלפון חוקי
+    enable_region: אנא פנה אלינו כדי לאפשר את האזור שלך
+    x_total_orders: "%{count} סך ההזמנות"
+    x_verified_orders: "%{count} הזמנות מאומתות"
+    x_pending_orders: "%{count} הזמנות ממתינות"
+    x_prepaid_orders: "%{count} הזמנות ששולמו מראש"
+    x_cancelled_orders: "%{count} הזמנות מבוטלות"
+    order_stats: סטטיסטיקות הזמנות
+    boost_checkout: קופה חלקה
+    recommended_setup_to: הגדרה מומלצת לשיפור חוויית התשלום
+    copy: העתק
+    copied: הועתק
+    starts: מתחיל
+    ends: מסתיים
+    recommended_steps: צעדים מומלצים
+    checkout_settings: עבור אל הגדרות התשלום
+    additional_scripts_text_box: והדבק את הטקסט למטה בתיבת הטקסט <b>סקריפטים נוספים</b>
+    one_time_pass: סיסמה חד פעמית
+    customer_first_name: שם פרטי של הלקוח
+    order_total_amount: סכום הזמנה כולל
+    link_text: קישור לאישור הזמנה בלחיצה אחת
+    available_variables: משתנים זמינים להדבקה בתבנית הודעה
+    free_limit_exhausted: מגבלת הבדיקה החופשית מותשת. אנא צרו איתנו קשר לחידוש.
+    x_success_sms: "%{count} סמס"
+    x_billed_sms: "%{count} SMS מחויב"
+    x_failed_sms: "%{count} סמס"
+    usage_charged_created: "חיוב שימוש נוצר"
+    x_ivr: "%{count} איבר"
+    refresh: לרענן
+    complete_setup: רק צעד אחרון
+    complete_setup_msg: ההגדרות נשמרו. להשלמת ההתקנה, אנא הירשם <b>כאן</b>.
+    view_plans: צפה בתכניות
+    prepay_template: תבנית תשלום מראש
+    send_payment_link: קישור לתשלום
+    submit: להגיש
+    bulk_submit: הגשה בכמות גדולה
+    amount: סכום
+    date_time: תאריך ושעה
+    mobile: נייד
+    something_went_wrong: משהו השתבש, נסה שוב מאוחר יותר.
+    message_sent: הודעה נשלחה
+    send: שלח
+    cancel: בטל
+    upto_x_orders: עד %{count} הזמנות לחודש
+    unlimited_orders: מספר בלתי מוגבל של הזמנות לאימות
+    export: ייצוא
+    emailed_orders: שלחו יומנים לדוא"ל
+    comma_separated_order_ids: מזהי סדר מופרדים בפסיקים
+    order_ids: "הזן מזהים כגון: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: אימות בכמות גדולה
+    bulk_verify_template: "היי %{name}, אנא לחץ על הקישור %{link} כדי לאמת את ההזמנה שלך #%{number} של %{amount} שבוצעה ב- %{store}"
+    bulk_processing_title: עיבוד הזמנות בכמות גדולה
+    bulk_processing_desc: אתה תראה את ההזמנות שלך ביומנים מתישהו.
+    bulk_processing_error: משהו השתבש
+    bulk_processing_error_desc: אנא נסה שוב, או פנה אלינו אם הבעיה נמשכת.
+    reach_out_title: התכונה עדיין לא מופעלת.
+    reach_out_desc: אנא פנה אלינו כדי להפעיל תכונה זו.
+    order_cancelled: ההזמנה שלך בוטלה
+    order_details_title: פרטי הזמנה (אנא לחץ על ביטול או אישור)
+    react_out_to_us: אנא פנה אלינו להזמנות בכמויות גדולות
+    react_out_locked_title: נדרש אישור.
+    react_out_locked_desc: אנא פנה אלינו באמצעות דוא"ל <b>או צ'אט</b> כדי להפעיל את חשבונך.
+    view_cost: צפה בעלות SMS.
+    pricing_for_country: "חיוב ה- SMS המוגדר כברירת מחדל של האפליקציה עבור <b>%{country}</b> הוא <b>$%{charge}</b> לכל SMS"
+    view_complete_pricing: צפה בטבלת התמחור עבור כל המדינות
+    chat_for_bulk_integration: שוחח איתנו לקבלת תמחור בכמויות גדולות או אינטגרציה מותאמת אישית.
+    advance_settings: הגדרות מתקדמות
+    link_settings: הגדרות קישור לאימות
+    show_cancel_button: הצג לחצן ביטול
+    show_cancel_button_help: נתמך רק במהלך זרימת אימות הקישור.
+    auto_verify: אימות אוטומטי
+    auto_verify_help: אימות אוטומטי של ההזמנה בלחיצה על קישור האימות.
+    otp_settings: הגדרות OTP
+    max_retries: מקסימום ניסיונות SMS חוזרים לכל הזמנה
+    otp_wait_time: שלח שוב זמן המתנה של OTP
+    otp_fallback_text: תמיכה ב- OTP או טקסט חזרה
+    otp_fallback_text_help: HTML נתמך
+    network_provider_integration: שילוב ספקי רשת
+    network_provider: ספק רשת
+    required: חובה
+    phone_number: מספר טלפון
+    integration_cost_reduce: אינטגרציה מפחיתה את העלות הכוללת שלך לכמעט שליש
+    need_help: זקוק לעזרה?
+    create_x_account: צור חשבון %{brand}
+    x_configuration: "%{brand} תצורה"
+    need_more_sms: שוחח איתנו כדי להירשם ולתמחור.
+    price_for_country: "$%{price} לכל הודעה ב- %{country}"
+    sms_cost_included: עלות SMS כלולה
+    sms_cost_extra: אתה יכול לשלם עבור SMS לספק ישירות
+    view: תצוגת
+    order_number: מספר הזמנה
+    get_access_token: צור אסימון גישה
+    goto_orders: עבור להזמנות
+    whatsapp_approval_request_sent: בקשת אישור WhatsApp נשלחה
+    whatsapp_approval_request_sent_failure: 'נכשל: - בקשת האישור של WhatsApp נכשלה'
+  script:
+    submit: להגיש
+    mobile_phone_number: מספר ללא 0 וקוד מדינה
+    enter_valid_phone: הזן מספר טלפון חוקי
+    verify_for_smooth_delivery: אנא ודא את מספר הטלפון שלך למשלוח קל של הזמנת COD שלך
+    click_verify_link: קישור נשלח למספר שלך - <b>%{number}</b>
+    enter_otp_msg: "אנא הזן את ה- OTP שנשלח ב- <b>%{number}</b>"
+    enter_otp: הזן OTP
+    change: שינוי
+    invalid_otp: OTP לא חוקי, אנא נסה שוב
+    resend_otp: שלח שוב OTP
+    confirm_order: אמת את ההזמנה שלך
+    sending: "שולח..."
+    order_being_processed: ההזמנה שלך עוברת עיבוד.
+    if_not_redirected: אם אינך מנותב מחדש באופן אוטומטי, רענן דף זה.
+    resend_in_x_seconds: "שלח שוב OTP תוך %{count} שניות"
+    max_retries_reached: הושגה מגבלת ניסיונות חוזרים מקסימלית.
+    order_details: פרטי הזמנה
+    send_code_on_whatsapp: קבל קוד בוואטסאפ

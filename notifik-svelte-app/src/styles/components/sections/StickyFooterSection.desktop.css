@@ -1,0 +1,102 @@
+/* Desktop-specific styles for StickyFooterSection component */
+/* Applied when viewport width >= 430px */
+
+@media (min-width: 430px) {
+  .sticky-footer-section {
+    padding: 12px 0 16px;
+    padding-top: 0px !important;
+    /* Remove sticky positioning on desktop */
+    position: relative !important;
+    bottom: auto !important;
+  }
+
+  .action-button {
+    height: auto;
+    min-height: 40px;
+    padding: 8px;
+  }
+
+  .button-text {
+    font-size: 12px;
+    line-height: 21px;
+  }
+
+  .checkbox-wrapper {
+    gap: 8px;
+  }
+
+  .checkbox-input {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+  }
+
+  .checkbox-label {
+    font-size: 12px;
+    line-height: 18px;
+    text-align: right;
+  }
+
+  .legal-footer {
+    flex-direction: row;
+    gap: 8px;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .legal-links {
+    flex-wrap: nowrap;
+  }
+
+  .legal-text {
+    line-height: 18px;
+  }
+
+  .legal-link {
+    line-height: 18px;
+  }
+
+  .legal-link:hover {
+    color: #404040;
+  }
+
+  .legal-divider {
+    width: 0;
+    height: 18px;
+    border-left: 1px solid var(--hairline);
+    background-color: transparent;
+    margin: 0 2px;
+  }
+
+  .security-section {
+    padding: 4px 7px;
+  }
+
+  .logo-container {
+    height: 11.379px;
+  }
+
+  .cod-logo {
+    height: 11.379px;
+  }
+
+  .action-button:hover:not(:disabled) {
+    background-color: #1a1a1a;
+  }
+
+  .action-button.whatsapp-button:hover:not(:disabled) {
+    background-color: #f8f8f8;
+  }
+}
+
+/* Tablet and larger screens */
+@media (min-width: 768px) {
+  .sticky-footer-section {
+    max-width: 474px;
+    margin: 0 auto;
+  }
+}
+
+.sticky-footer-section {
+  padding-top: 0px !important;
+}

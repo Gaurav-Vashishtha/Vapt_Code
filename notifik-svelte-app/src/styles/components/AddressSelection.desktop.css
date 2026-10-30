@@ -1,0 +1,14 @@
+/* Desktop-specific styles for AddressSelection component */
+/* Applied when viewport width >= 641px */
+
+@media (min-width: 641px) {
+  /* Make button container non-sticky on desktop - it should flow normally */
+  .sticky-button-container {
+    position: relative !important;
+    bottom: auto !important;
+    box-shadow: none !important;
+    margin-top: var(--address-selection-gap-content);
+    margin-bottom: 0;
+    z-index: auto !important;
+  }
+}

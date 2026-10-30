@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  shop: one
+  source_tab: MyString
+  notes: MyText
+  status: MyString
+  resolved_notes: MyText
+  resolved_at: 2025-11-17 13:00:39
+  resolved_by: MyString
+
+two:
+  shop: two
+  source_tab: MyString
+  notes: MyText
+  status: MyString
+  resolved_notes: MyText
+  resolved_at: 2025-11-17 13:00:39
+  resolved_by: MyString

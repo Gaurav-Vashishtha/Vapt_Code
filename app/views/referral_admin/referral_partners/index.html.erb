@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Referral Partners - Admin</title>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Referral Partners Management</h1>
+      <%= link_to "Add New Partner", new_referral_admin_partner_path, 
+                  class: "bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" %>
+    </div>
+    
+    <!-- Summary Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Total Partners</h3>
+        <p class="text-3xl font-bold text-blue-600"><%= @total_partners_count %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Active Partners</h3>
+        <p class="text-3xl font-bold text-green-600"><%= @active_partners_count %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Pending Shops</h3>
+        <p class="text-3xl font-bold text-yellow-600"><%= @pending_shops_count %></p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-semibold text-gray-700">Quick Actions</h3>
+        <div class="space-y-2 mt-2">
+          <%= link_to "Shop Approvals", referral_admin_shops_path, 
+                      class: "block text-blue-600 hover:text-blue-800 text-sm" %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Partners Table -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <h3 class="text-lg font-semibold text-gray-800">All Partners</h3>
+          <%= form_with url: referral_admin_referral_partners_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do %>
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Min total shops</label>
+              <%= number_field_tag :min_total_shops, @min_total_shops, min: 0, class: "border rounded px-2 py-1 text-sm w-28" %>
+            </div>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <%= check_box_tag :pending_account, "1", @pending_account_only, class: "rounded border-gray-300" %>
+              Pending account
+            </label>
+            <label class="inline-flex items-center gap-2 text-sm text-gray-700">
+              <%= check_box_tag :pending_shop_approvals, "1", @pending_shop_approvals_only, class: "rounded border-gray-300" %>
+              Pending shop approvals
+            </label>
+            <%= submit_tag "Apply", class: "bg-gray-800 hover:bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium" %>
+            <%= link_to "Clear", referral_admin_referral_partners_path, class: "text-sm text-gray-600 hover:underline" %>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission Rates</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shops</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Commission</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Real earnings (30d)</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @partners.each do |partner| %>
+              <% cached_real = Rails.cache.read("referral_partner:#{partner.id}:real_earnings_last_30_days") %>
+              <tr>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div>
+                      <div class="text-sm font-medium text-gray-900"><%= partner.name %></div>
+                      <div class="text-sm text-gray-500"><%= partner.email %></div>
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                  <div><%= partner.created_at&.strftime("%Y-%m-%d") || "—" %></div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    <div>Sub: <%= partner.subscription_commission_rate %>%</div>
+                    <div>Usage: <%= partner.usage_commission_rate %>%</div>
+                    <div>One-time: <%= partner.onetime_commission_rate %>%</div>
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm text-gray-900">
+                    <% total_shops = (partner.respond_to?(:total_shops_count) ? partner.total_shops_count.to_i : partner.referral_shops.count) %>
+                    <% approved_shops = (partner.respond_to?(:approved_shops_count) ? partner.approved_shops_count.to_i : partner.referral_shops.approved.count) %>
+                    <% pending_shops = (partner.respond_to?(:pending_shops_count) ? partner.pending_shops_count.to_i : partner.referral_shops.pending_approval.count) %>
+                    <div>Total: <%= total_shops %></div>
+                    <div>Approved: <%= approved_shops %></div>
+                    <div>Pending: <%= pending_shops %></div>
+                  </div>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-green-600">
+                    $<%= number_with_precision(partner.total_commission_earned(:all_time), precision: 2) %>
+                  </div>
+                  <div class="text-xs text-gray-500">All time</div>
+                </td>
+
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if cached_real.present? && cached_real.is_a?(Hash) %>
+                    <div class="text-sm font-medium text-gray-900">
+                      <span id="real-earnings-<%= partner.id %>">$<%= number_with_precision(cached_real[:total_earnings_all_partners].to_f, precision: 2) %></span>
+                    </div>
+                    <div class="text-xs text-gray-500">Last 30 days</div>
+                  <% else %>
+                    <div class="text-sm text-gray-500"><span id="real-earnings-<%= partner.id %>">—</span></div>
+                  <% end %>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <span class="<%= partner.active? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-2 py-1 rounded-full text-xs font-medium">
+                    <%= partner.active? ? 'Active' : 'Inactive' %>
+                  </span>
+                  <% if partner.has_account_details? %>
+                    <div class="mt-1">
+                      <span class="<%= partner.account_verified? ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' %> px-2 py-1 rounded-full text-xs">
+                        <%= partner.account_verified? ? 'Verified' : 'Pending' %>
+                      </span>
+                    </div>
+                  <% else %>
+                    <div class="mt-1">
+                      <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">
+                        No Payment Info
+                      </span>
+                    </div>
+                  <% end %>
+                </td>
+                
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div class="flex space-x-2">
+                    <%= link_to "View", referral_admin_partner_path(partner), 
+                                class: "text-indigo-600 hover:text-indigo-900" %>
+                    <%= link_to "Edit", edit_referral_admin_partner_path(partner), 
+                                class: "text-green-600 hover:text-green-900" %>
+
+                    <button type="button"
+                            class="text-gray-700 hover:text-gray-900 hover:underline cursor-pointer bg-transparent p-0 m-0 border-0 align-baseline js-fetch-earnings"
+                            data-fetch-url="<%= fetch_real_earnings_last_30_days_referral_admin_partner_path(partner, format: :json) %>"
+                            data-partner-id="<%= partner.id %>"
+                            data-partner-name="<%= partner.name %>">
+                      Fetch earnings (30d)
+                    </button>
+                    
+                    <% if partner.active? %>
+                      <%= link_to "Deactivate", toggle_active_referral_admin_partner_path(partner), 
+                                  method: :patch, 
+                                  confirm: "Deactivate this partner?",
+                                  class: "text-red-600 hover:text-red-900" %>
+                    <% else %>
+                      <%= link_to "Activate", toggle_active_referral_admin_partner_path(partner), 
+                                  method: :patch,
+                                  confirm: "Activate this partner?", 
+                                  class: "text-green-600 hover:text-green-900" %>
+                    <% end %>
+                    
+                    <% if partner.has_account_details? && !partner.account_verified? %>
+                      <%= link_to "Verify Account", verify_account_referral_admin_partner_path(partner), 
+                                  method: :patch,
+                                  confirm: "Verify this partner's payment account?",
+                                  class: "text-blue-600 hover:text-blue-900" %>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        
+        <% if @partners.empty? %>
+          <div class="text-center py-8">
+            <p class="text-gray-500 mb-4">No referral partners found</p>
+            <%= link_to "Add First Partner", new_referral_admin_partner_path,
+                        class: "bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+<script>
+(function () {
+  function getCsrf() {
+    var el = document.querySelector('meta[name="csrf-token"]');
+    return el && el.getAttribute('content');
+  }
+
+  function fmtMoney(n) {
+    try { return '$' + Number(n || 0).toFixed(2); } catch (e) { return '$0.00'; }
+  }
+
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest && e.target.closest('.js-fetch-earnings');
+    if (!btn) return;
+    e.preventDefault();
+
+    var ok = window.confirm('Fetch real earnings from Shopify Partner API for the last 30 days?');
+    if (!ok) return;
+
+    var url = btn.getAttribute('data-fetch-url');
+    var partnerId = btn.getAttribute('data-partner-id');
+    var labelId = 'real-earnings-' + partnerId;
+
+    btn.disabled = true;
+    var prev = document.getElementById(labelId) ? document.getElementById(labelId).textContent : '';
+    setText(labelId, 'Loading…');
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': getCsrf(),
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({})
+    })
+      .then(function (res) {
+        return res.json().then(function (body) {
+          if (!res.ok) throw new Error((body && body.error) || res.statusText);
+          return body;
+        });
+      })
+      .then(function (data) {
+        if (data && data.success) {
+          setText(labelId, fmtMoney(data.total_earnings_last_30_days));
+        } else {
+          throw new Error((data && data.error) || 'Failed');
+        }
+      })
+      .catch(function (err) {
+        setText(labelId, prev || '—');
+        window.alert(err && err.message ? err.message : 'Could not fetch earnings');
+      })
+      .finally(function () {
+        btn.disabled = false;
+      });
+  });
+})();
+</script>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Connect WhatsApp — <%= @brand_name %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <% if @brand_logo %><link rel="icon" href="<%= @brand_logo %>"><% end %>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --brand:#ff6801; --brand-dark:#e55d00; --ink:#1a1a1a; }
+    body { font-family:'Poppins',ui-sans-serif,system-ui,sans-serif; color:var(--ink); }
+    .brand-gradient { background:linear-gradient(330deg,#ff00f7,#ff5303); }
+    .btn-brand { background-color:var(--brand); }
+    .btn-brand:hover { background-color:var(--brand-dark); }
+  </style>
+</head>
+<body class="bg-gray-50">
+<div class="min-h-screen flex flex-col">
+  <div class="h-1 brand-gradient"></div>
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-2xl mx-auto px-4 flex items-center gap-3 h-16">
+      <% if @brand_logo %><img src="<%= @brand_logo %>" alt="" class="h-8 w-auto"><% end %>
+      <div>
+        <div class="text-sm font-semibold text-gray-900"><%= @brand_name %></div>
+        <div class="text-xs text-gray-500"><%= @client.domain %></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex-1 flex items-start justify-center px-4 py-10">
+    <div class="max-w-2xl w-full space-y-4">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 text-center">
+        <div class="mx-auto w-14 h-14 rounded-full flex items-center justify-center text-3xl" style="background:#dcf8c6">💬</div>
+        <h1 class="mt-3 text-xl font-semibold text-gray-900">Connect your WhatsApp number</h1>
+        <p class="mt-1 text-sm text-gray-500 max-w-md mx-auto">
+          Link your business's WhatsApp number so order updates and notifications can be sent from it.
+          You'll sign in with the Facebook account that manages your WhatsApp Business.
+        </p>
+
+        <div id="cb-signup-error" class="hidden mt-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800 text-left"></div>
+
+        <% if @accounts.any? %>
+          <div class="mt-5 space-y-2 text-left">
+            <% @accounts.each do |acc| %>
+              <div class="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
+                <div>
+                  <div class="font-medium text-gray-900"><%= acc.display_phone_number.presence || acc.phone_number_id %></div>
+                  <div class="text-xs text-gray-500"><%= acc.verified_name %></div>
+                </div>
+                <% if acc.ready_to_send? %>
+                  <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">✓ Connected</span>
+                <% elsif acc.needs_registration? %>
+                  <span class="text-xs px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 font-medium">Finishing setup…</span>
+                <% else %>
+                  <span class="text-xs px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 font-medium"><%= acc.status %></span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          <button id="cb-connect-btn" class="mt-5 text-sm border border-gray-300 rounded-lg px-5 py-2.5 text-gray-700 hover:bg-gray-50">+ Connect another number</button>
+        <% else %>
+          <button id="cb-connect-btn" class="btn-brand mt-6 text-white text-sm font-medium rounded-lg px-8 py-3 shadow-sm">Connect WhatsApp number</button>
+        <% end %>
+
+        <p class="mt-4 text-[11px] text-gray-400">Powered by Meta's WhatsApp Business Platform. Your credentials are never shared with us.</p>
+      </div>
+
+      <% if @accounts.any? { |a| a.ready_to_send? } %>
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800 text-center">
+          You're all set — automated WhatsApp updates for your store are now active. You can close this page.
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  const CB_BASE = "/cb/<%= j @client.domain %>";
+  const META_APP_ID = "<%= j @meta_app_id.to_s %>";
+  const META_CONFIG_ID = "<%= j @meta_config_id.to_s %>";
+  const META_GRAPH_API_VERSION = "<%= j @meta_graph_api_version %>";
+
+  let signupData = {};
+
+  function showSignupError(msg) {
+    const el = document.getElementById("cb-signup-error");
+    el.textContent = msg;
+    el.classList.remove("hidden");
+  }
+
+  window.addEventListener("message", (event) => {
+    if (!event.origin.endsWith("facebook.com")) return;
+    try {
+      const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+      if (data?.type === "WA_EMBEDDED_SIGNUP") {
+        if (data.event === "FINISH") {
+          signupData.waba_id = data.data?.waba_id;
+          signupData.phone_number_id = data.data?.phone_number_id;
+          maybeSubmitSignup();
+        } else if (data.event === "CANCEL") {
+          showSignupError("Signup was cancelled.");
+        } else if (data.event === "ERROR") {
+          showSignupError(data.data?.error_message || "Signup error");
+        }
+      }
+    } catch (_) {}
+  });
+
+  function loadFacebookSdk() {
+    return new Promise((resolve, reject) => {
+      if (window.FB) return resolve(window.FB);
+      const script = document.createElement("script");
+      script.id = "facebook-jssdk";
+      script.async = true;
+      script.defer = true;
+      script.crossOrigin = "anonymous";
+      script.src = "https://connect.facebook.net/en_US/sdk.js";
+      script.onload = () => {
+        try {
+          window.FB.init({ appId: META_APP_ID, autoLogAppEvents: true, xfbml: true, version: META_GRAPH_API_VERSION });
+          resolve(window.FB);
+        } catch (err) { reject(err); }
+      };
+      script.onerror = reject;
+      document.body.appendChild(script);
+    });
+  }
+
+  async function maybeSubmitSignup() {
+    if (!signupData.code) return;
+    try {
+      const res = await fetch(CB_BASE + "/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify(signupData),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to connect");
+      location.reload();
+    } catch (err) {
+      showSignupError(err.message);
+    }
+  }
+
+  document.getElementById("cb-connect-btn").addEventListener("click", async () => {
+    document.getElementById("cb-signup-error").classList.add("hidden");
+    if (!META_APP_ID || !META_CONFIG_ID) return showSignupError("WhatsApp signup is not configured. Please contact support.");
+    try {
+      const FB = await loadFacebookSdk();
+      FB.login((response) => {
+        if (response.authResponse?.code) {
+          signupData.code = response.authResponse.code;
+          maybeSubmitSignup();
+        } else {
+          showSignupError("Login was cancelled or did not return a code.");
+        }
+      }, {
+        config_id: META_CONFIG_ID,
+        response_type: "code",
+        override_default_response_type: true,
+        extras: { setup: {}, featureType: "whatsapp_business_app_onboarding" },
+      });
+    } catch (err) {
+      showSignupError(err?.message || "Failed to load Meta SDK");
+    }
+  });
+</script>
+</body>
+</html>

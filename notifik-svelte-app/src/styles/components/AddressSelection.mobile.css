@@ -1,0 +1,70 @@
+/* Mobile-specific styles for AddressSelection component */
+/* Applied when viewport width <= 640px */
+
+@media (max-width: 640px) {
+  /* Ensure address content doesn't overflow in BottomSlider */
+  .address-content {
+    height: auto;
+    min-height: auto;
+    flex: 1 1 auto;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  /* Address list should scroll if content exceeds available space */
+  .address-list {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: visible;
+    overflow-x: hidden;
+  }
+
+  /* Ensure footer doesn't get cut off */
+  .footer-container {
+    padding-top: 12px;
+    flex-shrink: 0;
+  }
+
+  /* Ensure sticky button container doesn't overlap content */
+  .sticky-button-container {
+    flex-shrink: 0;
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+}
+
+@media (max-width: 480px) {
+  .address-content {
+    padding: 12px;
+  }
+
+  .sticky-button-container {
+    padding: 0 12px;
+  }
+
+  .logout-button {
+    padding: 3px 6px;
+  }
+
+  .logout-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .logout-text {
+    font-size: 10px;
+  }
+
+  .delivery-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .add-address-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>COD King — Quick feedback</title>
+  <%= csrf_meta_tags %>
+  <style>
+    :root { --brand: #ff6600; --ink: #1a1a1a; --muted: #6b7280; --line: #e5e7eb; --bg: #f6f6f7; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; }
+    .wrap { max-width: 600px; margin: 32px auto; padding: 0 16px; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 28px 24px; }
+    .brand { font-weight: 700; color: var(--brand); letter-spacing: .2px; margin-bottom: 12px; }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    .sub { color: var(--muted); margin: 0 0 22px; }
+    .q { font-weight: 600; margin: 22px 0 10px; }
+    .opt { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0; cursor: pointer; }
+    .opt:hover { border-color: #d1d5db; }
+    .opt input { accent-color: var(--brand); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .row .opt { flex: 1 1 140px; margin: 0; }
+    textarea, input[type=text], input[type=tel] { width: 100%; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font: inherit; }
+    textarea { min-height: 96px; resize: vertical; }
+    .hidden { display: none; }
+    .check { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+    button { margin-top: 24px; width: 100%; background: var(--brand); color: #fff; border: 0; border-radius: 8px; padding: 13px 18px; font: inherit; font-weight: 600; cursor: pointer; }
+    button:hover { background: #e65c00; }
+    .note { color: var(--muted); font-size: 13px; margin-top: 12px; text-align: center; }
+    .preview { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; border-radius: 8px; padding: 8px 12px; font-size: 13px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="brand">COD King</div>
+      <% if @preview %><div class="preview">Preview — answers on this page are not saved.</div><% end %>
+      <h1>Sorry to see you go</h1>
+      <p class="sub">You removed COD King from <strong><%= @uninstalled.shop_domain %></strong>. Tell us why in 30 seconds — every answer is read by the team.</p>
+
+      <%= form_with url: uninstall_survey_path(token: params[:token]), method: :post, local: true, id: "exit-survey" do %>
+        <div class="q">What was the main reason you uninstalled?</div>
+        <% @reasons.each do |value, label| %>
+          <label class="opt"><input type="radio" name="reason" value="<%= value %>" required <%= 'checked' if @preselected == value %>> <%= label %></label>
+        <% end %>
+
+        <div id="f-switched" class="hidden">
+          <div class="q">Which app did you switch to?</div>
+          <input type="text" name="switched_to" maxlength="120" placeholder="App name" value="<%= @last_response&.switched_to %>">
+        </div>
+        <div id="f-missing" class="hidden">
+          <div class="q">Which feature was missing?</div>
+          <input type="text" name="missing_feature" maxlength="200" placeholder="e.g. Shiprocket integration, WhatsApp in Hindi…" value="<%= @last_response&.missing_feature %>">
+        </div>
+
+        <div class="q">What could we have done better?</div>
+        <textarea name="feedback" maxlength="5000" placeholder="Optional"><%= @last_response&.feedback %></textarea>
+
+        <div class="q">What would bring you back?</div>
+        <input type="text" name="win_back" maxlength="300" placeholder="Optional — a feature, a price, a fix…" value="<%= @last_response&.win_back %>">
+
+        <div class="q">How likely are you to use COD King again?</div>
+        <div class="row">
+          <% @likelihood.each do |value, label| %>
+            <label class="opt"><input type="radio" name="return_likelihood" value="<%= value %>" <%= 'checked' if @last_response&.return_likelihood == value %>> <%= label %></label>
+          <% end %>
+        </div>
+
+        <div class="q">Want us to call you?</div>
+        <label class="check"><input type="checkbox" name="wants_callback" value="1" id="wants-callback" <%= 'checked' if @last_response&.wants_callback %>> Yes, I'd like a quick call from the team</label>
+        <div id="f-phone" class="hidden" style="margin-top:10px">
+          <input type="tel" name="callback_phone" maxlength="30" placeholder="Phone / WhatsApp number" value="<%= @last_response&.callback_phone.presence || @uninstalled.phone %>">
+        </div>
+
+        <button type="submit">Send feedback</button>
+        <p class="note">Takes less than a minute. We never share your answers.</p>
+      <% end %>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var form = document.getElementById('exit-survey');
+      function sync() {
+        var r = (form.querySelector('input[name=reason]:checked') || {}).value;
+        document.getElementById('f-switched').classList.toggle('hidden', r !== 'switched_app');
+        document.getElementById('f-missing').classList.toggle('hidden', r !== 'missing_feature');
+        document.getElementById('f-phone').classList.toggle('hidden', !document.getElementById('wants-callback').checked);
+      }
+      form.addEventListener('change', sync);
+      sync();
+    })();
+  </script>
+</body>
+</html>

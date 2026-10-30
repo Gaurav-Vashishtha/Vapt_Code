@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="robots" content="noindex" />
+    <title>COD King widget preview</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+        overflow: hidden;
+      }
+      #codk-preview-status {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        padding: 24px;
+        text-align: center;
+        font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", sans-serif;
+        color: #6d7175;
+      }
+      #codk-preview-status[hidden] {
+        display: none;
+      }
+
+      /* Stand-in for the Shopify checkout the customer would land on. */
+      #codk-preview-checkout {
+        /* The widget mounts fixed at the top of the stacking order, and it
+           stays mounted through the handoff, so this has to match it. */
+        position: fixed;
+        inset: 0;
+        z-index: 2147483647;
+        display: flex;
+        flex-direction: column;
+        background: #ffffff;
+        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", sans-serif;
+        color: #202223;
+      }
+      #codk-preview-checkout .pc-bar {
+        border-bottom: 1px solid #e1e3e5;
+        padding: 14px 18px;
+        font-weight: 650;
+        letter-spacing: 0.2px;
+      }
+      #codk-preview-checkout .pc-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 10px;
+        padding: 24px 18px;
+        text-align: center;
+      }
+      #codk-preview-checkout .pc-title {
+        font-size: 16px;
+        font-weight: 650;
+      }
+      #codk-preview-checkout .pc-note {
+        color: #6d7175;
+        font-size: 13px;
+      }
+      #codk-preview-checkout .pc-rows {
+        margin: 8px auto 0;
+        width: 100%;
+        max-width: 260px;
+      }
+      #codk-preview-checkout .pc-row {
+        height: 12px;
+        border-radius: 6px;
+        background: #f1f2f3;
+        margin-bottom: 10px;
+      }
+      #codk-preview-checkout .pc-row.short {
+        width: 60%;
+      }
+      #codk-preview-checkout .pc-spinner {
+        width: 26px;
+        height: 26px;
+        margin: 0 auto 4px;
+        border: 3px solid #e1e3e5;
+        border-top-color: #6d7175;
+        border-radius: 50%;
+        animation: pc-spin 0.8s linear infinite;
+      }
+      @keyframes pc-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      #codk-preview-checkout .pc-back {
+        display: inline-block;
+        margin-top: 6px;
+        color: #2c6ecb;
+        font-weight: 600;
+        text-decoration: underline;
+        cursor: pointer;
+        background: none;
+        border: 0;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="codk-preview-status">Loading preview&hellip;</div>
+
+    <script>
+      /*
+       * Widget preview host.
+       *
+       * The storefront widget (notifik-svelte-app) never assumes it owns the
+       * page: it reads the shop, the route URL and the merchant's settings off
+       * `window.parent`, and it makes its Shopify cart calls with the parent's
+       * `fetch`. This document plays that parent. It fakes just enough
+       * storefront for the real widget to boot, serves it a demo cart, and
+       * answers (or refuses) every network call it makes, so a merchant can
+       * click through the real thing from the admin without sending an SMS,
+       * minting a discount code or creating an order.
+       *
+       * Driven over postMessage by LiveWidgetPreview.jsx.
+       */
+      (function () {
+        "use strict";
+
+        var ORIGIN = window.location.origin;
+        var CHANNEL_IN = "codk-preview";
+        var CHANNEL_OUT = "codk-preview-host";
+        var PREVIEW_OTP = "1234";
+        var BLOCKED_NOTE = "Preview mode — this action is not performed.";
+
+        var statusEl = document.getElementById("codk-preview-status");
+        var wrapper = null;
+        var frame = null;
+
+        var config = {
+          shop: "preview.myshopify.com",
+          country: "IN",
+          currency: "INR",
+          settings: null,
+          screen: null
+        };
+
+        function setStatus(message) {
+          if (!statusEl) return;
+          if (!message) {
+            statusEl.hidden = true;
+            return;
+          }
+          statusEl.hidden = false;
+          statusEl.textContent = message;
+        }
+
+        function toParent(type, payload) {
+          try {
+            window.parent.postMessage(
+              Object.assign({ source: CHANNEL_OUT, type: type }, payload || {}),
+              "*"
+            );
+          } catch (_e) {}
+        }
+
+        /* ------------------------------------------------------------------ *
+         * Demo cart
+         *
+         * Shaped like a real /cart.js response, because that is what
+         * otpStore.fetchProductDetails() parses. Images are inline so the
+         * preview never reaches the network for them.
+         * ------------------------------------------------------------------ */
+        function swatch(bg, label) {
+          var svg =
+            '<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">' +
+            '<rect width="120" height="120" fill="' +
+            bg +
+            '"/><text x="60" y="66" font-family="sans-serif" font-size="14" ' +
+            'fill="#ffffff" text-anchor="middle">' +
+            label +
+            "</text></svg>";
+          return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+        }
+
+        var DEMO_ITEMS = [
+          {
+            id: 44700000000001,
+            key: "44700000000001:codkpreview1",
+            variant_id: 44700000000001,
+            product_id: 8100000000001,
+            title: "Classic Cotton T-Shirt - M / Black",
+            product_title: "Classic Cotton T-Shirt",
+            variant_title: "M / Black",
+            handle: "classic-cotton-t-shirt",
+            sku: "CODK-PREVIEW-TEE",
+            vendor: "Preview Store",
+            quantity: 1,
+            price: 79900,
+            original_price: 79900,
+            discounted_price: 79900,
+            final_price: 79900,
+            line_price: 79900,
+            original_line_price: 79900,
+            final_line_price: 79900,
+            presentment_price: 799,
+            total_discount: 0,
+            requires_shipping: true,
+            taxable: true,
+            gift_card: false,
+            properties: {},
+            options_with_values: [
+              { name: "Size", value: "M" },
+              { name: "Colour", value: "Black" }
+            ],
+            line_level_discount_allocations: [],
+            discounts: [],
+            featured_image: { url: swatch("#303030", "Tee"), alt: "Tee" },
+            image: swatch("#303030", "Tee"),
+            url: "/products/classic-cotton-t-shirt"
+          },
+          {
+            id: 44700000000002,
+            key: "44700000000002:codkpreview2",
+            variant_id: 44700000000002,
+            product_id: 8100000000002,
+            title: "Canvas Tote Bag - Natural",
+            product_title: "Canvas Tote Bag",
+            variant_title: "Natural",
+            handle: "canvas-tote-bag",
+            sku: "CODK-PREVIEW-TOTE",
+            vendor: "Preview Store",
+            quantity: 2,
+            price: 20000,
+            original_price: 20000,
+            discounted_price: 20000,
+            final_price: 20000,
+            line_price: 40000,
+            original_line_price: 40000,
+            final_line_price: 40000,
+            presentment_price: 200,
+            total_discount: 0,
+            requires_shipping: true,
+            taxable: true,
+            gift_card: false,
+            properties: {},
+            options_with_values: [{ name: "Colour", value: "Natural" }],
+            line_level_discount_allocations: [],
+            discounts: [],
+            featured_image: { url: swatch("#8a6d3b", "Tote"), alt: "Tote" },
+            image: swatch("#8a6d3b", "Tote"),
+            url: "/products/canvas-tote-bag"
+          }
+        ];
+
+        var cartAttributes = {};
+
+        function buildCart(empty) {
+          var items = empty ? [] : DEMO_ITEMS.map(function (item) {
+            return JSON.parse(JSON.stringify(item));
+          });
+          var total = items.reduce(function (sum, item) {
+            return sum + item.line_price;
+          }, 0);
+          var count = items.reduce(function (sum, item) {
+            return sum + item.quantity;
+          }, 0);
+
+          return {
+            token: "codk-preview-cart-token",
+            note: null,
+            attributes: Object.assign({}, cartAttributes),
+            original_total_price: total,
+            total_price: total,
+            total_discount: 0,
+            total_weight: 0,
+            item_count: count,
+            items: items,
+            requires_shipping: count > 0,
+            currency: config.currency || "INR",
+            items_subtotal_price: total,
+            cart_level_discount_applications: []
+          };
+        }
+
+        var DEMO_ADDRESSES = [
+          {
+            id: 900000002,
+            first_name: "Test",
+            last_name: "Customer",
+            name: "Test Customer",
+            company: "",
+            address1: "42 Residency Road",
+            address2: "2nd Floor",
+            city: "Bengaluru",
+            province: "Karnataka",
+            province_code: "KA",
+            zip: "560025",
+            country: "India",
+            country_code: "IN",
+            phone: "",
+            address_type: "Office",
+            "default": false,
+            formatted: '["42 Residency Road", "Bengaluru", "Karnataka", "560025"]',
+            formatted_area: "Bengaluru, Karnataka"
+          },
+          {
+            id: 900000001,
+            first_name: "Preview",
+            last_name: "Shopper",
+            name: "Preview Shopper",
+            company: "",
+            address1: "MG Road, Sector 14",
+            address2: "Flat 302, Green Apartments",
+            city: "New Delhi",
+            province: "Delhi",
+            province_code: "DL",
+            zip: "110001",
+            country: "India",
+            country_code: "IN",
+            phone: "",
+            address_type: "Home",
+            "default": true,
+            formatted: '["MG Road, Sector 14", "New Delhi", "Delhi", "110001"]',
+            formatted_area: "New Delhi, Delhi"
+          }
+        ];
+
+        /* Shown only when the shop has no discounts of its own, so the coupon
+           card demonstrates both of its states: one that applies to the demo
+           cart and one still short of its minimum. */
+        var DEMO_COUPONS = [
+          {
+            id: "codk-preview-coupon-1",
+            method: "code",
+            code: "WELCOME10",
+            discount_type: "percentage",
+            value: 10,
+            applies_to: "order",
+            product_gids: [],
+            collection_gids: [],
+            excluded_product_gids: [],
+            bxgy_config: null,
+            minimum_requirement_type: "none",
+            minimum_requirement_value: null,
+            combines_with: { order: true, product: true, shipping: true },
+            starts_at: null,
+            ends_at: null,
+            headline: "10% off your first order",
+            unlock_text: null
+          },
+          {
+            id: "codk-preview-coupon-2",
+            method: "code",
+            code: "SAVE300",
+            discount_type: "amount_off",
+            value: 300,
+            applies_to: "order",
+            product_gids: [],
+            collection_gids: [],
+            excluded_product_gids: [],
+            bxgy_config: null,
+            minimum_requirement_type: "subtotal",
+            minimum_requirement_value: 2000,
+            combines_with: { order: true, product: true, shipping: true },
+            starts_at: null,
+            ends_at: null,
+            headline: "\u20b9300 off orders over \u20b92,000",
+            unlock_text: "Add \u20b9801 more to unlock"
+          }
+        ];
+
+        /* ------------------------------------------------------------------ *
+         * Network
+         *
+         * Deny by default. Only genuinely read-only endpoints reach the server
+         * (real payment rules and pincode lookups make the preview accurate);
+         * everything else gets a canned answer, so nothing the merchant clicks
+         * can send a message, mint a discount or write an order.
+         * ------------------------------------------------------------------ */
+        var PASS_THROUGH = [
+          "/order_confirmations/partial_rule_sets",
+          "/order_confirmations/zip_details",
+          "/script/lightweight_settings"
+        ];
+
+        function urlOf(input) {
+          if (typeof input === "string") return input;
+          if (input && typeof input.url === "string") return input.url;
+          try {
+            return String(input);
+          } catch (_e) {
+            return "";
+          }
+        }
+
+        function parseBody(init) {
+          if (!init || !init.body || typeof init.body !== "string") return {};
+          try {
+            return JSON.parse(init.body) || {};
+          } catch (_e) {
+            return {};
+          }
+        }
+
+        function jsonResponse(body, status) {
+          return new Response(JSON.stringify(body), {
+            status: status || 200,
+            headers: { "Content-Type": "application/json" }
+          });
+        }
+
+        function matches(url, needle) {
+          return url.indexOf(needle) !== -1;
+        }
+
+        /** @returns {object|null} canned body, or null to let the call through. */
+        function stubFor(url, init) {
+          var method = ((init && init.method) || "GET").toUpperCase();
+
+          for (var i = 0; i < PASS_THROUGH.length; i++) {
+            if (matches(url, PASS_THROUGH[i])) return null;
+          }
+
+          /* Shopify AJAX cart */
+          if (matches(url, "/cart/clear.js")) return buildCart(true);
+          if (
+            matches(url, "/cart/add.js") ||
+            matches(url, "/cart/change.js") ||
+            matches(url, "/cart/update.js")
+          ) {
+            var body = parseBody(init);
+            if (body && body.attributes) {
+              cartAttributes = Object.assign({}, cartAttributes, body.attributes);
+            }
+            return buildCart(false);
+          }
+          if (matches(url, "/cart.js") || /\/cart(\?|$)/.test(url)) {
+            return buildCart(false);
+          }
+
+          /* OTP */
+          if (matches(url, "/order_confirmations/pre_order_otp_verify")) {
+            var sent = parseBody(init);
+            var code = String(sent.otp || "").replace(/\D/g, "");
+            if (code !== PREVIEW_OTP) {
+              return {
+                verification: false,
+                status: "error",
+                Notes: "Invalid code. The preview code is " + PREVIEW_OTP + "."
+              };
+            }
+            return {
+              verification: true,
+              status: "success",
+              email: "preview@example.com",
+              shippingAddress: DEMO_ADDRESSES,
+              customerLogin: {
+                email: "preview@example.com",
+                first_name: "Preview",
+                last_name: "Shopper"
+              }
+            };
+          }
+          if (matches(url, "/order_confirmations/pre_order_otp")) {
+            toParent("otp-sent", { code: PREVIEW_OTP });
+            return {
+              status: "Success",
+              Notes: "Preview mode — no message was sent. Use " + PREVIEW_OTP + "."
+            };
+          }
+
+          /* Session / customer lookups */
+          if (matches(url, "/order_confirmations/sso_check")) {
+            return { valid: false, reason: "preview" };
+          }
+          if (matches(url, "/order_confirmations/sso_logout")) {
+            return { success: true };
+          }
+          if (matches(url, "/order_confirmations/shipping_address_count")) {
+            return { shippingAddressCount: DEMO_ADDRESSES.length, email: "" };
+          }
+          if (matches(url, "/order_confirmations/create_customer_login")) {
+            return { success: true, customerLogin: { email: "preview@example.com" } };
+          }
+          if (matches(url, "/order_confirmations/post_shipping_address")) {
+            return { success: true, status: "success", shippingAddress: DEMO_ADDRESSES };
+          }
+          if (matches(url, "/order_confirmations/update_cart_details")) {
+            return { success: true };
+          }
+          if (matches(url, "/order_confirmations/partial_dummy_variant_id")) {
+            return { variantId: null };
+          }
+
+          /* Anything that would write to the merchant's store */
+          if (
+            matches(url, "/order_confirmations/create_discount_code") ||
+            matches(url, "/order_confirmations/partial_cart")
+          ) {
+            toParent("blocked", { url: url, method: method });
+            return { status: "Error", Notes: BLOCKED_NOTE, preview_blocked: true };
+          }
+
+          /* Telemetry and third parties */
+          if (matches(url, "/script/post_error")) return { success: true };
+          if (matches(url, "graphql.json")) return { data: {} };
+          if (/ipify|ipapi|ipinfo|geolocation/i.test(url)) {
+            return { ip: "0.0.0.0", country: config.country || "IN" };
+          }
+
+          toParent("blocked", { url: url, method: method });
+          return {};
+        }
+
+        function patchFetch(win) {
+          if (!win || win.__codkPreviewFetchPatched) return;
+          var real = win.fetch ? win.fetch.bind(win) : null;
+          win.__codkPreviewFetchPatched = true;
+          win.fetch = function (input, init) {
+            var url = urlOf(input);
+            var stub;
+            try {
+              stub = stubFor(url, init);
+            } catch (_e) {
+              stub = {};
+            }
+            if (stub === null && real) return real(input, init);
+            return Promise.resolve(jsonResponse(stub || {}));
+          };
+        }
+
+        /* ------------------------------------------------------------------ *
+         * Storefront globals the widget reads off its parent
+         * ------------------------------------------------------------------ */
+        function installStorefrontGlobals() {
+          window.Shopify = window.Shopify || {};
+          window.Shopify.shop = config.shop;
+          window.Shopify.locale = "en";
+          window.Shopify.country = config.country || "IN";
+          window.Shopify.currency = { active: config.currency || "INR", rate: "1.0" };
+          window.Shopify.routes = { root: "/" };
+          window.codkingRouteUrl = ORIGIN;
+        }
+
+        function seedSession() {
+          try {
+            var store = window.sessionStorage;
+            /* Settings arrive snake_case, exactly as /script/lightweight_settings
+               ships them, so the widget's own mapSettingsToCamel does the
+               mapping — the preview never second-guesses it. */
+            store.setItem("settingSession", JSON.stringify(previewSettings()));
+            store.setItem("shopify_cart", JSON.stringify(buildCart(false)));
+            /* No carried-over identity: every remount starts logged out. */
+            ["verifiedNumberData", "preOrderOtpResponse", "shipping_addresses",
+             "customer-email", "customer-id", "cod_king_selected_address",
+             "ssoAutoLoginAttempted", "ssoValidatedToken", "cod_king_isBuyNow"
+            ].forEach(function (key) {
+              store.removeItem(key);
+            });
+            /* Persistent sign-in and cart scratch live in localStorage, which
+               here is the admin's own origin — so a merchant clicking through
+               the preview must not leave a session behind for the next one.
+               Named explicitly rather than cleared wholesale, since the admin
+               app owns this origin too. */
+            ["codk_persistent_signin", "codk_recent_phone_numbers",
+             "codk-current-cart", "codk-updated-cart", "partialCartData",
+             "bundler_product_created", "newCustomer", "cod_king_customer_email",
+             "customer-email", "defaultCountry"
+            ].forEach(function (key) {
+              try {
+                window.localStorage.removeItem(key);
+              } catch (_e) {}
+            });
+          } catch (_e) {}
+        }
+
+        /* ------------------------------------------------------------------ *
+         * Widget iframe
+         * ------------------------------------------------------------------ */
+        function destroyWidget() {
+          if (wrapper && wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+          wrapper = null;
+          frame = null;
+          /* main.js refuses to mount twice and records that on the parent, so
+             a remount has to clear the flag or the next boot is a no-op. */
+          window.codkSvelteAppMounted = false;
+          window.codkingSvelteReady = false;
+        }
+
+        function mountWidget() {
+          destroyWidget();
+          setStatus("Loading widget…");
+
+          wrapper = document.createElement("div");
+          wrapper.id = "codk-modal-wrapper";
+          wrapper.setAttribute("data-visible", "true");
+
+          frame = document.createElement("iframe");
+          frame.id = "codk-full-modal-svelte";
+          frame.setAttribute("data-visible", "true");
+          frame.setAttribute("allowtransparency", "true");
+          frame.setAttribute("title", "COD King widget");
+          frame.src = "about:blank";
+          wrapper.appendChild(frame);
+          document.body.appendChild(wrapper);
+
+          var doc = frame.contentDocument;
+          doc.open();
+          doc.write(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8">' +
+              '<meta name="viewport" content="width=device-width, initial-scale=1, ' +
+              'maximum-scale=1, user-scalable=no, viewport-fit=cover">' +
+              '<link rel="stylesheet" href="' +
+              ORIGIN +
+              '/script/notifik_svelte_css">' +
+              '<style>html,body{margin:0;padding:0;height:100%;background:transparent;}</style>' +
+              "</head><body><div id=\"app\"></div></body></html>"
+          );
+          doc.close();
+
+          /* Backend calls are made with the widget window's own fetch. */
+          patchFetch(frame.contentWindow);
+
+          /* Applying a coupon, removing one, or entering a code all need a real
+             cart. They cannot work here, so they are shown as inert rather than
+             left clickable and silently failing. */
+          var inert = doc.createElement("style");
+          inert.textContent =
+            ".cpn-action-apply, .cpn-action-applied, .cpn-apply-link {" +
+            "pointer-events: none !important; opacity: 0.45 !important;" +
+            "cursor: default !important; }";
+          doc.head.appendChild(inert);
+
+          /* redirectToCheckout stamps this before the widget shows any loader
+             of its own, so watching it puts the redirect screen up straight
+             away rather than after a cart loader the merchant should not see
+             on the way to checkout. */
+          clearInterval(redirectWatch);
+          try {
+            window.localStorage.removeItem(REDIRECT_FLAG);
+          } catch (_e) {}
+          redirectWatch = setInterval(function () {
+            try {
+              if (window.localStorage.getItem(REDIRECT_FLAG)) {
+                clearInterval(redirectWatch);
+                window.localStorage.removeItem(REDIRECT_FLAG);
+                showRedirecting();
+              }
+            } catch (_e) {}
+          }, 120);
+
+          var tag = doc.createElement("script");
+          tag.type = "module";
+          tag.src = ORIGIN + "/script/notifik_svelte?preview=" + Date.now();
+          tag.onerror = function () {
+            setStatus("Could not load the widget bundle.");
+          };
+          doc.body.appendChild(tag);
+        }
+
+        /* The widget hands off to Shopify by setting window.top.location, which
+           the preview sandbox blocks: the customer would leave for checkout,
+           but here the widget just sat on its redirect loader looking hung.
+           It still announces the handoff, so land that on a stand-in checkout
+           with a way back instead. */
+        var REDIRECT_MS = 5000;
+        var REDIRECT_FLAG = "codk-redirect-in-progress";
+        var redirectWatch = null;
+
+        /* Where a customer would be standing when they leave for checkout,
+           which is the furthest step the shop has switched on. Coming back to
+           the phone screen was wrong whenever the flow does not start there. */
+        function lastReachableScreen() {
+          var s = config.settings || {};
+          var on = function (key) {
+            var v = s[key];
+            return v === true || v === "true" || v === 1 || v === "1";
+          };
+          if (on("partial_payment_enabled")) return "payment";
+          if (on("is_prefilled_address_enabled")) return "address";
+          if (on("enable_pre_order_otp")) return "otp";
+          return "phone";
+        }
+        var handoffTimer = null;
+
+        function isHandingOff() {
+          return !!document.getElementById("codk-preview-checkout");
+        }
+
+        /* The widget's own loader only lasts until it expects to be gone, and
+           it hides its modal on the way out, so the merchant saw it blink
+           rather than a redirect. This owns the whole handoff instead: the
+           redirecting screen sits over the widget for long enough to read,
+           then becomes the checkout. The widget stays mounted underneath, so
+           going back is instant and lands where it was left. */
+        function showRedirecting() {
+          if (isHandingOff()) return;
+
+          var panel = document.createElement("div");
+          panel.id = "codk-preview-checkout";
+          panel.innerHTML =
+            '<div class="pc-bar"></div>' +
+            '<div class="pc-body">' +
+            '<div class="pc-spinner"></div>' +
+            '<div class="pc-title">Taking you to checkout</div>' +
+            '<div class="pc-note">This is the redirect your customer sees.</div>' +
+            "</div>";
+          panel.querySelector(".pc-bar").textContent = config.shop || "Checkout";
+          document.body.appendChild(panel);
+          setStatus("");
+
+          clearTimeout(handoffTimer);
+          clearInterval(redirectWatch);
+          lastAppliedScreen = null;
+          handoffTimer = setTimeout(showSimulatedCheckout, REDIRECT_MS);
+        }
+
+        function showSimulatedCheckout() {
+          var existing = document.getElementById("codk-preview-checkout");
+          if (existing) existing.remove();
+
+          var panel = document.createElement("div");
+          panel.id = "codk-preview-checkout";
+          panel.innerHTML =
+            '<div class="pc-bar"></div>' +
+            '<div class="pc-body">' +
+            '<div class="pc-title">Shopify checkout</div>' +
+            '<div class="pc-note">This is where the customer lands after the widget. ' +
+            "Your Shopify checkout opens here.</div>" +
+            '<div class="pc-rows">' +
+            '<div class="pc-row"></div><div class="pc-row"></div>' +
+            '<div class="pc-row short"></div>' +
+            "</div>" +
+            '<button type="button" class="pc-back">Go back to the preview</button>' +
+            "</div>";
+          panel.querySelector(".pc-bar").textContent = config.shop || "Checkout";
+          panel.querySelector(".pc-back").addEventListener("click", function () {
+            panel.remove();
+            var win = widgetWindow();
+            if (win && win.appActions) {
+              /* Still mounted, so no reload: reopen it on the step the
+                 customer left from rather than back at the phone screen. */
+              try {
+                win.appActions.openModal();
+                applyScreen(lastReachableScreen());
+                return;
+              } catch (_e) {}
+            }
+            config.screen = lastReachableScreen();
+            boot();
+          });
+          document.body.appendChild(panel);
+          setStatus("");
+          toParent("checkout");
+        }
+
+        function widgetWindow() {
+          try {
+            return frame && frame.contentWindow;
+          } catch (_e) {
+            return null;
+          }
+        }
+
+        function openWidget() {
+          var win = widgetWindow();
+          if (!win || !win.appActions) return false;
+          try {
+            win.appActions.openModal();
+            if (config.screen) applyScreen(config.screen);
+            setStatus("");
+            return true;
+          } catch (_e) {
+            return false;
+          }
+        }
+
+        /* Sections whose copy is not a screen of its own: land on the screen
+           that carries it, then reveal the part the merchant came to edit. */
+        var VIEWS = {
+          coupons: { screen: "payment", reveal: "coupons" },
+          dialogs: { screen: "phone", reveal: "exit" },
+          processing: { screen: "processing" },
+          confirmed: { screen: "payment", reveal: "confirmed" }
+        };
+
+        function widgetDoc() {
+          var win = widgetWindow();
+          try {
+            return win && win.document;
+          } catch (_e) {
+            return null;
+          }
+        }
+
+        /* Any sheet left open by the previous section would sit over the next
+           one, so clear it before revealing anything else. */
+        function dismissOpenSheets() {
+          try {
+            var w = widgetWindow();
+            if (w && w.codOrderFlowStore) w.codOrderFlowStore.setShow(false);
+          } catch (_e) {}
+          var doc = widgetDoc();
+          if (!doc) return;
+          try {
+            doc.querySelectorAll('[aria-label="Close slider"]').forEach(function (el) {
+              el.click();
+            });
+          } catch (_e) {}
+        }
+
+        function reveal(what) {
+          var doc = widgetDoc();
+          if (!doc) return;
+          try {
+            if (what === "coupons") {
+              var card = doc.querySelector(".tp-coupon-card");
+              if (card && card.scrollIntoView) {
+                card.scrollIntoView({ block: "center" });
+              }
+            } else if (what === "confirmed") {
+              /* The thank-you flow has its own store, exposed by the widget. */
+              var win = widgetWindow();
+              if (win && win.codOrderFlowStore) {
+                win.codOrderFlowStore.setProcessing(false);
+                win.codOrderFlowStore.setOrderResult({
+                  orderNumber: "1001",
+                  paymentMethod: "Cash on Delivery"
+                });
+                win.codOrderFlowStore.setShow(true);
+              }
+            } else if (what === "exit") {
+              /* The header back control is wired to the close flow, so this is
+                 the same path a customer takes to the exit confirmation. */
+              var back = doc.querySelector(".header-action--back");
+              if (back) back.click();
+            }
+          } catch (_e) {}
+        }
+
+        /* The rail selects a section; jump the widget to the matching screen.
+           Screens past the phone step need an identity, so seed one first. */
+        var lastAppliedScreen = null;
+
+        function applyScreen(screen) {
+          var win = widgetWindow();
+          if (!win || !win.appActions) return;
+          lastAppliedScreen = screen;
+          var view = VIEWS[screen];
+          var target = view ? view.screen : screen;
+          dismissOpenSheets();
+          try {
+            if (target && target !== "phone") {
+              win.appActions.setPhoneNumber("9876543210", "91");
+              win.appActions.setValidNumber(true);
+            }
+            /* The demo identity carries its calling code so the form takes the
+               India path (pincode and its lookup) rather than the generic
+               postal code one. */
+            if (target && target !== "phone") {
+              try {
+                win.appActions.setCountryCallingCode("+91");
+              } catch (_e) {}
+              /* Past the login step the widget expects a verified customer.
+                 Without one, choosing a payment method sends them back to OTP
+                 to verify, which is right on a storefront and confusing in a
+                 preview of the payment screen. */
+              try {
+                window.sessionStorage.setItem(
+                  "verifiedNumberData",
+                  JSON.stringify({
+                    otpVerifiedPhoneNumber: "9876543210",
+                    isOTPVerified: true,
+                    countryCode: "91",
+                    countryCallingCode: "+91",
+                    verifiedAt: new Date().toISOString()
+                  })
+                );
+                window.sessionStorage.setItem(
+                  "preOrderOtpResponse",
+                  JSON.stringify({
+                    verification: true,
+                    status: "success",
+                    email: "preview@example.com",
+                    shippingAddress: DEMO_ADDRESSES
+                  })
+                );
+              } catch (_e) {}
+            }
+            if (target === "address" || target === "address-form" || target === "payment") {
+              /* The saved-address list reads sessionStorage, not the store, so
+                 seeding only the store leaves the merchant looking at an empty
+                 "add your first address" form instead of the list they came to
+                 see. */
+              try {
+                window.sessionStorage.setItem(
+                  "shipping_addresses",
+                  JSON.stringify(DEMO_ADDRESSES)
+                );
+              } catch (_e) {}
+              win.appActions.setAddresses(DEMO_ADDRESSES, DEMO_ADDRESSES[0].id);
+            }
+            win.appActions.setScreen(target);
+          } catch (_e) {}
+
+          /* AddressSelectionContent sends itself to the add form when it mounts
+             with an empty list, and it can mount before the seeded addresses
+             land. Put it back on the list once it has settled, so the Address
+             section shows the saved addresses rather than a blank form. */
+          if (target === "address") {
+            /* The list sends itself to the add form when it mounts empty, which
+               it can do before the seeded addresses land. Put it back once. */
+            setTimeout(function () {
+              try {
+                var w = widgetWindow();
+                var state = null;
+                w.appStore.subscribe(function (s) { state = s; })();
+                if (state && state.currentScreen === "address-form") {
+                  w.appActions.setScreen("address");
+                }
+              } catch (_e) {}
+            }, 400);
+          }
+
+          if (target === "address-form") {
+            /* Editing the form's copy should show the form, so hold it there
+               against the list's own navigation. */
+            setTimeout(function () {
+              try {
+                var w = widgetWindow();
+                var state = null;
+                w.appStore.subscribe(function (s) { state = s; })();
+                if (state && state.currentScreen !== "address-form") {
+                  w.appActions.setScreen("address-form");
+                }
+              } catch (_e) {}
+            }, 400);
+          }
+
+          if (view) setTimeout(function () { reveal(view.reveal); }, 250);
+        }
+
+        /**
+         * Push new settings into the running widget.
+         *
+         * The widget exposes codkApplySettings for exactly this: it re-maps the
+         * payload and sets the settings store, which every screen renders from,
+         * so the change lands without a reload and without losing the step the
+         * merchant is looking at.
+         *
+         * @returns {boolean} false when the widget is not up yet
+         */
+        /* The settings the widget actually boots on: the merchant's, plus the
+           stand-ins that make an empty store demonstrate anything. Real
+           discounts always win; the demo pair only fills an empty list. */
+        function previewSettings() {
+          var settings = Object.assign({}, config.settings || {}, {
+            routeUrl: ORIGIN,
+            shopDomain: config.shop
+          });
+          var discounts = settings.active_discounts;
+          if (!Array.isArray(discounts) || discounts.length === 0) {
+            settings.active_discounts = DEMO_COUPONS;
+          }
+          return settings;
+        }
+
+        function applySettingsLive() {
+          var win = widgetWindow();
+          if (!win || typeof win.codkApplySettings !== "function") return false;
+          try {
+            return !!win.codkApplySettings(previewSettings());
+          } catch (_e) {
+            return false;
+          }
+        }
+
+        function boot(next) {
+          config = Object.assign(config, next || {});
+          clearTimeout(handoffTimer);
+          var leftover = document.getElementById("codk-preview-checkout");
+          if (leftover) leftover.remove();
+          installStorefrontGlobals();
+          /* Cart calls are made with the parent's fetch — this document's —
+             so the stub has to live here as well as in the widget. */
+          patchFetch(window);
+          seedSession();
+          mountWidget();
+        }
+
+        /* ------------------------------------------------------------------ *
+         * Wiring
+         * ------------------------------------------------------------------ */
+        window.addEventListener("codking-svelte-ready", function () {
+          var attempts = 0;
+          (function tryOpen() {
+            if (openWidget()) {
+              toParent("widget-ready");
+              return;
+            }
+            if (attempts++ < 40) setTimeout(tryOpen, 50);
+            else setStatus("Widget loaded but did not open.");
+          })();
+        });
+
+        window.addEventListener("message", function (event) {
+          var data = event.data;
+
+          /* The widget closing itself is a preview dead end — reopen it. */
+          if (data === "codk-close-modal") {
+            /* Sent on the way to checkout as well as on a real close, so
+               reopening mid-handoff would flash the widget over the redirect. */
+            if (!isHandingOff()) setTimeout(openWidget, 150);
+            toParent("closed");
+            return;
+          }
+          if (data && data.type === "CODK_DESTROY_IFRAME") {
+            showRedirecting();
+            return;
+          }
+
+          if (!data || data.source !== CHANNEL_IN) return;
+
+          if (data.type === "init" || data.type === "settings") {
+            config = Object.assign(config, data.payload || {});
+            /* Only a cold start mounts the widget. An edit is applied in place,
+               so the preview never blinks while the merchant is typing. */
+            if (data.type === "settings" && applySettingsLive()) {
+              installStorefrontGlobals();
+              /* Turning a section's feature on has to show it. Without this the
+                 settings land but the widget stays on whichever screen it was
+                 already on, so switching prefilled addresses on looked like
+                 nothing happened. Re-applied after the settings render. */
+              if (config.screen && config.screen !== lastAppliedScreen) {
+                setTimeout(function () {
+                  applyScreen(config.screen);
+                }, 120);
+              }
+              return;
+            }
+            boot();
+            return;
+          }
+          if (data.type === "screen") {
+            config.screen = data.payload && data.payload.screen;
+            applyScreen(config.screen);
+            return;
+          }
+          if (data.type === "remount") {
+            boot();
+          }
+        });
+
+        setStatus("Waiting for settings…");
+        toParent("ready");
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+/* ============================================================================
+ * PROMO BANNER - Reusable Promotional Banner Component
+ * ============================================================================
+ * Supports two variants:
+ * - default: Black banner when no color provided (ScreenLayout)
+ * - payment: Blue gradient banner for payment options section
+ * ============================================================================ */
+
+.promo-banner {
+  flex-shrink: 0;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+/* Default variant: Black when no color provided; glossy banner at top of screen */
+.promo-banner--default {
+  background: linear-gradient(135deg, #1a1a1a 0%, #000000 50%, #1a1a1a 100%);
+  background-size: 200% 100%;
+  height: 26px;
+  min-height: 26px;
+  max-height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  /* Mobile: No border radius (matches device-frame) */
+  border-radius: 0;
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Glossy highlight overlay - top shine */
+.promo-banner--default::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Sweeping light reflection effect */
+.promo-banner--default::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    transparent 30%,
+    rgba(255, 255, 255, 0.4) 45%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.4) 55%,
+    transparent 70%,
+    transparent 100%
+  );
+  animation: glossySweep 3s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Premium sweeping light animation */
+@keyframes glossySweep {
+  0% {
+    left: -150%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: 150%;
+    opacity: 0;
+  }
+}
+
+.promo-banner--default .promo-banner__text {
+  color: #ffffff;
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  text-align: center;
+  padding: 0 12px;
+  margin: 0;
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: none;
+  z-index: 3;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* Payment variant: Blue gradient banner in payment section */
+.promo-banner--payment {
+  background: linear-gradient(133deg, #eff5ff 0%, #faf5ff 100%);
+  background-size: 200% 200%;
+  border-radius: 8px;
+  border: 1px solid #bfdbff;
+  padding: 8px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+  animation: paymentGradientShift 4s ease-in-out infinite;
+  box-shadow: 0 2px 8px rgba(191, 219, 255, 0.2);
+  transition: box-shadow 0.3s ease, transform 0.2s ease;
+}
+
+.promo-banner--payment:hover {
+  box-shadow: 0 4px 12px rgba(191, 219, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Subtle gradient animation for payment banner */
+@keyframes paymentGradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Shimmer effect for payment banner */
+.promo-banner--payment::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    transparent 100%
+  );
+  animation: paymentShimmer 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes paymentShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.promo-banner--payment .promo-banner__title {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.promo-banner--payment .promo-banner__emoji {
+  color: #1c398e;
+  font-size: 14px;
+  font-family: var(--font-family-base);
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.promo-banner--payment .promo-banner__text {
+  color: #1c398e;
+  font-size: 14px;
+  font-family: var(--font-family-base);
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.promo-banner--payment .promo-banner__description {
+  color: #193cb8;
+  font-size: 11px;
+  font-family: var(--font-family-base);
+  font-weight: 500;
+  line-height: 18px;
+  position: relative;
+  z-index: 1;
+}

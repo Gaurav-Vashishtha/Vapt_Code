@@ -1,0 +1,20 @@
+en:
+  activerecord:
+    models:
+      shop_charge_override:
+        one: "Shop charge override"
+        other: "Shop charge overrides"
+    attributes:
+      shop_charge_override:
+        shop_id: "Shop ID"
+        shop: "Shop ID"
+        whatsapp_utility_multiplier: "WhatsApp utility multiplier"
+        whatsapp_marketing_multiplier: "WhatsApp marketing multiplier"
+        whatsapp_bsp_commission_usd: "BSP commission (USD per message)"
+  helpers:
+    label:
+      shop_charge_override:
+        shop_id: "Shop ID"
+        whatsapp_utility_multiplier: "WhatsApp utility multiplier"
+        whatsapp_marketing_multiplier: "WhatsApp marketing multiplier"
+        whatsapp_bsp_commission_usd: "BSP commission (USD per message)"

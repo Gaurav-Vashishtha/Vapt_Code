@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  cod_include_tags: MyText
+  cod_exclude_tags: MyText
+
+two:
+  cod_include_tags: MyText
+  cod_exclude_tags: MyText

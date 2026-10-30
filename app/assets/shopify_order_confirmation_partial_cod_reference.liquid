@@ -1,0 +1,591 @@
+{% comment %}
+  Reference: Order confirmation (Shopify Admin → Settings → Notifications).
+  Merge into Shopify’s default template, or use as a slimmer standalone email.
+
+  COD King: checkout attributes usually appear as top-level `attributes` (and sometimes
+  `cart_attributes`) in order notification Liquid — NOT only order.attributes. See email.liquid.
+
+  Money: line_item.final_line_price, transaction.amount, total_price are in MINOR units (cents).
+  _codkAmountValue is MAJOR units → times: 100 (except zero-decimal currencies).
+
+  Partial COD email summary:
+  - Paid online now: Shopify sale/capture totals (+ rounding).
+  - Due on delivery: numeric amount immediately before “on delivery” in _codkPaymentDescription
+    (e.g. “… and ₹649.95 on delivery” → 649.95). Applied whenever that parses — not gated on
+    partialPaymentProduct, since that attribute is often missing while the description is present.
+{% endcomment %}
+
+{% assign delivery_method_types = delivery_agreements | map: 'delivery_method_type' | uniq %}
+{% if delivery_method_types.size > 1 %}
+  {% assign has_split_cart = true %}
+{% else %}
+  {% assign has_split_cart = false %}
+{% endif %}
+
+{% capture email_title %}
+  {% if has_pending_payment %}
+    Thank you for your order!
+  {% else %}
+    Thank you for your purchase!
+  {% endif %}
+{% endcapture %}
+{% capture email_body %}
+  {% if has_pending_payment %}
+    {% if buyer_action_required %}
+      You’ll get a confirmation email after completing your payment.
+    {% else %}
+      Your payment is being processed. You’ll get an email when your order is confirmed.
+    {% endif %}
+  {% else %}
+    We’re getting your order ready.
+  {% endif %}
+{% endcapture %}
+
+{% comment %} --- Parse COD / partial payment metadata --- {% endcomment %}
+{% assign codk_amount_value_str = blank %}
+{% assign codk_amount_type_str = blank %}
+{% assign codk_payment_description = blank %}
+{% assign partial_payment_variants_raw = blank %}
+{% assign is_partial_payment_order = false %}
+
+{% for attr in order.note_attributes %}
+  {% case attr.name %}
+    {% when '_codkAmountValue' %}
+      {% assign codk_amount_value_str = attr.value %}
+    {% when '_codkAmountType' %}
+      {% assign codk_amount_type_str = attr.value %}
+    {% when '_codkPaymentDescription' %}
+      {% assign codk_payment_description = attr.value %}
+    {% when 'partial_payment_variants' %}
+      {% assign partial_payment_variants_raw = attr.value %}
+    {% when 'partialPaymentProduct' %}
+      {% if attr.value == 'true' %}
+        {% assign is_partial_payment_order = true %}
+      {% endif %}
+    {% when '_partialPaymentProduct' %}
+      {% if attr.value == 'true' %}
+        {% assign is_partial_payment_order = true %}
+      {% endif %}
+  {% endcase %}
+{% endfor %}
+
+{% comment %} order.attributes: try [0]/[1] then .first/.last (varies by Shopify version) {% endcomment %}
+{% for attr in order.attributes %}
+  {% assign _k = attr[0] %}
+  {% assign _v = attr[1] %}
+  {% if _k == blank %}
+    {% assign _k = attr.first %}
+    {% assign _v = attr.last %}
+  {% endif %}
+  {% case _k %}
+    {% when '_codkAmountValue' %}
+      {% if codk_amount_value_str == blank %}
+        {% assign codk_amount_value_str = _v %}
+      {% endif %}
+    {% when '_codkAmountType' %}
+      {% if codk_amount_type_str == blank %}
+        {% assign codk_amount_type_str = _v %}
+      {% endif %}
+    {% when '_codkPaymentDescription' %}
+      {% if codk_payment_description == blank %}
+        {% assign codk_payment_description = _v %}
+      {% endif %}
+    {% when 'partial_payment_variants' %}
+      {% if partial_payment_variants_raw == blank %}
+        {% assign partial_payment_variants_raw = _v %}
+      {% endif %}
+    {% when 'partialPaymentProduct' %}
+      {% if _v == 'true' %}
+        {% assign is_partial_payment_order = true %}
+      {% endif %}
+    {% when '_partialPaymentProduct' %}
+      {% if _v == 'true' %}
+        {% assign is_partial_payment_order = true %}
+      {% endif %}
+  {% endcase %}
+{% endfor %}
+
+{% comment %} Cart/checkout attributes on order emails — primary source for COD King {% endcomment %}
+{% if cart_attributes %}
+  {% if codk_amount_value_str == blank and cart_attributes._codkAmountValue != blank %}
+    {% assign codk_amount_value_str = cart_attributes._codkAmountValue %}
+  {% endif %}
+  {% if codk_amount_type_str == blank and cart_attributes._codkAmountType != blank %}
+    {% assign codk_amount_type_str = cart_attributes._codkAmountType %}
+  {% endif %}
+  {% if codk_payment_description == blank and cart_attributes._codkPaymentDescription != blank %}
+    {% assign codk_payment_description = cart_attributes._codkPaymentDescription %}
+  {% endif %}
+  {% if partial_payment_variants_raw == blank and cart_attributes.partial_payment_variants != blank %}
+    {% assign partial_payment_variants_raw = cart_attributes.partial_payment_variants %}
+  {% endif %}
+{% endif %}
+
+{% if attributes %}
+  {% if codk_amount_value_str == blank and attributes._codkAmountValue != blank %}
+    {% assign codk_amount_value_str = attributes._codkAmountValue %}
+  {% endif %}
+  {% if codk_amount_type_str == blank and attributes._codkAmountType != blank %}
+    {% assign codk_amount_type_str = attributes._codkAmountType %}
+  {% endif %}
+  {% if codk_payment_description == blank and attributes._codkPaymentDescription != blank %}
+    {% assign codk_payment_description = attributes._codkPaymentDescription %}
+  {% endif %}
+  {% if partial_payment_variants_raw == blank and attributes.partial_payment_variants != blank %}
+    {% assign partial_payment_variants_raw = attributes.partial_payment_variants %}
+  {% endif %}
+  {% for attribute in attributes %}
+    {% assign _k = attribute.first %}
+    {% assign _v = attribute.last %}
+    {% case _k %}
+      {% when '_codkAmountValue' %}
+        {% if codk_amount_value_str == blank %}
+          {% assign codk_amount_value_str = _v %}
+        {% endif %}
+      {% when '_codkAmountType' %}
+        {% if codk_amount_type_str == blank %}
+          {% assign codk_amount_type_str = _v %}
+        {% endif %}
+      {% when '_codkPaymentDescription' %}
+        {% if codk_payment_description == blank %}
+          {% assign codk_payment_description = _v %}
+        {% endif %}
+      {% when 'partial_payment_variants' %}
+        {% if partial_payment_variants_raw == blank %}
+          {% assign partial_payment_variants_raw = _v %}
+        {% endif %}
+      {% when 'partialPaymentProduct' %}
+        {% if _v == 'true' %}
+          {% assign is_partial_payment_order = true %}
+        {% endif %}
+      {% when '_partialPaymentProduct' %}
+        {% if _v == 'true' %}
+          {% assign is_partial_payment_order = true %}
+        {% endif %}
+    {% endcase %}
+  {% endfor %}
+{% endif %}
+
+{% comment %} Last resort: _codkPaymentDescription on line item properties {% endcomment %}
+{% if codk_payment_description == blank %}
+  {% for line in line_items %}
+    {% if line.properties._codkPaymentDescription != blank %}
+      {% assign codk_payment_description = line.properties._codkPaymentDescription %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% comment %} Description implies partial COD even if partialPaymentProduct flag missing {% endcomment %}
+{% if codk_payment_description != blank %}
+  {% assign _desc_lc = codk_payment_description | downcase | strip %}
+  {% if _desc_lc contains 'on delivery' %}
+    {% assign is_partial_payment_order = true %}
+  {% endif %}
+{% endif %}
+
+{% comment %} Expected partial_payment_variants like [48200847163699] {% endcomment %}
+{% assign partial_variant_ids = partial_payment_variants_raw | strip | remove: '[' | remove: ']' | replace: '"', '' | replace: "'", '' | split: ',' %}
+
+{% comment %} Upfront from rule (minor units) — fallback if needed {% endcomment %}
+{% assign codk_upfront_minor = 0 %}
+{% if codk_amount_value_str != blank %}
+  {% if codk_amount_type_str == 'percentage' %}
+    {% assign codk_upfront_minor = total_price | times: codk_amount_value_str | divided_by: 100 %}
+  {% elsif shop.currency == 'JPY' or shop.currency == 'KRW' %}
+    {% comment %} Zero-decimal: _codkAmountValue is already in minor units {% endcomment %}
+    {% assign codk_upfront_minor = codk_amount_value_str | round %}
+  {% else %}
+    {% assign codk_upfront_minor = codk_amount_value_str | times: 100 | round %}
+  {% endif %}
+{% endif %}
+
+{% comment %} Actual captured / paid online (same logic as Shopify default, run early for summary) {% endcomment %}
+{% assign pp_transaction_amount = 0 %}
+{% assign pp_net_rounding = 0 %}
+{% assign pp_authorized_amount = 0 %}
+{% for transaction in transactions %}
+  {% if transaction.kind == 'sale' or transaction.kind == 'capture' %}
+    {% if transaction.status == 'success' %}
+      {% assign pp_transaction_amount = pp_transaction_amount | plus: transaction.amount %}
+      {% if transaction.amount_rounding != nil %}
+        {% assign pp_net_rounding = pp_net_rounding | plus: transaction.amount_rounding %}
+      {% endif %}
+    {% endif %}
+  {% elsif transaction.kind == 'authorization' %}
+    {% if transaction.status == 'success' %}
+      {% assign pp_authorized_amount = pp_authorized_amount | plus: transaction.amount %}
+    {% endif %}
+  {% elsif transaction.kind == 'refund' or transaction.kind == 'change' %}
+    {% if transaction.status == 'success' or transaction.status == 'pending' %}
+      {% assign pp_transaction_amount = pp_transaction_amount | minus: transaction.amount %}
+      {% if transaction.amount_rounding != nil %}
+        {% assign pp_net_rounding = pp_net_rounding | minus: transaction.amount_rounding %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+{% assign txn_paid_minor = pp_transaction_amount | plus: pp_net_rounding %}
+
+{% comment %}
+  Due on delivery: take the amount right before “on delivery” (e.g. 649.95 in
+  “Pay ₹100 now and ₹649.95 on delivery”). Normalize case/spacing/HTML, then split.
+{% endcomment %}
+{% assign codk_due_on_delivery_minor = 0 %}
+{% assign codk_due_parse_ok = false %}
+{% if codk_payment_description != blank %}
+  {% assign _d = codk_payment_description | strip_html | strip | replace: '&nbsp;', ' ' | replace: '&#160;', ' ' | replace: '&#8377;', '₹' | replace: '&#x20B9;', '₹' %}
+  {% comment %} NBSP between “on” and “delivery” breaks split — normalize (U+00A0 below) {% endcomment %}
+  {% assign _d = _d | replace: ' ', ' ' %}
+  {% assign _d = _d | replace: 'ON DELIVERY', 'on delivery' | replace: 'On Delivery', 'on delivery' | replace: 'on delivery.', 'on delivery' | replace: 'on delivery!', 'on delivery' %}
+  {% assign _parts = _d | split: 'on delivery' %}
+  {% if _parts.size <= 1 %}
+    {% assign _parts = _d | split: 'on  delivery' %}
+  {% endif %}
+  {% if _parts.size > 1 %}
+    {% assign _before_delivery = _parts | first | strip %}
+    {% comment %} Last “… and …” clause before “on delivery” is the due amount {% endcomment %}
+    {% assign _due_chunk = _before_delivery | split: ' and ' | last | strip %}
+    {% if _due_chunk == _before_delivery %}
+      {% assign _tmp = _before_delivery | split: ' now and ' %}
+      {% if _tmp.size > 1 %}
+        {% assign _due_chunk = _tmp | last | strip %}
+      {% endif %}
+    {% endif %}
+    {% assign _due_tail = _due_chunk | split: ' on' | first | strip %}
+    {% if _due_tail != blank %}
+      {% assign _due_chunk = _due_tail %}
+    {% endif %}
+    {% comment %} Keep only 0-9 and one dot (handles stray symbols / wrong ₹ glyph) {% endcomment %}
+    {% assign _due_s = _due_chunk | replace: '₹', '' | replace: 'Rs.', '' | replace: 'Rs', '' | replace: 'rs.', '' | replace: 'RS.', '' | replace: 'INR', '' | replace: '$', '' | replace: 'USD', '' | replace: 'EUR', '' | replace: '€', '' | replace: '£', '' | replace: ',', '' | strip %}
+    {% comment %} Shopify: for x in string loops words — use split:'' for characters {% endcomment %}
+    {% assign _due_num = '' %}
+    {% assign _dot_used = false %}
+    {% assign _chars = _due_s | split: '' %}
+    {% for _ch in _chars %}
+      {% if _ch == '0' or _ch == '1' or _ch == '2' or _ch == '3' or _ch == '4' or _ch == '5' or _ch == '6' or _ch == '7' or _ch == '8' or _ch == '9' %}
+        {% assign _due_num = _due_num | append: _ch %}
+      {% elsif _ch == '.' %}
+        {% unless _dot_used %}
+          {% assign _dot_used = true %}
+          {% assign _due_num = _due_num | append: '.' %}
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+    {% if _due_num == blank and _due_s != blank %}
+      {% assign _due_num = _due_s %}
+    {% endif %}
+    {% if _due_num != blank %}
+      {% if shop.currency == 'JPY' or shop.currency == 'KRW' %}
+        {% assign codk_due_on_delivery_minor = _due_num | round %}
+      {% else %}
+        {% assign codk_due_on_delivery_minor = _due_num | times: 100 | round %}
+      {% endif %}
+      {% if codk_due_on_delivery_minor > 0 %}
+        {% assign codk_due_parse_ok = true %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{% comment %} Paid online: actual Shopify capture/sale total (order payments) {% endcomment %}
+{% assign paid_online_minor = txn_paid_minor %}
+{% if paid_online_minor == 0 and is_partial_payment_order and total_price > 0 %}
+  {% comment %} Some sends run before transactions appear; use order total as paid placeholder {% endcomment %}
+  {% assign paid_online_minor = total_price %}
+{% endif %}
+{% if paid_online_minor == 0 and codk_upfront_minor > 0 %}
+  {% assign paid_online_minor = codk_upfront_minor %}
+{% endif %}
+
+{% if codk_due_parse_ok %}
+  {% assign remaining_minor = codk_due_on_delivery_minor %}
+{% else %}
+  {% assign remaining_minor = total_price | minus: paid_online_minor %}
+{% endif %}
+
+{% if remaining_minor < 0 %}
+  {% assign remaining_minor = 0 %}
+{% endif %}
+
+{% assign display_order_total_minor = total_price %}
+{% if codk_due_parse_ok %}
+  {% assign display_order_total_minor = paid_online_minor | plus: remaining_minor %}
+{% endif %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{{ email_title }}</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" type="text/css" href="/assets/notifications/styles.css">
+  <style>
+    .button__cell { background: {{ shop.email_accent_color }}; }
+    a, a:hover, a:active, a:visited { color: {{ shop.email_accent_color }}; }
+    .partial-pay-badge { font-size: 12px; color: #555; margin-top: 4px; }
+    .payment-summary td { padding: 6px 0; vertical-align: top; }
+    .payment-summary .label { color: #555; }
+  </style>
+</head>
+<body>
+  <table class="body">
+    <tr>
+      <td>
+        <table class="header row">
+          <tr>
+            <td class="header__cell">
+              <center>
+                <table class="container">
+                  <tr>
+                    <td>
+                      <table class="row">
+                        <tr>
+                          <td class="shop-name__cell">
+                            {%- if shop.email_logo_url %}
+                              <img src="{{ shop.email_logo_url }}" alt="{{ shop.name }}" width="{{ shop.email_logo_width }}">
+                            {%- else %}
+                              <h1 class="shop-name__text"><a href="{{ shop.url }}">{{ shop.name }}</a></h1>
+                            {%- endif %}
+                          </td>
+                          <td>
+                            <table class="order-po-number__container">
+                              <tr>
+                                <td class="order-number__cell">
+                                  <span class="order-number__text">Order {{ order_name }}</span>
+                                </td>
+                              </tr>
+                              {%- if po_number %}
+                                <tr>
+                                  <td class="po-number__cell">
+                                    <span class="po-number__text">PO number #{{ po_number }}</span>
+                                  </td>
+                                </tr>
+                              {%- endif %}
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </center>
+            </td>
+          </tr>
+        </table>
+
+        <table class="row content">
+          <tr>
+            <td class="content__cell">
+              <center>
+                <table class="container">
+                  <tr>
+                    <td>
+                      <h2>{{ email_title }}</h2>
+                      <p>{{ email_body }}</p>
+
+                      <p>✅ <strong>ORDER PLACED</strong> 🎉</p>
+                      <p>Hey {{ customer.first_name | default: 'there' }},</p>
+                      <p>We have successfully received your order <strong>{{ order.name }}</strong>.</p>
+
+                      {% if is_partial_payment_order %}
+                        <table class="row" role="presentation" style="width:100%; max-width:520px; margin:20px auto; border:1px solid #e5e5e5; border-radius:8px;">
+                          <tr>
+                            <td style="padding:16px;">
+                              <h3 style="margin:0 0 12px 0;">Payment summary</h3>
+                              <table class="payment-summary" style="width:100%; border-collapse:collapse;">
+                                <tr>
+                                  <td class="label">Order total</td>
+                                  <td style="text-align:right;"><strong>{{ display_order_total_minor | money_with_currency }}</strong></td>
+                                </tr>
+                                <tr>
+                                  <td class="label">Paid online now</td>
+                                  <td style="text-align:right;"><strong>{{ paid_online_minor | money_with_currency }}</strong></td>
+                                </tr>
+                                <tr>
+                                  <td class="label">Due on delivery</td>
+                                  <td style="text-align:right;"><strong>{{ remaining_minor | money_with_currency }}</strong></td>
+                                </tr>
+                              </table>
+                              {% if codk_payment_description != blank %}
+                                <p style="margin:12px 0 0 0; line-height:1.5;">{{ codk_payment_description }}</p>
+                              {% endif %}
+                            </td>
+                          </tr>
+                        </table>
+                      {% endif %}
+
+                      <h3 style="margin-top:28px;">Order items</h3>
+                      <table class="row" style="width:100%; border-collapse:collapse;">
+                        {% for line in line_items %}
+                          {% assign vid_string = line.variant.id | append: '' %}
+                          {% assign is_partial_line = false %}
+                          {% for pvid in partial_variant_ids %}
+                            {% assign pvid_clean = pvid | strip %}
+                            {% if pvid_clean == vid_string %}
+                              {% assign is_partial_line = true %}
+                            {% endif %}
+                          {% endfor %}
+                          <tr class="order-list__item">
+                            <td class="order-list__image-cell" style="padding:12px 8px 12px 0; width:72px;">
+                              {% if line.image %}
+                                <img src="{{ line | img_url: 'compact_cropped' }}" width="60" height="60" alt="" class="order-list__product-image">
+                              {% else %}
+                                <img src="{{ 'notifications/no-image.png' | shopify_asset_url }}" width="60" height="60" alt="">
+                              {% endif %}
+                            </td>
+                            <td class="order-list__product-description-cell" style="padding:12px 8px;">
+                              <span class="order-list__item-title">
+                                {{ line.title }}&nbsp;&times;&nbsp;{{ line.quantity }}
+                              </span>
+                              {% if line.variant.title != 'Default Title' %}
+                                <br><span class="order-list__item-variant">{{ line.variant.title }}</span>
+                              {% endif %}
+                              {% if is_partial_line %}
+                                <div class="partial-pay-badge">Partial payment product — balance collected on delivery.</div>
+                              {% endif %}
+                            </td>
+                            <td class="order-list__price-cell" style="padding:12px 0; text-align:right; white-space:nowrap;">
+                              <strong>{{ line.final_line_price | money }}</strong>
+                            </td>
+                          </tr>
+                        {% endfor %}
+                      </table>
+
+                      <table class="row subtotal-lines" style="margin-top:16px;">
+                        <tr>
+                          <td class="subtotal-spacer"></td>
+                          <td>
+                            <table class="row subtotal-table">
+                              <tr class="subtotal-line">
+                                <td class="subtotal-line__title"><p><span>Subtotal</span></p></td>
+                                <td class="subtotal-line__value"><strong>{{ subtotal_price | money }}</strong></td>
+                              </tr>
+                              {% if shipping_price > 0 %}
+                                <tr class="subtotal-line">
+                                  <td class="subtotal-line__title"><p><span>Shipping</span></p></td>
+                                  <td class="subtotal-line__value"><strong>{{ shipping_price | money }}</strong></td>
+                                </tr>
+                              {% endif %}
+                              {% if tax_price > 0 %}
+                                <tr class="subtotal-line">
+                                  <td class="subtotal-line__title"><p><span>Taxes</span></p></td>
+                                  <td class="subtotal-line__value"><strong>{{ tax_price | money }}</strong></td>
+                                </tr>
+                              {% endif %}
+                              <tr class="subtotal-line">
+                                <td class="subtotal-line__title"><p><span>Total</span></p></td>
+                                <td class="subtotal-line__value"><strong>{{ display_order_total_minor | money_with_currency }}</strong></td>
+                              </tr>
+                              {% if is_partial_payment_order %}
+                                <tr class="subtotal-line">
+                                  <td class="subtotal-line__title"><p><span>Paid online</span></p></td>
+                                  <td class="subtotal-line__value"><strong>{{ paid_online_minor | money_with_currency }}</strong></td>
+                                </tr>
+                                <tr class="subtotal-line">
+                                  <td class="subtotal-line__title"><p><span>Due on delivery</span></p></td>
+                                  <td class="subtotal-line__value"><strong>{{ remaining_minor | money_with_currency }}</strong></td>
+                                </tr>
+                              {% endif %}
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+
+                      {% if order_status_url %}
+                        <table class="row actions">
+                          <tr><td class="empty-line">&nbsp;</td></tr>
+                          <tr>
+                            <td class="actions__cell">
+                              <table class="button main-action-cell">
+                                <tr>
+                                  <td class="button__cell"><a href="{{ order_status_url }}" class="button__text">View your order</a></td>
+                                </tr>
+                              </table>
+                              {% if shop.url %}
+                                <table class="link secondary-action-cell">
+                                  <tr>
+                                    <td class="link__cell">or <a href="{{ shop.url }}">Visit our store</a></td>
+                                  </tr>
+                                </table>
+                              {% endif %}
+                            </td>
+                          </tr>
+                        </table>
+                      {% endif %}
+                    </td>
+                  </tr>
+                </table>
+              </center>
+            </td>
+          </tr>
+        </table>
+
+        <table class="row section">
+          <tr>
+            <td class="section__cell">
+              <center>
+                <table class="container">
+                  <tr><td><h3>Customer information</h3></td></tr>
+                </table>
+                <table class="container">
+                  <tr>
+                    <td>
+                      <table class="row">
+                        <tr>
+                          {% if requires_shipping and shipping_address %}
+                            <td class="customer-info__item">
+                              <h4>Shipping address</h4>
+                              {{ shipping_address | format_address }}
+                            </td>
+                          {% endif %}
+                          {% if billing_address %}
+                            <td class="customer-info__item">
+                              <h4>Billing address</h4>
+                              {{ billing_address | format_address }}
+                            </td>
+                          {% endif %}
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </center>
+            </td>
+          </tr>
+        </table>
+
+        <table class="row footer">
+          <tr>
+            <td class="footer__cell">
+              <center>
+                <table class="container">
+                  <tr>
+                    <td>
+                      <p class="disclaimer__subtext">
+                        If you have any questions, reply to this email or contact us at
+                        <a href="mailto:{{ shop.email }}">{{ shop.email }}</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </center>
+            </td>
+          </tr>
+        </table>
+
+        <img src="{{ 'notifications/spacer.png' | shopify_asset_url }}" class="spacer" height="1" alt="">
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+
+{%- if billing_address.country_code == 'DE' or billing_address.country_code == 'DK' -%}
+  {%- if shop.terms_of_service.body != blank -%}
+    {{ shop.terms_of_service | attach_as_pdf: 'Terms of service' }}
+  {%- endif -%}
+  {%- if shop.refund_policy.body != blank -%}
+    {{ shop.refund_policy | attach_as_pdf: 'Refund policy' }}
+  {%- endif -%}
+{%- endif -%}

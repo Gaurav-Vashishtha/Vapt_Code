@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+de:
+  hello: Hallo Welt
+  admin:
+    getting_started: Handbuch „Erste Schritte“
+    watch_video_msg: Sehen Sie sich das Video an, buchen Sie eine Sitzung oder chatten Sie mit uns, um direkt mit COD King zu beginnen!
+    watch_video: VIDEO ANSEHEN
+    book_session: Buch-Sitzung
+    chat_with_us: Chatten Sie jetzt mit uns
+    settings: Einstellungen
+    log: Loggen
+    step1: Schritt 1 — Bestellung per Nachnahme aufgegeben
+    step1_desc: Kunde gibt Nachnahmebestellung auf. App identifiziert es als Nachnahmebestellung.
+    step2: Schritt 2 - App sendet OTP per SMS an den Kunden
+    step2_desc: Eindeutiges OTP wird an die Handynummer des Kunden gesendet.
+    step3: Schritt 3 - Das OTP-Feld wird auf der Dankesseite angezeigt
+    step3_desc: Der Kunde gibt OTP ein und klickt auf Bestätigen.
+    step4: Schritt 4 - Filtern Sie Ihre Bestellungen anhand dieses Tags.
+    step4_desc: Kunde gibt Nachnahmebestellung auf. App identifiziert es als Nachnahmebestellung.
+    step5: Schritt 5 — Gesparte Versandkosten
+    step5_desc: Sparen Sie Versandkosten, indem Sie gefälschte Bestellungen ablehnen. Gespartes Geld ist verdientes Geld.
+    logs: Protokolle
+    order_logs: Logs bestellen
+    subscription: Abonnement
+    settings_saved: Einstellungen gespeichert
+    settings_saved_msg: "Änderungen werden sich in wenigen Minuten in Ihrem Geschäft widerspiegeln."
+    activate_sms: Aktiviere <b>SMS</b> Bestätigung
+    activate_cod_fees: Aktiviere <b>COD-Gebühren</b>
+    sms_placeholder: 123456 ist Ihr einmaliges Passwort zur Bestätigung von COD
+    ios_code_error: Die Vorlage sollte das Schlüsselwort „code“ enthalten, um OTP auf der iOS-Tastatur anzuzeigen
+    activate_ivr: Aktiviere <b>IVR</b> Bestätigung
+    intro_msg: Introduction
+    intro_msg_placeholder: Danke, dass Sie eine Bestellung aufgegeben haben.
+    order_confirm_label: Nachricht zur Bestellbestätigung
+    order_confirm_placeholder: Bitte drücken Sie 1, um Ihre Bestellung zu bestätigen.
+    order_confirm_help: Führen Sie den Benutzer dazu, 1 zu drücken, um die Bestellung zu bestätigen.
+    order_confirm_error: Die Bestätigungsmeldung sollte „1" für die Auftragsbestätigung enthalten
+    order_cancel_label: Nachricht zur Stornierung
+    order_cancel_placeholder: Bitte drücken Sie 2, um Ihre Bestellung zu stornieren.
+    order_cancel_help: Führen Sie den Benutzer auf 2 drücken, um die Bestellung zu stornieren.
+    order_cancel_error: Diese Nachricht sollte für die Stornierung der Bestellung „2“ enthalten.
+    test_sms: "Testen Sie die SMS-Benachrichtigung"
+    enter_test_number: Testnummer eingeben
+    sms_sent_check_mobile: SMS verschickt. Bitte überprüfen Sie Ihr Handy
+    enter_country_code: Bitte geben Sie beim Testen hier die Nummer mit Ihrer Ländervorwahl ein
+    number_cc_example: z. B. %{number}
+    send_sms: Senden Sie SMS
+    message_template: Vorlage für Nachrichten
+    test_ivr: IVR-Anruf testen
+    cod_fees: Betrag für Nachnahmegebühren in
+    cod_fees_help: Geldbetrag, den Sie hinzufügen möchten, wenn der Kunde eine Nachnahmebestellung aufgibt.
+    cod_label: Etikett zum Anbringen für Nachnahmegebühren
+    cod_label_help: Etikett, das für zusätzliche Gebühren angezeigt werden muss
+    cod_instruction: Lieferanleitung per Nachnahme
+    cod_instruction_help: Diese Nachricht wird den Kunden auf der Dankesseite angezeigt, wenn die Bestellung abgeschlossen ist.
+    please_check_mobile: Bitte überprüfen Sie Ihr Handy
+    call_now: Rufen Sie jetzt
+    unsaved: Ungesicherte Änderungen
+    x_chars_used: "%{count} / %{total} verwendete Zeichen"
+    deactivate: Deaktivieren
+    save: speichern
+    discard: verwerfen
+    free_plan: Kostenloses Abo
+    pro_plan: Pro-Paket
+    vip_plan: VIP-Plan
+    feature_1: beginnt 0,02$ pro SMS
+    feature_2: beginnt 0,04$ pro IVR
+    feature_3: 1 zu 1 Anruf an Bord
+    feature_4: Vorrangige Unterstützung
+    feature_1_pro: Für Geschäfte mehr als 100 Bestellungen per Nachnahme pro Monat
+    custom_plan: Plan zur Integration von Netzanbietern
+    subscribe: Abonnieren
+    subscribed: Abonniert
+    recommended: Empfohlen
+    sms_template_default: "{{otp}} ist Ihr Bestätigungscode zur Bestätigung der auf %{store} aufgetätigten Nachnahme"
+    retry_template_default: "Vielen Dank für Ihre Bestellung per Nachnahme am %{store}. Bitte bestätigen Sie Ihre Bestellung, indem Sie den Link {{link}} Bird.ch aufrufen"
+    prepaid_template_default: "Ihre Bestellung in Prepaid umwandeln, indem Sie auf den Link klicken. {{link}}"
+    order_confirm_template_default: "Danke für deinen Kauf am %{store}. Ihre Bestellung wurde bestätigt - Bestellnummer {{number}}"
+    fulfilment_template_default: "Ihre Bestellung wurde von %{store} versendet - Verfolgen Sie Ihre Bestellung unter {{tracking_url}}"
+    ivr_introduction: "Vielen Dank für Ihre Bestellung auf %{domain}."
+    ivr_confirm_message: Bitte drücken Sie 1, um Ihre Bestellung zu bestätigen.
+    ivr_cancel_message: Bitte drücken Sie 2, um Ihre Bestellung zu stornieren.
+    confirmed_thank_you: Ihre Bestellung ist bestätigt, danke.
+    cancelled_thank_you: Ihre Bestellung ist storniert, vielen Dank.
+    invalid_thank_you: Ungültige Wahl, bitte versuchen Sie es erneut, danke.
+    no_logs_yet: Noch keine Logs
+    try_changing_search: Versuchen Sie den Suchbegriff zu ändern
+    order: Bestellen
+    date: Datum
+    customer: Kunde
+    total: Insgesamt
+    status: Status
+    network: netzwerk
+    prev: Vorherig (J)
+    next: Weiter (K)
+    no_resource_found: Keine %{resource} gefunden
+    search_resource: Suche %{resource} mit Bestellnummer oder Kundennamen
+    all: Alle
+    enter_valid_phone: Bitte geben Sie eine gültige Telefonnummer ein
+    enable_region: Bitte wenden Sie sich an uns, um Ihre Region zu aktivieren
+    x_total_orders: "%{count} Bestellungen insgesamt"
+    x_verified_orders: "%{count} verifizierte Bestellungen"
+    x_pending_orders: "%{count} ausstehende Bestellungen"
+    x_prepaid_orders: "%{count} Prepaid-Bestellungen"
+    x_cancelled_orders: "%{count} stornierte Bestellungen"
+    order_stats: Bestell Statistiken
+    boost_checkout: Nahtlose Kasse
+    recommended_setup_to: Empfohlene Einrichtung zur Verbesserung des Checko
+    copy: Kopieren
+    copied: Kopiert
+    starts: Beginnt
+    ends: Endet
+    recommended_steps: Empfohlene Schritte
+    checkout_settings: Gehe zur Kasse Einstellungen
+    additional_scripts_text_box: Und fügen Sie den folgenden Text in das Textfeld <b>Zusätzliche Skripte</b> ein
+    one_time_pass: Einmaliges Passwort
+    customer_first_name: Vorname des Kunden
+    order_total_amount: Gesamtbetrag der Bestellung
+    link_text: Ein-Klick-Bestellbestätigungslink
+    available_variables: Verfügbare Variablen zum Einfügen in Nachrichtenvorlage
+    free_limit_exhausted: Kostenloses Testlimit erschöpft. Bitte kontaktieren Sie uns, um es zu verlängern.
+    x_success_sms: "%{count} SMS"
+    x_billed_sms: "%{count} fakturierte SMS"
+    x_failed_sms: "%{count} SMS"
+    usage_charged_created: "Nutzungsgebühr wurde erstellt"
+    x_ivr: "%{count} IVR"
+    refresh: Aktualisieren
+    complete_setup: Nur ein letzter Schritt
+    complete_setup_msg: Einstellungen gespeichert. Um das Setup abzuschließen, abonnieren Sie bitte <b>hier</b>.
+    view_plans: Pläne ansehen
+    prepay_template: Prepay-Vorlage
+    send_payment_link: Link zur Zahlung
+    submit: einreichen
+    bulk_submit: Bulk einreichen
+    amount: Betrag
+    date_time: Datum und Uhrzeit
+    mobile: Mobil
+    something_went_wrong: Etwas ist schief gelaufen, versuche es später noch einmal.
+    message_sent: Nachricht gesendet
+    send: Senden
+    cancel: Abbrechen
+    upto_x_orders: Bis zu %{count} Bestellungen pro Monat
+    unlimited_orders: Unbegrenzte Anzahl von Bestellungen zur Überprüfung
+    export: Exportieren
+    emailed_orders: Protokolle an E-Mail gesendet
+    comma_separated_order_ids: Komma getrennte Bestell-IDs
+    order_ids: "Geben Sie IDs ein wie: 3912951169177.3912951169178.3912951169177"
+    bulk_verify: Massen-Überprüfen
+    bulk_verify_template: "Hallo %{name}, bitte klicken Sie auf den Link %{link} , um Ihre Bestellung zu überprüfen #%{number} von %{amount} auf %{store}"
+    bulk_processing_title: Bearbeitung von Großaufträgen
+    bulk_processing_desc: Sie werden Ihre Bestellungen irgendwann in den Protokollen sehen.
+    bulk_processing_error: Etwas ist schief gelaufen
+    bulk_processing_error_desc: Bitte versuchen Sie es erneut oder wenden Sie sich an uns, wenn das Problem weiterhin besteht.
+    reach_out_title: Feature noch nicht aktiviert.
+    reach_out_desc: Bitte wenden Sie sich an uns, um diese Funktion zu aktivieren.
+    order_cancelled: Ihre Bestellung wurde storniert
+    order_details_title: Bestelldetails (Bitte klicken Sie auf stornieren oder bestätigen)
+    react_out_to_us: Bitte wenden Sie sich an uns für Großbestellungen
+    react_out_locked_title: Genehmigung erforderlich.
+    react_out_locked_desc: Bitte kontaktieren Sie uns per <b>E-Mail oder Chat</b> , um Ihr Konto zu aktivieren.
+    view_cost: Anzeigen von SMS-Kosten.
+    pricing_for_country: "Die Standard-SMS-Gebühr der App für <b>%{country}</b> beträgt <b>$%{charge}</b> pro SMS"
+    view_complete_pricing: Preistabelle für alle Länder anzeigen
+    chat_for_bulk_integration: Chatten Sie mit uns für Massenpreise oder benutzerdefinierte Integration.
+    advance_settings: Erweiterte Einstellungen
+    link_settings: Einstellungen für Verifizierungslink
+    show_cancel_button: Schaltfläche „Abbrechen“ anzeigen
+    show_cancel_button_help: wird nur während des Linküberprüfungsflusses unterstützt.
+    auto_verify: Automatisch überprüfen
+    auto_verify_help: Überprüfen Sie die Reihenfolge automatisch, wenn Sie auf den Verifizierungs
+    otp_settings: OTP-Einstellungen
+    max_retries: Max. SMS-Wiederholungsversuche pro Bestellung
+    otp_wait_time: Wartezeit für OTP erneut senden
+    otp_fallback_text: OTP-Unterstützung oder Fallback-Text
+    otp_fallback_text_help: HTML unterstützt
+    network_provider_integration: Integration von Netzwerkanbietern
+    network_provider: Netzwerkanbieter
+    required: Erforderlich
+    phone_number: Telefonnummer
+    integration_cost_reduce: Integration senkt Ihre Gesamtkosten auf fast ein Drittel
+    need_help: Brauchen Sie Hilfe?
+    create_x_account: Erstellen Sie %{brand} Konto
+    x_configuration: "%{brand} Konfiguration"
+    need_more_sms: Kontaktieren Sie uns für mehr.
+    price_for_country: "%{price} $ pro SMS in %{country}"
+    sms_cost_included: SMS-Kosten enthalten
+    sms_cost_extra: Sie können SMS direkt an den Anbieter bezahlen
+    view: Ansehen
+    order_number: Nummer der Bestellung
+    get_access_token: Generieren Sie Zugriffstoken
+    goto_orders: Gehe zu Bestellungen
+    whatsapp_approval_request_sent: WhatsApp-Genehmigungsanfrage gesendet
+    whatsapp_approval_request_sent_failure: 'Fehlgeschlagen: - Die WhatsApp-Genehmigungsanfrage ist fehlgeschlagen'
+  script:
+    submit: einreichen
+    mobile_phone_number: Nummer ohne 0 und Landesvorwahl
+    enter_valid_phone: Geben Sie eine gültige Telefonnummer ein
+    verify_for_smooth_delivery: Bitte überprüfen Sie Ihre Nummer für eine reibungslose Lieferung der Nachnahme
+    click_verify_link: Es wurde ein Link auf Ihre Nummer gesendet - <b>%{number}</b>
+    enter_otp_msg: "Bitte geben Sie das OTP ein, das am <b>%{number}</b>gesendet wurde"
+    enter_otp: OTP eintragen
+    change: ändern
+    invalid_otp: Ungültiges OTP, bitte versuchen Sie es erneut
+    resend_otp: OTP erneut senden
+    confirm_order: Bestätigen Sie <b>Nachnahme</b>(Nachnahme) Bestellung
+    sending: "Senden..."
+    order_being_processed: Ihre Bestellung wird bearbeitet.
+    if_not_redirected: Wenn Sie nicht automatisch weitergeleitet werden, aktualisieren Sie diese Seite.
+    resend_in_x_seconds: "Sende OTP in %{count} Sekunden erneut"
+    max_retries_reached: Maximale Wiederholungsgrenze wurde erreicht.
+    order_details: Angaben zur Bestellung
+    send_code_on_whatsapp: Holen Sie sich den Code auf Whatsapp

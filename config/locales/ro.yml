@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+ro:
+  hello: Bună ziua lume
+  admin:
+    getting_started: Noțiuni de bază ghid
+    watch_video_msg: Urmăriți videoclipul, rezervați o sesiune sau discutați cu noi pentru a începe chiar cu COD King!
+    watch_video: Vizionați videoclipul
+    book_session: Sesiune de carte
+    chat_with_us: Discutați cu noi acum
+    settings: Setări
+    log: Jurnal
+    step1: Pasul 1 - Comanda COD plasată
+    step1_desc: Clientul plasează comanda COD. Aplicația îl identifică ca comandă COD.
+    step2: Pasul 2 - Aplicația trimite OTP către client prin SMS
+    step2_desc: OTP unic este trimis la numărul de telefon mobil al clientului.
+    step3: Pasul 3 - Caseta OTP afișată în pagina Mulțumesc
+    step3_desc: Clientul intră în OTP și clicurile verifică.
+    step4: Pasul 4 - Filtrați comenzile pe baza acestei etichete.
+    step4_desc: Clientul plasează comanda COD. Aplicația îl identifică ca comandă COD.
+    step5: Pasul 5 - Costurile de transport au fost salvate
+    step5_desc: Economisiți costurile de transport prin respingerea comenzilor false Banii economisiți sunt banii câștigați.
+    logs: Busteni
+    order_logs: Jurnale de comandă
+    subscription: Abonament
+    settings_saved: Setări salvate
+    settings_saved_msg: "Modificările vor fi reflectate în magazinul dvs. în câteva minute."
+    activate_sms: Activați <b>Confirmare OTP</b>
+    activate_cod_fees: Activați <b>COD Taxe</b>
+    sms_placeholder: 123456 este parola dvs. unică pentru a confirma COD
+    ios_code_error: Șablonul ar trebui să includă cuvântul cheie „cod” pentru a afișa OTP în tastatura iOS
+    activate_ivr: Activați <b>IVR</b> Confirmare
+    intro_msg: Mesaj de introducere
+    intro_msg_placeholder: Vă mulțumim pentru plasarea comenzii.
+    order_confirm_label: Mesaj de confirmare a comenzii
+    order_confirm_placeholder: Vă rugăm să apăsați 1 pentru a confirma comanda.
+    order_confirm_help: Ghid de utilizare pentru a apăsa 1 pentru confirmarea comenzii.
+    order_confirm_error: Mesajul de confirmare ar trebui să includă „1" pentru confirmarea comenzii
+    order_cancel_label: Mesaj de anulare a comenzii
+    order_cancel_placeholder: Vă rugăm să apăsați 2 pentru a anula comanda.
+    order_cancel_help: Ghid de utilizare pentru a apăsa 2 pentru anularea comenzii.
+    order_cancel_error: Acest mesaj ar trebui să includă „2" pentru anularea comenzii.
+    test_sms: "Testați notificarea prin SMS"
+    enter_test_number: Introduceți numărul testului
+    sms_sent_check_mobile: SMS trimis. Vă rugăm să verificați telefonul mobil
+    enter_country_code: Vă rugăm să introduceți numărul cu codul de țară în timp ce testați aici
+    number_cc_example: de ex. %{number}
+    send_sms: Trimite SMS-uri
+    message_template: Șablon de mesaj
+    test_ivr: Testați apelul IVR
+    cod_fees: Suma pentru taxele COD în
+    cod_fees_help: Suma de bani pe care doriți să o adăugați, dacă clientul plasează o comandă COD.
+    cod_label: Etichetă de atașat pentru taxele COD
+    cod_label_help: Eticheta care trebuie afișată pentru taxe suplimentare
+    cod_instruction: Instrucțiuni de livrare COD
+    cod_instruction_help: Acest mesaj va fi afișat clienților în pagina de mulțumire atunci când comanda este finalizată.
+    please_check_mobile: Vă rugăm să verificați telefonul mobil
+    call_now: Sunați acum
+    unsaved: Modificări nesalvate
+    x_chars_used: "%{count} / %{total} caractere folosite"
+    deactivate: Dezactiva
+    save: Salvați
+    discard: Aruncați
+    free_plan: Plan gratuit
+    pro_plan: Plan Pro
+    vip_plan: Planul Vip
+    feature_1: începe $0.02 per SMS
+    feature_2: începe $0.06 per IVR
+    feature_3: 1 la 1 apel la bord
+    feature_4: Suport prioritar
+    feature_1_pro: Pentru magazine mai mult de 100 de comenzi COD pe lună
+    custom_plan: Plan de integrare a furnizorului de rețea
+    subscribe: Aboneaza-te
+    subscribed: Subscris
+    recommended: Recomandat
+    sms_template_default: "{{otp}} este codul dvs. de verificare pentru a confirma comanda COD plasată pe %{store}"
+    retry_template_default: "Vă mulțumim că ați plasat o comandă COD pe %{store}. Vă rugăm să confirmați comanda vizitând link-ul {{link}} birdch"
+    prepaid_template_default: "convertiți comanda în preplătită făcând clic pe link. {{link}}"
+    order_confirm_template_default: "Vă mulțumim pentru achiziția dvs. pe %{store}. Comanda dvs. a fost confirmată - Numărul comenzii {{number}}"
+    fulfilment_template_default: "Comanda dvs. a fost expediată de la %{store} - Urmăriți-vă comanda la {{tracking_url}}"
+    ivr_introduction: "Vă mulțumim pentru plasarea comenzii pe %{domain}."
+    ivr_confirm_message: Vă rugăm să apăsați 1 pentru a confirma comanda.
+    ivr_cancel_message: Vă rugăm să apăsați 2 pentru a anula comanda.
+    confirmed_thank_you: Comanda dvs. este confirmată, vă mulțumesc.
+    cancelled_thank_you: Comanda dvs. este anulată, vă mulțumesc.
+    invalid_thank_you: Alegere nevalidă, Vă rugăm să încercați din nou, vă mulțumesc.
+    no_logs_yet: Nu există încă jurnale
+    try_changing_search: Încercați să schimbați termenul de căutare
+    order: Comandă
+    date: Data
+    customer: Client
+    total: Total
+    status: Statut
+    network: Rețea
+    prev: Anterior (J)
+    next: Următor → (K)
+    no_resource_found: Nu a fost găsit %{resource}
+    search_resource: Căutați %{resource} cu numărul comenzii sau numele clientului
+    all: Toate
+    enter_valid_phone: Vă rugăm să introduceți un număr de telefon valid
+    enable_region: Vă rugăm să ne contactați pentru a vă permite regiunea
+    x_total_orders: "%{count} comenzi totale"
+    x_verified_orders: "%{count} comenzi verificate"
+    x_pending_orders: "%{count} ordine în așteptare"
+    x_prepaid_orders: "%{count} comenzi preplătite"
+    x_cancelled_orders: "%{count} comenzi anulate"
+    order_stats: Statistici pentru comenzi
+    boost_checkout: Checkout fără sudură
+    recommended_setup_to: Configurare recomandată pentru a îmbunătăți experiența de plată
+    copy: Copiați
+    copied: Copiată
+    starts: Începe
+    ends: Se termină
+    recommended_steps: Pași recomandați
+    checkout_settings: Accesați setările de finalizare a comenzii
+    additional_scripts_text_box: Și lipiți textul de mai jos în <b>Scripturi suplimentare</b> casetă de text
+    one_time_pass: Parolă unică
+    customer_first_name: Prenume client
+    order_total_amount: Suma totală a comenzii
+    link_text: Link de confirmare a comenzii cu un singur clic
+    available_variables: Variabile disponibile pentru a lipi în șablonul mesajului
+    free_limit_exhausted: Limita de testare gratuită epuizată. Vă rugăm să ne contactați pentru a reînnoi.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} SMS-uri facturate"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Taxa de utilizare creată"
+    x_ivr: "%{count} ivr"
+    refresh: Reîmprospătare
+    complete_setup: Doar un ultim pas
+    complete_setup_msg: Setări salvate. Pentru a finaliza configurarea, vă rugăm să <b>abonați-vă aici</b>.
+    view_plans: Vizualizați planurile
+    prepay_template: Șablon de plată anticipată
+    send_payment_link: Link de plată
+    submit: Trimite
+    bulk_submit: Submit în vrac
+    amount: Suma
+    date_time: Data și ora
+    mobile: Mobil
+    something_went_wrong: Ceva nu a mers bine, încercați din nou mai târziu.
+    message_sent: Mesaj trimis
+    send: Trimite
+    cancel: Anulați
+    upto_x_orders: Pto %{count} Comenzi pe lună
+    unlimited_orders: Număr nelimitat de comenzi pentru verificare
+    export: Export
+    emailed_orders: Trimis busteni la e-mail
+    comma_separated_order_ids: ID-uri de ordine separate prin virgulă
+    order_ids: "Introduceți ID-uri precum: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Verificare în bloc
+    bulk_verify_template: "Bună %{name}, Vă rugăm să faceți clic pe linkul %{link} pentru a verifica comanda dvs. #%{number} din %{amount} plasată pe %{store}"
+    bulk_processing_title: Procesarea comenzilor în vrac
+    bulk_processing_desc: Veți vedea comenzile dvs. în jurnalele cândva.
+    bulk_processing_error: Ceva nu a mers bine
+    bulk_processing_error_desc: Vă rugăm să încercați din nou sau să ne contactați dacă problema persistă.
+    reach_out_title: Caracteristica nu este activată încă.
+    reach_out_desc: Vă rugăm să ne contactați pentru a activa această caracteristică.
+    order_cancelled: Comanda dvs. a fost anulată
+    order_details_title: Detalii comandă (Vă rugăm să faceți clic pe Anulați sau confirmați)
+    react_out_to_us: Vă rugăm să ne contactați pentru comenzi în vrac
+    react_out_locked_title: Este necesară aprobarea.
+    react_out_locked_desc: Vă rugăm să ne contactați prin <b>e-mail sau chat</b> pentru a vă activa contul.
+    view_cost: Vizualizați costul SMS.
+    pricing_for_country: "Taxa implicită SMS a aplicației pentru <b>%{country}</b> este de <b>$%{charge}</b> pe sms"
+    view_complete_pricing: Vezi tabelul de stabilire a prețurilor pentru toate țările
+    chat_for_bulk_integration: Discutați cu noi pentru prețuri în vrac sau integrare personalizată.
+    advance_settings: Setări avansate
+    link_settings: Setările legăturii de verificare
+    show_cancel_button: Afișați butonul de anulare
+    show_cancel_button_help: acceptată numai în timpul fluxului de verificare a legăturii.
+    auto_verify: Verificare automată
+    auto_verify_help: Verificarea automată a comenzii la clic pe linkul de verificare.
+    otp_settings: Setări OTP
+    max_retries: Reîncercări SMS maxime per comandă
+    otp_wait_time: Retrimite timpul de așteptare OTP
+    otp_fallback_text: Suport OTP sau text de rezervă
+    otp_fallback_text_help: HTML sprijinit
+    network_provider_integration: Integrarea furnizorilor de rețea
+    network_provider: Furnizor de rețea
+    required: Necesar
+    phone_number: Număr de telefon
+    integration_cost_reduce: Integrarea reduce costul total la aproape o treime
+    need_help: Ai nevoie de ajutor?
+    create_x_account: Creează un cont %{brand}
+    x_configuration: "%{brand} Configurare"
+    need_more_sms: Chat cu noi pentru a vă abona și de stabilire a prețurilor.
+    price_for_country: "$%{price} per Mesaj in %{country}"
+    sms_cost_included: Costul SMS inclus
+    sms_cost_extra: Puteți plăti pentru SMS către furnizor direct
+    view: Vedere
+    order_number: Număr de comandă
+    get_access_token: Generați jeton de acces
+    goto_orders: Mergi la comenzi
+    whatsapp_approval_request_sent: Solicitare de aprobare WhatsApp trimisă
+    whatsapp_approval_request_sent_failure: 'Eșuat: - Solicitarea de aprobare WhatsApp a eșuat'
+  script:
+    submit: Trimite
+    mobile_phone_number: Număr fără 0 și codul țării
+    enter_valid_phone: Introduceți numărul de telefon valid
+    verify_for_smooth_delivery: Vă rugăm să verificați numărul de telefon pentru livrarea ușoară a comenzii dvs. COD
+    click_verify_link: Un link a fost trimis pe numărul dvs. - <b>%{number}</b>
+    enter_otp_msg: "Vă rugăm să introduceți OTP trimis la <b>%{number}</b>"
+    enter_otp: Introduceți OTP
+    change: Schimbare
+    invalid_otp: OTP nevalid, vă rugăm să încercați din nou
+    resend_otp: Retrimite OTP
+    confirm_order: Confirmați comanda
+    sending: "Trimiterea..."
+    order_being_processed: Comanda dvs. este procesată.
+    if_not_redirected: Dacă nu sunteți redirecționat automat, reîmprospătați această pagină.
+    resend_in_x_seconds: "Retrimite OTP în %{count} secunde"
+    max_retries_reached: Limita maximă de reîncercări atinsă.
+    order_details: Detalii comandă
+    send_code_on_whatsapp: Obțineți codul pe Whatsapp

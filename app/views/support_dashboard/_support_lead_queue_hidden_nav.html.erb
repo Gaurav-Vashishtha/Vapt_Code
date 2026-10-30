@@ -1,0 +1,15 @@
+<%# locals: nav (Hash with shop_age_months, installed_within_days, optional page, closed_page, support_lead_engineer, support_lead_shopify_domain) %>
+<%= hidden_field_tag :shop_age_months, nav[:shop_age_months] %>
+<%= hidden_field_tag :installed_within_days, nav[:installed_within_days] %>
+<% if nav[:support_lead_engineer].present? %>
+  <%= hidden_field_tag :support_lead_engineer, nav[:support_lead_engineer] %>
+<% end %>
+<% if nav[:support_lead_shopify_domain].present? %>
+  <%= hidden_field_tag :support_lead_shopify_domain, nav[:support_lead_shopify_domain] %>
+<% end %>
+<% if nav[:page].present? %>
+  <%= hidden_field_tag :page, nav[:page] %>
+<% end %>
+<% if nav[:closed_page].present? %>
+  <%= hidden_field_tag :closed_page, nav[:closed_page] %>
+<% end %>

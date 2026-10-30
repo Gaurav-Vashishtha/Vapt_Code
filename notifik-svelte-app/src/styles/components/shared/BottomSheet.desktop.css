@@ -1,0 +1,64 @@
+/* Desktop-specific styles for BottomSheet component */
+/* Applied when viewport width >= 641px */
+/* On desktop, slides in from the left side like a slider */
+
+@media (min-width: 641px) {
+  .bottom-sheet-backdrop {
+    z-index: 100014 !important;
+  }
+
+  .bottom-sheet {
+    /* Slider behavior: slide from left side */
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 340px !important;
+    max-width: 340px !important;
+    min-width: 340px !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    min-height: 100vh !important;
+    /* Ensure it's above modal */
+    z-index: 100015 !important;
+    /* Slide animation from left - starts off-screen */
+    transform: translateX(0) !important;
+    -webkit-transform: translateX(0) !important;
+    /* Styling */
+    border-radius: 0 12px 12px 0 !important;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1) !important;
+    background-color: #f9f9f9 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    /* Smooth slide transition */
+    transition: left 0.3s ease-in-out !important;
+  }
+
+  /* When data-open is false or not set, position off-screen */
+  .bottom-sheet:not([data-open="true"]) {
+    left: -400px !important;
+  }
+
+  /* When open, ensure it's visible */
+  .bottom-sheet[data-open="true"] {
+    left: 0 !important;
+  }
+
+  .bottom-sheet-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 20px !important;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    left: -400px;
+  }
+  to {
+    left: 0;
+  }
+}
+
+

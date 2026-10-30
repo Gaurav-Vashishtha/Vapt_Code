@@ -1,0 +1,16 @@
+.custom-backdrop {
+  position: fixed;
+  z-index: 400 !important; /* Lower than Polaris modal (which is ~500) */
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Keep Crisp chat widget behind modals so it doesn’t overlap (e.g. Select Language) */
+body.codking-modal-open #crisp-chatbox,
+body.codking-modal-open [id^="crisp-"],
+body.codking-modal-open [class*="crisp-client"] {
+  z-index: 350 !important;
+}

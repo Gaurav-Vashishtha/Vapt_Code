@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    .container { font-family: Arial, sans-serif; color: #222; }
+    .row { margin: 8px 0; }
+    .label { font-weight: 700; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>New Lead Submitted</h2>
+
+    <div class="row">
+      <span class="label">Email:</span>
+      <%= @lead.email %>
+    </div>
+    <div class="row">
+      <span class="label">Preferred WhatsApp Mobile Number:</span>
+      <%= @lead.phone_number %>
+    </div>
+    <div class="row">
+      <span class="label">Purpose:</span>
+      <%= @lead.purpose.to_s.humanize %>
+    </div>
+    <div class="row">
+      <span class="label">Preferred Time to Connect:</span>
+      <%= @lead.preferred_time_to_connect %>
+    </div>
+    <div class="row">
+      <span class="label">Website:</span>
+      <%= @lead.website.presence || "N/A" %>
+    </div>
+    <div class="row">
+      <span class="label">Notes:</span>
+      <%= @lead.notes.presence || "N/A" %>
+    </div>
+    <div class="row">
+      <span class="label">Submitted At:</span>
+      <%= @lead.created_at.strftime("%B %d, %Y %I:%M %p %Z") %>
+    </div>
+  </div>
+</body>
+</html>

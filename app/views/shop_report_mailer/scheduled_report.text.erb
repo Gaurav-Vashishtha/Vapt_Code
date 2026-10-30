@@ -1,0 +1,17 @@
+<%= @body_text_plain %>
+
+<% if @has_csv_attachment -%>
+
+---
+A CSV attachment is included with this email.
+<% end -%>
+
+<% if @manage_reports_url.present? -%>
+
+---
+Manage or turn off this report: <%= @manage_reports_url %>
+<% end -%>
+
+--
+This report was sent by COD King on behalf of your store settings.
+Question? mail to support@notifiktech.com or contact support via in app chat support.

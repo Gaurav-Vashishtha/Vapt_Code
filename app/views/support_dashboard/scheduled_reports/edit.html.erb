@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit report — <%= @definition.name %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <h1 class="text-xl font-semibold text-gray-900">Edit global report</h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Slug <code class="bg-gray-100 px-1 rounded"><%= @definition.slug %></code>
+        <% if @definition.builtin? %>(built-in)<% end %>
+      </p>
+    </div>
+  </div>
+
+  <%= render "shared/support_navigation" %>
+
+  <div class="max-w-4xl mx-auto px-4 py-6">
+    <% if @definition.errors.any? %>
+      <div class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-800">
+        <ul class="list-disc list-inside">
+          <% @definition.errors.full_messages.each do |m| %>
+            <li><%= m %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @definition,
+        url: support_dashboard_scheduled_report_path(@definition),
+        scope: :scheduled_report_definition,
+        method: :patch,
+        local: true,
+        class: "bg-white rounded-lg shadow p-6 space-y-4" do |f| %>
+
+      <div>
+        <%= f.label :name, class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_field :name, class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm", required: true %>
+      </div>
+
+      <div>
+        <%= f.label :merchant_description, "Merchant-visible description", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_area :merchant_description, rows: 4, class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+      </div>
+
+      <div>
+        <%= f.label :email_body, "Static email body (email only, optional)", class: "block text-sm font-medium text-gray-700" %>
+        <p class="text-xs text-gray-500 mt-1 mb-1">Shown at the top of the report email (after merchant description, before tables). Plain text; line breaks preserved. Not shown in the embedded app.</p>
+        <%= f.text_area :email_body, rows: 5, class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+      </div>
+
+      <div>
+        <%= f.label :output_format, "Delivery format", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :output_format,
+            [["Summary in email (HTML table, first 100 rows)", "body_summary"],
+             ["CSV attachment", "csv_attachment"]],
+            {},
+            class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+      </div>
+
+      <div>
+        <%= f.label :schedule_frequency, "Cadence (merchants choose send time & weekday in the app)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :schedule_frequency,
+            [["Daily — merchant picks time of day", "daily"],
+             ["Weekly — merchant picks weekday + time", "weekly"]],
+            {},
+            class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+        <p class="text-xs text-gray-500 mt-1">Daily vs weekly is fixed per report. Timezone, clock time, and (for weekly) which weekday are set by each shop in Reports.</p>
+      </div>
+
+      <div class="rounded-md border border-amber-200 bg-amber-50 p-4 space-y-3">
+        <p class="text-sm font-medium text-gray-900">Default-on for all shops (opt-out)</p>
+        <p class="text-xs text-gray-600">
+          When enabled, every shop is treated as subscribed unless they have turned this report off in the app
+          (<code class="bg-amber-100 px-1 rounded">explicit_opt_out_at</code> is set). New shops get the default send time below on first sync.
+          Turning the flag on updates <code class="bg-amber-100 px-1 rounded">enabled</code> on existing rows for shops that never opted out.
+        </p>
+        <label class="inline-flex items-center gap-2 text-sm text-gray-800">
+          <%= f.check_box :default_subscribe_all, class: "rounded border-gray-300" %>
+          Enable this report for all shops unless explicitly unsubscribed
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <%= f.label :default_send_hour, "Default send hour (0–23)", class: "block text-xs font-medium text-gray-700" %>
+            <%= f.number_field :default_send_hour, min: 0, max: 23, class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+          </div>
+          <div>
+            <%= f.label :default_send_minute, "Default minute (0–59)", class: "block text-xs font-medium text-gray-700" %>
+            <%= f.number_field :default_send_minute, min: 0, max: 59, class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+          </div>
+          <div>
+            <%= f.label :default_weekly_send_wday, "Default weekday (0=Sun … 6=Sat); weekly only", class: "block text-xs font-medium text-gray-700" %>
+            <%= f.number_field :default_weekly_send_wday, min: 0, max: 6, class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm" %>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <%= label_tag "scheduled_report_definition_sql_metrics_json", "SQL metrics (JSON array)", class: "block text-sm font-medium text-gray-700" %>
+        <p class="text-xs text-gray-500 mt-1 mb-1">Must be a JSON <strong>array</strong>: start with <code class="bg-gray-100 px-1 rounded">[</code> and end with <code class="bg-gray-100 px-1">]</code>. Each item: <code class="bg-gray-100 px-1 rounded">metric_name</code> + <code class="bg-gray-100 px-1">sql</code>. (A missing <code class="bg-gray-100 px-1">[</code> before the first <code class="bg-gray-100 px-1">{</code> is fixed automatically on save.)</p>
+        <%= text_area_tag "scheduled_report_definition[sql_metrics_json]",
+            @definition.sql_metrics.present? ? JSON.pretty_generate(@definition.sql_metrics.as_json) : "[]",
+            rows: 12,
+            class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono" %>
+      </div>
+
+      <div>
+        <%= f.label :sql_text, "Admin SQL (optional for built-ins — overrides default generator when set). Bind the shop with {{shop_id}} or {{shops.id}}.", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.text_area :sql_text, rows: 10, class: "mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 text-sm font-mono" %>
+        <% if @definition.builtin? %>
+          <label class="mt-2 inline-flex items-center gap-2 text-sm text-gray-700">
+            <%= check_box_tag :clear_sql_text, "1", false, class: "rounded border-gray-300" %>
+            Clear SQL (use built-in generator again for this slug)
+          </label>
+        <% end %>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <%= f.submit "Save", class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+        <%= link_to "Test email", test_deliver_support_dashboard_scheduled_report_path(@definition),
+            class: "px-4 py-2 rounded-md text-sm border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+        <%= link_to "Back", support_dashboard_scheduled_reports_path,
+            class: "px-4 py-2 rounded-md text-sm border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+</body>
+</html>

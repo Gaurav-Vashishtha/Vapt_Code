@@ -1,0 +1,103 @@
+{
+  "country": "PK",
+  "shopify_provinces": false,
+  "provinces": [
+    {
+      "code": "PB",
+      "name": "Punjab"
+    },
+    {
+      "code": "SD",
+      "name": "Sindh"
+    },
+    {
+      "code": "KP",
+      "name": "Khyber Pakhtunkhwa"
+    },
+    {
+      "code": "BA",
+      "name": "Balochistan"
+    },
+    {
+      "code": "IS",
+      "name": "Islamabad Capital Territory"
+    },
+    {
+      "code": "JK",
+      "name": "Azad Jammu and Kashmir"
+    },
+    {
+      "code": "GB",
+      "name": "Gilgit-Baltistan"
+    }
+  ],
+  "cities": {
+    "mode": "by_province",
+    "list": [
+
+    ],
+    "by_province": {
+      "PB": [
+        "Lahore",
+        "Faisalabad",
+        "Rawalpindi",
+        "Gujranwala",
+        "Multan",
+        "Sialkot",
+        "Bahawalpur",
+        "Sargodha",
+        "Sheikhupura",
+        "Gujrat",
+        "Sahiwal",
+        "Rahim Yar Khan",
+        "Jhang",
+        "Kasur",
+        "Okara",
+        "Dera Ghazi Khan"
+      ],
+      "SD": [
+        "Karachi",
+        "Hyderabad",
+        "Sukkur",
+        "Larkana",
+        "Nawabshah",
+        "Mirpur Khas",
+        "Jacobabad",
+        "Shikarpur"
+      ],
+      "KP": [
+        "Peshawar",
+        "Mardan",
+        "Mingora",
+        "Abbottabad",
+        "Kohat",
+        "Dera Ismail Khan",
+        "Mansehra",
+        "Swabi",
+        "Nowshera"
+      ],
+      "BA": [
+        "Quetta",
+        "Turbat",
+        "Khuzdar",
+        "Hub",
+        "Chaman",
+        "Gwadar"
+      ],
+      "IS": [
+        "Islamabad"
+      ],
+      "JK": [
+        "Muzaffarabad",
+        "Mirpur",
+        "Kotli",
+        "Rawalakot"
+      ],
+      "GB": [
+        "Gilgit",
+        "Skardu",
+        "Hunza"
+      ]
+    }
+  }
+}

@@ -1,0 +1,256 @@
+<%# rrweb session recorder for the embedded app.
+
+    Rendered from layouts/embedded_app only when SessionRecordingPolicy says this
+    shop is in the post-install window AND in the sample — the browser never
+    decides for itself. Everything it captures is POSTed to
+    /session_recordings/ingest and kept for ~2 days
+    (AdminJobs::PurgeSessionRecordingsJob).
+
+    Transport notes (why this is more than a plain fetch):
+    - Chrome caps keepalive fetch AND sendBeacon bodies at 64KB. rrweb's first
+      event is a full DOM snapshot, which for a Polaris page is well over that,
+      so a keepalive send of it is silently rejected — the replay then has mouse
+      movement but no page (blank player). Chunks are therefore gzipped, and
+      anything still over the budget goes out as a normal fetch.
+    - The full snapshot is flushed immediately instead of waiting for the batch
+      size, so it is sent while the page is alive rather than at unload.
+    - A failed chunk is retried once; if the lost chunk carried a full snapshot,
+      a fresh one is taken so the recording stays replayable.
+
+    Embedded-context notes:
+    - This script runs inside the app's iframe, so it records the app's own DOM.
+      App Bridge UI (nav menu, title bar, toasts, modals, save bar) and Shopify's
+      billing approval page render in the Shopify admin OUTSIDE the iframe and
+      can't be pixel-recorded by anything running in here. Instead, those calls
+      are logged as rrweb custom events ("appbridge" / "route" / "redirect") and
+      the player lists them on the timeline.
+
+    Inputs are NOT masked: support needs to see what the merchant actually typed
+    to understand where onboarding goes wrong. Flip data-mask-inputs to change
+    that. %>
+<% if defined?(@shop) && SessionRecordingPolicy.new(@shop).record? %>
+  <div id="session-recorder-config"
+       data-endpoint="<%= session_recordings_ingest_path %>"
+       data-mask-inputs="false"
+       hidden></div>
+
+  <script src="https://unpkg.com/rrweb@2.1.6/dist/rrweb.umd.min.cjs" crossorigin="anonymous" defer></script>
+  <script>
+    (function () {
+      var cfg = document.getElementById('session-recorder-config');
+      if (!cfg || !window.sessionStorage || !window.fetch) return;
+
+      var ENDPOINT     = cfg.dataset.endpoint;
+      var MASK         = cfg.dataset.maskInputs === 'true';
+      var FLUSH_MS     = 10000;      // periodic flush
+      var FLUSH_AT     = 150;        // ...or this many buffered events
+      var KEEPALIVE_MAX = 60 * 1024; // browsers reject keepalive/beacon bodies > 64KB
+      var MAX_EVENTS   = 20000;      // hard stop, keeps one session bounded
+      var MAX_MS       = 45 * 60 * 1000;
+      var EVT_FULL_SNAPSHOT = 2;
+
+      // One recording per tab. Key + chunk sequence live in sessionStorage so a
+      // full page reload inside the wizard continues the same recording (and
+      // doesn't restart seq at 0, which the unique index would reject).
+      var KEY_NAME = 'ck_sr_key', SEQ_NAME = 'ck_sr_seq';
+      var sessionKey = sessionStorage.getItem(KEY_NAME);
+      if (!sessionKey) {
+        sessionKey = (window.crypto && crypto.randomUUID)
+          ? crypto.randomUUID()
+          : 'sr-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+        sessionStorage.setItem(KEY_NAME, sessionKey);
+        sessionStorage.setItem(SEQ_NAME, '0');
+      }
+
+      var buffer = [], total = 0, startedAt = Date.now(), stop = null, timer = null;
+      var canGzip = typeof CompressionStream === 'function';
+
+      function nextSeq() {
+        var seq = parseInt(sessionStorage.getItem(SEQ_NAME) || '0', 10);
+        sessionStorage.setItem(SEQ_NAME, String(seq + 1));
+        return seq;
+      }
+
+      function meta() {
+        return {
+          path: location.pathname + location.search,
+          referrer: document.referrer || null,
+          ua: navigator.userAgent,
+          w: window.innerWidth,
+          h: window.innerHeight
+        };
+      }
+
+      function urlFor(enc) {
+        return ENDPOINT + (ENDPOINT.indexOf('?') === -1 ? '?' : '&') + 'enc=' + enc;
+      }
+
+      function gzip(text) {
+        var stream = new Blob([text]).stream().pipeThrough(new CompressionStream('gzip'));
+        return new Response(stream).blob();
+      }
+
+      function hasFullSnapshot(events) {
+        for (var i = 0; i < events.length; i++) {
+          if (events[i].type === EVT_FULL_SNAPSHOT) return true;
+        }
+        return false;
+      }
+
+      // Normal send path (page alive). Size decides whether keepalive is legal.
+      function post(blob, enc, attempt, carriesSnapshot) {
+        return fetch(urlFor(enc), {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': enc === 'gzip' ? 'application/octet-stream' : 'text/plain' },
+          body: blob,
+          keepalive: blob.size <= KEEPALIVE_MAX
+        }).then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+        }).catch(function () {
+          if (attempt < 1) {
+            // Same seq on retry: the server's unique (recording, seq) index
+            // drops the duplicate if the first attempt actually landed.
+            setTimeout(function () { post(blob, enc, attempt + 1, carriesSnapshot); }, 2000);
+          } else if (carriesSnapshot && stop && window.rrweb && rrweb.record.takeFullSnapshot) {
+            // The page snapshot is gone for good — take a new one so everything
+            // after this point is still watchable.
+            try { rrweb.record.takeFullSnapshot(true); } catch (e) {}
+          }
+        });
+      }
+
+      function encode(events) {
+        var text = JSON.stringify({ session_key: sessionKey, seq: nextSeq(), events: events, meta: meta() });
+        if (!canGzip) return Promise.resolve({ blob: new Blob([text], { type: 'text/plain' }), enc: 'json' });
+        return gzip(text)
+          .then(function (blob) { return { blob: blob, enc: 'gzip' }; })
+          .catch(function () { return { blob: new Blob([text], { type: 'text/plain' }), enc: 'json' }; });
+      }
+
+      function flush() {
+        if (!buffer.length) return;
+        var events = buffer;
+        buffer = [];
+        var carriesSnapshot = hasFullSnapshot(events);
+        encode(events).then(function (out) { post(out.blob, out.enc, 0, carriesSnapshot); });
+      }
+
+      // Unload path. Compression is async and can't be awaited here, so the
+      // tail goes out uncompressed via sendBeacon when it fits; if it doesn't,
+      // a plain fetch is the best remaining effort. sendBeacon returns false
+      // (rather than throwing) when it refuses a body, so check it.
+      function flushOnExit() {
+        if (!buffer.length) return;
+        var text = JSON.stringify({ session_key: sessionKey, seq: nextSeq(), events: buffer, meta: meta() });
+        buffer = [];
+        var blob = new Blob([text], { type: 'text/plain' });
+        var sent = blob.size <= KEEPALIVE_MAX && navigator.sendBeacon && navigator.sendBeacon(urlFor('json'), blob);
+        if (!sent) {
+          fetch(urlFor('json'), { method: 'POST', credentials: 'same-origin', body: blob,
+                                  keepalive: blob.size <= KEEPALIVE_MAX }).catch(function () {});
+        }
+      }
+
+      function teardown() {
+        if (timer) { clearInterval(timer); timer = null; }
+        if (stop) { try { stop(); } catch (e) {} stop = null; }
+        flushOnExit();
+      }
+
+      function custom(tag, payload) {
+        if (!stop || !window.rrweb) return;
+        try { rrweb.record.addCustomEvent(tag, payload || {}); } catch (e) {}
+      }
+
+      // Things that happen outside this iframe (or outside the DOM) and would
+      // otherwise be invisible in the replay.
+      function instrumentEmbeddedContext() {
+        // SPA route changes inside the app.
+        ['pushState', 'replaceState'].forEach(function (name) {
+          var original = history[name];
+          history[name] = function () {
+            var result = original.apply(this, arguments);
+            custom('route', { path: location.pathname + location.search });
+            return result;
+          };
+        });
+        window.addEventListener('popstate', function () {
+          custom('route', { path: location.pathname + location.search });
+        });
+
+        // Navigations that leave the iframe (billing approval, OAuth, theme
+        // editor) — the replay would otherwise just stop mid-click.
+        var originalOpen = window.open;
+        window.open = function (url, target) {
+          custom('redirect', { url: String(url || '').slice(0, 300), target: target || null });
+          return originalOpen.apply(this, arguments);
+        };
+
+        // App Bridge v4 UI renders in the Shopify admin, not in this document.
+        var sh = window.shopify;
+        if (!sh) return;
+        function wrap(obj, method, label) {
+          if (!obj || typeof obj[method] !== 'function') return;
+          var original = obj[method];
+          obj[method] = function () {
+            var first = arguments[0];
+            custom('appbridge', {
+              action: label,
+              detail: typeof first === 'string' ? first.slice(0, 200) : null,
+              isError: !!(arguments[1] && arguments[1].isError)
+            });
+            return original.apply(this, arguments);
+          };
+        }
+        wrap(sh.toast, 'show', 'toast');
+        wrap(sh.modal, 'show', 'modal.show');
+        wrap(sh.modal, 'hide', 'modal.hide');
+        wrap(sh.saveBar, 'show', 'saveBar.show');
+        wrap(sh.saveBar, 'hide', 'saveBar.hide');
+      }
+
+      function boot() {
+        if (!window.rrweb || !window.rrweb.record) return;
+
+        stop = window.rrweb.record({
+          emit: function (event) {
+            buffer.push(event);
+            total += 1;
+            // Ship the page snapshot right away, while the page is certainly alive.
+            if (event.type === EVT_FULL_SNAPSHOT || buffer.length >= FLUSH_AT) flush();
+            if (total >= MAX_EVENTS || Date.now() - startedAt > MAX_MS) teardown();
+          },
+          maskAllInputs: MASK,
+          // Fresh full snapshot every 2 min so a recording stays replayable even
+          // if an early chunk is lost.
+          checkoutEveryNms: 2 * 60 * 1000,
+          recordCanvas: false,
+          collectFonts: false,
+          // Cross-origin stylesheets (CloudFront app CSS, unpkg Polaris) can't be
+          // read from here; rrweb keeps their <link> and the player refetches them.
+          inlineStylesheet: true,
+          slimDOMOptions: { comment: true, headFavicon: true, headMetaSocial: true, headMetaVerification: true },
+          sampling: { mousemove: 50, scroll: 150, input: 'last' }
+        });
+
+        instrumentEmbeddedContext();
+        custom('route', { path: location.pathname + location.search });
+
+        timer = setInterval(flush, FLUSH_MS);
+
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'hidden') flushOnExit();
+        });
+        window.addEventListener('pagehide', teardown);
+      }
+
+      // The rrweb tag is deferred; start once it has parsed.
+      if (document.readyState === 'complete') {
+        boot();
+      } else {
+        window.addEventListener('load', boot);
+      }
+    })();
+  </script>
+<% end %>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - WhatsApp Integration Requests</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Monitor and manage merchant support requests</p>
+        </div>
+        <%= link_to support_dashboard_whatsapp_integration_requests_path,
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Navigation -->
+    <div class="mb-6">
+      <%= link_to support_dashboard_path, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+        ← Back to Dashboard
+      <% end %>
+    </div>
+
+    <!-- Content -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :whatsapp_integration %>
+        </nav>
+      </div>
+
+      <div class="p-6">
+        <div class="mb-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-2">WhatsApp Number Integration Requests</h2>
+          <p class="text-sm text-gray-600">
+            Manage WhatsApp number integration requests from merchants.
+          </p>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="mb-4 flex flex-wrap gap-2">
+          <%= link_to support_dashboard_whatsapp_integration_requests_path(status: 'all'),
+              class: "px-4 py-2 rounded-md text-sm font-medium #{@status_filter == 'all' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+            All (<%= WhatsappNumberIntegrationRequest.count %>)
+          <% end %>
+          <%= link_to support_dashboard_whatsapp_integration_requests_path(status: 'pending'),
+              class: "px-4 py-2 rounded-md text-sm font-medium #{@status_filter == 'pending' ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+            Pending (<%= WhatsappNumberIntegrationRequest.where(status: 'pending').count %>)
+          <% end %>
+          <%= link_to support_dashboard_whatsapp_integration_requests_path(status: 'submitted'),
+              class: "px-4 py-2 rounded-md text-sm font-medium #{@status_filter == 'submitted' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+            Submitted (<%= WhatsappNumberIntegrationRequest.where(status: 'submitted').count %>)
+          <% end %>
+          <%= link_to support_dashboard_whatsapp_integration_requests_path(status: 'in_progress'),
+              class: "px-4 py-2 rounded-md text-sm font-medium #{@status_filter == 'in_progress' ? 'bg-orange-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+            In Progress (<%= WhatsappNumberIntegrationRequest.where(status: 'in_progress').count %>)
+          <% end %>
+          <%= link_to support_dashboard_whatsapp_integration_requests_path(status: 'completed'),
+              class: "px-4 py-2 rounded-md text-sm font-medium #{@status_filter == 'completed' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+            Completed (<%= WhatsappNumberIntegrationRequest.where(status: 'completed').count %>)
+          <% end %>
+          <%= link_to support_dashboard_whatsapp_integration_requests_path(status: 'rejected'),
+              class: "px-4 py-2 rounded-md text-sm font-medium #{@status_filter == 'rejected' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" do %>
+            Rejected (<%= WhatsappNumberIntegrationRequest.where(status: 'rejected').count %>)
+          <% end %>
+        </div>
+
+        <% if @whatsapp_requests.any? %>
+          <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Shop Domain</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Contact</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Preferred Time</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Status</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Actions</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Created</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @whatsapp_requests.each do |request| %>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6 whitespace-nowrap">
+                      <div class="flex flex-col">
+                        <%= link_to request.shop_domain, "https://#{request.shop_domain}",
+                            target: "_blank",
+                            class: "text-blue-600 hover:text-blue-800 hover:underline break-all font-medium" %>
+                        <span class="text-xs text-gray-500">Requested <%= time_ago_in_words(request.created_at) %> ago</span>
+                      </div>
+                    </td>
+                    <td class="py-4 px-6">
+                      <div class="text-sm text-gray-900 font-medium"><%= mail_to request.email %></div>
+                      <div class="text-sm text-gray-600"><%= request.phone_number %></div>
+                    </td>
+                    <td class="py-4 px-6">
+                      <div class="text-sm text-gray-900"><%= request.preferred_time.presence || "Not specified" %></div>
+                    </td>
+                    <td class="py-4 px-6">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= 
+                        case request.status
+                        when 'completed'
+                          'bg-green-100 text-green-800'
+                        when 'rejected'
+                          'bg-red-100 text-red-800'
+                        when 'in_progress'
+                          'bg-orange-100 text-orange-800'
+                        when 'submitted', 'pending'
+                          'bg-yellow-100 text-yellow-800'
+                        else
+                          'bg-gray-100 text-gray-800'
+                        end
+                      %>">
+                        <%= request.status.humanize %>
+                      </span>
+                    </td>
+                    <td class="py-4 px-6">
+                      <div class="flex flex-col gap-2">
+                        <% unless request.status == 'in_progress' %>
+                          <%= form_with url: update_whatsapp_integration_status_path(request), method: :patch, local: true, class: "inline" do |f| %>
+                            <%= hidden_field_tag :status, 'in_progress' %>
+                            <%= hidden_field_tag :status_filter, @status_filter %>
+                            <%= f.submit "Mark In Progress", class: "px-3 py-1 text-xs font-medium bg-orange-600 text-white rounded hover:bg-orange-700 cursor-pointer" %>
+                          <% end %>
+                        <% end %>
+                        <% unless request.status == 'completed' %>
+                          <%= form_with url: update_whatsapp_integration_status_path(request), method: :patch, local: true, class: "inline" do |f| %>
+                            <%= hidden_field_tag :status, 'completed' %>
+                            <%= hidden_field_tag :status_filter, @status_filter %>
+                            <%= f.submit "Mark Complete", class: "px-3 py-1 text-xs font-medium bg-green-600 text-white rounded hover:bg-green-700 cursor-pointer" %>
+                          <% end %>
+                        <% end %>
+                        <% unless request.status == 'rejected' %>
+                          <%= form_with url: update_whatsapp_integration_status_path(request), method: :patch, local: true, class: "inline" do |f| %>
+                            <%= hidden_field_tag :status, 'rejected' %>
+                            <%= hidden_field_tag :status_filter, @status_filter %>
+                            <%= f.submit "Reject", class: "px-3 py-1 text-xs font-medium bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer" %>
+                          <% end %>
+                        <% end %>
+                      </div>
+                    </td>
+                    <td class="py-4 px-6 whitespace-nowrap text-sm text-gray-500">
+                      <%= request.created_at.strftime("%b %d, %Y %I:%M %p") %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-6">
+            <%= paginate @whatsapp_requests if respond_to?(:paginate) %>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No WhatsApp integration requests</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              <% if @status_filter != 'all' %>
+                No requests with status "<%= @status_filter.humanize %>".
+              <% else %>
+                No WhatsApp integration requests found.
+              <% end %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+

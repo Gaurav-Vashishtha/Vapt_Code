@@ -1,0 +1,446 @@
+/* ============================================================================
+ * STICKY FOOTER SECTION - Complete Footer Component
+ * ============================================================================
+ * Self-contained sticky footer section with buttons, checkbox, and legal footer.
+ * Sticks to the bottom of the viewport on mobile, relative positioning on desktop.
+ * ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+ * CSS Custom Properties (Design Tokens)
+ * ---------------------------------------------------------------------------- */
+:root {
+  /* Colors — flat: the footer blends into the page rather than reading as a card */
+  --sticky-footer-bg: transparent;
+  --sticky-footer-border-color: transparent;
+  --sticky-footer-text-color: #404040;
+  --sticky-footer-text-secondary: #a3a3a3;
+  --sticky-footer-link-color: #979797;
+  --sticky-footer-link-hover-color: #404040;
+
+  /* Button Colors */
+  --sticky-footer-button-bg: #000000;
+  --sticky-footer-button-bg-hover: #1a1a1a;
+  --sticky-footer-button-bg-whatsapp: transparent;
+  --sticky-footer-button-bg-whatsapp-hover: #f8f8f8;
+  --sticky-footer-button-border-whatsapp: #404040;
+  --sticky-footer-button-text: #ffffff;
+  --sticky-footer-button-text-whatsapp: #404040;
+  --sticky-footer-button-shadow: 0px 1px 4px 0px rgba(25, 33, 61, 0.08);
+
+  /* Checkbox */
+  --sticky-footer-checkbox-size: 16px;
+  --sticky-footer-checkbox-border-color: #404040;
+  --sticky-footer-checkbox-bg-checked: #404040;
+  --sticky-footer-checkbox-checkmark-size: 12px;
+
+  /* Typography */
+  --sticky-footer-font-family: var(--font-family-base);
+  --sticky-footer-font-family-medium: var(--font-family-base);
+  --sticky-footer-font-size-button: 12px;
+  --sticky-footer-font-size-label: 12px;
+  --sticky-footer-font-size-skip: 11px;
+  --sticky-footer-line-height-button: 21px;
+  --sticky-footer-line-height-label: 18px;
+  --sticky-footer-line-height-skip: 18px;
+
+  /* Spacing */
+  --sticky-footer-padding-x: 0px;
+  --sticky-footer-padding-y: 12px;
+  --sticky-footer-padding-bottom: 16px;
+  --sticky-footer-gap: 8px;
+  --sticky-footer-border-radius: 0px;
+  --sticky-footer-checkbox-gap: 8px;
+  --sticky-footer-skip-padding-x: 4px;
+  --sticky-footer-skip-underline-width: 32px;
+
+  /* Icon Sizes */
+  --sticky-footer-icon-size: 16px;
+  --sticky-footer-spinner-size: 18px;
+  --sticky-footer-spinner-border-width: 2px;
+
+  /* Button Sizing */
+  --sticky-footer-button-height: 40px;
+  --sticky-footer-button-border-radius: 6px;
+
+  /* Z-index */
+  --sticky-footer-z-index: 100;
+
+  /* Transitions */
+  --sticky-footer-transition-speed: 0.2s;
+  --sticky-footer-transition-easing: ease;
+}
+
+/* ----------------------------------------------------------------------------
+ * Base Styles
+ * ---------------------------------------------------------------------------- */
+.sticky-footer-section,
+.sticky-footer-section * {
+  box-sizing: border-box;
+}
+
+.sticky-footer-section {
+  /* Layout */
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  /* Spacing */
+  gap: var(--sticky-footer-gap);
+  padding: var(--sticky-footer-padding-y) var(--sticky-footer-padding-x) 0;
+  padding-bottom: calc(
+    var(--sticky-footer-padding-bottom) + env(safe-area-inset-bottom, 0)
+  );
+  /* Flows right after the form content (synced to the container); the legal
+     footer below is what pins to the bottom. */
+  margin: 0;
+
+  /* Visual */
+  background: var(--sticky-footer-bg);
+  border-radius: var(--sticky-footer-border-radius);
+  border: 1px solid var(--sticky-footer-border-color);
+
+  /* Typography */
+  font-family: var(--sticky-footer-font-family);
+
+  /* Flows in the content column (the legal footer pins to the bottom instead) */
+  position: relative !important;
+  bottom: auto !important;
+  z-index: var(--sticky-footer-z-index) !important;
+  left: 0 !important;
+  right: 0 !important;
+
+  /* Flexbox */
+  flex-shrink: 0 !important;
+
+  /* Overflow */
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+
+  /* Sizing */
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+
+  /* Stacking context */
+  isolation: isolate !important;
+
+  /* Visibility - Ensure legal footer is not clipped */
+  clip-path: none !important;
+  clip: auto !important;
+}
+
+/* ----------------------------------------------------------------------------
+ * Background Coverage (Pseudo-element)
+ * ---------------------------------------------------------------------------- */
+/* Footer is flat and blends with the page — no background band behind it. */
+.sticky-footer-section::before {
+  content: none;
+}
+
+/* ----------------------------------------------------------------------------
+ * Buttons Section
+ * ---------------------------------------------------------------------------- */
+.buttons-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sticky-footer-gap);
+  width: 100%;
+  margin-bottom: var(--sticky-footer-gap);
+}
+
+/* Both OTP channels enabled: buttons stacked with a centred "OR" between. */
+.buttons-section--dual {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.buttons-section--dual .codk-button {
+  width: 100%;
+}
+
+.buttons-or {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------------------------------------------
+ * Action Button (Base)
+ * ---------------------------------------------------------------------------- */
+.action-button {
+  /* Layout */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  /* Sizing */
+  width: 100%;
+  height: var(--sticky-footer-button-height);
+  min-height: var(--sticky-footer-button-height);
+  max-height: var(--sticky-footer-button-height);
+
+  /* Spacing */
+  padding: var(--sticky-footer-padding-y);
+  gap: var(--sticky-footer-gap);
+
+  /* Visual */
+  background: var(--sticky-footer-button-bg);
+  border: none;
+  border-radius: var(--sticky-footer-button-border-radius);
+  box-shadow: var(--sticky-footer-button-shadow);
+
+  /* Typography */
+  cursor: pointer;
+
+  /* Transitions */
+  transition: all var(--sticky-footer-transition-speed)
+    var(--sticky-footer-transition-easing);
+
+  /* Accessibility */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.action-button:active:not(:disabled) {
+  background-color: var(--sticky-footer-button-bg-hover);
+  transform: scale(0.98);
+}
+
+.action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-button.loading {
+  opacity: 0.8;
+}
+
+/* WhatsApp Button Variant */
+.action-button.whatsapp-button {
+  background: var(--sticky-footer-button-bg-whatsapp);
+  border: 1px solid var(--sticky-footer-button-border-whatsapp);
+  box-shadow: var(--sticky-footer-button-shadow);
+}
+
+.action-button.whatsapp-button:active:not(:disabled) {
+  background-color: var(--sticky-footer-button-bg-whatsapp-hover);
+}
+
+/* ----------------------------------------------------------------------------
+ * Button Text
+ * ---------------------------------------------------------------------------- */
+.button-text {
+  /* Typography */
+  color: var(--sticky-footer-button-text);
+  font-family: var(--sticky-footer-font-family-medium);
+  font-size: var(--sticky-footer-font-size-button);
+  line-height: var(--sticky-footer-line-height-button);
+  font-weight: 500;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.action-button.whatsapp-button .button-text {
+  color: var(--sticky-footer-button-text-whatsapp);
+}
+
+/* ----------------------------------------------------------------------------
+ * Button Icons
+ * ---------------------------------------------------------------------------- */
+.chat-icon,
+.whatsapp-icon {
+  flex-shrink: 0;
+  width: var(--sticky-footer-icon-size);
+  height: var(--sticky-footer-icon-size);
+  color: var(--sticky-footer-button-text);
+}
+
+.action-button.whatsapp-button .whatsapp-icon {
+  color: var(--sticky-footer-button-text-whatsapp);
+}
+
+/* ----------------------------------------------------------------------------
+ * Loading Spinner
+ * ---------------------------------------------------------------------------- */
+.spinner {
+  width: var(--sticky-footer-spinner-size);
+  height: var(--sticky-footer-spinner-size);
+  border: var(--sticky-footer-spinner-border-width) solid
+    rgba(255, 255, 255, 0.3);
+  border-top-color: var(--sticky-footer-button-text);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+.action-button.whatsapp-button .spinner {
+  border-color: rgba(64, 64, 64, 0.3);
+  border-top-color: var(--sticky-footer-button-text-whatsapp);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ----------------------------------------------------------------------------
+ * Checkbox Section
+ * ---------------------------------------------------------------------------- */
+.checkbox-section {
+  /* Center skip section (and any future checkbox row) */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  float: none;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: fit-content;
+}
+
+/* ----------------------------------------------------------------------------
+ * Checkbox Input
+ * ---------------------------------------------------------------------------- */
+.checkbox-input {
+  /* Sizing */
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+
+  /* Visual */
+  border: 1.5px solid #d0d0d0;
+  border-radius: 4px;
+  background: #ffffff;
+
+  /* Layout */
+  flex-shrink: 0;
+  position: relative;
+  margin: 0;
+  margin-top: 0px; /* Align with first line of text */
+  padding: 0;
+
+  /* Behavior */
+  cursor: pointer;
+  appearance: none;
+  transition: all 0.15s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.checkbox-input:checked {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath d='M10 3L4.5 8.5L2 6' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+}
+
+.checkbox-input:hover {
+  border-color: #999999;
+}
+
+/* ----------------------------------------------------------------------------
+ * Checkbox Label
+ * ---------------------------------------------------------------------------- */
+.checkbox-label {
+  /* Typography */
+  color: #666666;
+  font-family: var(--sticky-footer-font-family);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 400;
+  text-align: left;
+  white-space: normal;
+  word-wrap: break-word;
+
+  /* Layout */
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* ----------------------------------------------------------------------------
+ * Skip Button
+ * ---------------------------------------------------------------------------- */
+.skip-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  flex-shrink: 0;
+  float: none;
+}
+
+.skip-button {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  /* Visual */
+  border: none;
+  background: transparent;
+
+  /* Spacing */
+  padding: 0;
+  padding-left: var(--sticky-footer-skip-padding-x);
+  padding-right: var(--sticky-footer-skip-padding-x);
+  margin: 0;
+  gap: 0;
+
+  /* Behavior */
+  cursor: pointer;
+}
+
+.skip-text {
+  /* Typography */
+  color: #404040;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  /* Underline the whole label (not a fixed-width line) */
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+
+  /* Spacing */
+  margin: 0;
+  padding: 0;
+}
+
+.skip-underline {
+  /* Legacy element (kept in markup) */
+  display: none;
+}
+
+/* ----------------------------------------------------------------------------
+ * Desktop Styles
+ * ----------------------------------------------------------------------------
+ * Desktop-specific styles are in StickyFooterSection.desktop.css
+ */

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - WhatsApp Retries</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<%
+  status_style = {
+    'pending'   => 'bg-yellow-100 text-yellow-800',
+    'sending'   => 'bg-blue-100 text-blue-800',
+    'sent'      => 'bg-green-100 text-green-800',
+    'delivered' => 'bg-green-200 text-green-900',
+    'cancelled' => 'bg-gray-100 text-gray-700',
+    'dropped'   => 'bg-red-100 text-red-800'
+  }
+  status_help = {
+    'pending'   => 'Waiting for its next retry slot',
+    'sending'   => 'Being resent right now',
+    'sent'      => 'Resend accepted, no new failure since',
+    'delivered' => 'Resend confirmed delivered',
+    'cancelled' => 'Not worth sending any more (verified / recovered / superseded)',
+    'dropped'   => 'Gave up after the last retry'
+  }
+  pct = ->(n, d) { d.to_i.zero? ? '—' : "#{((n.to_f / d) * 100).round(1)}%" }
+  filter = { days: @days, flow: @flow, status: @status, shop: @shop_query.presence }.compact
+  message_kind = lambda do |r|
+    case r.source
+    when TwilioLog then r.source.ver_type
+    when AbandonedCart then 'abandoned cart'
+    when WhatsappMessageLog then [r.source.event_type_key, ("stage #{r.source.stage_index}" if r.source.stage_index.to_i.positive?)].compact.join(' · ')
+    else "#{r.source_type} ##{r.source_id} (deleted)"
+    end
+  end
+  fmt_time = ->(t) { t ? t.in_time_zone('Asia/Kolkata').strftime('%d %b, %H:%M') : '—' }
+%>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">WhatsApp retries — messages Meta refused for "healthy ecosystem" (131049) and similar</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <%= button_to 'Run due retries now', support_dashboard_whatsapp_retries_run_now_path(filter), method: :post,
+                class: 'bg-blue-600 text-white rounded-md px-3 py-2 text-sm font-medium hover:bg-blue-700' %>
+          <%= link_to 'Refresh', support_dashboard_whatsapp_retries_path(filter),
+                class: 'bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <%= link_to support_dashboard_path, class: 'text-blue-600 hover:text-blue-800 text-sm' do %>← Back to Dashboard<% end %>
+    </div>
+
+    <% if flash[:notice] %>
+      <div class="mb-4 rounded-md bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800"><%= flash[:notice] %></div>
+    <% end %>
+
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render 'support_dashboard/core_support_tabs', active: :whatsapp_retries %>
+        </nav>
+      </div>
+
+      <div class="p-6 space-y-8">
+
+        <%# ---------- Config ---------- %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <% @policies.each do |flow, policy| %>
+            <div class="rounded-lg border border-gray-200 p-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-medium text-gray-900"><%= flow == 'msg91' ? 'MSG91 (COD King number)' : 'BSP (merchant own number)' %></h3>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium <%= policy.enabled? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                  <%= policy.enabled? ? 'Retries ON' : 'Retries OFF' %>
+                </span>
+              </div>
+              <dl class="mt-3 grid grid-cols-2 gap-y-1 text-sm">
+                <dt class="text-gray-500">Retry at (from first failure)</dt>
+                <dd class="text-gray-900"><%= policy.enabled? ? policy.delays_hours.map { |h| "#{h % 1 == 0 ? h.to_i : h}h" }.join(', ') : '—' %></dd>
+                <dt class="text-gray-500">Error codes retried</dt>
+                <dd class="text-gray-900 font-mono"><%= policy.error_codes.join(', ') %></dd>
+                <% if flow == 'msg91' %>
+                  <dt class="text-gray-500">Delivery webhook token</dt>
+                  <dd class="<%= @webhook_token_set ? 'text-green-700' : 'text-red-700' %>"><%= @webhook_token_set ? 'Set' : 'MSG91_WEBHOOK_TOKEN missing' %></dd>
+                <% end %>
+              </dl>
+            </div>
+          <% end %>
+        </div>
+
+        <%# ---------- Filters ---------- %>
+        <%= form_tag support_dashboard_whatsapp_retries_path, method: :get, class: 'flex flex-wrap items-end gap-3' do %>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Period (first failure)</label>
+            <%= select_tag :days, options_for_select(WhatsappReattemptsDashboardController::DAY_OPTIONS.map { |d| ["Last #{d} day#{'s' if d > 1}", d] }, @days),
+                  class: 'border border-gray-300 rounded-md px-2 py-1.5 text-sm' %>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Flow</label>
+            <%= select_tag :flow, options_for_select([['All', ''], ['MSG91', 'msg91'], ['BSP', 'bsp']], @flow),
+                  class: 'border border-gray-300 rounded-md px-2 py-1.5 text-sm' %>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Status (table)</label>
+            <%= select_tag :status, options_for_select([['All', '']] + WhatsappReattempt::STATUSES.map { |s| [s.capitalize, s] }, @status),
+                  class: 'border border-gray-300 rounded-md px-2 py-1.5 text-sm' %>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1">Shop (id or domain)</label>
+            <%= text_field_tag :shop, @shop_query, placeholder: 'e.g. bangles', class: 'border border-gray-300 rounded-md px-2 py-1.5 text-sm' %>
+          </div>
+          <%= submit_tag 'Apply', name: nil, class: 'bg-gray-800 text-white rounded-md px-3 py-1.5 text-sm' %>
+          <%= link_to 'Reset', support_dashboard_whatsapp_retries_path, class: 'text-sm text-gray-500 hover:text-gray-700' %>
+        <% end %>
+
+        <%# ---------- KPI tiles ---------- %>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+          <div class="rounded-lg border border-gray-200 p-3">
+            <div class="text-xs text-gray-500">Refused messages</div>
+            <div class="text-2xl font-semibold text-gray-900"><%= @total %></div>
+          </div>
+          <div class="rounded-lg border border-green-200 bg-green-50 p-3">
+            <div class="text-xs text-green-700">Got through</div>
+            <div class="text-2xl font-semibold text-green-800"><%= @through %></div>
+            <div class="text-xs text-green-700"><%= pct.(@through, @finished) %> of finished</div>
+          </div>
+          <% %w[pending sending cancelled dropped].each do |s| %>
+            <div class="rounded-lg border border-gray-200 p-3" title="<%= status_help[s] %>">
+              <div class="text-xs text-gray-500"><%= s.capitalize %></div>
+              <div class="text-2xl font-semibold text-gray-900"><%= @totals[s].to_i %></div>
+              <div class="text-xs text-gray-400"><%= pct.(@totals[s].to_i, @total) %></div>
+            </div>
+          <% end %>
+          <div class="rounded-lg border border-gray-200 p-3" title="Claimed by a worker more than 30 min ago; re-picked automatically">
+            <div class="text-xs text-gray-500">Stuck sending</div>
+            <div class="text-2xl font-semibold <%= @stuck_sending.positive? ? 'text-red-700' : 'text-gray-900' %>"><%= @stuck_sending %></div>
+          </div>
+        </div>
+        <p class="text-xs text-gray-500 -mt-5">
+          "Got through" = a resend MSG91/Meta accepted with no failure reported afterwards (sent + delivered).
+          MSG91 only sends us failures, so MSG91 resends stay "sent" rather than "delivered".
+          "Of finished" leaves out messages still pending.
+        </p>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <%# ---------- Flow x status ---------- %>
+          <div class="rounded-lg border border-gray-200">
+            <h3 class="px-4 py-3 border-b border-gray-200 font-medium text-gray-900 text-sm">By flow</h3>
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                <tr><th class="px-4 py-2 text-left">Status</th><th class="px-4 py-2 text-right">MSG91</th><th class="px-4 py-2 text-right">BSP</th></tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <% WhatsappReattempt::STATUSES.each do |s| %>
+                  <tr>
+                    <td class="px-4 py-2"><span class="px-2 py-0.5 rounded-full text-xs <%= status_style[s] %>" title="<%= status_help[s] %>"><%= s %></span></td>
+                    <td class="px-4 py-2 text-right"><%= @by_flow_status[['msg91', s]].to_i %></td>
+                    <td class="px-4 py-2 text-right"><%= @by_flow_status[['bsp', s]].to_i %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <%# ---------- Which attempt worked ---------- %>
+          <div class="rounded-lg border border-gray-200">
+            <h3 class="px-4 py-3 border-b border-gray-200 font-medium text-gray-900 text-sm">Which retry got it through</h3>
+            <% if @success_attempts.any? %>
+              <% max = @success_attempts.values.max.to_f %>
+              <div class="p-4 space-y-2">
+                <% @success_attempts.each do |attempt, n| %>
+                  <% hours = @policies[@flow || 'msg91'].delays_hours[attempt.to_i - 1] %>
+                  <div class="text-sm">
+                    <div class="flex justify-between"><span>Retry <%= attempt %><%= " (≈#{hours % 1 == 0 ? hours.to_i : hours}h)" if hours %></span><span class="text-gray-600"><%= n %></span></div>
+                    <div class="h-2 bg-gray-100 rounded"><div class="h-2 bg-green-500 rounded" style="width: <%= (n / max * 100).round %>%"></div></div>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="p-4 text-sm text-gray-500">No resend has got through yet in this period.</p>
+            <% end %>
+          </div>
+
+          <%# ---------- Due next + reasons ---------- %>
+          <div class="space-y-6">
+            <div class="rounded-lg border border-gray-200">
+              <h3 class="px-4 py-3 border-b border-gray-200 font-medium text-gray-900 text-sm">Due next (all time)</h3>
+              <dl class="p-4 grid grid-cols-2 gap-y-1 text-sm">
+                <% @due.each do |label, n| %>
+                  <dt class="text-gray-500"><%= label %></dt><dd class="text-right text-gray-900"><%= n %></dd>
+                <% end %>
+              </dl>
+            </div>
+            <div class="rounded-lg border border-gray-200">
+              <h3 class="px-4 py-3 border-b border-gray-200 font-medium text-gray-900 text-sm">Why messages stopped</h3>
+              <% if @drop_reasons.any? %>
+                <dl class="p-4 grid grid-cols-2 gap-y-1 text-sm">
+                  <% @drop_reasons.each do |reason, n| %>
+                    <dt class="text-gray-500"><%= (reason || 'unknown').humanize %></dt><dd class="text-right text-gray-900"><%= n %></dd>
+                  <% end %>
+                </dl>
+              <% else %>
+                <p class="p-4 text-sm text-gray-500">Nothing dropped or cancelled yet.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <%# ---------- Per day + error codes ---------- %>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="rounded-lg border border-gray-200">
+            <h3 class="px-4 py-3 border-b border-gray-200 font-medium text-gray-900 text-sm">Refused messages per day</h3>
+            <% if @per_day.any? %>
+              <% max = @per_day.values.max.to_f %>
+              <div class="p-4 space-y-1">
+                <% @per_day.each do |day, n| %>
+                  <div class="flex items-center gap-2 text-sm">
+                    <span class="w-20 text-gray-500"><%= day.to_date.strftime('%d %b') %></span>
+                    <div class="flex-1 h-3 bg-gray-100 rounded"><div class="h-3 bg-yellow-400 rounded" style="width: <%= (n / max * 100).round %>%"></div></div>
+                    <span class="w-10 text-right text-gray-700"><%= n %></span>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="p-4 text-sm text-gray-500">No refused messages in this period.</p>
+            <% end %>
+          </div>
+          <div class="rounded-lg border border-gray-200">
+            <h3 class="px-4 py-3 border-b border-gray-200 font-medium text-gray-900 text-sm">Last error code seen</h3>
+            <% if @error_codes.any? %>
+              <dl class="p-4 grid grid-cols-2 gap-y-1 text-sm">
+                <% @error_codes.each do |code, n| %>
+                  <dt class="font-mono text-gray-700"><%= code.presence || '—' %></dt><dd class="text-right text-gray-900"><%= n %></dd>
+                <% end %>
+              </dl>
+            <% else %>
+              <p class="p-4 text-sm text-gray-500">—</p>
+            <% end %>
+          </div>
+        </div>
+
+        <%# ---------- Rows ---------- %>
+        <div>
+          <h3 class="font-medium text-gray-900 mb-3">Retries <span class="text-sm text-gray-500 font-normal">(<%= @rows.total_count %>)</span></h3>
+          <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300 text-sm">
+              <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                <tr>
+                  <th class="py-3 px-4 text-left">#</th>
+                  <th class="py-3 px-4 text-left">Flow</th>
+                  <th class="py-3 px-4 text-left">Shop</th>
+                  <th class="py-3 px-4 text-left">Message</th>
+                  <th class="py-3 px-4 text-left">Status</th>
+                  <th class="py-3 px-4 text-right">Retries</th>
+                  <th class="py-3 px-4 text-left">First failed</th>
+                  <th class="py-3 px-4 text-left">Next retry</th>
+                  <th class="py-3 px-4 text-left">Last error</th>
+                  <th class="py-3 px-4 text-left">Reason stopped</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-100">
+                <% @rows.each do |r| %>
+                  <tr class="hover:bg-gray-50 align-top">
+                    <td class="py-3 px-4 text-gray-500"><%= r.id %></td>
+                    <td class="py-3 px-4"><%= r.flow.upcase %></td>
+                    <td class="py-3 px-4">
+                      <div class="text-gray-900 break-all"><%= r.shop&.shopify_domain || '—' %></div>
+                      <div class="text-xs text-gray-400">#<%= r.shop_id %></div>
+                    </td>
+                    <td class="py-3 px-4">
+                      <div class="text-gray-900"><%= message_kind.(r) %></div>
+                      <div class="text-xs text-gray-400 font-mono" title="<%= r.provider_message_id %>"><%= r.source_type %> #<%= r.source_id %></div>
+                    </td>
+                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded-full text-xs <%= status_style[r.status] %>" title="<%= status_help[r.status] %>"><%= r.status %></span></td>
+                    <td class="py-3 px-4 text-right"><%= r.attempts %> / <%= @policies[r.flow].max_attempts %></td>
+                    <td class="py-3 px-4 whitespace-nowrap"><%= fmt_time.(r.first_failed_at) %></td>
+                    <td class="py-3 px-4 whitespace-nowrap"><%= r.status == 'pending' ? fmt_time.(r.next_retry_at) : '—' %></td>
+                    <td class="py-3 px-4">
+                      <div class="font-mono"><%= r.error_code.presence || '—' %></div>
+                      <div class="text-xs text-gray-400 max-w-xs truncate" title="<%= r.error_message %>"><%= r.error_message %></div>
+                    </td>
+                    <td class="py-3 px-4 text-gray-600"><%= r.drop_reason&.humanize || '—' %></td>
+                  </tr>
+                <% end %>
+                <% if @rows.empty? %>
+                  <tr><td colspan="10" class="py-8 text-center text-gray-500">No retries match these filters.</td></tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4"><%= paginate @rows if respond_to?(:paginate) %></div>
+          <p class="mt-2 text-xs text-gray-400">Times in IST.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

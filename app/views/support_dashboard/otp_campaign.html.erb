@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - OTP Campaign</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Free pre-order OTP campaign — redeemed coupons</p>
+        </div>
+        <%= link_to support_dashboard_otp_campaign_path,
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <%= link_to support_dashboard_path, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+        ← Back to Dashboard
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :otp_campaign %>
+        </nav>
+      </div>
+
+      <div class="p-6">
+        <div class="mb-6">
+          <h2 class="text-lg font-medium text-gray-900 mb-2">Shops that applied the OTP campaign coupon</h2>
+          <div class="flex flex-wrap items-center gap-3 text-sm">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+              Coupon: <span class="font-mono ml-1"><%= @coupon_code.presence || "not set" %></span>
+            </span>
+            <% if @campaign_configured %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <%= @campaign_active ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>">
+                <%= @campaign_active ? "Active" : "Not active" %>
+              </span>
+              <span class="text-gray-500">
+                <%= @campaign_start&.strftime("%b %d, %Y") %> → <%= @campaign_end&.strftime("%b %d, %Y") %>
+              </span>
+            <% else %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                Not configured (set the campaign ENV vars)
+              </span>
+            <% end %>
+            <span class="text-gray-600 font-medium"><%= @total_count %> redeemed</span>
+          </div>
+        </div>
+
+        <% if @shops.any? %>
+          <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Shop</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Owner email</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Plan</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Coupon</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Applied at</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Installed at</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @shops.each do |shop| %>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6">
+                      <div class="font-medium text-gray-900">
+                        <%= link_to shop.shopify_domain, "https://#{shop.shopify_domain}",
+                            target: "_blank",
+                            class: "text-blue-600 hover:text-blue-800 hover:underline break-all" %>
+                      </div>
+                      <div class="text-sm text-gray-500"><%= shop.shop_owner || 'Shopify Store' %></div>
+                    </td>
+
+                    <td class="py-4 px-6 text-sm text-gray-700 break-all"><%= shop.owner_email.presence || "—" %></td>
+
+                    <td class="py-4 px-6">
+                      <% if shop.plan.present? %>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                          <%= shop.plan.name %>
+                        </span>
+                      <% else %>
+                        <span class="text-sm text-gray-400">No plan</span>
+                      <% end %>
+                    </td>
+
+                    <td class="py-4 px-6 text-sm font-mono text-gray-700"><%= shop.otp_campaign_coupon_code.presence || "—" %></td>
+
+                    <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap">
+                      <% if shop.otp_campaign_coupon_applied_at.present? %>
+                        <div><%= shop.otp_campaign_coupon_applied_at.strftime("%b %d, %Y") %></div>
+                        <div class="text-xs"><%= shop.otp_campaign_coupon_applied_at.strftime("%I:%M %p") %></div>
+                      <% else %>
+                        <span class="text-gray-400">—</span>
+                      <% end %>
+                    </td>
+
+                    <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap">
+                      <% installed = shop.installed_at || shop.created_at %>
+                      <% if installed.present? %>
+                        <%= installed.strftime("%b %d, %Y") %>
+                      <% else %>
+                        <span class="text-gray-400">—</span>
+                      <% end %>
+                    </td>
+
+                    <td class="py-4 px-6">
+                      <%= link_to "/admin/shops/#{shop.id}",
+                          target: "_blank",
+                          class: "bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-medium" do %>
+                        View
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-6">
+            <%= paginate @shops if respond_to?(:paginate) %>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No coupons redeemed yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Shops that apply the campaign coupon on the subscription page will appear here.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

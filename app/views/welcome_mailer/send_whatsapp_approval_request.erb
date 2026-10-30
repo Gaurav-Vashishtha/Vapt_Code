@@ -1,0 +1,27 @@
+<!DOCTYPE html> <html> <head> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <style> body { font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; margin: 0; padding: 0; } p { margin-bottom: 20px; color: #333333; } a { color: #ff6600; text-decoration: none; } a:hover { text-decoration: underline; } .btn { background-color: #ff6600; color: #ffffff; padding: 12px 24px; border-radius: 5px; text-decoration: none; display: inline-block; transition: all 0.3s ease; } .btn:hover { background-color: #4d4d4d; color: #ffffff; } .container { max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; background-color: #f2f2f2; } h1 { font-size: 24px; font-weight: 700; margin-top: 0; margin-bottom: 30px; color: #333333; text-align: center; } .banner { margin-bottom: 40px; } .banner img { width: 100%; height: auto; } .small-text { font-size: 14px; color: #666666; margin-bottom: 0; } </style> </head> <body> <div class="container"> 
+
+<h1>Hello <%= @name %>,</h1>
+  <p>
+    Thank you for submitting your WhatsApp Approval Request to CODKing. We have forwarded your request to our approval team. Please be aware that the approval process can take up to 24-48 hours from the time of submission.
+  </p>
+
+  <p>
+    The shop details you have submitted are as follows:
+  </p>
+
+  <ul>
+    <li><strong>Shop name:</strong> <%= @shop_name %></li>
+    <li><strong>Shop domain:</strong> <a href="<%= @shopify_domain %>" target="_blank"><%= @shopify_domain %></a></li>
+  </ul>
+
+  <p>We will contact you via email with your approval status as soon as possible.</p>
+
+  <p style="text-align: center;">
+    If you have any questions or concerns, please feel free to contact us by clicking the button below:<br>
+    <a href="<%= @crisp_url %>" target="_blank" class="btn">Chat with us now!</a>
+  </p>
+
+  <p class="small-text">Regards,</p>
+  <p class="small-text">COD King Team</p>
+</div>
+</body> </html>

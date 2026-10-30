@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <title>COD Form preview</title>
+    <style>
+      html, body { margin: 0; padding: 0; min-height: 100%; background: #f6f6f7; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+      #codkf-preview-status { padding: 24px; color: #6b7280; font-size: 14px; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div id="codkf-preview-root"></div>
+    <div id="codkf-preview-status"><%= @asset_base ? "" : "Preview is not available." %></div>
+    <script>
+      (function () {
+        var assetBase = <%= raw json_escape(@asset_base.to_json) %>;
+        var statusEl = document.getElementById("codkf-preview-status");
+        var core = null;
+        var pending = null;
+
+        function post(message) {
+          try { window.parent.postMessage(message, "*"); } catch (e) {}
+        }
+
+        function render(payload) {
+          if (!core || typeof core.preview !== "function") { pending = payload; return; }
+          function failed() {
+            statusEl.textContent = "Preview could not be rendered.";
+            post({ type: "codkf:preview_error", reason: "render" });
+          }
+          try {
+            // core.preview answers with a promise (it loads the preview chunk first).
+            var result = core.preview(payload);
+            statusEl.textContent = "";
+            if (result && typeof result.then === "function") { result.then(null, failed); }
+          } catch (e) {
+            failed();
+          }
+        }
+
+        window.addEventListener("message", function (event) {
+          if (event.source !== window.parent) { return; }
+          var data = event.data;
+          if (!data || data.type !== "codkf:preview") { return; }
+          render(data);
+        });
+
+        if (!assetBase) {
+          post({ type: "codkf:preview_error", reason: "no_asset_base" });
+          return;
+        }
+
+        import(assetBase + "codk-form-core.js").then(function (module) {
+          core = module;
+          post({ type: "codkf:preview_ready" });
+          if (pending) { var payload = pending; pending = null; render(payload); }
+        }).catch(function () {
+          statusEl.textContent = "Preview could not be loaded.";
+          post({ type: "codkf:preview_error", reason: "bundle" });
+        });
+      })();
+    </script>
+  </body>
+</html>

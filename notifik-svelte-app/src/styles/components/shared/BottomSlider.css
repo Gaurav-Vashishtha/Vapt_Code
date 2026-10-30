@@ -1,0 +1,181 @@
+/* Base styles for BottomSlider component */
+
+.bottom-slider-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: color-mix(in srgb, #000 18%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 2147483646;
+  /* Opacity driven by Svelte transition:fade in BottomSlider.svelte */
+  pointer-events: auto;
+  isolation: isolate;
+}
+
+.bottom-slider {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-elevated, #ffffff);
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  box-sizing: border-box;
+  /* Transform driven by Svelte transition:slideFromBottom; transition for hover/press only */
+  transition: box-shadow var(--motion-fast, 180ms) var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1)),
+    background-color var(--motion-fast, 180ms) var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1));
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+  isolation: isolate;
+}
+
+.slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-divider, var(--hairline));
+  flex-shrink: 0;
+  background: var(--drawer-bg-color, #f6f7f9);
+  border-top-left-radius: var(--modal-border-radius, 16px);
+  border-top-right-radius: var(--modal-border-radius, 16px);
+  z-index: 100 !important;
+}
+
+.slider-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+/* Back chevron in the header's top-left (full-screen mobile flows) */
+.slider-back-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  color: var(--color-text-primary, #1a1a1a);
+  border-radius: 50%;
+  transition: background-color var(--motion-fast, 180ms)
+    var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1));
+}
+
+.slider-back-button:hover {
+  background: var(--color-secondary, #f5f5f5);
+}
+
+.slider-back-button:active {
+  transform: scale(var(--press-scale, 0.96));
+}
+
+.slider-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1a1a1a);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.slider-subtitle {
+  font-size: 14px;
+  color: var(--color-text-muted, #7c7c7c);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.slider-close-button {
+  background: var(--surface, #ffffff);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-text-secondary, #404040);
+  transition: transform var(--motion-fast, 180ms)
+      var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1)),
+    box-shadow var(--motion-fast, 180ms)
+      var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1)),
+    background-color var(--motion-fast, 180ms)
+      var(--ease-smooth, cubic-bezier(0.4, 0, 0.2, 1));
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  box-shadow: var(--shadow-xs, 0px 1px 2px rgba(17, 17, 17, 0.06));
+}
+
+.slider-close-button:hover {
+  background: var(--color-secondary, #f5f5f5);
+  color: var(--color-text-primary, #1a1a1a);
+  box-shadow: var(--shadow-sm, 0px 2px 6px rgba(17, 17, 17, 0.08));
+  transform: var(--hover-lift, translateY(-1px));
+}
+
+.slider-close-button:active {
+  background: color-mix(in srgb, var(--color-secondary, #f5f5f5) 70%, #000 0%);
+  box-shadow: var(--shadow-xs, 0px 1px 2px rgba(17, 17, 17, 0.06));
+  transform: scale(var(--press-scale, 0.99));
+}
+
+/* Close button positioned at the top of the slider */
+.slider-close-button--outside {
+  position: absolute;
+  top: -35px;
+  right: 16px;
+  z-index: 2147483648; /* Above slider z-index */
+  pointer-events: auto;
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Ensure OrderSummaryDetails close button is not affected */
+.order-summary-details .header-close-button {
+  position: absolute !important;
+  top: auto !important;
+  right: 0 !important;
+  bottom: auto !important;
+}
+
+.slider-content {
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  padding-bottom: 0;
+  margin-bottom: 0;
+  /* overflow + border-radius via Tailwind on component to avoid flicker */
+}
+
+.slider-content.slider-content--scrollable {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Hide the background screen's sticky footer (pay/logout card) while a slider is
+   open. Use display:none, not visibility — children carry visibility:visible
+   !important elsewhere, which would otherwise re-show them. */
+html[data-bottom-slider-open="true"] .modal-card .sticky-button-container {
+  display: none !important;
+}
+
+/* Keep the slider's own action button (rendered inside the sheet) visible. */
+html[data-bottom-slider-open="true"] .modal-card .bottom-slider .sticky-button-container {
+  display: flex !important;
+}

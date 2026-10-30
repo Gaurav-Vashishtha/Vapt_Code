@@ -1,0 +1,13 @@
+<p><%= t('cod_form_mailer.common.greeting', name: @owner) %></p>
+
+<p><%= t('cod_form_mailer.otp_unavailable_notice.body', count: @count, shop: @shop_name) %></p>
+
+<p><%= t('cod_form_mailer.otp_unavailable_notice.what_happened') %></p>
+
+<p><%= t('cod_form_mailer.otp_unavailable_notice.what_to_do') %></p>
+
+<p><a href="<%= @admin_url %>"><%= t('cod_form_mailer.common.open_app') %></a></p>
+
+<p><%= t('cod_form_mailer.otp_unavailable_notice.frequency') %></p>
+
+<p><%= t('cod_form_mailer.common.sign_off_html') %></p>

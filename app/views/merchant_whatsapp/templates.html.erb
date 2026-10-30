@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merchant WhatsApp — Templates</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <h1 class="text-xl font-semibold text-gray-900">Owner templates</h1>
+      <%= link_to "Back", merchant_whatsapp_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+    </div>
+  </div>
+  <%= render 'shared/support_navigation' %>
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if flash[:notice].present? %><div class="mb-4 rounded-md bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm text-emerald-800"><%= flash[:notice] %></div><% end %>
+    <% if flash[:alert].present? %><div class="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"><%= flash[:alert] %></div><% end %>
+
+    <div class="bg-white rounded-lg border border-gray-200 mb-6">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+        <h2 class="font-medium text-gray-900">Templates</h2>
+        <%= button_to "Refresh from Meta", merchant_whatsapp_sync_templates_path, method: :post, class: "text-sm bg-gray-900 text-white rounded px-3 py-1.5" %>
+      </div>
+      <table class="w-full text-sm">
+        <thead><tr class="text-left text-gray-500 border-b border-gray-100"><th class="px-4 py-2">Name</th><th class="px-4 py-2">Lang</th><th class="px-4 py-2">Category</th><th class="px-4 py-2">Status</th><th class="px-4 py-2">Variables</th><th class="px-4 py-2">Test send</th></tr></thead>
+        <tbody>
+          <% @templates.each do |t| %>
+            <tr class="border-b border-gray-50">
+              <td class="px-4 py-2 align-top">
+                <div class="font-medium"><%= t.name %></div>
+                <details class="mt-1">
+                  <summary class="text-xs text-sky-600 cursor-pointer">Preview</summary>
+                  <div class="mt-2 max-w-xs bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-xs text-gray-800">
+                    <% if t.header_text.present? %><div class="font-semibold mb-1"><%= t.header_text %></div><% end %>
+                    <div class="whitespace-pre-line"><%= t.body_text.presence || "(no body)" %></div>
+                    <% if t.buttons_list.any? %>
+                      <div class="mt-2 pt-1 border-t border-emerald-100 flex flex-col gap-1">
+                        <% t.buttons_list.each do |b| %>
+                          <div class="text-center text-sky-600"><%= b["text"] || b[:text] %></div>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                </details>
+              </td>
+              <td class="px-4 py-2 align-top"><%= t.language %></td>
+              <td class="px-4 py-2"><%= t.category %></td>
+              <td class="px-4 py-2"><span class="text-xs px-2 py-0.5 rounded-full <%= t.approved? ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500' %>"><%= t.status %></span></td>
+              <td class="px-4 py-2 text-gray-500 align-top">
+                <% positions = t.body_text.to_s.scan(/\{\{(\d+)\}\}/).flatten.map(&:to_i).uniq.sort %>
+                <% if positions.empty? %>
+                  —
+                <% else %>
+                  <details>
+                    <summary class="text-xs text-sky-600 cursor-pointer"><%= (t.variable_mapping || {}).map { |k, v| "{{#{k}}}=#{v}" }.join(", ").presence || "Bind variables" %></summary>
+                    <%= form_tag merchant_whatsapp_template_mapping_path(id: t.id), method: :post, class: "mt-2 space-y-1" do %>
+                      <% positions.each do |p| %>
+                        <div class="flex items-center gap-1">
+                          <span class="text-xs text-gray-400 w-10">{{<%= p %>}}</span>
+                          <%= text_field_tag "binding[#{p}]", (t.variable_mapping || {})[p.to_s], list: "mwa-sources", placeholder: "shop.owner_name", class: "text-xs border border-gray-300 rounded px-2 py-1 w-44" %>
+                        </div>
+                      <% end %>
+                      <%= submit_tag "Save binding", class: "text-xs bg-gray-900 text-white rounded px-2 py-1 cursor-pointer" %>
+                    <% end %>
+                  </details>
+                <% end %>
+              </td>
+              <td class="px-4 py-2">
+                <details>
+                  <summary class="text-xs text-sky-600 cursor-pointer">Test…</summary>
+                  <%= form_tag merchant_whatsapp_test_template_path(id: t.id), method: :post, class: "mt-2 flex flex-col gap-1 w-56" do %>
+                    <%= text_field_tag :phone, nil, placeholder: "Phone (with country code)", class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+                    <%= text_field_tag :sample_domain, nil, placeholder: "Sample shop domain (uses mapping)", class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+                    <%= text_field_tag :values, nil, placeholder: "or values, comma-separated", class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+                    <%= text_field_tag :header_url, nil, placeholder: "Header image URL (if media header)", class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+                    <%= text_field_tag :button, nil, placeholder: "Button param (if dynamic URL)", class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+                    <%= submit_tag "Send test", class: "text-xs bg-sky-600 text-white rounded px-2 py-1 cursor-pointer" %>
+                  <% end %>
+                </details>
+              </td>
+            </tr>
+          <% end %>
+          <% if @templates.empty? %><tr><td colspan="6" class="px-4 py-6 text-center text-gray-400">No templates yet. Click &ldquo;Refresh from Meta&rdquo; to pull your approved templates.</td></tr><% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <h2 class="font-medium text-gray-900 mb-4">Create template &amp; submit to Meta</h2>
+      <p class="text-sm text-gray-500 mb-4">Builds the template and submits it to your Meta WABA for approval. Status flips automatically via webhook once Meta reviews it. Bind variables to shop data per-rule when you create a rule.</p>
+      <%= form_tag merchant_whatsapp_create_meta_template_path, method: :post do %>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div><label class="block text-sm font-medium mb-1">Name</label><%= text_field_tag :name, nil, placeholder: "lowercase_with_underscores", class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+          <div><label class="block text-sm font-medium mb-1">Language</label><%= select_tag :language, options_for_select(%w[en_US en en_GB hi hi_IN es pt_BR ar id fr], "en_US"), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+          <div><label class="block text-sm font-medium mb-1">Category</label><%= select_tag :category, options_for_select(%w[UTILITY MARKETING], "UTILITY"), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+          <div></div>
+
+          <div class="md:col-span-2 border-t border-gray-100 pt-3"><span class="text-sm font-semibold text-gray-700">Header (optional)</span></div>
+          <div><label class="block text-sm font-medium mb-1">Header type</label><%= select_tag :header_type, options_for_select([["None", "none"], ["Text", "text"], ["Image", "image"]], "none"), id: "tb-header-type", class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+          <div></div>
+          <div class="md:col-span-2 tb-header-text hidden"><label class="block text-sm font-medium mb-1">Header text</label><%= text_field_tag :header_text, nil, id: "tb-header-text", class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+          <div class="md:col-span-2 tb-header-text hidden"><label class="block text-sm font-medium mb-1">Header sample (if header has {{1}})</label><%= text_field_tag :header_sample, nil, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+          <div class="md:col-span-2 tb-header-image hidden"><label class="block text-sm font-medium mb-1">Header image URL (sample)</label><%= text_field_tag :header_image_url, nil, placeholder: "https://…jpg", class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+
+          <div class="md:col-span-2 border-t border-gray-100 pt-3"><span class="text-sm font-semibold text-gray-700">Body</span></div>
+          <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">Body text</label><%= text_area_tag :body, nil, rows: 4, placeholder: "Hi {{1}}, welcome to COD King!", id: "tb-body", class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %><p class="text-xs text-gray-400 mt-1">Use <code>{{1}}</code>, <code>{{2}}</code>… for variables.</p></div>
+          <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">Variables — bind to a shop field + a sample for Meta</label><p class="text-xs text-gray-400 mb-2">Bind = what's sent (e.g. <code>shop.owner_name</code>, <code>store.name</code>, <code>literal:Hi</code>). Sample = placeholder shown to Meta during review.</p><div id="tb-samples" class="space-y-2"></div></div>
+
+          <div class="md:col-span-2 border-t border-gray-100 pt-3"><span class="text-sm font-semibold text-gray-700">Footer (optional)</span></div>
+          <div class="md:col-span-2"><%= text_field_tag :footer, nil, placeholder: "e.g. COD King", id: "tb-footer", class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+
+          <div class="md:col-span-2 border-t border-gray-100 pt-3"><span class="text-sm font-semibold text-gray-700">Buttons (optional, up to 3)</span></div>
+          <div class="md:col-span-2 text-xs text-gray-400">Pick a preset to auto-fill, or choose Custom. Presets link to our per-shop endpoints (callback creates a support callback + email; chat opens the shop's Crisp).</div>
+          <% 3.times do %>
+            <div class="md:col-span-2 grid grid-cols-4 gap-2 tb-btn">
+              <%= select_tag "btn_preset[]", options_for_select([["Custom", ""], ["Schedule callback", "callback"], ["Chat with us", "chat"]], ""), class: "border border-gray-300 rounded px-2 py-2 text-sm tb-btn-preset" %>
+              <%= select_tag "btn_type[]", options_for_select([["None", ""], ["URL", "URL"], ["Quick reply", "QUICK_REPLY"]], ""), class: "border border-gray-300 rounded px-2 py-2 text-sm tb-btn-type" %>
+              <%= text_field_tag "btn_text[]", nil, placeholder: "Button text", class: "border border-gray-300 rounded px-2 py-2 text-sm tb-btn-text" %>
+              <%= text_field_tag "btn_url[]", nil, placeholder: "https://… (URL type only)", class: "border border-gray-300 rounded px-2 py-2 text-sm tb-btn-url" %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mt-5">
+          <div><%= submit_tag "Create & submit to Meta", class: "bg-sky-600 text-white text-sm font-medium rounded px-4 py-2 cursor-pointer" %></div>
+          <div>
+            <div class="text-xs text-gray-500 mb-1">Preview</div>
+            <div id="tb-preview" class="max-w-xs bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-xs text-gray-800">Start typing a body…</div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+<datalist id="mwa-sources">
+  <option value="shop.owner_name"></option>
+  <option value="shop.shop_owner"></option>
+  <option value="store.name"></option>
+  <option value="owner.name"></option>
+  <option value="domain"></option>
+  <option value="stats.orders_7d"></option>
+  <option value="literal:"></option>
+</datalist>
+<script>
+(function () {
+  var headerType = document.getElementById("tb-header-type");
+  var body = document.getElementById("tb-body");
+  var footer = document.getElementById("tb-footer");
+  var samplesEl = document.getElementById("tb-samples");
+  var previewEl = document.getElementById("tb-preview");
+  if (!body || !previewEl) return;
+
+  function esc(s) { return (s || "").replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  function toggleHeader() {
+    var t = headerType ? headerType.value : "none";
+    document.querySelectorAll(".tb-header-text").forEach(function (e) { e.classList.toggle("hidden", t !== "text"); });
+    document.querySelectorAll(".tb-header-image").forEach(function (e) { e.classList.toggle("hidden", t !== "image"); });
+  }
+
+  function maxPos() {
+    var nums = (body.value.match(/\{\{(\d+)\}\}/g) || []).map(function (m) { return parseInt(m.replace(/\D/g, ""), 10); });
+    return nums.length ? Math.max.apply(null, nums) : 0;
+  }
+
+  function syncSamples() {
+    var n = maxPos();
+    var existingBind = {}, existingSample = {};
+    samplesEl.querySelectorAll("input[data-kind='bind']").forEach(function (i) { existingBind[i.getAttribute("data-pos")] = i.value; });
+    samplesEl.querySelectorAll("input[data-kind='sample']").forEach(function (i) { existingSample[i.getAttribute("data-pos")] = i.value; });
+    samplesEl.innerHTML = "";
+    for (var p = 1; p <= n; p++) {
+      var wrap = document.createElement("div");
+      wrap.className = "flex items-center gap-2";
+      var label = document.createElement("span");
+      label.className = "text-xs text-gray-500 w-12";
+      label.textContent = "{{" + p + "}}";
+      var bind = document.createElement("input");
+      bind.type = "text"; bind.name = "binding[" + p + "]";
+      bind.setAttribute("data-kind", "bind"); bind.setAttribute("data-pos", p); bind.setAttribute("list", "mwa-sources");
+      bind.className = "flex-1 text-xs border border-gray-300 rounded px-2 py-1";
+      bind.placeholder = "bind to e.g. shop.owner_name";
+      bind.value = existingBind[p] || "";
+      var sample = document.createElement("input");
+      sample.type = "text"; sample.name = "body_samples[]";
+      sample.setAttribute("data-kind", "sample"); sample.setAttribute("data-pos", p);
+      sample.className = "w-40 text-xs border border-gray-300 rounded px-2 py-1";
+      sample.placeholder = "sample value";
+      sample.value = existingSample[p] || "";
+      sample.addEventListener("input", renderPreview);
+      wrap.appendChild(label); wrap.appendChild(bind); wrap.appendChild(sample);
+      samplesEl.appendChild(wrap);
+    }
+  }
+
+  function renderPreview() {
+    var samples = Array.prototype.map.call(samplesEl.querySelectorAll("input[data-kind='sample']"), function (i) { return i.value; });
+    var text = body.value.replace(/\{\{(\d+)\}\}/g, function (m, n) { return samples[n - 1] ? "[" + samples[n - 1] + "]" : m; });
+    var html = "";
+    if (headerType && headerType.value === "text") {
+      var hv = (document.getElementById("tb-header-text") || {}).value || "";
+      if (hv) html += '<div style="font-weight:600;margin-bottom:4px;">' + esc(hv) + "</div>";
+    } else if (headerType && headerType.value === "image") {
+      html += '<div style="color:#6b7280;margin-bottom:4px;">🖼️ image header</div>';
+    }
+    html += "<div>" + esc(text).replace(/\n/g, "<br>") + "</div>";
+    if (footer && footer.value) html += '<div style="color:#6b7280;margin-top:4px;">' + esc(footer.value) + "</div>";
+    var btnHtml = "";
+    document.querySelectorAll(".tb-btn").forEach(function (row) {
+      var type = row.querySelector(".tb-btn-type").value;
+      var t = row.querySelector(".tb-btn-text").value;
+      if (type && t) btnHtml += '<div style="text-align:center;color:#0284c7;">' + esc(t) + "</div>";
+    });
+    if (btnHtml) html += '<div style="border-top:1px solid #d1fae5;margin-top:8px;padding-top:4px;">' + btnHtml + "</div>";
+    previewEl.innerHTML = html || "Start typing a body…";
+  }
+
+  if (headerType) headerType.addEventListener("change", function () { toggleHeader(); renderPreview(); });
+  body.addEventListener("input", function () { syncSamples(); renderPreview(); });
+  if (footer) footer.addEventListener("input", renderPreview);
+  document.querySelectorAll(".tb-btn input, .tb-btn select").forEach(function (el) { el.addEventListener("input", renderPreview); el.addEventListener("change", renderPreview); });
+  var hText = document.getElementById("tb-header-text");
+  if (hText) hText.addEventListener("input", renderPreview);
+
+  var presets = {
+    callback: { text: "Schedule callback", url: "<%= request.base_url %>/mwa/callback?shop={{1}}" },
+    chat: { text: "Chat with us", url: "<%= request.base_url %>/mwa/chat?shop={{1}}" }
+  };
+  document.querySelectorAll(".tb-btn").forEach(function (row) {
+    var preset = row.querySelector(".tb-btn-preset");
+    if (!preset) return;
+    preset.addEventListener("change", function () {
+      var p = presets[preset.value];
+      if (!p) return;
+      row.querySelector(".tb-btn-type").value = "URL";
+      row.querySelector(".tb-btn-text").value = p.text;
+      row.querySelector(".tb-btn-url").value = p.url;
+      renderPreview();
+    });
+  });
+
+  toggleHeader(); syncSamples(); renderPreview();
+})();
+</script>
+</div>
+</body>
+</html>

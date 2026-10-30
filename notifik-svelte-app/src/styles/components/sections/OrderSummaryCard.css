@@ -1,0 +1,250 @@
+/* The card and the savings banner read as one surface: the unit owns the
+   radius, clipping and elevation so they never separate visually. */
+.order-summary-unit {
+  position: relative;
+  z-index: 5;
+  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
+  border-radius: var(--radius-md);
+  margin-top: 14px !important;
+  overflow: hidden;
+  box-shadow: 4px 4px 11px 0 #d0dbf726, -2px -2px 10px 0 #d0dbf726;
+}
+
+.order-summary-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.order-summary-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.order-summary-title {
+  font-size: var(--font-size-base);
+  line-height: 22px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.order-summary-count {
+  font-size: var(--font-size-sm);
+  line-height: 20px;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.order-summary-pricing {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.order-summary-compare {
+  font-size: var(--font-size-sm);
+  line-height: 20px;
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.order-summary-total {
+  font-size: var(--font-size-sm);
+  line-height: 20px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.order-summary-chevron {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-muted);
+  transform: rotate(-90deg);
+  transition: transform 300ms var(--ease-smooth);
+}
+
+.order-summary-chevron.is-expanded {
+  transform: rotate(0deg);
+}
+
+.order-summary-offer {
+  margin: 5px 0 0px;
+  display: flex;
+  align-items: center;
+  padding-bottom: 8px;
+  gap: 3px;
+  font-size: var(--font-size-xs);
+  line-height: 18px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-offer-applied);
+  text-align: left;
+}
+
+.order-summary-offer-icon {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* Zero-height trip wire sitting exactly on the banner's resting top edge.
+   The margins cancel the 16px .screen-content flex gap on both sides so it
+   costs no layout; an IntersectionObserver flips .is-stuck when it leaves. */
+.saved-so-far-sentinel {
+  height: 0;
+  margin: -28px 0 -16px;
+}
+
+/* Lives outside .order-summary-unit — that unit's overflow: hidden would clip
+   sticky to its own box. Resting state overlaps the card's bottom 12px so the
+   two still read as one surface. */
+.saved-so-far-banner {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 4px 20px;
+ background: linear-gradient(92.21deg, #d8f4e1 -25.78%, #d7f3e1 104.79%, #e3faf0 119.91%, #cff0e2 132.16%, #dcffe6 0);
+  color: #238017 !important;
+  font-size: var(--font-size-xs);
+  line-height: 16px;
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: 4px 4px 11px 0 #d0dbf726;
+  transition: all 0.1s cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Pinned: bleed past the 14px .screen-content padding to the widget edges. */
+.saved-so-far-banner.is-stuck {
+  margin-inline: -14px;
+}
+
+.saved-so-far-amount {
+  font-weight: var(--font-weight-extrabold);
+}
+
+.saved-so-far-emoji {
+  display: inline-block;
+  transform: translateY(2px);
+  width: 15px;
+  height: 15px;
+  object-fit: contain;
+  vertical-align: -2px;
+}
+
+/* Sheet header */
+.order-summary-sheet-heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.order-summary-sheet-title {
+  font-size: var(--font-size-base);
+  line-height: 22px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--ck-sheet-header-fg, #f1f1f1);
+}
+
+.order-summary-sheet-count {
+  font-size: var(--font-size-xs);
+  line-height: 18px;
+  font-weight: var(--font-weight-medium);
+  color: var(--ck-sheet-header-fg, #f1f1f1) !important;
+}
+
+@media (max-width: 480px) {
+  .order-summary-title,
+  .order-summary-sheet-title {
+    font-size: 16px;
+  }
+
+  .order-summary-count,
+  .order-summary-compare,
+  .order-summary-total {
+    font-size: 13px;
+  }
+}
+
+/* Narrow phones: stack the count under the title so the price row stays intact */
+@media (max-width: 400px) {
+  .order-summary-heading {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .order-summary-count {
+    line-height: 16px;
+  }
+}
+
+.order-summary-shell {
+  position: relative;
+  display: flow-root;
+  flex-shrink: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.order-summary-row.has-gift-badge {
+  padding-top: 12px;
+}
+
+.ck-gift-badge {
+  position: absolute;
+  right: -2px;
+  top: 14px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  height: 26px;
+  color: #606061;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.ck-gift-badge__label {
+  border-radius: 0 4px 4px 0;
+  background: linear-gradient(90deg, #fafffc 0%, #e2faeb 59.13%, #cbebd2 100%);
+  padding: 0 8px 0 6px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
+.ck-gift-badge__triangle {
+  width: 0;
+  height: 0;
+  margin: 0 3px;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-left: 6px solid #cbebd2;
+}
+
+.ck-gift-badge__icon {
+  width: 26px;
+  height: 26px;
+  border: 1px solid #cbebd2;
+  border-radius: 50%;
+  background: #fff;
+  flex-shrink: 0;
+}

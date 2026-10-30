@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payout Details - Referral Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Flash Messages -->
+    <% if flash[:notice] %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+    
+    <% if flash[:alert] %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold text-gray-800">Payout Details</h1>
+      <div class="flex space-x-3">
+        <%= link_to "Back to Payouts", referral_admin_payouts_path, 
+            class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" %>
+        
+        <% if @payout.status == 'pending' %>
+          <%= link_to "Process Payout", process_payout_referral_admin_payout_path(@payout), 
+              method: :patch, 
+              class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700",
+              confirm: "Are you sure you want to process this payout?" %>
+          
+          <%= link_to "Cancel Payout", cancel_referral_admin_payout_path(@payout), 
+              method: :patch, 
+              class: "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700",
+              confirm: "Are you sure you want to cancel this payout?" %>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Payout Status Badge -->
+    <div class="mb-6">
+      <% 
+        status_colors = {
+          'pending' => 'bg-yellow-100 text-yellow-800',
+          'processing' => 'bg-blue-100 text-blue-800',
+          'completed' => 'bg-green-100 text-green-800',
+          'failed' => 'bg-red-100 text-red-800',
+          'cancelled' => 'bg-gray-100 text-gray-800'
+        }
+        status_color = status_colors[@payout.status] || 'bg-gray-100 text-gray-800'
+      %>
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium <%= status_color %>">
+        <%= @payout.status&.humanize || 'Unknown' %>
+      </span>
+    </div>
+    
+    <!-- Payout Information -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Payout Information</h3>
+        <div class="space-y-3">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Partner:</span>
+            <span class="font-medium"><%= @payout.referral_partner&.name || 'Unknown Partner' %></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Amount:</span>
+            <span class="font-semibold text-2xl text-green-600">
+              $<%= number_with_precision(@payout.total_amount || 0, precision: 2) %>
+            </span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Payout Date:</span>
+            <span class="font-medium">
+              <%= @payout.payout_date&.strftime('%B %d, %Y') || 'Not set' %>
+            </span>
+          </div>
+          <% if @payout.earnings_from_date && @payout.earnings_to_date %>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Earnings Period:</span>
+              <span class="font-medium">
+                <%= @payout.earnings_from_date.strftime('%m/%d/%Y') %> - 
+                <%= @payout.earnings_to_date.strftime('%m/%d/%Y') %>
+              </span>
+            </div>
+          <% end %>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Payment Method:</span>
+            <span class="font-medium"><%= @payout.payment_method&.humanize || 'Unknown' %></span>
+          </div>
+          <% if @payout.transaction_reference.present? %>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Transaction Reference:</span>
+              <span class="font-medium font-mono text-sm"><%= @payout.transaction_reference %></span>
+            </div>
+          <% end %>
+          <% if @payout.created_at %>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Created:</span>
+              <span class="font-medium"><%= @payout.created_at.strftime('%B %d, %Y at %I:%M %p') %></span>
+            </div>
+          <% end %>
+          <% if @payout.notes.present? %>
+            <div class="border-t pt-3">
+              <span class="text-gray-600 block mb-2">Notes:</span>
+              <span class="font-medium text-sm"><%= @payout.notes %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Earnings Breakdown</h3>
+        <div class="space-y-3">
+          <% if @earnings_breakdown&.any? %>
+            <% @earnings_breakdown.each do |type, amount| %>
+              <% next if type.nil? %>
+              <div class="flex justify-between py-2 border-b">
+                <span class="capitalize text-gray-600"><%= type&.humanize || 'Unknown' %></span>
+                <span class="font-semibold">$<%= number_with_precision(amount || 0, precision: 2) %></span>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-gray-500">No breakdown data available</p>
+          <% end %>
+          
+          <% if @shops_breakdown&.any? %>
+            <div class="mt-4 pt-4 border-t">
+              <h4 class="font-semibold text-gray-700 mb-2">By Shop</h4>
+              <% @shops_breakdown.each do |shop_domain, amount| %>
+                <div class="flex justify-between py-1">
+                  <span class="text-sm text-gray-600"><%= shop_domain %></span>
+                  <span class="text-sm font-medium">$<%= number_with_precision(amount || 0, precision: 2) %></span>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Earnings List -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <h3 class="text-xl font-bold text-gray-800">Included Earnings (<%= @earnings&.count || 0 %> records)</h3>
+      </div>
+      
+      <% if @earnings&.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Revenue</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @earnings.each do |earning| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm">
+                    <%= earning.earning_date&.strftime('%m/%d/%Y') || 'Unknown' %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="text-sm font-medium text-gray-900">
+                      <%= earning.referral_shop&.shop_domain || 'Unknown Shop' %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      <%= earning.transaction_type&.humanize || 'Unknown' %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    $<%= number_with_precision(earning.revenue_amount || 0, precision: 2) %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= earning.commission_rate || 0 %>%
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                    $<%= number_with_precision(earning.commission_amount || 0, precision: 2) %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot class="bg-gray-50">
+              <tr>
+                <td colspan="5" class="px-6 py-3 text-right font-bold text-gray-900">Total:</td>
+                <td class="px-6 py-3 font-bold text-green-600">
+                  $<%= number_with_precision(@earnings.sum(:commission_amount) || 0, precision: 2) %>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <svg class="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No earnings data</h3>
+          <p class="text-gray-500">No earnings are associated with this payout.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</body>
+</html>

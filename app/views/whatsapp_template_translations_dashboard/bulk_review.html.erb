@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - Submit <%= WhatsappTemplateTranslation.language_name(@language) %> drafts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= csrf_meta_tags %>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+<%
+  rtl = WhatsappTemplateTranslation.rtl?(@language)
+  valid = @drafts.count { |d| d[:errors].empty? }
+%>
+<div class="bg-white border-b border-gray-200">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div>
+      <h1 class="text-xl font-semibold text-gray-900">Submit <%= WhatsappTemplateTranslation.language_name(@language) %> drafts</h1>
+      <p class="text-xs text-gray-500"><%= @drafts.size %> drafts · <%= valid %> ready · read each one, then submit the ticked ones together</p>
+    </div>
+    <%= link_to '← All templates', support_dashboard_whatsapp_languages_path, class: 'text-sm text-blue-600 hover:underline' %>
+  </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <%= render 'flash' %>
+
+  <% if @drafts.empty? %>
+    <p class="text-sm text-gray-500">No drafts waiting in <%= WhatsappTemplateTranslation.language_name(@language) %>.</p>
+  <% else %>
+    <%= form_with url: support_dashboard_whatsapp_languages_bulk_submit_path, method: :post, local: true do %>
+      <input type="hidden" name="language" value="<%= @language %>">
+      <div class="space-y-4">
+        <% @drafts.each do |d| %>
+          <% row = d[:row] %>
+          <div class="bg-white shadow rounded-lg p-4 <%= 'opacity-70' if d[:errors].any? %>">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <label class="flex items-center gap-2 font-mono text-sm text-gray-900">
+                <input type="checkbox" name="ids[]" value="<%= row.id %>" <%= d[:errors].empty? ? 'checked' : 'disabled' %>>
+                <%= row.template_name %>
+                <span class="text-xs text-gray-400 font-sans"><%= row.category || 'UTILITY' %><%= " · drafted by #{row.drafted_by}" if row.drafted_by %></span>
+              </label>
+              <%= link_to 'Edit', edit_support_dashboard_whatsapp_language_path(row), class: 'text-xs text-blue-600 hover:underline' %>
+            </div>
+            <% if d[:errors].any? %>
+              <ul class="mb-3 text-xs text-red-700 list-disc ml-5"><% d[:errors].each do |e| %><li><%= e %></li><% end %></ul>
+            <% end %>
+            <div class="grid md:grid-cols-2 gap-4">
+              <%= render 'bubble', components: row.source_components, rtl: false %>
+              <%= render 'bubble', components: row.components, rtl: rtl %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="sticky bottom-0 mt-6 bg-white border border-gray-200 shadow-lg rounded-lg px-4 py-3 flex flex-wrap items-end gap-3">
+        <label class="text-sm">Reviewed by
+          <input name="reviewer" required placeholder="Your name" class="mt-1 block rounded-md border border-gray-300 px-2 py-1.5">
+        </label>
+        <label class="text-sm flex items-center gap-2"><input type="checkbox" required> I read every ticked translation and they are correct</label>
+        <button class="px-4 py-2 text-sm rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-50" <%= 'disabled' if valid.zero? %>>Submit ticked to Meta</button>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+</body>
+</html>

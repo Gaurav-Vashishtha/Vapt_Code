@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+sl:
+  hello: Pozdravljeni svet
+  admin:
+    getting_started: Vodnik za začetek
+    watch_video_msg: Oglejte si video, rezervirajte sejo ali klepetajte z nami, da začnete takoj s KPK Kraljem!
+    watch_video: Oglejte si video
+    book_session: Knjiga seje
+    chat_with_us: Klepetajte z nami
+    settings: Nastavitve
+    log: Dnevnik
+    step1: 1. korak - Naročilo KPK
+    step1_desc: Stranka postavlja naročilo KPK. App ga prepozna kot naročilo KPK.
+    step2: 2. korak - Aplikacija pošlje OTP stranki prek SMS-a
+    step2_desc: Edinstven OTP se pošlje na mobilno številko stranke.
+    step3: Korak 3 - OTP polje prikazano na Hvala strani
+    step3_desc: Stranka vstopi OTP in klikne preveri.
+    step4: 4. korak - Filtrirajte naročila na podlagi te oznake.
+    step4_desc: Stranka postavlja naročilo KPK. App ga prepozna kot naročilo KPK.
+    step5: 5. korak - prihranjeni stroški pošiljanja
+    step5_desc: Prihranite stroške pošiljanja z zavrnitvijo ponarejenih naročil Prihranjen denar je zaslužen denar.
+    logs: Dnevniki
+    order_logs: Dnevniki naročil
+    subscription: Naročnina
+    settings_saved: Shranjene nastavitve
+    settings_saved_msg: "Spremembe se bodo odražale v vaši trgovini v nekaj minutah."
+    activate_sms: Aktivirajte <b>OTP</b> Potrditev
+    activate_cod_fees: Aktivirajte <b>Pristojbine za KPK</b>
+    sms_placeholder: 123456 je vaše enkratno geslo za potrditev KPK
+    ios_code_error: Predloga mora vključevati »koda« ključno besedo za prikaz OTP na tipkovnici iOS
+    activate_ivr: Aktivirajte <b>IVR</b> Potrditev
+    intro_msg: Uvodno sporočilo
+    intro_msg_placeholder: Zahvaljujemo se vam za oddajo naročila.
+    order_confirm_label: Sporočilo o potrditvi naročila
+    order_confirm_placeholder: Prosimo, pritisnite 1 za potrditev naročila.
+    order_confirm_help: Navodila za uporabnika, da pritisnete 1 za potrditev naročila.
+    order_confirm_error: Potrdite sporočilo mora vključevati »1" za potrditev naročila
+    order_cancel_label: Sporočilo o preklicu naročila
+    order_cancel_placeholder: Prosimo, pritisnite 2, da prekličete naročilo.
+    order_cancel_help: Navodila za uporabnika, da pritisnete 2 za preklic naročila.
+    order_cancel_error: To sporočilo mora vključevati »2" za preklic naročila.
+    test_sms: "Testno obvestilo SMS"
+    enter_test_number: Vnesite testno številko
+    sms_sent_check_mobile: SMS Poslano. Prosimo, preverite svoj mobilni telefon
+    enter_country_code: Prosimo, vnesite številko s kodo države, medtem ko testirate tukaj
+    number_cc_example: npr. %{number}
+    send_sms: Pošlji SMS
+    message_template: Predloga sporočila
+    test_ivr: Preskusni klic IVR
+    cod_fees: Znesek za pristojbine KPK v
+    cod_fees_help: Znesek denarja, ki ga želite dodati, če stranka odda naročilo KPK.
+    cod_label: Oznaka za pritrditev pristojbin KPK
+    cod_label_help: Oznaka, ki se prikaže za dodatne stroške
+    cod_instruction: Navodila za dostavo KPK
+    cod_instruction_help: To sporočilo bo strankam prikazano na strani Hvala, ko bo naročilo končano.
+    please_check_mobile: Prosimo, preverite svoj mobilni telefon
+    call_now: Pokliči zdaj
+    unsaved: Neshranjene spremembe
+    x_chars_used: "%{count} / %{total} uporabljeni znaki"
+    deactivate: Deaktiviraj
+    save: Shrani
+    discard: Zavrzite
+    free_plan: Brezplačni načrt
+    pro_plan: Pro načrt
+    vip_plan: Vip načrt
+    feature_1: starts $0.02 na SMS
+    feature_2: začne $0.06 na IVR
+    feature_3: 1 do 1 klic na krovu
+    feature_4: Prednostna podpora
+    feature_1_pro: Za trgovine več kot 100 naročil KPK na mesec
+    custom_plan: Načrt integracije omrežnih ponudnikov
+    subscribe: Naročite se
+    subscribed: Naročeni
+    recommended: Priporočeno
+    sms_template_default: "{{otp}} je vaša verifikacijska koda za potrditev naročila COD oddano na %{store}"
+    retry_template_default: "Hvala za dajanje naročilo COD na %{store}. Prosimo, potrdite svoje naročilo z obiskom povezave {{link}} birdch"
+    prepaid_template_default: "pretvorite svoje naročilo v predplačniško s klikom na povezavo. {{link}}"
+    order_confirm_template_default: "Hvala za nakup na %{store}. Vaše naročilo je bilo potrjeno - Številka naročila {{number}}"
+    fulfilment_template_default: "Vaše naročilo je bilo odposlano od %{store} - Spremljajte naročilu na {{tracking_url}}"
+    ivr_introduction: "Zahvaljujemo se vam za oddajo naročila na %{domain}."
+    ivr_confirm_message: Prosimo, pritisnite 1 za potrditev naročila.
+    ivr_cancel_message: Prosimo, pritisnite 2, da prekličete naročilo.
+    confirmed_thank_you: Vaše naročilo je potrjeno, hvala.
+    cancelled_thank_you: Vaše naročilo je preklicano, hvala.
+    invalid_thank_you: Neveljavna izbira, Prosimo, poskusite znova, hvala.
+    no_logs_yet: Še ni dnevnikov
+    try_changing_search: Poskusite spremeniti iskalni izraz
+    order: Naročilo
+    date: Datum
+    customer: Stranka
+    total: Skupaj
+    status: Status
+    network: Omrežje
+    prev: Prejšnja (J)
+    next: Naslednji (K)
+    no_resource_found: Ni najdenih %{resource}
+    search_resource: Iskanje %{resource} s številko naročila ali imenom stranke
+    all: Vse
+    enter_valid_phone: Vnesite veljavno telefonsko številko
+    enable_region: Prosimo, da se obrnete na nas, da omogočite svojo regijo
+    x_total_orders: "%{count} skupnih naročil"
+    x_verified_orders: "%{count} preverjenih naročil"
+    x_pending_orders: "%{count} čakajočih naročil"
+    x_prepaid_orders: "%{count} predplačniških naročil"
+    x_cancelled_orders: "%{count} preklicanih naročil"
+    order_stats: Statistika naročil
+    boost_checkout: Brezšivna blagajna
+    recommended_setup_to: Priporočena nastavitev za izboljšanje izkušnje na blagajni
+    copy: Kopiraj
+    copied: Kopirano
+    starts: Začne
+    ends: Konča
+    recommended_steps: Priporočeni koraki
+    checkout_settings: Pojdite na nastavitve blagajne
+    additional_scripts_text_box: In prilepite spodnje besedilo v <b>Dodatni skripti</b> polje z besedilom
+    one_time_pass: Enkratno geslo
+    customer_first_name: Ime stranke
+    order_total_amount: Skupni znesek naročila
+    link_text: Povezava za potrditev naročila z enim klikom
+    available_variables: Razpoložljive spremenljivke za prilepitev v predlogo
+    free_limit_exhausted: Brezplačna omejitev testiranja je izčrpana. Prosimo, kontaktirajte nas za obnovo.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} zaračunanih sms"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Napolnitev uporabe ustvarjena"
+    x_ivr: "%{count} ivr"
+    refresh: Osveži
+    complete_setup: Samo še zadnji korak
+    complete_setup_msg: Nastavitve so shranjene. Za dokončanje nastavitve, prosim <b>naročite tukaj</b>.
+    view_plans: Ogled načrtov
+    prepay_template: Predplačniška predloga
+    send_payment_link: Povezava za plačilo
+    submit: Predloži
+    bulk_submit: Bulk Pošlji
+    amount: Znesek
+    date_time: Datum in ura
+    mobile: Mobilni
+    something_went_wrong: Nekaj je šlo narobe, poskusite znova pozneje.
+    message_sent: Sporočilo Poslano
+    send: Pošlji
+    cancel: Prekliči
+    upto_x_orders: Upto %{count} Naročila na mesec
+    unlimited_orders: Neomejeno število naročil za preverjanje
+    export: Izvoz
+    emailed_orders: Poslani dnevniki na e-pošto
+    comma_separated_order_ids: ID-ji vrstnega reda, ločeni
+    order_ids: "Vnesite ID-je, kot so: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Bulk Preveri
+    bulk_verify_template: "Pozdravljeni %{name}, prosimo, kliknite na povezavo %{link} , da preverite svoje naročilo #%{number} od %{amount} , ki se nahaja na %{store}"
+    bulk_processing_title: Obdelava naročil v
+    bulk_processing_desc: Boste videli naročila v dnevnikih v nekje.
+    bulk_processing_error: Nekaj je šlo narobe
+    bulk_processing_error_desc: Prosimo, poskusite znova ali se obrnite na nas, če se težava nadaljuje.
+    reach_out_title: Funkcija še ni omogočena.
+    reach_out_desc: Prosimo, da se obrnete na nas, da omogočite to funkcijo.
+    order_cancelled: Naročilo je bilo preklicano
+    order_details_title: Podrobnosti o naročilu (kliknite na prekliči ali potrdi)
+    react_out_to_us: Prosimo, da nas kontaktirate za naročila v razsutem stanju
+    react_out_locked_title: Zahtevana odobritev.
+    react_out_locked_desc: Prosimo, da nas kontaktirate preko <b>e-pošte ali klepeta</b> , da omogočite svoj račun.
+    view_cost: Poglej SMS stroškov.
+    pricing_for_country: "Aplikacija je privzeto SMS dajatev za <b>%{country}</b> je <b>$%{charge}</b> na sms"
+    view_complete_pricing: Oglejte si tabelo cen za vse države
+    chat_for_bulk_integration: Klepetajte z nami za razsute cene ali integracijo po meri.
+    advance_settings: Napredne nastavitve
+    link_settings: Nastavitve povezave za preverjanje
+    show_cancel_button: Pokaži gumb za preklic
+    show_cancel_button_help: podprta le med pretokom preverjanja povezave.
+    auto_verify: Samodejno preverjanje
+    auto_verify_help: Samodejno preverite vrstni red na klik povezavo za preverjanje
+    otp_settings: Nastavitve OTP
+    max_retries: Max SMS ponovno poskusi na naročilo
+    otp_wait_time: Ponovno pošljite OTP čakalni čas
+    otp_fallback_text: Podpora za OTP ali nadomestno besedilo
+    otp_fallback_text_help: HTML podprt
+    network_provider_integration: Integracija ponudnika omrežja
+    network_provider: Ponudnik omrežja
+    required: Zahtevana
+    phone_number: Telefonska številka
+    integration_cost_reduce: Integracija zmanjša vaše skupne stroške na skoraj eno tretjino
+    need_help: Potrebujete pomoč?
+    create_x_account: Ustvari %{brand} račun
+    x_configuration: "%{brand} Konfiguracija"
+    need_more_sms: Klepetajte z nami, da se naročite in določite cene.
+    price_for_country: "$%{price} na sporočilo v %{country}"
+    sms_cost_included: SMS stroški vključeni
+    sms_cost_extra: SMS lahko plačate neposredno ponudniku
+    view: Pogled
+    order_number: Številka naročila
+    get_access_token: Ustvari žeton za dostop
+    goto_orders: Pojdi na naročila
+    whatsapp_approval_request_sent: Poslana zahteva za odobritev WhatsApp
+    whatsapp_approval_request_sent_failure: 'Ni uspelo: - Zahteva za odobritev WhatsApp ni uspela'
+  script:
+    submit: Predloži
+    mobile_phone_number: Številka brez 0 in koda države
+    enter_valid_phone: Vnesite veljavno telefonsko številko
+    verify_for_smooth_delivery: Preverite svojo telefonsko številko za enostavno dostavo naročila COD
+    click_verify_link: Na vašo številko je bila poslana povezava - <b>%{number}</b>
+    enter_otp_msg: "Prosimo, vnesite OTP, poslano na <b>%{number}</b>"
+    enter_otp: Vnesite OTP
+    change: Spremeni
+    invalid_otp: Neveljaven OTP, poskusite znova
+    resend_otp: Ponovno pošlji OTP
+    confirm_order: Potrdite naročilo
+    sending: "Pošiljanje..."
+    order_being_processed: Vaše naročilo se obdeluje.
+    if_not_redirected: Če niste samodejno preusmerjeni, osvežite to stran.
+    resend_in_x_seconds: "Ponovno pošljite OTP v %{count} sekundah"
+    max_retries_reached: Največja omejitev ponovnih poskusov dosežena.
+    order_details: Podrobnosti o naročilu
+    send_code_on_whatsapp: Pridobite kodo na Whatsappu

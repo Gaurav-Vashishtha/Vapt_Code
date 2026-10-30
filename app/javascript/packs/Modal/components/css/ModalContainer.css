@@ -1,0 +1,59 @@
+/* Modal Overlay */
+.codk-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2147483640 !important; /* High z-index to ensure it's on top of everything */
+}
+
+/* Modal Content Box */
+.codk-modal-content {
+  background-color: white !important; /* Ensure background is white */
+  padding: 20px !important;
+  border-radius: 8px !important;
+  width: 90% !important;
+  max-width: 500px !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important; /* Soft shadow for better visibility */
+  position: relative !important;
+  font-family: "Roboto", Arial, sans-serif !important; /* Enforce font-family */
+  font-size: 16px !important; /* Enforce consistent font size */
+  color: #495057 !important; /* Consistent text color */
+  text-align: left !important; /* Consistent text alignment */
+  box-sizing: border-box !important; /* Include padding and border in width/height */
+}
+
+/* Modal Close Button */
+.modal-close-button {
+  position: absolute !important;
+  top: 10px !important;
+  right: 10px !important;
+  background: none !important;
+  border: none !important;
+  font-size: 24px !important;
+  cursor: pointer !important;
+  color: #495057 !important; /* Ensure color consistency */
+  transition: color 0.3s ease, transform 0.3s ease !important;
+}
+
+.modal-close-button:hover {
+  color: #000 !important; /* Darken color on hover */
+  transform: rotate(90deg) !important; /* Smooth rotation effect */
+}
+
+/* Responsive Modal */
+@media (max-width: 576px) {
+  .codk-modal-content {
+    width: 100% !important; /* Full width on small screens */
+    padding: 15px !important; /* Adjust padding for small devices */
+  }
+
+  .modal-close-button {
+    font-size: 20px !important; /* Slightly smaller close button on mobile */
+  }
+}

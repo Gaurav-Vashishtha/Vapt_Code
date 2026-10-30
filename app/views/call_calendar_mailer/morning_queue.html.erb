@@ -1,0 +1,45 @@
+<div style="font-family: -apple-system, Segoe UI, Roboto, sans-serif; color: #111; max-width: 760px;">
+  <h2 style="margin-bottom: 4px;">Call queue — <%= @date.strftime("%A, %d %b %Y") %></h2>
+  <p style="color: #555; margin-top: 0;">
+    <strong><%= @targets.size %></strong> calls today ·
+    Day owner: <strong><%= @day_owner.presence || "unassigned" %></strong>
+  </p>
+
+  <% if @targets.empty? %>
+    <p>No queue was generated for today.</p>
+  <% else %>
+    <table style="border-collapse: collapse; width: 100%; font-size: 13px;">
+      <thead>
+        <tr style="background: #f3f4f6; text-align: left;">
+          <th style="padding: 6px 8px;">#</th>
+          <th style="padding: 6px 8px;">Shop</th>
+          <th style="padding: 6px 8px;">Segment</th>
+          <th style="padding: 6px 8px;">Phone</th>
+          <th style="padding: 6px 8px;">CPS</th>
+          <th style="padding: 6px 8px;">Why</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @targets.each do |target| %>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 6px 8px;"><%= target.rank %></td>
+            <td style="padding: 6px 8px;">
+              <%= target.shopify_domain %>
+              <% if @due_domains.include?(target.shopify_domain) %>
+                <span style="color: #b45309; font-weight: 600;">· callback due</span>
+              <% end %>
+            </td>
+            <td style="padding: 6px 8px;"><%= target.segment_label %></td>
+            <td style="padding: 6px 8px;"><%= target.contact_phone.presence || "—" %></td>
+            <td style="padding: 6px 8px;"><%= target.cps %></td>
+            <td style="padding: 6px 8px; color: #555;"><%= target.reason_list.join(" · ") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <p style="color: #888; font-size: 12px; margin-top: 16px;">
+    Open the Call Calendar in the Support Dashboard to log outcomes and set callbacks.
+  </p>
+</div>

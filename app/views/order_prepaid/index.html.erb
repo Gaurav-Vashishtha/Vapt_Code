@@ -1,0 +1,10 @@
+<%= content_tag :div,
+  id: "order-prepaid-react",
+  data: {
+    name: 'COD confirm',
+    order: @order,
+    shop: @shop,
+    auto_verify: @auto_verify,
+    show_cancel_button: @show_cancel_button
+}.to_json do %>
+<% end %>

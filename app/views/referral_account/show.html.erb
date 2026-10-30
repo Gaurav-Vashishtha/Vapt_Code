@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Account Settings - Referral Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <!-- Flash Messages -->
+    <% if flash[:notice] %>
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <%= flash[:notice] %>
+      </div>
+    <% end %>
+    
+    <% if flash[:alert] %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+    
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Account Settings</h1>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Profile Information -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Profile Information</h2>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Name</label>
+            <p class="mt-1 text-sm text-gray-900"><%= @partner.name %></p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Email</label>
+            <p class="mt-1 text-sm text-gray-900"><%= @partner.email %></p>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Commission Rates</label>
+            <div class="mt-1 text-sm text-gray-900">
+              <p>Subscription: <%= @partner.subscription_commission_rate %>%</p>
+              <p>Usage: <%= @partner.usage_commission_rate %>%</p>
+              <p>One-time: <%= @partner.onetime_commission_rate %>%</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="mt-6">
+          <%= link_to "Change Password", edit_referral_password_path,
+                      class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+        </div>
+      </div>
+      
+      <!-- Payment Account Details -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Payment Account</h2>
+        
+        <% if @partner.has_account_details? %>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Account Type</label>
+              <p class="mt-1 text-sm text-gray-900 capitalize"><%= @partner.account_type %></p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Account Details</label>
+              <p class="mt-1 text-sm text-gray-900"><%= @partner.account_details_summary %></p>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Verification Status</label>
+              <span class="<%= @partner.account_verified? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %> px-2 py-1 rounded-full text-xs font-medium">
+                <%= @partner.account_verified? ? 'Verified' : 'Pending Verification' %>
+              </span>
+            </div>
+          </div>
+          
+          <div class="mt-6">
+            <%= link_to "Update Account Details", edit_referral_account_details_path,
+                        class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+              <h3 class="text-lg font-semibold text-yellow-800 mb-2">Setup Payment Account</h3>
+              <p class="text-yellow-700 mb-4">Add your bank account or PayPal details to receive commission payments.</p>
+              <%= link_to "Add Payment Details", edit_referral_account_details_path,
+                          class: "bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

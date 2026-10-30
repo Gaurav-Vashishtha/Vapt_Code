@@ -1,0 +1,38 @@
+/* Mobile-specific styles for AddressFormScreen component */
+/* Applied when viewport width <= 640px */
+
+@media (max-width: 640px) {
+  /* Footer is fixed via layout (not sticky). The form itself scrolls. */
+  .address-form-button-container {
+    position: relative !important;
+    bottom: auto !important;
+  }
+
+  /* Reduce padding on form sections for mobile */
+  .frame-1171276906,
+  .frame-11712769073,
+  .frame-11712769092 {
+    padding: 12px;
+  }
+
+  /* Stack address type chips vertically on mobile */
+  .frame-11712769064 {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .tag-chip {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Ensure field rows stack properly on mobile */
+  .field-row {
+    flex-direction: column;
+  }
+
+  .field-row .field-block {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+}

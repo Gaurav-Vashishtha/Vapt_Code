@@ -1,0 +1,16 @@
+<%= content_tag :div,
+  id: "hello-react",
+  data: {
+    name: 'Settings',
+    setting: @setting,
+    shop: @shop,
+    plan: @plan,
+    crisp_url: @crisp_url,
+    visible_plans: @visible_plans,
+    session: @current_shopify_session,
+    scope_refresh_url: @scope_refresh_url,
+    twilio_pricing: @twilio_pricing,
+    billing_snapshot: @billing_snapshot
+}.to_json do %>
+<% end %>
+

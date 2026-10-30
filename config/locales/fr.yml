@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+fr:
+  hello: Bonjour le monde
+  admin:
+    getting_started: Guide de démarrage
+    watch_video_msg: Regardez la vidéo, réservez une session ou discutez avec nous pour commencer avec COD King !
+    watch_video: Regarder la vidéo
+    book_session: Séance de livre
+    chat_with_us: Discutez avec nous maintenant
+    settings: Paramètres
+    log: Journal
+    step1: Étape 1 - Commande passée contre remboursement
+    step1_desc: Le client passe une commande contre remboursement. L'application l'identifie comme commande contre remboursement.
+    step2: Étape 2 - L'application envoie un OTP au client par SMS
+    step2_desc: L'OTP unique est envoyé au numéro de téléphone portable du client.
+    step3: Étape 3 - Case OTP affichée sur la page de remerciement
+    step3_desc: Le client saisit OTP et clique sur Vérifier.
+    step4: Étape 4 - Filtrez vos commandes en fonction de ce tag.
+    step4_desc: Le client passe une commande contre remboursement. L'application l'identifie comme commande contre remboursement.
+    step5: Étape 5 - Réduction des frais d'expédition
+    step5_desc: Économisez sur les frais d'expédition en rejetant les fausses commandes L'argent économisé est de l'argent gagné.
+    logs: Journaux
+    order_logs: Journal des commandes
+    subscription: Abonnement
+    settings_saved: Paramètres enregistrés
+    settings_saved_msg: "Les modifications seront reflétées dans votre magasin dans quelques minutes."
+    activate_sms: Activer la confirmation <b>OTP</b>
+    activate_cod_fees: Activer <b>frais de remboursement</b>
+    sms_placeholder: 123456 est votre mot de passe unique pour confirmer la COD
+    ios_code_error: Le modèle doit inclure le mot clé « code » pour afficher OTP dans le clavier iOS
+    activate_ivr: Activer <b>IVR</b> Confirmation
+    intro_msg: Message d'introduction
+    intro_msg_placeholder: Merci d'avoir passé commande.
+    order_confirm_label: Message de confirmation de commande
+    order_confirm_placeholder: Veuillez appuyer sur 1 pour confirmer votre commande.
+    order_confirm_help: Guidez l'utilisateur à appuyer sur 1 pour confirmer la commande.
+    order_confirm_error: Le message de confirmation doit inclure « 1 » pour la confirmation de la commande
+    order_cancel_label: Message d'annulation de commande
+    order_cancel_placeholder: Veuillez appuyer sur 2 pour annuler votre commande.
+    order_cancel_help: Guide de l'utilisateur pour appuyer sur 2 pour annuler la commande.
+    order_cancel_error: Ce message doit inclure « 2 » pour l'annulation de la commande.
+    test_sms: "Test de notification SMS"
+    enter_test_number: Saisissez le numéro de test
+    sms_sent_check_mobile: SMS envoyé. S'il vous plaît vérifier votre mobile
+    enter_country_code: Veuillez entrer le numéro avec votre code pays lors du test ici
+    number_cc_example: par exemple %{number}
+    send_sms: Envoyer des SMS
+    message_template: Modèle de message
+    test_ivr: Tester l'appel IVR
+    cod_fees: Montant des frais de remboursement en
+    cod_fees_help: Montant que vous souhaitez ajouter si le client passe une commande contre remboursement.
+    cod_label: Étiquette à apposer pour les frais de remboursement
+    cod_label_help: Étiquette à afficher pour les frais supplémentaires
+    cod_instruction: Instructions de livraison contre remboursement
+    cod_instruction_help: Ce message sera affiché aux clients sur la page de remerciement lorsque la commande sera terminée.
+    please_check_mobile: S'il vous plaît vérifier votre mobile
+    call_now: Appelez maintenant
+    unsaved: Modifications non enregistrées
+    x_chars_used: "%{count} / %{total} caractères utilisés"
+    deactivate: Désactiver
+    save: Enregistrer
+    discard: Jeter
+    free_plan: Plan Gratuit
+    pro_plan: Plan Pro
+    vip_plan: Plan VIP
+    feature_1: commence $0.02 par SMS
+    feature_2: commence $0.04 par RVI
+    feature_3: 1 à 1 appel à bord
+    feature_4: Soutien prioritaire
+    feature_1_pro: Pour les magasins plus de 100 commandes COD par mois
+    custom_plan: Plan d'intégration des fournisseurs de réseaux
+    subscribe: S'abonner
+    subscribed: Abonné
+    recommended: Recommandé
+    sms_template_default: "{{otp}} est votre code de vérification pour confirmer la commande COD passée sur %{store}"
+    retry_template_default: "Merci d'avoir passé une commande COD sur %{store}. Merci de confirmer votre commande en visitant le lien {{link}} birdch"
+    prepaid_template_default: "convertir votre commande en prépayé en cliquant sur le lien. {{link}}"
+    order_confirm_template_default: "Merci pour votre achat sur %{store}. Votre commande a été confirmée - Numéro de commande {{number}}"
+    fulfilment_template_default: "Votre commande a été expédiée depuis %{store} - Suivez votre commande au {{tracking_url}}"
+    ivr_introduction: "Merci d'avoir passé commande sur %{domain}."
+    ivr_confirm_message: Veuillez appuyer sur 1 pour confirmer votre commande.
+    ivr_cancel_message: Veuillez appuyer sur 2 pour annuler votre commande.
+    confirmed_thank_you: Votre commande est confirmée, merci.
+    cancelled_thank_you: Votre commande est annulée, merci.
+    invalid_thank_you: Choix non valide, Veuillez réessayer, Merci.
+    no_logs_yet: Pas encore de journaux
+    try_changing_search: Essayez de modifier le terme de recherche
+    order: Commande
+    date: Date
+    customer: Client
+    total: Total
+    status: Statut
+    network: Réseau
+    prev: Précédent (J)
+    next: Suivant (K)
+    no_resource_found: Aucun %{resource} trouvé
+    search_resource: Rechercher %{resource} avec le numéro de commande ou le nom du client
+    all: Tous
+    enter_valid_phone: Veuillez saisir un numéro de téléphone valide
+    enable_region: S'il vous plaît contactez-nous pour permettre à votre région
+    x_total_orders: "%{count} total des commandes"
+    x_verified_orders: "%{count} commandes vérifiées"
+    x_pending_orders: "%{count} commandes en attente"
+    x_prepaid_orders: "%{count} commandes prépayées"
+    x_cancelled_orders: "%{count} commandes annulées"
+    order_stats: Statistiques de commande
+    boost_checkout: Checkout sans faille
+    recommended_setup_to: Configuration recommandée pour améliorer l'expérience de paiement
+    copy: Copier
+    copied: Copié
+    starts: Débute
+    ends: Les extrémités
+    recommended_steps: Étapes recommandées
+    checkout_settings: Accéder aux paramètres de paiement
+    additional_scripts_text_box: Et collez le texte ci-dessous dans <b>Scripts supplémentaires</b> zone de texte
+    one_time_pass: Mot de passe unique
+    customer_first_name: Prénom du client
+    order_total_amount: Montant total de la commande
+    link_text: Lien de confirmation de commande en un clic
+    available_variables: Variables disponibles à coller dans le modèle de message
+    free_limit_exhausted: Limite de test libre épuisée. Veuillez nous contacter pour renouveler.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} SMS facturés"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Frais d'utilisation créés"
+    x_ivr: "%{count} ivr"
+    refresh: Actualiser
+    complete_setup: Une dernière étape
+    complete_setup_msg: Paramètres enregistrés. Pour terminer la configuration, veuillez <b>vous abonner ici</b>.
+    view_plans: Afficher les plans
+    prepay_template: Modèle de prépaiement
+    send_payment_link: Lien de paiement
+    submit: Soumettre
+    bulk_submit: Soumettre en masse
+    amount: Montant
+    date_time: Date et heure
+    mobile: Mobile
+    something_went_wrong: Quelque chose s'est mal passé, réessayez plus tard.
+    message_sent: Message envoyé
+    send: Envoyer
+    cancel: Annuler
+    upto_x_orders: Jusqu'à %{count} commandes par mois
+    unlimited_orders: Nombre illimité de commandes à vérifier
+    export: Exporter
+    emailed_orders: Journaux envoyés à l'e-mail
+    comma_separated_order_ids: ID de commande séparés par des virgules
+    order_ids: "L'entrée est telle que : 3912951169177,3912951169178,391295116917"
+    bulk_verify: Vérification en masse
+    bulk_verify_template: "Bonjour %{name}, Veuillez cliquer sur le lien %{link} pour vérifier votre commande #%{number} sur %{amount} passée sur %{store}"
+    bulk_processing_title: Traitement des commandes groupées
+    bulk_processing_desc: Vous verrez vos commandes dans les journaux dans un moment donné.
+    bulk_processing_error: Quelque chose a mal tourné
+    bulk_processing_error_desc: Veuillez réessayer ou contactez-nous si le problème persiste.
+    reach_out_title: La fonctionnalité n'est pas encore activée.
+    reach_out_desc: Veuillez nous contacter pour activer cette fonctionnalité.
+    order_cancelled: La commande a été annulée
+    order_details_title: Détails de la commande (veuillez cliquer sur annuler ou confirmer)
+    react_out_to_us: Veuillez nous contacter pour les commandes groupées
+    react_out_locked_title: Approbation requise.
+    react_out_locked_desc: Veuillez nous contacter par e-mail <b>ou par chat</b> pour activer votre compte.
+    view_cost: Afficher le coût des SMS.
+    pricing_for_country: "Les frais SMS par défaut de l'application pour <b>%{country}</b> sont de <b>$%{charge}</b> par sms"
+    view_complete_pricing: Voir le tableau des prix pour tous les pays
+    chat_for_bulk_integration: Discutez avec nous pour obtenir des prix groupés ou une intégration personnalisée.
+    advance_settings: Paramètres avancés
+    link_settings: Paramètres des liens de vérification
+    show_cancel_button: Bouton Afficher l'annulation
+    show_cancel_button_help: pris en charge uniquement pendant le flux de vérification des liens.
+    auto_verify: Vérification automatique
+    auto_verify_help: Vérification automatique de la commande en cliquant sur le lien de vérification.
+    otp_settings: Paramètres OTP
+    max_retries: Nombre maximal de nouvelles tentatives de SMS par commande
+    otp_wait_time: Renvoyer le temps d'attente OTP
+    otp_fallback_text: Prise en charge OTP ou texte de secours
+    otp_fallback_text_help: HTML pris en charge
+    network_provider_integration: Intégration des fournisseurs de réseaux
+    network_provider: Fournisseur de réseau
+    required: Nécessaire
+    phone_number: Numéro de téléphone
+    integration_cost_reduce: L'intégration réduit votre coût global à près d'un tiers
+    need_help: Besoin d'aide ?
+    create_x_account: Créer %{brand} compte
+    x_configuration: "Configuration %{brand}"
+    need_more_sms: Discutez avec nous pour vous abonner et connaître les tarifs.
+    price_for_country: "%{price} $ par message en %{country}"
+    sms_cost_included: Coût SMS inclus
+    sms_cost_extra: Vous pouvez payer les SMS directement au fournisseur
+    view: Voir
+    order_number: Numéro de commande
+    get_access_token: Génération d'un jeton
+    goto_orders: Allez dans les commandes
+    whatsapp_approval_request_sent: Demande d'approbation WhatsApp envoyée
+    whatsapp_approval_request_sent_failure: 'Échec : - La demande d''approbation WhatsApp a échoué'
+  script:
+    submit: Soumettre
+    mobile_phone_number: Numéro sans 0 et code de pays
+    enter_valid_phone: Entrez un numéro de téléphone valide
+    verify_for_smooth_delivery: Veuillez vérifier votre numéro de téléphone pour une livraison facile de votre commande COD
+    click_verify_link: Un lien a été envoyé sur votre numéro - <b>%{number}</b>
+    enter_otp_msg: "Veuillez saisir l'OTP envoyé le <b>%{number}</b>"
+    enter_otp: Saisissez l'OTP
+    change: Changer
+    invalid_otp: OTP non valide, veuillez réessayer
+    resend_otp: Rendre l'OTP
+    confirm_order: Confirmer <b>COD</b>(paiement à la livraison) commande
+    sending: "Envoi..."
+    order_being_processed: Votre commande est en cours de traitement.
+    if_not_redirected: Si vous n'êtes pas automatiquement redirigé, actualisez cette page.
+    resend_in_x_seconds: "Renvoyer OTP en %{count} secondes"
+    max_retries_reached: Limite maximale de nouvelles tentatives atteinte.
+    order_details: Détails de la commande
+    send_code_on_whatsapp: Obtenez le code sur Whatsapp

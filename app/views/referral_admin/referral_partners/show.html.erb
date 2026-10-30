@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Referral Partner Details - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Referral Partner Details</h1>
+        <p class="text-gray-600 mt-2">View and manage partner information</p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to "Edit Partner", edit_referral_admin_partner_path(@partner), 
+                    class: "bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+        <%= link_to "Back to Partners", referral_admin_referral_partners_path, 
+                    class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Partner Information -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Basic Information Card -->
+        <div class="bg-white rounded-lg shadow">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Basic Information</h3>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Partner Name</label>
+                <p class="text-lg font-semibold text-gray-900"><%= @partner.name %></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Email Address</label>
+                <p class="text-lg text-gray-900"><%= @partner.email %></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Phone Number</label>
+                <p class="text-lg text-gray-900"><%= @partner.phone.present? ? @partner.phone : '—' %></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Partner ID</label>
+                <p class="text-lg text-gray-900">#<%= @partner.id %></p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Status</label>
+                <span class="<%= @partner.active? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %> px-3 py-1 rounded-full text-sm font-medium">
+                  <%= @partner.active? ? 'Active' : 'Inactive' %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Commission Rates Card -->
+        <div class="bg-white rounded-lg shadow">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Commission Rates</h3>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Subscription Rate</h4>
+                <p class="text-2xl font-bold text-blue-600"><%= @partner.subscription_commission_rate %>%</p>
+              </div>
+              <div class="text-center p-4 bg-green-50 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Usage Rate</h4>
+                <p class="text-2xl font-bold text-green-600"><%= @partner.usage_commission_rate %>%</p>
+              </div>
+              <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-500 mb-2">One-time Rate</h4>
+                <p class="text-2xl font-bold text-purple-600"><%= @partner.onetime_commission_rate %>%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shops Overview & List Card -->
+        <div class="bg-white rounded-lg shadow">
+          <div class="px-6 py-4 border-b flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Shops</h3>
+            <%= link_to "View all shops", referral_admin_shops_path, class: "text-sm text-blue-600 hover:underline" %>
+          </div>
+          <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div class="text-center p-4 bg-gray-50 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Total Shops</h4>
+                <p class="text-2xl font-bold text-gray-900"><%= @total_shops %></p>
+              </div>
+              <div class="text-center p-4 bg-green-50 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Approved</h4>
+                <p class="text-2xl font-bold text-green-600"><%= @approved_shops %></p>
+              </div>
+              <div class="text-center p-4 bg-yellow-50 rounded-lg">
+                <h4 class="text-sm font-medium text-gray-500 mb-2">Pending</h4>
+                <p class="text-2xl font-bold text-yellow-600"><%= @pending_shops %></p>
+              </div>
+            </div>
+            <% if @shops.any? %>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead>
+                    <tr class="border-b text-left text-gray-500">
+                      <th class="pb-2 pr-4">Shop domain</th>
+                      <th class="pb-2 pr-4">Status</th>
+                      <th class="pb-2 pr-4">Created</th>
+                      <th class="pb-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @shops.each do |shop| %>
+                      <tr class="border-b border-gray-100">
+                        <td class="py-3 pr-4 font-medium text-gray-900"><%= shop.shop_domain %><%= shop.shop_domain.include?('.myshopify.com') ? '' : '.myshopify.com' %></td>
+                        <td class="py-3 pr-4">
+                          <span class="<%= shop.approved? ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %> px-2 py-0.5 rounded text-xs font-medium">
+                            <%= shop.approved? ? 'Approved' : 'Pending' %>
+                          </span>
+                        </td>
+                        <td class="py-3 pr-4 text-gray-600"><%= shop.created_at.strftime("%b %d, %Y") %></td>
+                        <td class="py-3">
+                          <%= link_to "View", referral_admin_shop_path(shop), class: "text-blue-600 hover:underline" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <p class="text-gray-500 text-sm">No shops linked yet.</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Payout History Card -->
+        <div class="bg-white rounded-lg shadow">
+          <div class="px-6 py-4 border-b flex justify-between items-center">
+            <h3 class="text-lg font-semibold text-gray-800">Payout History</h3>
+            <%= link_to "All payouts", referral_admin_payouts_path, class: "text-sm text-blue-600 hover:underline" %>
+          </div>
+          <div class="p-6">
+            <% if @payouts.any? %>
+              <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                  <thead>
+                    <tr class="border-b text-left text-gray-500">
+                      <th class="pb-2 pr-4">Date</th>
+                      <th class="pb-2 pr-4">Amount</th>
+                      <th class="pb-2 pr-4">Status</th>
+                      <th class="pb-2 pr-4">Method</th>
+                      <th class="pb-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @payouts.each do |payout| %>
+                      <tr class="border-b border-gray-100">
+                        <td class="py-3 pr-4 text-gray-900"><%= payout.payout_date&.strftime("%b %d, %Y") %></td>
+                        <td class="py-3 pr-4 font-semibold text-green-600">$<%= number_with_precision(payout.total_amount, precision: 2) %></td>
+                        <td class="py-3 pr-4">
+                          <span class="px-2 py-0.5 rounded text-xs font-medium
+                            <%= case payout.status
+                                when 'completed' then 'bg-green-100 text-green-800'
+                                when 'pending', 'processing' then 'bg-yellow-100 text-yellow-800'
+                                when 'failed', 'cancelled' then 'bg-red-100 text-red-800'
+                                else 'bg-gray-100 text-gray-800'
+                                end %>">
+                            <%= payout.status&.humanize %>
+                          </span>
+                        </td>
+                        <td class="py-3 pr-4 text-gray-600"><%= payout.payment_method&.humanize %></td>
+                        <td class="py-3">
+                          <%= link_to "View", referral_admin_payout_path(payout), class: "text-blue-600 hover:underline" %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <p class="text-gray-500 text-sm">No payouts yet.</p>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Admin Notes Card -->
+        <div class="bg-white rounded-lg shadow" id="partner-notes-card">
+          <div class="px-6 py-4 border-b flex justify-between items-center">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800">Admin Notes</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Internal only &mdash; not visible to the partner.</p>
+            </div>
+            <span id="partner-notes-status" class="text-xs text-gray-500"></span>
+          </div>
+          <div class="p-6">
+            <%= form_with url: update_notes_referral_admin_partner_path(@partner), method: :patch, local: true, id: "partner-notes-form", class: "space-y-3" do |f| %>
+              <textarea name="referral_partner[notes]" id="partner-notes-input" rows="5"
+                        placeholder="Add notes about this partner (payment follow-ups, calls, agreements, etc.)"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 whitespace-pre-line"><%= @partner.notes %></textarea>
+              <div class="flex items-center justify-between">
+                <p class="text-xs text-gray-400">Tip: press Ctrl/Cmd + Enter to save.</p>
+                <button type="submit" id="partner-notes-save"
+                        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-medium disabled:opacity-50">
+                  Save Notes
+                </button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Commission Summary Card -->
+        <div class="bg-white rounded-lg shadow">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Commission Summary</h3>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Total Commission (All Time)</label>
+              <p class="text-2xl font-bold text-green-600">$<%= number_with_precision(@total_commission, precision: 2) %></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Last 30 Days</label>
+              <p class="text-lg font-semibold text-gray-900">$<%= number_with_precision(@commission_30_days, precision: 2) %></p>
+            </div>
+            <div class="pt-2 border-t">
+              <label class="block text-sm font-medium text-gray-500 mb-1">Unpaid (available for payout)</label>
+              <p class="text-xl font-semibold text-amber-600">$<%= number_with_precision(@total_unpaid, precision: 2) %></p>
+              <% if @pending_payout_summary && @pending_payout_summary[:total_amount].to_f > 0 %>
+                <% payout_amount = number_with_precision(@pending_payout_summary[:total_amount], precision: 2) %>
+                <% from_date = @pending_payout_summary[:earnings_from_date].to_date.strftime('%b %d, %Y') %>
+                <% to_date = @pending_payout_summary[:earnings_to_date].to_date.strftime('%b %d, %Y') %>
+                <form action="<%= create_payout_referral_admin_partner_path(@partner) %>" method="post" class="mt-3 w-full" onsubmit="return confirm('Create a payout of $<%= payout_amount %> for earnings from <%= from_date %> to <%= to_date %>?');">
+                  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+                  <button type="submit" class="w-full cursor-pointer bg-amber-600 text-white px-4 py-2 rounded hover:bg-amber-700 font-medium">
+                    Create Payout
+                  </button>
+                </form>
+              <% else %>
+                <p class="text-sm text-gray-500 mt-1">No unpaid earnings to payout.</p>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Partner Account Details Card -->
+        <div class="bg-white rounded-lg shadow">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Partner Account Details</h3>
+          </div>
+          <div class="p-6 space-y-4">
+            <% if @partner.has_account_details? %>
+              <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Payment Account</label>
+                <span class="<%= @partner.account_verified? ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' %> px-3 py-1 rounded-full text-sm font-medium">
+                  <%= @partner.account_verified? ? 'Verified' : 'Pending Verification' %>
+                </span>
+                <% if @partner.account_verified_at.present? %>
+                  <p class="text-xs text-gray-500 mt-1">Verified on <%= @partner.account_verified_at.strftime("%b %d, %Y") %></p>
+                <% end %>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-500 mb-1">Account Type</label>
+                <p class="text-sm font-medium text-gray-900"><%= @partner.account_type&.humanize %></p>
+              </div>
+              <% if @partner.account_type == 'bank' %>
+                <div class="space-y-2 pt-2 border-t">
+                  <p class="text-sm text-gray-700"><span class="text-gray-500">Bank:</span> <%= @partner.bank_name %></p>
+                  <p class="text-sm text-gray-700"><span class="text-gray-500">Account name:</span> <%= @partner.bank_account_name %></p>
+                  <p class="text-sm text-gray-700"><span class="text-gray-500">Account number:</span> <%= @partner.bank_account_number %></p>
+                  <p class="text-sm text-gray-700"><span class="text-gray-500">IFSC:</span> <%= @partner.bank_ifsc_code %></p>
+                </div>
+              <% elsif @partner.account_type == 'paypal' %>
+                <div class="pt-2 border-t">
+                  <p class="text-sm text-gray-700"><span class="text-gray-500">PayPal email:</span> <%= @partner.paypal_email %></p>
+                </div>
+              <% end %>
+            <% else %>
+              <p class="text-sm text-gray-500">No payment account details added yet.</p>
+            <% end %>
+            <div class="pt-2 border-t">
+              <label class="block text-sm font-medium text-gray-500 mb-1">Member Since</label>
+              <p class="text-sm text-gray-900"><%= @partner.created_at.strftime("%B %d, %Y") %></p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-500 mb-1">Last Updated</label>
+              <p class="text-sm text-gray-900"><%= @partner.updated_at.strftime("%B %d, %Y") %></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="bg-white rounded-lg shadow">
+          <div class="px-6 py-4 border-b">
+            <h3 class="text-lg font-semibold text-gray-800">Quick Actions</h3>
+          </div>
+          <div class="p-6 space-y-3">
+            <% if @partner.active? %>
+              <%= link_to "Deactivate Partner", toggle_active_referral_admin_partner_path(@partner), 
+                          method: :patch, 
+                          confirm: "Are you sure you want to deactivate this partner?",
+                          class: "block w-full text-center bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700" %>
+            <% else %>
+              <%= link_to "Activate Partner", toggle_active_referral_admin_partner_path(@partner), 
+                          method: :patch,
+                          confirm: "Are you sure you want to activate this partner?",
+                          class: "block w-full text-center bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700" %>
+            <% end %>
+            
+            <% if @partner.has_account_details? && !@partner.account_verified? %>
+              <%= link_to "Verify Account", verify_account_referral_admin_partner_path(@partner), 
+                          method: :patch,
+                          confirm: "Verify this partner's payment account?",
+                          class: "block w-full text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" %>
+            <% end %>
+            
+            <%= link_to "View Shops", referral_admin_shops_path, 
+                        class: "block w-full text-center bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var form = document.getElementById('partner-notes-form');
+      if (!form) return;
+      var input = document.getElementById('partner-notes-input');
+      var btn = document.getElementById('partner-notes-save');
+      var status = document.getElementById('partner-notes-status');
+      var saved = input.value;
+
+      function setStatus(text, cls) {
+        status.textContent = text;
+        status.className = 'text-xs ' + (cls || 'text-gray-500');
+      }
+
+      input.addEventListener('input', function () {
+        setStatus(input.value === saved ? '' : 'Unsaved changes', 'text-amber-600');
+      });
+
+      input.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          form.requestSubmit ? form.requestSubmit() : form.submit();
+        }
+      });
+
+      form.addEventListener('submit', function (e) {
+        if (!window.fetch) return; // fall back to a normal form post
+        e.preventDefault();
+        btn.disabled = true;
+        setStatus('Saving...', 'text-gray-500');
+        var body = new FormData(form);
+        fetch(form.action, {
+          method: 'POST',
+          body: body,
+          credentials: 'same-origin',
+          headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, json: j }; }); })
+          .then(function (res) {
+            if (res.ok && res.json.success) {
+              saved = input.value;
+              setStatus('Saved at ' + res.json.updated_at, 'text-green-600');
+            } else {
+              setStatus('Error: ' + (res.json.error || 'could not save'), 'text-red-600');
+            }
+          })
+          .catch(function (err) { setStatus('Error: ' + err.message, 'text-red-600'); })
+          .finally(function () { btn.disabled = false; });
+      });
+
+      window.addEventListener('beforeunload', function (e) {
+        if (input.value !== saved) { e.preventDefault(); e.returnValue = ''; }
+      });
+    })();
+  </script>
+</body>
+</html>

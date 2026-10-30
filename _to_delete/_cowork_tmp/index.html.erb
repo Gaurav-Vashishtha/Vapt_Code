@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Call Calendar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Call Calendar</h1>
+          <p class="text-sm text-gray-500">
+            <%= @date.strftime("%A, %d %b %Y") %> ·
+            Day owner: <span class="font-medium text-gray-700"><%= @day_owner.presence || "unassigned" %></span>
+          </p>
+        </div>
+        <div class="flex items-center gap-2">
+          <%= link_to "‹ Prev", support_dashboard_call_calendar_path(date: (@date - 1)), class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Today", support_dashboard_call_calendar_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Next ›", support_dashboard_call_calendar_path(date: (@date + 1)), class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Calendar", support_dashboard_call_calendar_month_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if flash[:notice].present? %>
+      <div class="mb-4 rounded-md bg-emerald-50 border border-emerald-200 px-4 py-2 text-sm text-emerald-800"><%= flash[:notice] %></div>
+    <% end %>
+    <% if flash[:alert].present? %>
+      <div class="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"><%= flash[:alert] %></div>
+    <% end %>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div class="bg-white rounded-lg p-4 border border-gray-200">
+        <div class="text-2xl font-bold text-gray-900"><%= @report[:attempted] %>/<%= @report[:target] %></div>
+        <div class="text-sm text-gray-500">Attempted</div>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-gray-200">
+        <div class="text-2xl font-bold text-gray-900"><%= @report[:connect_rate] %>%</div>
+        <div class="text-sm text-gray-500">Connect rate</div>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-gray-200">
+        <div class="text-2xl font-bold text-gray-900"><%= @report[:onboarded] %></div>
+        <div class="text-sm text-gray-500">Onboarded</div>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-gray-200">
+        <div class="text-2xl font-bold text-gray-900"><%= @report[:reonboarded] %></div>
+        <div class="text-sm text-gray-500">Reonboarded</div>
+      </div>
+      <div class="bg-white rounded-lg p-4 border border-gray-200">
+        <div class="text-2xl font-bold text-gray-900"><%= @report[:reminders_due_next] %></div>
+        <div class="text-sm text-gray-500">Callbacks next day</div>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <%= form_tag support_dashboard_call_calendar_path, method: :get, class: "flex items-center gap-2" do %>
+        <%= hidden_field_tag :date, @date %>
+        <%= text_field_tag :q, @query, placeholder: "Search by shop domain or phone number…", class: "flex-1 border border-gray-300 rounded px-3 py-2 text-sm" %>
+        <%= submit_tag "Search", class: "text-sm bg-gray-900 text-white rounded px-4 py-2 cursor-pointer" %>
+        <% if @query.present? %><%= link_to "Clear", support_dashboard_call_calendar_path(date: @date), class: "text-sm text-gray-500 hover:underline px-2" %><% end %>
+      <% end %>
+    </div>
+
+    <% if @search_row %>
+      <div class="mb-6 bg-white rounded-lg border-2 border-gray-300 p-4">
+        <% if @search_row[:found] %>
+          <%= render 'search_result', row: @search_row %>
+        <% else %>
+          <p class="text-sm text-gray-500">No shop found matching &ldquo;<%= @query %>&rdquo;.</p>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if @is_sunday %>
+      <div class="bg-white rounded-lg p-8 border border-gray-200 text-center text-gray-600">
+        No calling on Sundays. Pick another day or check the calendar.
+      </div>
+    <% elsif @todo_count.zero? && @done_count.zero? && @tab != "callbacks" %>
+      <div class="bg-white rounded-lg p-8 border border-gray-200 text-center">
+        <p class="text-gray-600 mb-4">No queue has been built for today yet.</p>
+        <%= form_tag call_calendar_build_path, method: :post do %>
+          <%= submit_tag "Build today's queue", class: "bg-sky-600 text-white text-sm font-medium rounded-md px-4 py-2 hover:bg-sky-700 cursor-pointer" %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="flex items-center justify-between border-b border-gray-200 mb-4">
+        <div class="flex items-center gap-1">
+          <%= link_to support_dashboard_call_calendar_path(date: @date, tab: "todo"),
+              class: "px-4 py-2 text-sm font-medium border-b-2 #{@tab == 'todo' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" do %>
+            Yet to be done (<%= @todo_count %>)
+          <% end %>
+          <%= link_to support_dashboard_call_calendar_path(date: @date, tab: "done"),
+              class: "px-4 py-2 text-sm font-medium border-b-2 #{@tab == 'done' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" do %>
+            Done (<%= @done_count %>)
+          <% end %>
+          <%= link_to support_dashboard_call_calendar_path(date: @date, tab: "callbacks"),
+              class: "px-4 py-2 text-sm font-medium border-b-2 #{@tab == 'callbacks' ? 'border-sky-500 text-sky-600' : 'border-transparent text-gray-500 hover:text-gray-700'}" do %>
+            Scheduled callbacks (<%= @callbacks_count %>)
+          <% end %>
+        </div>
+        <div class="flex items-center gap-2">
+          <% unless @tab == "callbacks" %>
+            <%= link_to "⬇ Download XLSX", call_calendar_export_path(date: @date, tab: @tab, page: @page), class: "mb-1 text-sm border border-gray-300 rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50" %>
+            <%= button_to "↻ Refresh queue", call_calendar_top_up_path(date: @date), method: :post, class: "mb-1 text-sm border border-gray-300 rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50" %>
+            <%= button_to "+ Get next 50", call_calendar_get_next_path(date: @date, tab: @tab, count: 50), method: :post, class: "mb-1 text-sm border border-gray-300 rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50" %>
+          <% end %>
+        </div>
+      </div>
+
+      <% if @tab == "callbacks" %>
+        <div class="flex items-center gap-2 mb-4">
+          <%= link_to support_dashboard_call_calendar_path(date: @date, tab: "callbacks", cb_team: "support"),
+              class: "text-sm rounded-full px-3 py-1 border #{@callback_team == 'support' ? 'bg-sky-600 text-white border-sky-600' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}" do %>
+            Support (<%= @support_callbacks_count %>)
+          <% end %>
+          <%= link_to support_dashboard_call_calendar_path(date: @date, tab: "callbacks", cb_team: "sales"),
+              class: "text-sm rounded-full px-3 py-1 border #{@callback_team == 'sales' ? 'bg-sky-600 text-white border-sky-600' : 'border-gray-300 text-gray-600 hover:bg-gray-50'}" do %>
+            Sales (<%= @sales_callbacks_count %>)
+          <% end %>
+        </div>
+
+        <% if @callback_rows.empty? %>
+          <div class="bg-white rounded-lg p-8 border border-gray-200 text-center text-gray-500">
+            No <%= @callback_team %> callbacks scheduled.
+          </div>
+        <% else %>
+        <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+          <% @callback_rows.each do |row| %>
+            <% reminder = row[:reminder] %>
+            <details class="group">
+              <summary class="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-gray-50 list-none">
+                <span class="w-28 shrink-0 text-sm <%= row[:overdue] ? "text-red-600 font-semibold" : "text-gray-700" %>">
+                  <%= reminder.due_on.strftime("%d %b %Y") %>
+                  <% if row[:overdue] %><span class="block text-xs text-red-500">Overdue</span><% end %>
+                </span>
+                <span class="flex-1 min-w-0">
+                  <span class="font-medium text-gray-900 truncate block"><%= row[:display_domain] %></span>
+                  <% if reminder.note.present? %><span class="block text-xs text-gray-500 truncate"><%= reminder.note %></span><% end %>
+                  <span class="block text-xs text-gray-400">Set by <%= reminder.created_by.presence || "—" %></span>
+                </span>
+                <span class="text-sm text-gray-700 w-36 hidden md:block">
+                  <% if row[:phone].present? %><a href="tel:<%= row[:phone] %>" class="text-sky-600 hover:underline" onclick="event.stopPropagation()"><%= row[:phone] %></a><% else %>—<% end %>
+                </span>
+              </summary>
+
+              <%= render "row_detail",
+                    crisp_url: row[:crisp_url], admin_path: row[:admin_path], store_url: row[:store_url],
+                    last_contact: row[:last_contact], reminders: row[:reminders], events: row[:events],
+                    domain: reminder.shopify_domain, shop_id: row[:shop_id], segment: row[:segment],
+                    call_target_id: nil, cps: nil, default_team: @callback_team,
+                    plan_label: row[:plan_label], plan_active: row[:plan_active], features: row[:features] %>
+
+              <div class="px-4 pb-4 -mt-2 bg-gray-50 flex items-center gap-2">
+                <span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600"><%= reminder.team_label %> team</span>
+                <%= button_to "✓ Mark this callback done", call_calendar_reminder_complete_path(reminder.id, date: @date, tab: "callbacks", cb_team: @callback_team), method: :post, class: "text-xs border border-gray-300 rounded px-3 py-1 text-gray-700 hover:bg-gray-50 cursor-pointer" %>
+              </div>
+            </details>
+          <% end %>
+        </div>
+        <% end %>
+
+        <% if @has_prev || @has_more %>
+          <div class="flex items-center justify-between mt-4">
+            <span class="text-sm text-gray-500">
+              Showing <%= @range_start %>–<%= @range_end %> of <%= @total_visible %>
+            </span>
+            <div class="flex items-center gap-2">
+              <% if @has_prev %>
+                <%= link_to "‹ Previous 50",
+                    support_dashboard_call_calendar_path(date: @date, tab: @tab, cb_team: @callback_team, q: @query.presence, page: @page - 1),
+                    class: "text-sm border border-gray-300 rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50" %>
+              <% end %>
+              <% if @has_more %>
+                <%= link_to "Next 50 ›",
+                    support_dashboard_call_calendar_path(date: @date, tab: @tab, cb_team: @callback_team, q: @query.presence, page: @page + 1),
+                    class: "text-sm border border-gray-300 rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50" %>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+      <% if @rows.empty? %>
+        <div class="bg-white rounded-lg p-8 border border-gray-200 text-center text-gray-500">
+          Nothing in this tab.
+        </div>
+      <% else %>
+      <div class="bg-white rounded-lg border border-gray-200 divide-y divide-gray-100">
+        <% @rows.each do |row| %>
+          <% target = row[:target] %>
+          <details class="group">
+            <summary class="flex items-center gap-4 px-4 py-3 cursor-pointer hover:bg-gray-50 list-none">
+              <span class="text-sm font-semibold text-gray-400 w-6"><%= target.rank %></span>
+              <span class="flex-1 min-w-0">
+                <span class="flex items-center gap-2">
+                  <span class="font-medium text-gray-900 truncate"><%= row[:display_domain] %></span>
+                  <% badge = { "new_install" => "bg-blue-100 text-blue-700", "active" => "bg-emerald-100 text-emerald-700", "churned" => "bg-red-100 text-red-700" }[target.segment] %>
+                  <span class="text-xs px-2 py-0.5 rounded-full <%= badge %>"><%= target.segment_label %></span>
+                  <% if row[:due] %><span class="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">Callback due</span><% end %>
+                  <% if target.status == "attempted" %><span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Done</span><% end %>
+                  <% if target.status == "skipped" %><span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">Skipped</span><% end %>
+                </span>
+                <span class="block text-xs text-gray-500 truncate"><%= target.reason_list.join(" · ") %></span>
+              </span>
+              <span class="text-sm text-gray-700 w-32 hidden md:block">
+                <% if row[:phone].present? %><a href="tel:<%= row[:phone] %>" class="text-sky-600 hover:underline"><%= row[:phone] %></a><% else %>—<% end %>
+              </span>
+              <span class="text-right w-20">
+                <span class="text-sm font-semibold text-gray-900"><%= target.cps %></span>
+                <span class="block text-xs text-gray-400">V<%= target.value_score %>/U<%= target.urgency_score %></span>
+              </span>
+            </summary>
+
+            <%= render "row_detail",
+                  crisp_url: row[:crisp_url], admin_path: row[:admin_path], store_url: row[:store_url],
+                  last_contact: row[:last_contact], reminders: row[:reminders], events: row[:events],
+                  domain: target.shopify_domain, shop_id: target.shop_id, segment: target.segment,
+                  call_target_id: target.id, cps: target.cps,
+                  plan_label: row[:plan_label], plan_active: row[:plan_active], features: row[:features] %>
+          </details>
+        <% end %>
+      </div>
+
+      <% if @has_prev || @has_more %>
+        <div class="flex items-center justify-between mt-4">
+          <span class="text-sm text-gray-500">
+            Showing <%= @range_start %>–<%= @range_end %> of <%= @total_visible %>
+          </span>
+          <div class="flex items-center gap-2">
+            <% if @has_prev %>
+              <%= link_to "‹ Previous 50",
+                  support_dashboard_call_calendar_path(date: @date, tab: @tab, q: @query.presence, page: @page - 1),
+                  class: "text-sm border border-gray-300 rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50" %>
+            <% end %>
+            <% if @has_more %>
+              <%= link_to "Next 50 ›",
+                  support_dashboard_call_calendar_path(date: @date, tab: @tab, q: @query.presence, page: @page + 1),
+                  class: "text-sm border border-gray-300 rounded-md px-3 py-1.5 text-gray-700 hover:bg-gray-50" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
+</body>
+</html>

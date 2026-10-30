@@ -1,0 +1,40 @@
+<h2>Weekly Churn Digest</h2>
+<p><strong>Week ending <%= Date.current.strftime('%d %b %Y') %></strong></p>
+
+<h3>Headline</h3>
+<ul>
+  <li>Active shops: <%= @kpis[:active_shops] %></li>
+  <li>New installs: <%= @kpis[:new_installs] %> &nbsp;|&nbsp; Uninstalls: <%= @kpis[:uninstalls] %> &nbsp;|&nbsp; Reinstalls: <%= @kpis[:reinstalls] %></li>
+  <li>Logo churn: <%= @kpis[:logo_churn_rate] %>% &nbsp;|&nbsp; Net logo churn: <%= @kpis[:net_logo_churn_rate] %>%</li>
+  <li>MRR: $<%= @kpis[:mrr] %> (prev $<%= @kpis[:mrr_prev] %>) &nbsp;|&nbsp; Net revenue churn: <%= @kpis[:net_revenue_churn_rate] %>%</li>
+  <li>At-risk shops: <%= @kpis[:at_risk_count] %></li>
+</ul>
+
+<h3>Top churn reasons</h3>
+<ul>
+  <% Array(@reasons).first(8).each do |reason, count| %>
+    <li><%= reason %> — <%= count %></li>
+  <% end %>
+</ul>
+
+<h3>Retention by install cohort</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+  <tr><th>Cohort</th><th>Size</th><th>D7</th><th>D30</th><th>D60</th><th>D90</th></tr>
+  <% @cohorts.each do |c| %>
+    <tr>
+      <td><%= c[:cohort] %></td><td><%= c[:size] %></td>
+      <td><%= c[:d7] %>%</td><td><%= c[:d30] %>%</td><td><%= c[:d60] %>%</td><td><%= c[:d90] %>%</td>
+    </tr>
+  <% end %>
+</table>
+
+<h3>Biggest at-risk accounts</h3>
+<table border="1" cellpadding="6" cellspacing="0">
+  <tr><th>Shop</th><th>Band</th><th>Score</th><th>MRR</th><th>Recommended action</th></tr>
+  <% @worklist.each do |w| %>
+    <tr>
+      <td><%= w[:domain] %></td><td><%= w[:band] %></td><td><%= w[:score] %></td>
+      <td>$<%= w[:mrr] %></td><td><%= w[:recommended_action] %></td>
+    </tr>
+  <% end %>
+</table>

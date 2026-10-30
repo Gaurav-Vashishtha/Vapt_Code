@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - Follow-ups</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Monitor and manage merchant support requests</p>
+        </div>
+        <%= link_to support_dashboard_followups_path,
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Refresh
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Navigation -->
+    <div class="mb-6">
+      <%= link_to support_dashboard_path, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+        ← Back to Dashboard
+      <% end %>
+    </div>
+
+    <!-- Content -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :followups %>
+        </nav>
+      </div>
+
+      <div class="p-6">
+        <div class="mb-6">
+          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h2 class="text-lg font-medium text-gray-900 mb-1">Follow-ups</h2>
+              <p class="text-sm text-gray-600">
+                Review and resolve follow-ups across all tabs.
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <%= link_to new_custom_follow_up_path,
+                  class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2" do %>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Create Custom Follow-up
+              <% end %>
+              <span class="text-sm text-gray-600">Filter:</span>
+              <%= link_to "Pending", support_dashboard_followups_path(status: 'pending'),
+                  class: "px-3 py-1 rounded-md text-sm font-medium #{ @status_filter == 'pending' ? 'bg-yellow-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }" %>
+              <%= link_to "Resolved", support_dashboard_followups_path(status: 'resolved'),
+                  class: "px-3 py-1 rounded-md text-sm font-medium #{ @status_filter == 'resolved' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }" %>
+            </div>
+          </div>
+        </div>
+
+        <% if @follow_ups.any? %>
+          <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Shop</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Source Tab</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Created At</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide">Note</th>
+                  <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide"><%= @status_filter == 'resolved' ? 'Resolved At' : 'Resolve' %></th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @follow_ups.each do |follow_up| %>
+                  <% domain = follow_up.owner_domain.to_s %>
+                  <tr class="border-b border-gray-100 hover:bg-gray-50">
+                    <td class="py-4 px-6">
+                      <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-yellow-500 flex items-center justify-center text-white text-sm font-medium">
+                          <%= domain[0..1].upcase %>
+                        </div>
+                        <div>
+                          <div class="font-medium text-gray-900">
+                            <%= link_to "https://#{domain}", "https://#{domain}",
+                                target: "_blank",
+                                class: "text-blue-600 hover:text-blue-800 hover:underline break-all" %>
+                          </div>
+                          <div class="text-sm text-gray-500"><%= follow_up.owner_display_name || 'Shopify Store' %><%= ' · uninstalled' if follow_up.shop.nil? %></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-900"><%= follow_up.source_tab %></td>
+                    <td class="py-4 px-6 text-sm text-gray-500">
+                      <div><%= follow_up.created_at.strftime("%b %d, %Y") %></div>
+                      <div class="text-xs"><%= follow_up.created_at.strftime("%I:%M %p") %></div>
+                    </td>
+                    <td class="py-4 px-6">
+                      <div class="space-y-3">
+                        <div class="border border-yellow-100 bg-yellow-50 rounded-md p-3 text-sm text-gray-900">
+                          <% if @status_filter == 'resolved' %>
+                            <p class="font-medium text-gray-700 mb-1">Resolution Notes</p>
+                            <p><%= follow_up.resolved_notes %></p>
+                          <% else %>
+                            <p class="font-medium text-gray-700 mb-1">Pending Note</p>
+                            <p><%= follow_up.notes %></p>
+                          <% end %>
+                        </div>
+
+                        <!-- Comments Section -->
+                        <% comments = follow_up.follow_up_comments.oldest_first %>
+                        <% if comments.any? %>
+                          <div class="border border-blue-100 bg-blue-50 rounded-md p-3">
+                            <p class="font-medium text-gray-700 mb-2 text-xs">Comments</p>
+                            <div class="space-y-2">
+                              <% comments.each do |comment| %>
+                                <div class="bg-white rounded p-2 border border-blue-200">
+                                  <p class="text-sm text-gray-900"><%= comment.comment %></p>
+                                  <p class="text-xs text-gray-500 mt-1">
+                                    <%= comment.created_at.strftime("%b %d, %Y %I:%M %p") %>
+                                  </p>
+                                </div>
+                              <% end %>
+                            </div>
+                          </div>
+                        <% end %>
+
+                        <!-- Comment Form -->
+                        <div class="border border-gray-200 bg-gray-50 rounded-md p-3">
+                          <p class="font-medium text-gray-700 mb-2 text-xs">Add Comment</p>
+                          <%= form_with url: support_dashboard_follow_up_comments_path(follow_up),
+                              scope: :follow_up_comment, method: :post, local: true, class: "space-y-2" do |f| %>
+                            <%= f.text_area :comment,
+                                rows: 2,
+                                required: true,
+                                placeholder: "Add a comment...",
+                                class: "w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                            <div class="flex items-center gap-2">
+                              <%= f.text_field :commented_by,
+                                  placeholder: "Your name (optional)",
+                                  class: "flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                              <%= f.submit "Add Comment",
+                                  class: "bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md text-sm font-medium" %>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-4 px-6">
+                      <% if @status_filter == 'resolved' %>
+                        <div class="text-sm text-gray-500">
+                          <div><%= follow_up.resolved_at&.strftime("%b %d, %Y") %></div>
+                          <div class="text-xs"><%= follow_up.resolved_at&.strftime("%I:%M %p") %></div>
+                          <% if follow_up.resolved_by.present? %>
+                            <div class="text-xs mt-1 text-gray-600">By <%= follow_up.resolved_by %></div>
+                          <% end %>
+                        </div>
+                      <% else %>
+                        <%= form_with url: resolve_support_dashboard_follow_up_path(follow_up),
+                            scope: :follow_up, method: :patch, local: true, class: "space-y-2" do |f| %>
+                          <%= hidden_field_tag :resolved_source_tab, "Follow-ups" %>
+                          <%= f.text_area :resolved_notes,
+                              rows: 2,
+                              required: true,
+                              placeholder: "Add resolution note...",
+                              class: "w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+                          <div class="flex items-center gap-2">
+                            <%= f.text_field :resolved_by,
+                                placeholder: "Your name (optional)",
+                                class: "flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-green-500" %>
+                            <%= f.submit "Resolve",
+                                class: "bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium" %>
+                          </div>
+                        <% end %>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-6">
+            <%= paginate @follow_ups if respond_to?(:paginate) %>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No pending follow-ups</h3>
+            <p class="mt-1 text-sm text-gray-500">Great job! Every follow-up has been resolved.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+

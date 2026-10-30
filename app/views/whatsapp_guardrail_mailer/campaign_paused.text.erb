@@ -1,0 +1,11 @@
+<%= copy('greeting', name: @owner) %>
+
+<%= copy("body_#{@reason}", name: @campaign_name, number: @number.to_s) %>
+
+<%= copy("what_to_do_#{@reason}") %>
+
+<%= copy('resume_note') %>
+
+<%= copy('open_app') %>: <%= @admin_url %>
+
+<%= strip_tags(copy('sign_off_html').gsub('<br/>', "\n")) %>

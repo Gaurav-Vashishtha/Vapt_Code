@@ -1,0 +1,192 @@
+<style>
+  .contact-page {
+    max-width: 760px;
+    margin: 40px auto;
+    padding: 0 16px;
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color: #111827;
+  }
+  .contact-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    padding: 28px;
+  }
+  .contact-logo-wrap {
+    margin-bottom: 14px;
+  }
+  .contact-logo {
+    display: block;
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+  }
+  .contact-title {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    line-height: 1.2;
+  }
+  .contact-subtitle {
+    margin: 0 0 22px 0;
+    color: #4b5563;
+    font-size: 16px;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+    color: #111827;
+  }
+  .form-input {
+    width: 100%;
+    padding: 12px 13px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #111827;
+    transition: border-color 120ms ease, box-shadow 120ms ease;
+    box-sizing: border-box;
+  }
+  .form-input:focus {
+    outline: none;
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.12);
+  }
+  .form-input::placeholder { color: #9ca3af; }
+  textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+  }
+  .alert-success {
+    padding: 12px 14px;
+    background: #ecfdf3;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .alert-error {
+    padding: 12px 14px;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    border-radius: 10px;
+    margin-bottom: 16px;
+  }
+  .submit-btn {
+    background: #111827;
+    color: #ffffff;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .submit-btn:hover { background: #000000; }
+</style>
+
+<div class="contact-page">
+  <div class="contact-card">
+    <div class="contact-logo-wrap">
+      <img
+        src="https://cdn.shopify.com/s/files/1/0655/2089/4070/files/with_bg_logo2.png?v=1770038556"
+        alt="COD King"
+        class="contact-logo"
+      />
+    </div>
+    <h1 class="contact-title">Contact Us</h1>
+    <p class="contact-subtitle">
+      Share your details and the COD King team will reach out to you 1-1.
+    </p>
+
+    <% if notice.present? %>
+      <div class="alert-success"><%= notice %></div>
+    <% end %>
+
+    <% if @lead_collection.errors.any? %>
+      <div class="alert-error">
+        <strong>Please fix the following:</strong>
+        <ul style="margin: 8px 0 0 18px;">
+          <% @lead_collection.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @lead_collection, url: lead_collections_path, local: true do |f| %>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <%= f.email_field :email, required: true, class: "form-input", placeholder: "you@example.com" %>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Preferred WhatsApp Mobile Number</label>
+        <%= f.telephone_field :phone_number, required: true, class: "form-input", placeholder: "e.g. 91301231291" %>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Purpose</label>
+        <%= f.select :purpose,
+          [
+            ["Book a product demo", "product_demo"],
+            ["Facing an issue", "facing_issue"],
+            ["Help with setup", "setup_help"],
+            ["Pricing query", "pricing_query"],
+            ["Integration support", "integration_support"],
+            ["I am an agency and want to learn about referral program", "agency_referral_program"],
+            ["Other", "other"]
+          ],
+          { prompt: "Select purpose" },
+          { required: true, class: "form-input" } %>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Preferred Time to Connect</label>
+        <%= f.text_field :preferred_time_to_connect, required: true, class: "form-input", placeholder: "e.g. Mar 25, 2026 | 3:00 PM - 5:00 PM IST" %>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes (optional)</label>
+        <%= f.text_area :notes, class: "form-input", placeholder: "Share any additional details...", rows: 4 %>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label">Website (optional)</label>
+        <%= f.url_field :website, class: "form-input", placeholder: "https://yourstore.com" %>
+      </div>
+
+      <%= f.submit "Schedule Free Callback", class: "submit-btn", id: "lead-submit-btn" %>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var purposeSelect = document.getElementById("lead_collection_purpose");
+    var submitBtn = document.getElementById("lead-submit-btn");
+    if (!purposeSelect || !submitBtn) return;
+
+    var labelByPurpose = {
+      product_demo: "Schedule Free Demo Call",
+      facing_issue: "Request Issue Support Call",
+      setup_help: "Schedule Setup Assistance Call",
+      pricing_query: "Schedule Pricing Discussion",
+      integration_support: "Schedule Integration Support Call",
+      agency_referral_program: "Schedule Referral Program Discussion",
+      other: "Schedule Free Callback"
+    };
+
+    function updateSubmitLabel() {
+      var value = purposeSelect.value;
+      submitBtn.value = labelByPurpose[value] || "Schedule Free Callback";
+    }
+
+    purposeSelect.addEventListener("change", updateSubmitLabel);
+    updateSubmitLabel();
+  })();
+</script>

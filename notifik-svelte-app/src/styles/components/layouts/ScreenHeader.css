@@ -1,0 +1,110 @@
+.screen-header {
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  z-index: 1 !important;
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.header-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+  min-height: 52px;
+  padding: 0 48px;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.header-action {
+  --header-icon-color: var(--color-text-primary);
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-base);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.header-action--back {
+  left: 8px;
+}
+
+.header-action:hover {
+  background: var(--color-secondary);
+  color: var(--color-text-primary);
+}
+
+.logo-image {
+  width: auto;
+  max-width: 130px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.logo-image.logo-image--wide {
+  max-width: 150px;
+}
+
+.logo-image.logo-image--square {
+  width: 28px;
+  max-width: 28px;
+  height: 28px;
+  border-radius: var(--radius-base);
+}
+
+.brand-title {
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-primary);
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-promo-banner {
+  display: block;
+  width: 100%;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.header-promo-banner .promo-banner--default {
+  border-radius: 0;
+  margin-left: 0;
+  margin-right: 0;
+  width: 100%;
+}
+
+/* Mobile styles are in ScreenHeader.mobile.css */

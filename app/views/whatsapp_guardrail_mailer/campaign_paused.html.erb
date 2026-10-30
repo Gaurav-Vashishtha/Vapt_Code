@@ -1,0 +1,11 @@
+<p><%= copy('greeting', name: @owner) %></p>
+
+<p><%= copy("body_#{@reason}", name: @campaign_name, number: @number.to_s) %></p>
+
+<p><%= copy("what_to_do_#{@reason}") %></p>
+
+<p><%= copy('resume_note') %></p>
+
+<p><a href="<%= @admin_url %>"><%= copy('open_app') %></a></p>
+
+<p><%= copy('sign_off_html').html_safe %></p>

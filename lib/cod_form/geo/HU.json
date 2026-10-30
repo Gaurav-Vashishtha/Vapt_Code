@@ -1,0 +1,198 @@
+{
+  "country": "HU",
+  "shopify_provinces": false,
+  "provinces": [
+    {
+      "code": "BU",
+      "name": "Budapest"
+    },
+    {
+      "code": "BK",
+      "name": "Bács-Kiskun"
+    },
+    {
+      "code": "BA",
+      "name": "Baranya"
+    },
+    {
+      "code": "BE",
+      "name": "Békés"
+    },
+    {
+      "code": "BZ",
+      "name": "Borsod-Abaúj-Zemplén"
+    },
+    {
+      "code": "CS",
+      "name": "Csongrád-Csanád"
+    },
+    {
+      "code": "FE",
+      "name": "Fejér"
+    },
+    {
+      "code": "GS",
+      "name": "Győr-Moson-Sopron"
+    },
+    {
+      "code": "HB",
+      "name": "Hajdú-Bihar"
+    },
+    {
+      "code": "HE",
+      "name": "Heves"
+    },
+    {
+      "code": "JN",
+      "name": "Jász-Nagykun-Szolnok"
+    },
+    {
+      "code": "KE",
+      "name": "Komárom-Esztergom"
+    },
+    {
+      "code": "NO",
+      "name": "Nógrád"
+    },
+    {
+      "code": "PE",
+      "name": "Pest"
+    },
+    {
+      "code": "SO",
+      "name": "Somogy"
+    },
+    {
+      "code": "SZ",
+      "name": "Szabolcs-Szatmár-Bereg"
+    },
+    {
+      "code": "TO",
+      "name": "Tolna"
+    },
+    {
+      "code": "VA",
+      "name": "Vas"
+    },
+    {
+      "code": "VE",
+      "name": "Veszprém"
+    },
+    {
+      "code": "ZA",
+      "name": "Zala"
+    }
+  ],
+  "cities": {
+    "mode": "by_province",
+    "list": [
+
+    ],
+    "by_province": {
+      "BU": [
+        "Budapest"
+      ],
+      "BK": [
+        "Kecskemét",
+        "Baja",
+        "Kiskunfélegyháza",
+        "Kiskunhalas"
+      ],
+      "BA": [
+        "Pécs",
+        "Komló",
+        "Mohács"
+      ],
+      "BE": [
+        "Békéscsaba",
+        "Gyula",
+        "Orosháza"
+      ],
+      "BZ": [
+        "Miskolc",
+        "Ózd",
+        "Kazincbarcika"
+      ],
+      "CS": [
+        "Szeged",
+        "Hódmezővásárhely",
+        "Szentes",
+        "Makó"
+      ],
+      "FE": [
+        "Székesfehérvár",
+        "Dunaújváros"
+      ],
+      "GS": [
+        "Győr",
+        "Sopron",
+        "Mosonmagyaróvár"
+      ],
+      "HB": [
+        "Debrecen",
+        "Hajdúböszörmény",
+        "Hajdúszoboszló"
+      ],
+      "HE": [
+        "Eger",
+        "Gyöngyös",
+        "Hatvan"
+      ],
+      "JN": [
+        "Szolnok",
+        "Jászberény",
+        "Törökszentmiklós"
+      ],
+      "KE": [
+        "Tatabánya",
+        "Esztergom",
+        "Tata",
+        "Komárom"
+      ],
+      "NO": [
+        "Salgótarján",
+        "Balassagyarmat"
+      ],
+      "PE": [
+        "Érd",
+        "Dunakeszi",
+        "Szigetszentmiklós",
+        "Cegléd",
+        "Vác",
+        "Gödöllő",
+        "Budaörs",
+        "Szentendre"
+      ],
+      "SO": [
+        "Kaposvár",
+        "Siófok"
+      ],
+      "SZ": [
+        "Nyíregyháza",
+        "Mátészalka",
+        "Kisvárda"
+      ],
+      "TO": [
+        "Szekszárd",
+        "Paks",
+        "Dombóvár"
+      ],
+      "VA": [
+        "Szombathely",
+        "Sárvár",
+        "Körmend"
+      ],
+      "VE": [
+        "Veszprém",
+        "Pápa",
+        "Ajka",
+        "Balatonfüred"
+      ],
+      "ZA": [
+        "Zalaegerszeg",
+        "Nagykanizsa",
+        "Keszthely"
+      ]
+    }
+  }
+}

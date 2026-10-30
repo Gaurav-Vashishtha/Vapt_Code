@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; margin: 0; padding: 0; background-color: #f2f2f2; }
+      p { margin-bottom: 20px; color: #333333; font-size: 18px; }
+      a { color: #ff6600; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .btn { background-color: #ff6600; color: #ffffff; padding: 12px 24px; border-radius: 5px; text-decoration: none; display: inline-block; transition: all 0.3s ease; }
+      .btn:hover { background-color: #4d4d4d; color: #ffffff; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 10px; background-color: #ffffff; }
+      h1 { font-size: 24px; font-weight: 700; margin-top: 0; margin-bottom: 30px; color: #ff6600; text-align: center; }
+      ul { margin-bottom: 20px; color: #333333; font-size: 18px; padding-left: 24px; }
+      .small-text { font-size: 18px; color: #333333; margin-bottom: 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Thank you for upgrading to COD King!</h1>
+
+      <p>Hello <%= @name %>,</p>
+
+      <p>
+        Thank you for purchasing COD King. Your support and trust mean a lot to us. As a paid plan member, you now have access to:
+      </p>
+
+      <ul>
+        <li>24/7 Priority Support</li>
+        <li>Free installation service</li>
+        <li>Free onboarding sessions</li>
+      </ul>
+
+      <p>
+        Explore our step-by-step guides and resources to get the most out of COD King:
+      </p>
+
+      <p style="text-align: center;">
+        <a href="https://codking.tech/documentation/" target="_blank" class="btn">View documentation</a>
+      </p>
+
+      <p>
+        To book an exclusive onboarding session with us, <a href="https://calendly.com/birdchime/meet" target="_blank">click here</a>.
+      </p>
+
+      <p>
+        Need help? Chat with us instantly:
+      </p>
+
+      <p style="text-align: center;">
+        <a href="<%= @crisp_url %>" target="_blank" class="btn">Chat with us now!</a>
+      </p>
+
+      <p>We value your feedback and are committed to making COD King the best COD app for your store.</p>
+      <p>Looking forward to a long-term partnership with <strong><%= @owner_name %></strong>.</p>
+
+      <p class="small-text">Best regards,</p>
+      <p class="small-text">The COD King Team</p>
+    </div>
+  </body>
+</html>

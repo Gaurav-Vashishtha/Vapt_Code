@@ -1,0 +1,59 @@
+.phone-screen {
+  display: flex;
+  justify-content: center;
+  font-family: var(--font-family-base);
+  background: #f8f8f800;
+  align-items: center;
+  height: 100%;
+  min-height: 100%;
+}
+
+.phone-screen.in-bottom-sheet {
+  padding: 0;
+  background: transparent;
+  width: 100%;
+  align-items: stretch;
+  height: 100%;
+  min-height: 100%;
+}
+
+.device-frame {
+  width: 474px;
+  max-width: 474px;
+  min-width: 474px;
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid var(--hairline);
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* NOTE: Avoid transform on the app root container.
+     A transformed ancestor breaks `position: fixed` children (e.g. BottomSlider). */
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 100%;
+  flex: 1;
+}
+
+.device-frame.in-bottom-sheet {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 0;
+  border: none;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+  min-height: 100%;
+  flex: 1;
+}
+
+/* Promo banner styles moved to PromoBanner component */
+
+/* Mobile and Desktop styles are in separate files:
+ * - ScreenLayout.mobile.css (for viewport <= 640px)
+ * - ScreenLayout.desktop.css (for viewport >= 641px)
+ */

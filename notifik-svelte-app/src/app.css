@@ -1,0 +1,423 @@
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/metropolis@5.3.0/400.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/metropolis@5.3.0/500.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/metropolis@5.3.0/600.css");
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/metropolis@5.3.0/700.css");
+@import "tailwindcss";
+
+/* Explicit source path: ensures all src/ components are scanned for Tailwind
+   classes when build runs from monorepo root or different cwd. */
+@source "./";
+
+/* Motion: modal open, success scale-in, loader dot (Tailwind-only animations) */
+@theme {
+  --animate-modal-in: modal-in 250ms ease-out forwards;
+  --animate-success-in: success-in 300ms ease-out forwards;
+  --animate-dot-step: dot-step 1s ease-in-out infinite;
+
+  @keyframes modal-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes success-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes dot-step {
+    0%, 100% {
+      transform: scale(0.85);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-modal-in,
+  .animate-success-in,
+  .animate-dot-step {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+:root {
+  --color-primary: #111111;
+  --color-primary-hover: #0d0d0d;
+  --color-primary-active: #000000;
+  --color-blue: #3173e3;
+  --color-blue-hover: #245fc4;
+  --color-secondary: #f5f5f5;
+  --color-secondary-hover: #eaeaea;
+  --color-border: #eceff4;
+  --color-border-strong: #e2e6ee;
+  --color-divider: #eceff4;
+  --color-text-primary: #2f2f2f;
+  --color-text-secondary: #404040;
+  --color-text-muted: #7e7e7e;
+  --color-placeholder: #d4d4d4;
+  --color-background: #f9fafd;
+  --color-background-muted: #f2f4f8;
+  --color-overlay: rgba(0, 0, 0, 0.45);
+  --color-success: #12b76a;
+  --color-error: #f04438;
+  --font-family-base: "Metropolis";
+  --font-size-caption: 11px;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --font-size-hero: 40px;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --line-height-tight: 120%;
+  --line-height-normal: 140%;
+  --line-height-relaxed: 160%;
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --radius-sm: 4px;
+  --radius-base: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+  /* Elevation (subtle, modern) */
+  --shadow-xs: 0px 1px 2px rgba(17, 17, 17, 0.06);
+  --shadow-sm: 0px 2px 6px rgba(17, 17, 17, 0.08);
+  --shadow-md: 0px 8px 24px rgba(17, 17, 17, 0.1);
+  --shadow-card: 0px 12px 32px rgba(17, 17, 17, 0.08);
+  --shadow-card-soft:
+    0 1px 2px rgba(16, 24, 40, 0.05), 0 6px 16px rgba(16, 24, 40, 0.06);
+
+  /* Savings / discount accents */
+  --color-savings-strong: #1a7f37;
+  --color-savings-bg: #e7f4ea;
+  --color-savings-deep: #238017;
+  --color-offer-applied: #417e2b;
+  --color-savings-badge: #3c9726;
+  --color-savings-border: rgba(26, 127, 55, 0.18);
+
+  /* Hairline for edges that still need faint definition */
+  --hairline: #eceff4;
+
+  /* Surfaces */
+  --surface: #ffffff;
+  --surface-muted: #f2f4f8;
+  --surface-elevated: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.72);
+  --surface-page: #f9fafd;
+  --surface-card: #ffffff;
+  --surface-sunken: #f2f4f8;
+
+  /* Loader */
+  --loader-ring: #e6e6e6;
+  --loader-dot: #cccccc;
+
+  /* Motion */
+  --motion-fast: 180ms;
+  --motion-medium: 260ms;
+  --motion-sheet: 420ms;
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Rings (psychology: clear focus, “safe” feel) */
+  --shadow-focus: 0 0 0 3px rgba(76, 111, 255, 0.22);
+  --shadow-focus-success: 0 0 0 3px rgba(34, 197, 94, 0.18);
+  --shadow-focus-danger: 0 0 0 3px rgba(239, 68, 68, 0.18);
+
+  /* Micro-interaction helpers */
+  --press-scale: 0.99;
+  --hover-lift: translateY(-1px);
+
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#app {
+  min-height: 100vh;
+  overscroll-behavior: none;
+  touch-action: pan-x pan-y;
+  -webkit-touch-callout: none;
+  scroll-behavior: smooth;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+textarea {
+  font-size: 16px !important;
+  touch-action: manipulation;
+}
+
+/* iOS Safari force-zooms into any focused control whose font-size is under
+   16px (and ignores maximum-scale). Pin every field to 16px on touch so
+   focusing never zooms the page — desktop keeps its smaller design sizes. */
+@media (pointer: coarse) {
+  input,
+  select,
+  textarea,
+  .phone-input-field,
+  .cpn-input,
+  .af-input,
+  .tp-coupon-input {
+    font-size: 16px !important;
+  }
+}
+
+input,
+textarea,
+[contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea,
+optgroup {
+  font-family: inherit;
+}
+
+button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Modern “tight but calm” focus states */
+:where(button, a, input, select, textarea):focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+a,
+button,
+input,
+select,
+textarea {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* GPU hints removed — perspective/backface-visibility cause flicker on Windows Chrome ANGLE */
+
+/* Sheet / dialog motion */
+@keyframes ck-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ck-sheet-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes ck-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ck-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes ck-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes ck-pop-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+@keyframes ck-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ck-sheet-in {
+  animation: ck-sheet-in var(--motion-sheet) var(--ease-sheet) both;
+}
+
+.ck-sheet-out {
+  animation: ck-sheet-out 300ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.ck-backdrop-in {
+  animation: ck-backdrop-in 300ms ease both;
+}
+
+.ck-backdrop-out {
+  animation: ck-backdrop-out 300ms ease both;
+}
+
+.ck-pop-in {
+  animation: ck-pop-in 320ms var(--ease-pop) both;
+}
+
+.ck-pop-out {
+  animation: ck-pop-out 220ms ease both;
+}
+
+.ck-fade-in {
+  animation: ck-fade-in 250ms ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ck-sheet-in,
+  .ck-sheet-out,
+  .ck-pop-in,
+  .ck-pop-out {
+    animation-name: ck-fade-in;
+    animation-duration: 0.01ms;
+  }
+}
+
+/* Sweeping highlight for an unclaimed offer */
+@keyframes ck-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.ck-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.ck-shimmer > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ck-shimmer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    transparent 44%,
+    rgba(144, 238, 144, 0.08) 47%,
+    rgba(144, 238, 144, 0.15) 50%,
+    rgba(144, 238, 144, 0.08) 53%,
+    transparent 56%,
+    transparent 100%
+  );
+  animation: ck-shimmer 3s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ck-shimmer::before {
+    animation: none;
+  }
+}

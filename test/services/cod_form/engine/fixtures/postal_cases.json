@@ -1,0 +1,43 @@
+{
+  "parse": [
+    {"list": "110001, 4000*, 560001-560100", "expected": [{"type": "exact", "value": "110001"}, {"type": "prefix", "value": "4000"}, {"type": "range", "from": "560001", "to": "560100"}]},
+    {"list": "00-950; 10101-1234\nsw1a 1aa", "expected": [{"type": "exact", "value": "00950"}, {"type": "exact", "value": "101011234"}, {"type": "exact", "value": "SW1A1AA"}]},
+    {"list": "1999-1000, , ;", "expected": [{"type": "range", "from": "1000", "to": "1999"}]},
+    {"list": ["01000-01999", "sw1*"], "expected": [{"type": "range", "from": "01000", "to": "01999"}, {"type": "prefix", "value": "SW1"}]}
+  ],
+  "match": [
+    {"code": "110001", "list": "110001, 110002", "expected": true},
+    {"code": "110003", "list": "110001, 110002", "expected": false},
+    {"code": " 110 001 ", "list": "110001", "expected": true},
+    {"code": "400012", "list": "4000*", "expected": true},
+    {"code": "400112", "list": "4000*", "expected": false},
+    {"code": "1000", "list": "1000-1999", "expected": true},
+    {"code": "1999", "list": "1000-1999", "expected": true},
+    {"code": "0999", "list": "1000-1999", "expected": false},
+    {"code": "2000", "list": "1000-1999", "expected": false},
+    {"code": "15000", "list": "1000-1999", "expected": false},
+    {"code": "150", "list": "1000-1999", "expected": false},
+    {"code": "01500", "list": "01000-01999", "expected": true},
+    {"code": "1500", "list": "01000-01999", "expected": false},
+    {"code": "00999", "list": "01000-01999", "expected": false},
+    {"code": "02000", "list": "01000-01999", "expected": false},
+    {"code": "sw1a 1aa", "list": "SW1A 1AA", "expected": true},
+    {"code": "SW1A1AA", "list": "sw1a-1aa", "expected": true},
+    {"code": "SW1A 2AA", "list": "SW1*", "expected": true},
+    {"code": "sw1a 2aa", "list": "sw1a*", "expected": true},
+    {"code": "SW2A 2AA", "list": "SW1*", "expected": false},
+    {"code": "EC1A 1BB", "list": "SW1A 1AA; EC1A 1BB", "expected": true},
+    {"code": "00-950", "list": "00-950", "expected": true},
+    {"code": "00950", "list": "00-950", "expected": true},
+    {"code": "00500", "list": "00-950", "expected": false},
+    {"code": "10101-1234", "list": "10101-1234", "expected": true},
+    {"code": "10500", "list": "10101-1234", "expected": false},
+    {"code": "A1B", "list": "A1A-A1C", "expected": false},
+    {"code": "", "list": "110001, 4000*", "expected": false},
+    {"code": "   ", "list": "*", "expected": false},
+    {"code": "anything", "list": "*", "expected": true},
+    {"code": "1051", "list": "", "expected": false},
+    {"code": "1051", "list": "1051\n1052\r\n1053", "expected": true},
+    {"code": "1053", "list": "1051;1052;1053", "expected": true}
+  ]
+}

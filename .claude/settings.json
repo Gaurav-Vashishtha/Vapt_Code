@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(jsx|erb|js\\)$\")",
+      "Bash(node -e ' *)",
+      "Bash(grep -cE '^\\\\s*$' app-embed.liquid)",
+      "Bash(grep -nE '\\(\\\\\\)\\\\s*$\\)' app-embed.liquid)",
+      "Bash(grep -cE '^[[:space:]]+$' app-embed.liquid)",
+      "Bash(grep -nE 'if \\\\\\([^\\)]*\\\\\\)\\\\s*$' app-embed.liquid)",
+      "Bash(grep -nE '^\\\\s*else\\\\s*$' app-embed.liquid)",
+      "Bash(grep -nE '\\(&&|\\\\|\\\\||\\\\+|,|\\\\?|:\\)\\\\s*$' app-embed.liquid)",
+      "Bash(grep -nE '=>\\\\s*$' app-embed.liquid)",
+      "Bash(grep -vcE '^\\\\s*\\(/\\\\*|\\\\*|//|$\\)' assets/style.css)",
+      "Bash(grep -E \"\\\\.\\(jsx|js\\)$\")",
+      "Bash(grep -E \"\\\\.\\(svelte|js\\)$\")",
+      "Bash(grep -rn \"setScreen\\(\\\\\"address\\\\|setScreen\\('address\\\\|setScreen\\(\\\\`address\\\\|screen.*=.*\\\\\"address\" src/)",
+      "Bash(grep -v \"address-form\\\\\"\\\\s*$\")",
+      "Bash(ruby -c app/controllers/api/web_pixels_controller.rb)",
+      "Bash(ruby -c app/services/network_services/meta_conversion_service.rb)",
+      "Bash(ruby -c config/routes.rb)",
+      "Bash(ruby -c app/workers/google_conversion_pixel_job.rb)",
+      "Bash(awk 'NR>=290 && NR<=354 && \\(/scope/ || /namespace/ || /module:/\\)' config/routes.rb)",
+      "Bash(node --check extensions/cod-king-web-pixel/src/index.js)",
+      "Bash(awk '/create_table \"shops\"/,/^  end/' db/schema.rb)",
+      "Bash(ruby -e 'load \"app/controllers/api/web_pixels_controller.rb\" rescue nil')",
+      "Bash(ruby -rpp -e 'pp %w[ *)",
+      "Bash(cd /Users/rahul/payment-customization-js; sed -n '/analytics.subscribe\\(\"checkout_completed\"/,/^  }\\);/p' extensions/cod-king-web-pixel/src/index.js | grep -n 'isPartial\\\\|remainingAmount\\\\|originalTotal\\\\|paidAmount\\\\|value:\\\\|transactionIdSuffix\\\\|source:' )",
+      "Bash(cd /Users/rahul/projects/cartpe)",
+      "Bash(ls -1 apps)",
+      "Bash(ls -1 apps/admin-app)",
+      "Bash(grep -E \"\\\\.jsx|\\\\.js$\")",
+      "Bash(grep -E \"\\\\.rb$\")",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(bin/rails zeitwerk:check)",
+      "Bash(npx --no-install esbuild 'app/javascript/packs/Components/Discounts/DiscountsPage.jsx' --loader:.jsx=jsx --format=esm --outfile=/dev/null)",
+      "Bash(node -e \"const b=require\\('@babel/core'\\); const fs=require\\('fs'\\); const code=fs.readFileSync\\('app/javascript/packs/Components/Discounts/DiscountsPage.jsx','utf8'\\); b.transformSync\\(code,{presets:[['@babel/preset-react'],['@babel/preset-env']],filename:'DiscountsPage.jsx'}\\); console.log\\('OK: parsed & transformed cleanly'\\);\")",
+      "Bash(export NODE_OPTIONS=--openssl-legacy-provider)"
+    ]
+  }
+}

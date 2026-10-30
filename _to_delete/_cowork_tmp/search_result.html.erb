@@ -1,0 +1,91 @@
+<div class="flex items-center gap-2 mb-2">
+  <span class="font-semibold text-gray-900"><%= row[:display_domain] %></span>
+  <% badge = { "active" => "bg-emerald-100 text-emerald-700", "churned" => "bg-red-100 text-red-700" }[row[:segment]] %>
+  <span class="text-xs px-2 py-0.5 rounded-full <%= badge %>"><%= row[:segment] == "churned" ? "Churned" : "Active" %></span>
+  <span class="text-xs text-gray-400">search result</span>
+</div>
+<div class="flex flex-wrap gap-3 mb-3 text-xs">
+  <% if row[:phone].present? %><a href="tel:<%= row[:phone] %>" class="text-sky-600 hover:underline"><%= row[:phone] %></a><% end %>
+  <% if row[:crisp_url].present? %><%= link_to "Crisp chat", row[:crisp_url], target: "_blank", class: "text-sky-600 hover:underline" %><% end %>
+  <% if row[:admin_path].present? %><%= link_to "Open in DB", row[:admin_path], target: "_blank", class: "text-sky-600 hover:underline" %><% end %>
+  <% if row[:store_url].present? %><%= link_to "Open store", row[:store_url], target: "_blank", class: "text-sky-600 hover:underline" %><% end %>
+  <span class="text-gray-500">Last contact: <%= row[:last_contact] ? row[:last_contact].strftime("%d %b %Y") : "never" %></span>
+</div>
+
+<div class="flex flex-wrap items-start gap-x-6 gap-y-2 mb-3 text-xs">
+  <div class="flex items-center gap-1.5">
+    <span class="font-semibold text-gray-600">Plan:</span>
+    <span class="text-gray-800"><%= row[:plan_label].presence || "—" %></span>
+    <% if row[:plan_label].present? %>
+      <span class="px-1.5 py-0.5 rounded-full <%= row[:plan_active] ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500" %>">
+        <%= row[:plan_active] ? "Billing active" : "Not activated" %>
+      </span>
+    <% end %>
+  </div>
+  <div class="flex-1 min-w-[220px]">
+    <span class="font-semibold text-gray-600 align-middle">Features enabled:</span>
+    <% if row[:features].present? %>
+      <% row[:features].each do |feature| %>
+        <span class="inline-block px-1.5 py-0.5 mr-1 mb-1 rounded-full bg-sky-50 text-sky-700 border border-sky-100"><%= feature %></span>
+      <% end %>
+    <% else %>
+      <span class="text-gray-400">None enabled</span>
+    <% end %>
+  </div>
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+  <div class="bg-gray-50 rounded-md border border-gray-200 p-3">
+    <p class="text-xs font-semibold text-gray-600 mb-2">Log outcome</p>
+    <%= form_tag call_calendar_outcome_path(date: @date, q: row[:domain]), method: :post, class: "flex flex-wrap items-center gap-2" do %>
+      <%= hidden_field_tag :shopify_domain, row[:domain] %>
+      <%= hidden_field_tag :shop_id, row[:shop_id] %>
+      <%= hidden_field_tag :segment, row[:segment] %>
+      <%= select_tag :outcome, options_for_select(CallRecord::OUTCOME_LABELS.map { |k, v| [v, k] }), class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+      <%= render 'agent_field' %>
+      <%= text_field_tag :notes, nil, placeholder: "Note", class: "text-xs border border-gray-300 rounded px-2 py-1 flex-1 min-w-[120px]" %>
+      <%= submit_tag "Log", class: "text-xs bg-gray-900 text-white rounded px-3 py-1 cursor-pointer" %>
+    <% end %>
+  </div>
+  <div class="bg-gray-50 rounded-md border border-gray-200 p-3">
+    <p class="text-xs font-semibold text-gray-600 mb-2">Set callback</p>
+    <%= form_tag call_calendar_reminder_path(date: @date, q: row[:domain]), method: :post, class: "flex flex-wrap items-center gap-2" do %>
+      <%= hidden_field_tag :shopify_domain, row[:domain] %>
+      <%= hidden_field_tag :shop_id, row[:shop_id] %>
+      <%= date_field_tag :due_on, (@date + 7), class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+      <%= select_tag :team, options_for_select([["Support team", "support"], ["Sales team", "sales"]], "support"), class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+      <%= render 'agent_field' %>
+      <%= text_field_tag :note, nil, placeholder: "Note", class: "text-xs border border-gray-300 rounded px-2 py-1 flex-1 min-w-[120px]" %>
+      <%= submit_tag "Schedule", class: "text-xs bg-sky-600 text-white rounded px-3 py-1 cursor-pointer" %>
+    <% end %>
+  </div>
+  <div class="bg-gray-50 rounded-md border border-gray-200 p-3 md:col-span-2">
+    <p class="text-xs font-semibold text-gray-600 mb-2">Add comment</p>
+    <%= form_tag call_calendar_comment_path(date: @date, q: row[:domain]), method: :post, class: "flex flex-wrap items-center gap-2" do %>
+      <%= hidden_field_tag :shopify_domain, row[:domain] %>
+      <%= hidden_field_tag :shop_id, row[:shop_id] %>
+      <%= render 'agent_field' %>
+      <%= text_field_tag :comment, nil, placeholder: "Comment", class: "text-xs border border-gray-300 rounded px-2 py-1 flex-1 min-w-[160px]" %>
+      <%= submit_tag "Add", class: "text-xs bg-gray-700 text-white rounded px-3 py-1 cursor-pointer" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="mt-4">
+  <p class="text-xs font-semibold text-gray-600 mb-2">Timeline</p>
+  <% if row[:events].empty? %>
+    <p class="text-xs text-gray-400">No activity yet.</p>
+  <% else %>
+    <ul class="space-y-1">
+      <% row[:events].each do |event| %>
+        <li class="text-xs text-gray-600">
+          <span class="text-gray-400"><%= event.occurred_at.strftime("%d %b %H:%M") %></span>
+          · <span class="font-medium"><%= event.event_type.tr("_", " ") %></span>
+          <% if event.agent_name.present? %>by <%= event.agent_name %><% end %>
+          <% detail = event.payload["label"] || event.payload["comment"] || event.payload["reason"] || event.payload["due_on"] %>
+          <% if detail.present? %>— <%= detail %><% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>

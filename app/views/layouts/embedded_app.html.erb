@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="shopify-api-key" content="<%= ShopifyApp.configuration.api_key %>" />
+    <meta name="shopify-app-name" content="COD King" />
+    <meta name="shopify-shop-domain" content="<%= @shop_origin %>" />
+
+    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+  
+    <% application_name = ShopifyApp.configuration.application_name %>  
+    <title><%= application_name %></title>
+    
+    <%= stylesheet_link_tag 'application' %>
+    
+    <% if ShopifyApp.use_webpacker? %>
+      <%= javascript_packs_with_chunks_tag 'application', 'data-turbolinks-track': 'reload', host: Rails.env.production? ? ENV['CLOUDFRONT_ENDPOINT'] : ENV['APP_HOST'] %>
+    <% else %>
+      <%= javascript_packs_with_chunks_tag 'application', "data-turbolinks-track" => true, host: Rails.env.production? ? ENV['CLOUDFRONT_ENDPOINT'] : ENV['APP_HOST'] %>
+    <% end %>
+    
+    <%= javascript_packs_with_chunks_tag 'hello_react', host: Rails.env.production? ? ENV['CLOUDFRONT_ENDPOINT'] : ENV['APP_HOST'] %>
+    <%= csrf_meta_tags %>
+    <link href="https://unpkg.com/@shopify/polaris@12.6.0/build/esm/styles.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <%# data-nav-base is the section each link owns. Home.jsx marks the owner
+        with App Bridge's `active` attribute while the merchant is anywhere
+        inside that section, which is what highlights it in the admin. %>
+    <ui-nav-menu>
+      <a href="/" rel="home" data-i18n-key="nav.home" data-nav-base="/">Summary</a>
+      <a href="/features/whatsapp/inbox" data-i18n-key="nav.inbox" data-nav-base="/features/whatsapp/inbox">Inbox</a>
+      <a href="/settings-hub" data-i18n-key="nav.settings" data-nav-base="/settings-hub">Settings</a>
+      <a href="/usage-analytics" data-i18n-key="nav.analytics" data-nav-base="/usage-analytics">Analytics</a>
+      <a href="/billing" data-i18n-key="nav.billing" data-nav-base="/billing">Billing</a>
+      <a href="/plans" data-i18n-key="nav.plans" data-nav-base="/plans">Plans</a>
+      <a href="/help-and-support" data-i18n-key="nav.help_and_support" data-nav-base="/help-and-support">Help &amp; Support</a>
+    </ui-nav-menu>
+
+    <ui-title-bar title="COD King"></ui-title-bar>
+
+    <div class="app-wrapper">
+      <div class="app-content">
+        <main role="main">
+          <%= yield %>
+        </main>
+      </div>
+    </div>
+
+    <%= render 'layouts/flash_messages' %>
+
+    <%# rrweb screen recording — renders nothing unless this shop is inside the
+        post-install window and in the sample (SessionRecordingPolicy). %>
+    <%= render 'shared/session_recorder' %>
+
+    <%= content_tag(:div, nil, id: 'shopify-app-init', data: {
+      api_key: ShopifyApp.configuration.api_key,
+      shop_origin: @shop_origin || (@current_shopify_session.domain if @current_shopify_session),
+      debug: Rails.env.development?
+    } ) %>
+
+    <% if content_for?(:javascript) %>
+      <div id="ContentForJavascript" data-turbolinks-temporary>
+        <%= yield :javascript %>
+      </div>
+    <% end %>
+  </body>
+</html>

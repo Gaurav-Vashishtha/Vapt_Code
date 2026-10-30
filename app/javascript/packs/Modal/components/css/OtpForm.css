@@ -1,0 +1,21 @@
+Chrome,
+Safari,
+Edge,
+Opera input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* For consistency across browsers, remove spinners and allow numeric input */
+input[type="number"] {
+  appearance: none;
+  -moz-appearance: textfield; /* Firefox */
+  -webkit-appearance: none; /* Safari, Chrome, Edge, Opera */
+}
+/* /////////////////////////////// */

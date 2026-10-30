@@ -1,0 +1,5 @@
+class AddCustomerIdToOrderConfirmations < ActiveRecord::Migration[6.0]
+  def change
+    add_column :order_confirmations, :customer_id, :string
+  end
+end

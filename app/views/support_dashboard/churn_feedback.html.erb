@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - Churned feedback</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= csrf_meta_tags %>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<%
+  ff = @feedback_filters || {}
+  reasons = Churn::ExitSurvey::REASONS
+  likelihood = Churn::ExitSurvey::RETURN_LIKELIHOOD
+  max_count = (@feedback_reason_counts.map(&:last).max || 1).to_f
+  sample_url = "https://#{ENV['APP_HOST'].presence || request.host}/uninstall_survey/#{Churn::ExitSurvey::PREVIEW_TOKEN}"
+%>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Why stores uninstall — answers to the exit survey in the uninstall email</p>
+        </div>
+        <a href="<%= sample_url %>" target="_blank" rel="noopener" class="text-sm px-3 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">Preview survey form ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :churn_feedback %>
+        </nav>
+      </div>
+
+      <div class="p-6 space-y-6">
+        <%= form_with url: support_dashboard_churn_feedback_path, method: :get, local: true, class: "flex flex-wrap items-end gap-3" do %>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">From</label>
+            <input type="date" name="from" value="<%= ff[:from] %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">To</label>
+            <input type="date" name="to" value="<%= ff[:to] %>" class="px-2 py-1.5 rounded-md text-sm border border-gray-300">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-600 mb-1">Reason</label>
+            <select name="reason" class="px-2 py-1.5 rounded-md text-sm border border-gray-300 bg-white">
+              <option value="">All</option>
+              <% reasons.each do |key, label| %>
+                <option value="<%= key %>" <%= 'selected' if ff[:reason] == key %>><%= label %></option>
+              <% end %>
+            </select>
+          </div>
+          <label class="flex items-center gap-2 text-sm text-gray-700 pb-1.5">
+            <input type="checkbox" name="callback" value="1" <%= 'checked' if ff[:callback] %>> Wants a call only
+          </label>
+          <button type="submit" class="px-3 py-1.5 rounded-md text-sm font-medium bg-gray-900 text-white hover:bg-gray-800">Apply</button>
+          <%= link_to 'Reset', support_dashboard_churn_feedback_path, class: "px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+        <% end %>
+
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="rounded-lg border border-gray-200 p-4">
+            <div class="text-xs uppercase tracking-wide text-gray-500">Responses</div>
+            <div class="text-2xl font-semibold text-gray-900 mt-1"><%= @feedback_total %></div>
+            <div class="text-xs text-gray-500 mt-1"><%= ff[:from]&.strftime('%b %d') %> – <%= ff[:to]&.strftime('%b %d, %Y') %></div>
+          </div>
+          <div class="rounded-lg border border-gray-200 p-4">
+            <div class="text-xs uppercase tracking-wide text-gray-500">Asked for a call</div>
+            <div class="text-2xl font-semibold text-orange-600 mt-1"><%= @feedback_callbacks %></div>
+            <div class="text-xs text-gray-500 mt-1">Call these first — they want to talk</div>
+          </div>
+          <div class="rounded-lg border border-gray-200 p-4">
+            <div class="text-xs uppercase tracking-wide text-gray-500 mb-2">Top reasons</div>
+            <% if @feedback_reason_counts.empty? %>
+              <p class="text-sm text-gray-400">No responses in this period yet.</p>
+            <% end %>
+            <% @feedback_reason_counts.first(6).each do |key, count| %>
+              <div class="mb-1.5">
+                <div class="flex justify-between text-xs text-gray-700"><span><%= Churn::ExitSurvey.reason_label(key) || 'Not given' %></span><span><%= count %></span></div>
+                <div class="h-1.5 bg-gray-100 rounded"><div class="h-1.5 bg-red-400 rounded" style="width: <%= (count / max_count * 100).round %>%"></div></div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <% if @feedback.any? %>
+          <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="min-w-full text-sm">
+              <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wide">
+                <tr>
+                  <th class="text-left px-4 py-2">Store</th>
+                  <th class="text-left px-4 py-2">Answer</th>
+                  <th class="text-left px-4 py-2">Store at uninstall</th>
+                  <th class="text-left px-4 py-2">Contact</th>
+                  <th class="text-left px-4 py-2">Notes</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 align-top">
+                <% @feedback.each do |resp| %>
+                  <% row = resp.uninstalled_shop %>
+                  <tr>
+                    <td class="px-4 py-3 max-w-[220px]">
+                      <a href="https://<%= resp.shop_domain %>" target="_blank" rel="noopener" class="font-medium text-blue-600 hover:underline break-all"><%= resp.shop_domain %></a>
+                      <div class="text-xs text-gray-500"><%= row&.owner_name.presence || '—' %><%= " · #{row.country}" if row&.country.present? %></div>
+                      <div class="text-xs text-gray-500 mt-1">Answered <%= resp.submitted_at.in_time_zone('Asia/Kolkata').strftime('%b %d, %H:%M') %></div>
+                      <% if row %><div class="text-xs text-gray-400">Uninstalled <%= row.created_at.in_time_zone('Asia/Kolkata').strftime('%b %d') %></div><% end %>
+                    </td>
+                    <td class="px-4 py-3 max-w-[360px]">
+                      <span class="px-2 py-0.5 rounded text-xs bg-red-100 text-red-800"><%= resp.reason_label %></span>
+                      <% if resp.switched_to.present? %><div class="text-xs text-gray-700 mt-1">Switched to: <strong><%= resp.switched_to %></strong></div><% end %>
+                      <% if resp.missing_feature.present? %><div class="text-xs text-gray-700 mt-1">Missing: <strong><%= resp.missing_feature %></strong></div><% end %>
+                      <% if resp.feedback.present? %><p class="text-sm text-gray-800 mt-2 whitespace-pre-line break-words"><%= resp.feedback %></p><% end %>
+                      <% if resp.win_back.present? %><div class="text-xs text-gray-600 mt-2">Would bring them back: <em><%= resp.win_back %></em></div><% end %>
+                      <% if resp.return_likelihood.present? %><div class="text-xs text-gray-500 mt-1">Likely to return: <%= likelihood[resp.return_likelihood] || resp.return_likelihood %></div><% end %>
+                    </td>
+                    <td class="px-4 py-3 text-xs text-gray-600 whitespace-nowrap">
+                      <% if row %>
+                        <div>Plan: <%= row.plan_name_at_uninstall.presence || '—' %></div>
+                        <div>Orders: <%= row.order_count.presence || '—' %></div>
+                        <div>Days with COD King: <%= row.tenure_days || '—' %></div>
+                        <div>LTV: <%= @feedback_ltv[row.id] ? number_to_currency(@feedback_ltv[row.id], unit: '$') : '—' %></div>
+                        <% feats = Churn::FeatureSet.labels_for_uninstalled(row) %>
+                        <% if feats.any? %>
+                          <div class="flex flex-wrap gap-1 mt-1 max-w-[200px] whitespace-normal">
+                            <% feats.each do |f| %><span class="px-1.5 py-0.5 rounded bg-gray-100 text-gray-700"><%= f %></span><% end %>
+                          </div>
+                        <% end %>
+                      <% else %>
+                        <span class="text-gray-400">No uninstall snapshot</span>
+                      <% end %>
+                    </td>
+                    <td class="px-4 py-3 text-xs max-w-[200px]">
+                      <% if resp.wants_callback %><div class="mb-1"><span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-medium">Wants a call</span></div><% end %>
+                      <% phone = resp.callback_phone.presence || row&.phone %>
+                      <% if row&.email.present? %><a href="mailto:<%= row.email %>" class="text-blue-600 hover:underline break-all"><%= row.email %></a><% end %>
+                      <% if phone.present? %><div class="mt-1"><a href="https://wa.me/<%= phone.gsub(/[^0-9]/, '') %>" target="_blank" rel="noopener" class="text-green-700 hover:underline"><%= phone %></a></div><% end %>
+                    </td>
+                    <td class="px-4 py-3 align-top min-w-[260px]" data-follow-up-cell>
+                      <% if row %>
+                        <% owner = @follow_up_targets[row.shop_domain] || @snapshot_follow_up_owners[row.shop_domain] || row %>
+                        <%= render partial: "support_dashboard/follow_up_column", locals: { shop: owner, source_tab: "Churned feedback" } %>
+                      <% else %>
+                        <span class="text-xs text-gray-400">—</span>
+                      <% end %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+          <div class="mt-4"><%= paginate @feedback if respond_to?(:paginate) %></div>
+        <% else %>
+          <div class="text-center py-12 border border-dashed border-gray-300 rounded-lg">
+            <h3 class="text-sm font-medium text-gray-900">No survey responses yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Responses appear here as uninstalled stores answer the survey in the uninstall email.</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<%= render 'support_dashboard/follow_up_ajax' %>
+</body>
+</html>

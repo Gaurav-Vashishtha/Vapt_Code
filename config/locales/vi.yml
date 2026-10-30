@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+vi:
+  hello: Xin chào thế giới
+  admin:
+    getting_started: Hướng dẫn bắt đầu
+    watch_video_msg: Xem video, đặt một phiên hoặc trò chuyện với chúng tôi để bắt đầu ngay với COD King!
+    watch_video: Xem Video
+    book_session: Phiên đặt chỗ
+    chat_with_us: Chat với chúng tôi ngay
+    settings: Cài đặt
+    log: Đăng nhập
+    step1: Bước 1 - Đặt hàng COD
+    step1_desc: Khách hàng đặt hàng COD. App Xác định nó là lệnh COD.
+    step2: Bước 2 - Ứng dụng gửi OTP đến khách hàng qua SMS
+    step2_desc: OTP duy nhất được gửi đến số điện thoại di động của khách hàng.
+    step3: Bước 3 - hộp OTP hiển thị trong trang Cảm ơn bạn
+    step3_desc: Khách hàng nhập OTP và nhấp chuột xác minh.
+    step4: Bước 4 - Lọc đơn đặt hàng của bạn dựa trên thẻ này.
+    step4_desc: Khách hàng đặt hàng COD. App Xác định nó là lệnh COD.
+    step5: Bước 5 - Chi phí vận chuyển tiết kiệm
+    step5_desc: Tiết kiệm chi phí vận chuyển bằng cách từ chối đơn đặt hàng giả Tiền tiết kiệm được tiền kiếm được.
+    logs: Nhật ký
+    order_logs: Bản ghi đơn hàng
+    subscription: Đăng ký
+    settings_saved: Cài đặt đã lưu
+    settings_saved_msg: "Thay đổi sẽ được phản ánh trong cửa hàng của bạn trong vài phút."
+    activate_sms: Kích hoạt <b>OTP</b> Xác nhận
+    activate_cod_fees: Kích hoạt <b>Phí COD</b>
+    sms_placeholder: 123456 là mật khẩu một lần của bạn để xác nhận COD
+    ios_code_error: Template nên bao gồm từ khóa “code” để hiển thị OTP trong bàn phím iOS
+    activate_ivr: Kích hoạt <b>IVR</b> Xác nhận
+    intro_msg: Tin nhắn giới thiệu
+    intro_msg_placeholder: Cảm ơn bạn đã đặt hàng.
+    order_confirm_label: Thông báo xác nhận đơn hàng
+    order_confirm_placeholder: Vui lòng nhấn 1 để xác nhận đơn hàng của bạn.
+    order_confirm_help: Hướng dẫn người dùng nhấn 1 để xác nhận đơn hàng.
+    order_confirm_error: Thông báo xác nhận nên bao gồm “1" để xác nhận đơn hàng
+    order_cancel_label: Thông báo hủy đơn hàng
+    order_cancel_placeholder: Vui lòng nhấn 2 để hủy đơn hàng của bạn.
+    order_cancel_help: Hướng dẫn người dùng nhấn 2 để hủy đơn hàng.
+    order_cancel_error: Thông báo này nên bao gồm “2" để hủy đơn hàng.
+    test_sms: "Kiểm tra thông báo SMS"
+    enter_test_number: Nhập số kiểm tra
+    sms_sent_check_mobile: SMS đã gửi. Vui lòng kiểm tra điện thoại di động của bạn
+    enter_country_code: Vui lòng nhập số với mã quốc gia của bạn trong khi kiểm tra tại đây
+    number_cc_example: 'ví dụ: %{number}'
+    send_sms: Gửi tin nhắn
+    message_template: Mẫu tin nhắn
+    test_ivr: Kiểm tra cuộc gọi IVR
+    cod_fees: Số tiền thu phí COD trong
+    cod_fees_help: Số tiền bạn muốn thêm, nếu khách hàng đặt một lệnh COD.
+    cod_label: Nhãn để đính kèm phí COD
+    cod_label_help: Nhãn sẽ được hiển thị cho các khoản phí bổ sung
+    cod_instruction: Hướng dẫn giao hàng COD
+    cod_instruction_help: Thông báo này sẽ được hiển thị cho khách hàng trong trang Cảm ơn bạn khi đơn đặt hàng được hoàn tất.
+    please_check_mobile: Vui lòng kiểm tra điện thoại di động của bạn
+    call_now: Gọi ngay
+    unsaved: Thay đổi chưa lưu
+    x_chars_used: "%{count} / %{total} ký tự được sử dụng"
+    deactivate: Hủy kích hoạt
+    save: Lưu
+    discard: Loại bỏ
+    free_plan: Gói cước miễn phí
+    pro_plan: Kế hoạch Pro
+    vip_plan: Kế hoạch Vip
+    feature_1: bắt đầu $0.02 cho mỗi tin nhắn SMS
+    feature_2: bắt đầu $0.06 mỗi IVR
+    feature_3: 1 đến 1 cuộc gọi đến trên máy bay
+    feature_4: Hỗ trợ ưu tiên
+    feature_1_pro: Đối với các cửa hàng hơn 100 đơn hàng COD mỗi tháng
+    custom_plan: Kế hoạch tích hợp nhà cung cấp mạng
+    subscribe: Đăng ký
+    subscribed: Đã đăng ký
+    recommended: Khuyến nghị
+    sms_template_default: "{{otp}} là mã xác minh của bạn để xác nhận đơn hàng COD được đặt trên %{store}"
+    retry_template_default: "Cảm ơn bạn đã đặt một lệnh COD trên %{store}. Vui lòng xác nhận đơn đặt hàng của bạn bằng cách truy cập liên kết {{link}} birdch"
+    prepaid_template_default: "chuyển đổi đơn đặt hàng của bạn sang trả trước bằng cách nhấp vào liên kết. {{link}}"
+    order_confirm_template_default: "Cảm ơn bạn đã mua hàng trên %{store}. Đơn hàng của bạn đã được xác nhận - Đơn hàng số {{number}}"
+    fulfilment_template_default: "Đơn đặt hàng của bạn đã được vận chuyển từ %{store} - Theo dõi đơn đặt hàng của bạn tại {{tracking_url}}"
+    ivr_introduction: "Cảm ơn bạn đã đặt hàng trên %{domain}."
+    ivr_confirm_message: Vui lòng nhấn 1 để xác nhận đơn hàng của bạn.
+    ivr_cancel_message: Vui lòng nhấn 2 để hủy đơn hàng của bạn.
+    confirmed_thank_you: Đơn đặt hàng của bạn được xác nhận, cảm ơn bạn.
+    cancelled_thank_you: Đơn đặt hàng của bạn bị hủy bỏ, cảm ơn bạn.
+    invalid_thank_you: Lựa chọn không hợp lệ, Vui lòng thử lại, cảm ơn bạn.
+    no_logs_yet: Chưa có bản ghi
+    try_changing_search: Thử thay đổi cụm từ tìm kiếm
+    order: Đặt hàng
+    date: Ngày
+    customer: Khách hàng
+    total: Tổng
+    status: Trạng thái
+    network: Mạng
+    prev: Trước (J)
+    next: Tiếp (K)
+    no_resource_found: Không tìm thấy %{resource}
+    search_resource: Tìm kiếm %{resource} với số thứ tự hoặc tên khách hàng
+    all: Tất cả
+    enter_valid_phone: Vui lòng nhập số điện thoại hợp lệ
+    enable_region: Vui lòng liên hệ với chúng tôi để kích hoạt khu vực của bạn
+    x_total_orders: "%{count} tổng số đơn đặt hàng"
+    x_verified_orders: "%{count} đơn đặt hàng đã xác minh"
+    x_pending_orders: "%{count} lệnh chờ"
+    x_prepaid_orders: "%{count} đơn đặt hàng trả trước"
+    x_cancelled_orders: "%{count} đơn đặt hàng đã hủy"
+    order_stats: Thống kê đơn hàng
+    boost_checkout: Thanh toán liền mạch
+    recommended_setup_to: Thiết lập được đề xuất để cải thiện trải nghiệm thanh toán
+    copy: Sao chép
+    copied: Đã sao chép
+    starts: Bắt đầu
+    ends: Kết thúc
+    recommended_steps: Các bước được đề xuất
+    checkout_settings: Đi tới cài đặt thanh toán
+    additional_scripts_text_box: Và dán văn bản dưới đây trong <b>tập lệnh bổ sung</b> hộp văn bản
+    one_time_pass: Mật khẩu một lần
+    customer_first_name: Tên của khách hàng
+    order_total_amount: Tổng số tiền đặt hàng
+    link_text: Liên kết xác nhận đơn hàng bằng một cú nhấp chuột
+    available_variables: Các biến sẵn dùng để dán vào mẫu thư
+    free_limit_exhausted: Hạn chế thử nghiệm miễn phí đã cạn kiệt. Vui lòng liên hệ với chúng tôi để gia hạn.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} sms lập hóa đơn"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Phí sử dụng đã tạo"
+    x_ivr: "%{count} ivr"
+    refresh: Làm mới
+    complete_setup: Chỉ một bước cuối cùng
+    complete_setup_msg: Cài đặt đã lưu. Để hoàn thành việc thiết lập, xin vui lòng <b>đăng ký tại đây</b>.
+    view_plans: Xem gói
+    prepay_template: Mẫu trả trước
+    send_payment_link: Liên kết thanh toán
+    submit: Gửi
+    bulk_submit: Gửi hàng loạt
+    amount: Số tiền
+    date_time: Ngày và giờ
+    mobile: Điện thoại di động
+    something_went_wrong: Có gì đó không ổn, hãy thử lại sau.
+    message_sent: Tin nhắn đã gửi
+    send: Gửi
+    cancel: Hủy
+    upto_x_orders: Lên đến %{count} đơn hàng mỗi tháng
+    unlimited_orders: Số lượng đơn đặt hàng không giới hạn để xác minh
+    export: Xuất
+    emailed_orders: Đã gửi nhật ký vào email
+    comma_separated_order_ids: ID thứ tự phân tách bằng dấu phẩy
+    order_ids: "Nhập các ID như: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Xác minh hàng loạt
+    bulk_verify_template: "Hi %{name}, xin vui lòng click vào liên kết %{link} để xác minh đơn đặt hàng của bạn #%{number} của %{amount} đặt trên %{store}"
+    bulk_processing_title: Xử lý đơn đặt hàng số lượng lớn
+    bulk_processing_desc: Bạn sẽ thấy đơn đặt hàng của bạn trong các bản ghi trong một thời gian.
+    bulk_processing_error: Có gì đó không ổn
+    bulk_processing_error_desc: Vui lòng thử lại hoặc liên hệ với chúng tôi nếu sự cố vẫn còn.
+    reach_out_title: Tính năng chưa được kích hoạt.
+    reach_out_desc: Vui lòng liên hệ với chúng tôi để kích hoạt tính năng này.
+    order_cancelled: Đơn đặt hàng của bạn đã bị hủy
+    order_details_title: Chi tiết đơn hàng (Vui lòng bấm vào hủy hoặc xác nhận)
+    react_out_to_us: Xin vui lòng liên hệ với chúng tôi để có đơn đặt hàng số lượng lớn
+    react_out_locked_title: Yêu cầu phê duyệt.
+    react_out_locked_desc: Vui lòng liên hệ với chúng tôi qua email <b>hoặc chat</b> để kích hoạt tài khoản của bạn.
+    view_cost: Xem chi phí SMS.
+    pricing_for_country: "Phí SMS mặc định của ứng dụng cho <b>%{country}</b> là <b>$%{charge}</b> cho mỗi sms"
+    view_complete_pricing: Xem bảng giá cho tất cả các quốc gia
+    chat_for_bulk_integration: Trò chuyện với chúng tôi để định giá hàng loạt hoặc tích hợp tùy chỉnh.
+    advance_settings: Cài đặt nâng cao
+    link_settings: Cài đặt liên kết xác minh
+    show_cancel_button: Hiển thị nút hủy
+    show_cancel_button_help: chỉ được hỗ trợ trong luồng xác minh liên kết.
+    auto_verify: Tự động xác minh
+    auto_verify_help: Tự động xác minh thứ tự trên nhấp vào liên kết xác minh.
+    otp_settings: Cài đặt OTP
+    max_retries: Số lần thử lại SMS tối đa cho mỗi đơn hàng
+    otp_wait_time: Gửi lại thời gian chờ OTP
+    otp_fallback_text: Hỗ trợ OTP hoặc văn bản dự phòng
+    otp_fallback_text_help: HTML được hỗ trợ
+    network_provider_integration: Tích hợp nhà cung cấp mạng
+    network_provider: Nhà cung cấp mạng
+    required: Bắt buộc
+    phone_number: Số điện thoại
+    integration_cost_reduce: Tích hợp giúp giảm chi phí tổng thể của bạn xuống gần một phần ba
+    need_help: Cần giúp đỡ?
+    create_x_account: Tạo tài khoản %{brand}
+    x_configuration: "%{brand} cấu hình"
+    need_more_sms: Trò chuyện với chúng tôi để đăng ký và định giá.
+    price_for_country: "$%{price} cho mỗi tin nhắn trong %{country}"
+    sms_cost_included: Đã bao gồm chi phí SMS
+    sms_cost_extra: Bạn có thể trả tiền SMS cho nhà cung cấp trực tiếp
+    view: Xem
+    order_number: Số thứ tự
+    get_access_token: Tạo mã thông báo truy cập
+    goto_orders: Đi tới đơn đặt hàng
+    whatsapp_approval_request_sent: Yêu cầu phê duyệt WhatsApp đã được gửi
+    whatsapp_approval_request_sent_failure: 'Không thành công: - Yêu cầu phê duyệt WhatsApp không thành công'
+  script:
+    submit: Gửi
+    mobile_phone_number: Số không có 0 và mã quốc gia
+    enter_valid_phone: Nhập số điện thoại hợp lệ
+    verify_for_smooth_delivery: Xin vui lòng xác minh số của bạn để giao hàng trơn tru của đơn đặt hàng
+    click_verify_link: Một liên kết đã được gửi vào số của bạn - <b>%{number}</b>
+    enter_otp_msg: "Vui lòng nhập OTP được gửi vào <b>%{number}</b>"
+    enter_otp: Nhập OTP
+    change: Thay đổi
+    invalid_otp: OTP không hợp lệ, vui lòng thử lại
+    resend_otp: Gửi lại OTP
+    confirm_order: Xác nhận đơn hàng của bạn
+    sending: "Đang gửi..."
+    order_being_processed: Đơn hàng của anh đang được xử lý.
+    if_not_redirected: Nếu bạn không được tự động chuyển hướng, hãy làm mới trang này.
+    resend_in_x_seconds: "Gửi lại OTP trong %{count} giây"
+    max_retries_reached: Đã đạt giới hạn thử lại tối đa.
+    order_details: Chi tiết đơn hàng
+    send_code_on_whatsapp: Nhận mã trên Whatsapp

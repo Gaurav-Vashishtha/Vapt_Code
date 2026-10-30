@@ -1,0 +1,21 @@
+<p><%= t('cod_form_mailer.common.greeting', name: @owner) %></p>
+
+<p>
+  <% if @level == 100 %>
+    <%= t('cod_form_mailer.usage_notice.intro_100', shop: @shop_name, orders: @orders, cap: @cap) %>
+  <% else %>
+    <%= t('cod_form_mailer.usage_notice.intro_80', shop: @shop_name, orders: @orders, cap: @cap, percent: @percent) %>
+  <% end %>
+</p>
+
+<p><%= t("cod_form_mailer.usage_notice.#{@body_key}", cap: @cap, grace: @grace_orders, limit: @cap + @grace_orders) %></p>
+
+<% if @body_key.end_with?('flag_only') || !@paid %>
+  <p><%= t(@paid ? 'cod_form_mailer.usage_notice.upgrade_paid' : 'cod_form_mailer.usage_notice.upgrade_free') %></p>
+<% end %>
+
+<p><a href="<%= @admin_url %>"><%= t('cod_form_mailer.common.open_app') %></a></p>
+
+<p><%= t('cod_form_mailer.common.reset_note') %></p>
+
+<p><%= t('cod_form_mailer.common.sign_off_html') %></p>

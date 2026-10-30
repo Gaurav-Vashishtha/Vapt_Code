@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Session Recordings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Session Recordings</h1>
+          <p class="text-sm text-gray-500">
+            Screen replay of the onboarding + first session, kept for <%= @retention_hours %> hours
+          </p>
+        </div>
+        <%= link_to support_dashboard_path,
+            class: "flex items-center gap-2 bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" do %>
+          ← Back to dashboard
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- Capture status -->
+    <div class="mb-6 flex flex-wrap items-center gap-4 text-sm">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md <%= @recording_enabled ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700' %>">
+        <span class="w-2 h-2 rounded-full <%= @recording_enabled ? 'bg-emerald-500' : 'bg-red-500' %>"></span>
+        Capture <%= @recording_enabled ? 'on' : 'off' %>
+      </span>
+      <span class="text-gray-600">Sampling <strong><%= @sample_percent %>%</strong> of new installs</span>
+      <span class="text-gray-600">Retention <strong><%= @retention_hours %>h</strong></span>
+      <span class="text-gray-600"><strong><%= @total %></strong> recordings stored (<%= @storage_mb %> MB)</span>
+    </div>
+
+    <!-- Where sessions stop -->
+    <% if @stage_summary.present? %>
+      <div class="mb-6 bg-white border border-gray-200 rounded-lg p-4">
+        <h2 class="text-sm font-semibold text-gray-700 mb-3">Furthest stage reached (this page)</h2>
+        <div class="flex flex-wrap gap-2">
+          <% @stage_summary.each do |label, count| %>
+            <span class="px-3 py-1.5 rounded-md bg-gray-100 text-sm text-gray-700">
+              <%= label %> <span class="font-semibold text-gray-900"><%= count %></span>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Filters -->
+    <form method="get" action="<%= support_dashboard_session_recordings_path %>"
+          class="mb-6 flex flex-wrap items-end gap-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Shop domain</label>
+        <input type="text" name="shop_domain" value="<%= @domain %>" placeholder="store.myshopify.com"
+               class="px-3 py-1.5 rounded-md text-sm bg-white border border-gray-300 text-gray-700 w-64" />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Min length (s)</label>
+        <input type="number" name="min_seconds" value="<%= @min_seconds %>" min="0"
+               class="px-3 py-1.5 rounded-md text-sm bg-white border border-gray-300 text-gray-700 w-28" />
+      </div>
+      <label class="flex items-center gap-2 text-sm text-gray-700 pb-1.5">
+        <input type="checkbox" name="only_drops" value="1" <%= 'checked' if @only_drops %>
+               class="rounded border-gray-300" />
+        Only drop-offs (never approved billing)
+      </label>
+      <button type="submit"
+              class="px-4 py-1.5 rounded-md text-sm font-medium bg-sky-600 text-white hover:bg-sky-700">Apply</button>
+      <%= link_to "Reset", support_dashboard_session_recordings_path,
+          class: "px-3 py-1.5 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+    </form>
+
+    <!-- Recordings -->
+    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Shop</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Started</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Length</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reached</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last page</th>
+            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
+            <th class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% @rows.each do |row| %>
+            <% recording = row[:recording] %>
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 text-sm">
+                <div class="font-medium text-gray-900"><%= recording.shopify_domain %></div>
+                <div class="text-xs text-gray-500">
+                  <%= recording.metadata["plan"] || "—" %><%= " · #{recording.metadata['country']}" if recording.metadata["country"].present? %>
+                </div>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-700">
+                <%= recording.started_at.in_time_zone("Asia/Kolkata").strftime("%d %b, %I:%M %p") %>
+                <div class="text-xs text-gray-400"><%= time_ago_in_words(recording.started_at) %> ago</div>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-700"><%= recording.duration_label %></td>
+              <td class="px-4 py-3 text-sm">
+                <span class="px-2 py-1 rounded text-xs font-medium <%= row[:converted] ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' %>">
+                  <%= row[:stage_label] %>
+                </span>
+              </td>
+              <td class="px-4 py-3 text-sm text-gray-500 max-w-xs truncate"><%= recording.last_path %></td>
+              <td class="px-4 py-3 text-sm text-gray-500">
+                <%= number_to_human_size(recording.compressed_bytes) %>
+                <div class="text-xs text-gray-400"><%= recording.event_count %> events</div>
+              </td>
+              <td class="px-4 py-3 text-right">
+                <%= link_to "Watch", support_dashboard_session_recording_path(recording),
+                    class: "px-3 py-1.5 rounded-md text-sm font-medium bg-sky-600 text-white hover:bg-sky-700" %>
+              </td>
+            </tr>
+          <% end %>
+
+          <% if @rows.empty? %>
+            <tr>
+              <td colspan="7" class="px-4 py-10 text-center text-sm text-gray-500">
+                No recordings match this filter.
+                <% unless @recording_enabled %>
+                  <br>Capture is currently switched off (SESSION_RECORDING_ENABLED=false).
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paging -->
+    <div class="mt-4 flex items-center justify-between text-sm text-gray-600">
+      <span>Page <%= @page %></span>
+      <div class="flex gap-2">
+        <% if @page > 1 %>
+          <%= link_to "← Newer", support_dashboard_session_recordings_path(request.query_parameters.merge(page: @page - 1)),
+              class: "px-3 py-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-50" %>
+        <% end %>
+        <% if @total > @page * SupportDashboard::SessionRecordingsController::PER_PAGE %>
+          <%= link_to "Older →", support_dashboard_session_recordings_path(request.query_parameters.merge(page: @page + 1)),
+              class: "px-3 py-1.5 rounded-md bg-white border border-gray-300 hover:bg-gray-50" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

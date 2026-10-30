@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; margin: 0; padding: 0; background-color: #f4f4f4; }
+    .container { max-width: 600px; margin: 20px auto; padding: 20px; background-color: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    h1 { color: #333; border-bottom: 3px solid #ff6600; padding-bottom: 10px; }
+    .info-box { background-color: #f8f9fa; padding: 15px; border-left: 4px solid #ff6600; margin: 20px 0; border-radius: 4px; }
+    .amount { font-size: 20px; font-weight: bold; color: #16a34a; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Referral Payout Processed</h1>
+    <p>A referral payout has been processed successfully.</p>
+    <div class="info-box">
+      <p><strong>Partner:</strong> <%= @partner.name %></p>
+      <p><strong>Email:</strong> <%= @partner.email %></p>
+      <p><strong>Amount:</strong> <span class="amount">$<%= number_with_precision(@amount, precision: 2) %></span></p>
+      <p><strong>Payout date:</strong> <%= @payout_date.strftime('%B %d, %Y') %></p>
+      <p><strong>Payment method:</strong> <%= @payment_method&.humanize %></p>
+      <p><strong>Payout ID:</strong> #<%= @payout.id %></p>
+    </div>
+  </div>
+</body>
+</html>

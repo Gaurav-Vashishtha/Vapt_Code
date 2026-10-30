@@ -1,0 +1,542 @@
+<style>
+  :root {
+    --purple: #734DFF;
+    --purple-deep: #3613B6;
+    --purple-wash: #F1EDFF;
+    --green: #7CD548;
+    --green-wash: #EEF9E7;
+    --ink: #1D1B26;
+    --muted: #667085;
+    --line: #E5E7EB;
+    --surface: #F7F7F7;
+    --white: #FFFFFF;
+    --display: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    --body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--white); color: var(--ink); font: 400 16px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  a { color: var(--purple-deep); }
+  :focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; border-radius: 6px; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+  /* Top bar */
+  .topbar { border-bottom: 1px solid var(--line); }
+  .topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 68px; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 600 17px/1 var(--display); color: var(--ink); text-decoration: none; }
+  .brand img { width: 30px; height: 30px; border-radius: 8px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 18px; border-radius: 999px; font: 600 14px/1 var(--body); text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap; }
+  .btn-primary { background: var(--purple); color: var(--white); }
+  .btn-primary:hover { background: var(--purple-deep); }
+  .btn-quiet { background: transparent; color: var(--purple-deep); border-color: var(--line); }
+  .btn-quiet:hover { border-color: var(--purple); }
+
+  /* Hero: the country picker is the headline */
+  .hero { padding: 56px 0 24px; }
+  .hero h1 { font: 600 clamp(30px, 4.2vw, 46px)/1.2 var(--display); letter-spacing: -0.02em; margin: 0; max-width: 26ch; color: var(--ink); }
+  /* Headline country picker: a soft pill that opens a searchable list */
+  .country-pick { position: relative; display: inline-block; white-space: nowrap; }
+  .country-pick select { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .country-btn {
+    display: inline-flex; align-items: center; gap: 0.24em; font: inherit; letter-spacing: inherit; color: var(--purple-deep);
+    background: transparent; border: 0; border-bottom: 2px dashed #C9BCFF; border-radius: 0; padding: 0 0.04em 0.02em; margin-left: 0.04em;
+    cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease; line-height: 1.08;
+  }
+  .country-btn:hover, .country-btn[aria-expanded="true"] { color: var(--purple); border-bottom-color: var(--purple); }
+  .country-btn:focus-visible { outline: 2px solid var(--purple); outline-offset: 4px; border-radius: 6px; }
+  .country-btn .flag { width: 0.6em; height: 0.44em; border-radius: 0.06em; object-fit: cover; box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.08); flex: none; }
+  .country-btn .chev {
+    display: inline-grid; place-items: center; width: 0.5em; height: 0.5em; margin-left: -0.04em;
+    color: var(--purple); opacity: 0.75; flex: none; transition: transform 0.2s ease;
+  }
+  .country-btn .chev svg { width: 70%; height: 70%; }
+  .country-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+
+  .country-pop {
+    position: fixed; z-index: 60; width: min(340px, calc(100vw - 32px)); background: var(--white);
+    border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 24px 56px rgba(54, 19, 182, 0.16), 0 2px 6px rgba(17, 17, 17, 0.06);
+    font: 400 15px/1.4 var(--body); letter-spacing: normal; color: var(--ink); padding: 8px; white-space: normal;
+  }
+  .country-pop[hidden] { display: none; }
+  .country-search { position: relative; margin-bottom: 6px; }
+  .country-search svg { position: absolute; left: 12px; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .country-search input {
+    width: 100%; height: 42px; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px 0 36px;
+    font: inherit; color: var(--ink); background: var(--surface); outline: none;
+  }
+  .country-search input:focus { border-color: var(--purple); background: var(--white); box-shadow: 0 0 0 3px var(--purple-wash); }
+  .country-list { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; overscroll-behavior: contain; }
+  .country-list li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 9px; cursor: pointer; }
+  .country-list li .flag { width: 22px; height: 16px; border-radius: 3px; object-fit: cover; box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.08); flex: none; }
+  .country-list li .cname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .country-list li .ccode { color: var(--muted); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; }
+  .country-list li .tick { width: 16px; height: 16px; color: var(--purple); visibility: hidden; flex: none; }
+  .country-list li[aria-selected="true"] { font-weight: 700; color: var(--purple-deep); }
+  .country-list li[aria-selected="true"] .tick { visibility: visible; }
+  .country-list li.active { background: var(--purple-wash); }
+  .country-list .empty { color: var(--muted); cursor: default; justify-content: center; padding: 18px 10px; }
+  .flag.blank { background: var(--surface); }
+  .hero p.lede { font-size: 17px; color: var(--muted); max-width: 62ch; margin: 16px 0 0; }
+  .hero .facts { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 20px 0 0; padding: 0; list-style: none; }
+  .hero .facts li { font-size: 14px; color: var(--muted); }
+  .hero .facts li::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 8px; vertical-align: 2px; }
+
+  /* Rate table */
+  .section { padding: 40px 0; }
+  .section h2 { font: 600 clamp(22px, 2.6vw, 28px)/1.2 var(--display); letter-spacing: -0.015em; margin: 0 0 6px; }
+  .section .sub { color: var(--muted); font-size: 15px; margin: 0 0 22px; max-width: 70ch; }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+  table.rates { width: 100%; border-collapse: collapse; min-width: 760px; }
+  .rates th, .rates td { padding: 16px 20px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  .rates tr:last-child td { border-bottom: 0; }
+  .rates thead th { background: var(--white); vertical-align: top; border-bottom: 1px solid var(--line); padding-top: 20px; padding-bottom: 18px; }
+  .rates thead th.plan { width: 17%; }
+  .plan-name { font: 500 14px/1.3 var(--body); color: var(--muted); display: block; }
+  .plan-price { font: 600 22px/1.15 var(--display); display: block; margin-top: 4px; letter-spacing: -0.01em; color: var(--ink); }
+  .plan-price small { font: 500 13px var(--body); color: var(--muted); letter-spacing: 0; }
+  .plan-tag { display: inline-block; margin-top: 8px; font-size: 12px; font-weight: 700; color: var(--purple-deep); background: var(--purple-wash); border-radius: 999px; padding: 2px 9px; font-weight: 600; }
+  .rates td.what { width: 32%; }
+  .what strong { display: block; font-weight: 600; font-size: 15px; }
+  .what span { display: block; color: var(--muted); font-size: 13.5px; line-height: 1.5; margin-top: 2px; }
+  .rates td.num { font: 600 16px/1.4 var(--body); font-variant-numeric: tabular-nums; color: var(--ink); }
+  .rates td.num .per { font: 400 13px var(--body); color: #98A2B3; }
+  .rates td.na { color: #98A2B3; font-size: 13.5px; }
+  .rates tbody tr.group td { background: #FAFAFB; font-weight: 600; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); padding-top: 9px; padding-bottom: 9px; }
+
+  /* Estimator */
+  .estimator { background: #FAFAFB; border: 1px solid var(--line); border-radius: 18px; padding: 32px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 32px; }
+  .inputs { display: grid; gap: 16px; align-content: start; }
+  .field label { display: block; font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+  .field .hint { display: block; color: var(--muted); font-size: 13.5px; margin-bottom: 8px; }
+  .field input { width: 100%; height: 44px; border: 1px solid var(--line); border-radius: 10px; padding: 0 14px; font: 500 16px var(--body); background: var(--white); color: var(--ink); font-variant-numeric: tabular-nums; }
+  .field input:focus { border-color: var(--purple); outline: none; box-shadow: 0 0 0 3px var(--purple-wash); }
+  .totals { display: grid; gap: 12px; align-content: start; }
+  .total { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: baseline; }
+  .total .name { font: 600 15px var(--body); }
+  .total .sum { font: 600 20px/1 var(--display); font-variant-numeric: tabular-nums; text-align: right; }
+  .total .split { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
+  .total.best { border-color: #B7E59A; box-shadow: 0 0 0 3px var(--green-wash); }
+  .total .badge { display: none; font-size: 11.5px; font-weight: 600; background: var(--green-wash); color: #3D7A1C; border-radius: 999px; padding: 2px 9px; margin-left: 8px; vertical-align: 2px; }
+  .total.best .badge { display: inline-block; }
+
+  /* How billing works */
+  .how { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; margin: 0; padding: 0; list-style: none; }
+  .how li { border-top: 1px solid var(--line); padding-top: 16px; }
+  .how h3 { font: 600 17px/1.3 var(--display); margin: 0 0 6px; }
+  .how p { margin: 0; color: var(--muted); font-size: 15px; }
+
+  .cta-band { margin: 48px 0 0; background: var(--purple-wash); color: var(--ink); border-radius: 18px; padding: 32px 36px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .cta-band h2 { font: 600 clamp(20px, 2.4vw, 24px)/1.3 var(--display); margin: 0; max-width: 28ch; }
+  .cta-band p { margin: 6px 0 0; color: var(--muted); }
+  .cta-band .btn-primary { background: var(--purple); color: var(--white); }
+  .cta-band .btn-primary:hover { background: var(--purple-deep); }
+
+  footer { margin-top: 64px; border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--muted); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+  footer a { color: var(--muted); margin-right: 16px; }
+
+  .plan-switch { display: none; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+  .plan-switch button { height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--white); font: 600 14px var(--body); color: var(--ink); cursor: pointer; }
+  .plan-switch button[aria-pressed="true"] { background: var(--purple-wash); border-color: #C9BCFF; color: var(--purple-deep); }
+  @media (max-width: 720px) {
+    .plan-switch { display: flex; }
+    table.rates { min-width: 0; }
+    .rates td.what { width: auto; }
+    .rates td.num { white-space: nowrap; }
+    .rates td.num .per { display: block; font-size: 12px; }
+    /* Phones: show only the plan picked in the switch above the table. */
+    table.rates[data-show="free"] :is(th.plan, td.plan-cell):not(.p-free),
+    table.rates[data-show="pro"] :is(th.plan, td.plan-cell):not(.p-pro),
+    table.rates[data-show="enterprise"] :is(th.plan, td.plan-cell):not(.p-enterprise),
+    table.rates[data-show="enterprise_plus"] :is(th.plan, td.plan-cell):not(.p-enterprise_plus) { display: none; }
+  }
+  @media (max-width: 860px) {
+    .estimator { grid-template-columns: 1fr; padding: 22px; }
+    .how { grid-template-columns: 1fr; }
+    .hero { padding-top: 40px; }
+    .topbar .btn-quiet { display: none; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .flash { animation: flash 0.6s ease-out; }
+    @keyframes flash { from { background: var(--purple-wash); } to { background: transparent; } }
+  }
+</style>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="https://codking.tech">
+      <img src="https://cdn.shopify.com/s/files/1/0743/3119/3628/files/CKlogoicon-1200px_1_800x800.png?v=1762758841" alt="">
+      COD King
+    </a>
+    <div style="display:flex; gap:10px;">
+      <a class="btn btn-quiet" href="mailto:support@notifiktech.com">Talk to us</a>
+      <a class="btn btn-primary" href="https://apps.shopify.com/cash-on-delivery-cod-order-confirmation" target="_blank" rel="noopener">Install free on Shopify</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>
+        What COD King costs in
+        <span class="country-pick">
+                    <select id="country" aria-describedby="lede" tabindex="-1" aria-hidden="true">
+            <% @countries.each do |c| %>
+              <option value="<%= c[:code] %>" <%= 'selected' if c[:code] == @default_country %>><%= c[:name] %></option>
+            <% end %>
+          </select>
+          <button type="button" class="country-btn" id="country-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="country-pop">
+            <img class="flag" id="country-flag" alt="" hidden>
+            <span id="country-label"></span>
+            <span class="chev" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          </button>
+          <div class="country-pop" id="country-pop" hidden>
+            <div class="country-search">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <input type="text" id="country-search" placeholder="Search countries" autocomplete="off" spellcheck="false"
+                     role="combobox" aria-expanded="true" aria-controls="country-list" aria-autocomplete="list" aria-label="Search countries">
+            </div>
+            <ul class="country-list" id="country-list" role="listbox" aria-label="Countries"></ul>
+          </div>
+        </span>
+      </h1>
+      <p class="lede" id="lede">
+        Pick a plan, then pay only for the messages that go out to your customers.
+        Everything is added to your Shopify bill — no setup fee, no separate invoice.
+      </p>
+      <ul class="facts">
+        <li>Start on the Free plan</li>
+        <li>Undelivered WhatsApp messages aren't charged</li>
+        <li>Change or cancel your plan anytime in Shopify</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="rates-title">
+    <div class="wrap">
+      <h2 id="rates-title">Usage rates in <span data-country-name></span></h2>
+      <p class="sub">The price of one message to a customer in <span data-country-name></span>, by plan. Rates are in <span data-currency-name></span>.</p>
+      <div class="plan-switch" id="plan-switch" role="group" aria-label="Show usage rates for plan"></div>
+      <div class="table-scroll">
+        <table class="rates" id="rates" data-show="pro">
+          <thead><tr id="plan-heads"><th scope="col"><span class="sr-only" style="position:absolute;left:-9999px">Message type</span></th></tr></thead>
+          <tbody id="rate-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="estimate-title">
+    <div class="wrap">
+      <h2 id="estimate-title">Estimate your month</h2>
+      <p class="sub">Enter roughly how many messages you send in a month. We'll add the plan fee and show which plan costs you least.</p>
+      <div class="estimator">
+        <div class="inputs">
+          <div class="field">
+            <label for="n-sms">SMS</label>
+            <span class="hint">OTPs and order verification by SMS</span>
+            <input id="n-sms" type="number" min="0" step="100" value="1000" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="n-utility">WhatsApp order updates</label>
+            <span class="hint">COD verification, order confirmation, shipping and pre-order OTP</span>
+            <input id="n-utility" type="number" min="0" step="100" value="1000" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="n-marketing">WhatsApp nudges</label>
+            <span class="hint">Abandoned cart, COD-to-prepaid, first purchase</span>
+            <input id="n-marketing" type="number" min="0" step="100" value="1000" inputmode="numeric">
+          </div>
+          <div class="field" id="field-bsp">
+            <label for="n-bsp">WhatsApp from your own number</label>
+            <span class="hint">Enterprise plans only. Meta bills its own fee to you directly.</span>
+            <input id="n-bsp" type="number" min="0" step="100" value="0" inputmode="numeric">
+          </div>
+        </div>
+        <div class="totals" id="totals" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title">How billing works</h2>
+      <p class="sub">Plain answers to the questions merchants ask us most.</p>
+      <ul class="how">
+        <li>
+          <h3>One bill, through Shopify</h3>
+          <p>Your plan and your message usage are charged as Shopify app charges. You never get a separate invoice from us.</p>
+        </li>
+        <li>
+          <h3>You pay for what goes out</h3>
+          <p>We only charge for messages that were sent. If WhatsApp refuses a message, you aren't charged — and for COD verification and reminders we try again later automatically.</p>
+        </li>
+        <li>
+          <h3>Order updates cost less than nudges</h3>
+          <p>WhatsApp prices order updates (confirmation, shipping) lower than messages that ask the customer to act (verification, abandoned cart). Our rates follow the same split.</p>
+        </li>
+        <li>
+          <h3>Your own WhatsApp number</h3>
+          <p>On Enterprise plans you can send from your brand's own number. Meta bills its message fee to you directly and we add a small per-message fee, shown above.</p>
+        </li>
+      </ul>
+
+      <div class="cta-band">
+        <div>
+          <h2>Sending a lot of messages, or need custom branding?</h2>
+          <p>Write to support@notifiktech.com or reach us on WhatsApp at +91 91307 51989.</p>
+        </div>
+        <a class="btn btn-primary" href="mailto:support@notifiktech.com?subject=COD%20King%20pricing">Email us</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <a href="https://codking.notion.site/Privacy-Policy-COD-King-1ab6e71a63f980fb882df2e6a7173576">Privacy</a>
+      <a href="https://codking.notion.site/Terms-and-Conditions-COD-King-1a96e71a63f980358f6fe23c3c96485c">Terms</a>
+    </div>
+    <div>
+      <% if @updated_on %>Usage rates updated <%= @updated_on.strftime('%-d %B %Y') %>. <% end %>
+      Taxes may apply. &copy; <%= Time.now.year %> COD King by Notifik Technologies LLP
+    </div>
+  </div>
+</footer>
+
+<script id="pricing-data" type="application/json"><%= raw json_escape(@countries.to_json) %></script>
+<script>
+(function () {
+  var countries = JSON.parse(document.getElementById('pricing-data').textContent);
+  var byCode = {};
+  countries.forEach(function (c) { byCode[c.code] = c; });
+
+  var select = document.getElementById('country');
+  var heads = document.getElementById('plan-heads');
+  var rows = document.getElementById('rate-rows');
+  var totals = document.getElementById('totals');
+  var planSwitch = document.getElementById('plan-switch');
+
+  // Headline country picker: pill trigger + searchable listbox. The hidden <select> stays the source of truth.
+  var pickBtn = document.getElementById('country-btn');
+  var pickLabel = document.getElementById('country-label');
+  var pickFlag = document.getElementById('country-flag');
+  var pop = document.getElementById('country-pop');
+  var search = document.getElementById('country-search');
+  var list = document.getElementById('country-list');
+  var countryOpts = Array.prototype.map.call(select.options, function (o) { return { code: o.value, name: o.text }; });
+  var shown = [];
+  var active = 0;
+  var TICK = '<svg class="tick" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
+  function flagUrl(code) { return /^[A-Za-z]{2}$/.test(code) ? 'https://flagcdn.com/' + code.toLowerCase() + '.svg' : null; }
+  function flagHtml(code) {
+    var u = flagUrl(code);
+    return u ? '<img class="flag" src="' + u + '" alt="" loading="lazy">' : '<span class="flag blank"></span>';
+  }
+
+  function syncTrigger() {
+    var o = select.options[select.selectedIndex];
+    if (!o) return;
+    pickLabel.textContent = o.text;
+    var u = flagUrl(o.value);
+    if (u) { pickFlag.src = u; pickFlag.hidden = false; } else { pickFlag.hidden = true; }
+    pickBtn.setAttribute('aria-label', 'Country: ' + o.text + '. Change country');
+  }
+
+  function drawList() {
+    var q = search.value.trim().toLowerCase();
+    shown = countryOpts.filter(function (c) {
+      return !q || c.name.toLowerCase().indexOf(q) !== -1 || c.code.toLowerCase() === q;
+    });
+    if (q) shown.sort(function (a, b) {
+      return (a.name.toLowerCase().indexOf(q) === 0 ? 0 : 1) - (b.name.toLowerCase().indexOf(q) === 0 ? 0 : 1);
+    });
+    if (!shown.length) {
+      list.innerHTML = '<li class="empty" role="presentation">No country matches “' + esc(search.value.trim()) + '”</li>';
+      search.removeAttribute('aria-activedescendant');
+      return;
+    }
+    active = Math.max(0, Math.min(active, shown.length - 1));
+    list.innerHTML = shown.map(function (c, i) {
+      return '<li role="option" id="copt-' + i + '" data-code="' + esc(c.code) + '" aria-selected="' + (c.code === select.value) + '"' +
+        (i === active ? ' class="active"' : '') + '>' + flagHtml(c.code) + '<span class="cname">' + esc(c.name) + '</span>' +
+        '<span class="ccode">' + esc(c.code) + '</span>' + TICK + '</li>';
+    }).join('');
+    search.setAttribute('aria-activedescendant', 'copt-' + active);
+  }
+
+  function setActive(i) {
+    if (!shown.length) return;
+    active = (i + shown.length) % shown.length;
+    list.querySelectorAll('li.active').forEach(function (li) { li.classList.remove('active'); });
+    var li = document.getElementById('copt-' + active);
+    if (li) { li.classList.add('active'); li.scrollIntoView({ block: 'nearest' }); }
+    search.setAttribute('aria-activedescendant', 'copt-' + active);
+  }
+
+  function placePop() {
+    var r = pickBtn.getBoundingClientRect();
+    var w = pop.offsetWidth;
+    pop.style.left = Math.max(16, Math.min(r.left, window.innerWidth - w - 16)) + 'px';
+    pop.style.top = (r.bottom + 10) + 'px';
+  }
+
+  function openPick() {
+    if (!pop.hidden) return;
+    search.value = '';
+    active = Math.max(0, countryOpts.findIndex(function (c) { return c.code === select.value; }));
+    pop.hidden = false;
+    pickBtn.setAttribute('aria-expanded', 'true');
+    drawList();
+    placePop();
+    search.focus();
+    setActive(active);
+  }
+
+  function closePick(refocus) {
+    if (pop.hidden) return;
+    pop.hidden = true;
+    pickBtn.setAttribute('aria-expanded', 'false');
+    if (refocus) pickBtn.focus();
+  }
+
+  function choose(code) {
+    closePick(true);
+    if (!code || code === select.value) return;
+    select.value = code;
+    select.dispatchEvent(new Event('change'));
+  }
+
+  pickBtn.addEventListener('click', function () { pop.hidden ? openPick() : closePick(true); });
+  pickBtn.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); openPick(); }
+  });
+  search.addEventListener('input', function () { active = 0; drawList(); list.scrollTop = 0; });
+  search.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive(active + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActive(active - 1); }
+    else if (e.key === 'Enter') { e.preventDefault(); if (shown[active]) choose(shown[active].code); }
+    else if (e.key === 'Escape') { e.preventDefault(); closePick(true); }
+    else if (e.key === 'Tab') { closePick(false); }
+  });
+  // A flag that fails to load becomes a neutral swatch.
+  list.addEventListener('error', function (e) {
+    if (e.target.tagName === 'IMG') { e.target.classList.add('blank'); e.target.removeAttribute('src'); }
+  }, true);
+  pickFlag.addEventListener('error', function () { pickFlag.hidden = true; });
+  list.addEventListener('mousemove', function (e) {
+    var li = e.target.closest && e.target.closest('li[role="option"]');
+    if (li) { var i = parseInt(li.id.slice(5), 10); if (i !== active) setActive(i); }
+  });
+  list.addEventListener('click', function (e) {
+    var li = e.target.closest && e.target.closest('li[role="option"]');
+    if (li) choose(li.getAttribute('data-code'));
+  });
+  document.addEventListener('mousedown', function (e) {
+    if (!pop.hidden && !pop.contains(e.target) && !pickBtn.contains(e.target)) closePick(false);
+  });
+  window.addEventListener('resize', function () { if (!pop.hidden) placePop(); });
+  window.addEventListener('scroll', function () { if (!pop.hidden) placePop(); }, { passive: true });
+
+  planSwitch.addEventListener('click', function (e) {
+    var key = e.target.getAttribute && e.target.getAttribute('data-plan');
+    if (!key) return;
+    document.getElementById('rates').dataset.show = key;
+    planSwitch.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-plan') === key)); });
+  });
+  var inputs = ['sms', 'utility', 'marketing', 'bsp'].map(function (k) { return document.getElementById('n-' + k); });
+
+  var ROWS = [
+    { group: 'WhatsApp' },
+    { key: 'utility', title: 'Order updates', note: 'COD verification, order confirmation, shipping update, pre-order OTP' },
+    { key: 'marketing', title: 'Nudges that ask for an action', note: 'Abandoned cart, COD-to-prepaid, first purchase' },
+    { key: 'bsp', title: 'From your own WhatsApp number', note: 'Our fee per message. Meta bills its fee to you directly.', missing: 'Enterprise plans' },
+    { group: 'SMS' },
+    { key: 'sms', title: 'SMS', note: 'OTPs and order verification by text' },
+    { group: 'Partial payments' },
+    { key: 'partial_fee', title: 'Fee per partially paid order', note: 'Share of the order value', percent: true }
+  ];
+
+  function money(value, currency, opts) {
+    opts = opts || {};
+    var symbol = currency === 'INR' ? '₹' : '$';
+    if (value === 0) return symbol + '0';
+    var digits = opts.whole ? (value % 1 === 0 ? 0 : 2) : (value >= 1 ? 2 : value >= 0.1 ? 3 : 4);
+    var s = value.toLocaleString(currency === 'INR' ? 'en-IN' : 'en-US', { minimumFractionDigits: opts.whole ? digits : Math.min(digits, 2), maximumFractionDigits: digits });
+    return symbol + s;
+  }
+
+  function cell(value, row, currency, planKey) {
+    var cls = 'plan-cell p-' + planKey;
+    if (value === null || value === undefined) {
+      return '<td class="na ' + cls + '">' + (row.missing ? 'Available on ' + row.missing : 'Not available') + '</td>';
+    }
+    if (row.percent) return '<td class="num ' + cls + '">' + (value === 0 ? 'No fee' : value + '%') + '</td>';
+    return '<td class="num ' + cls + '">' + money(value, currency) + ' <span class="per">/ message</span></td>';
+  }
+
+  function render(code) {
+    var c = byCode[code];
+    if (!c) return;
+    document.querySelectorAll('[data-country-name]').forEach(function (el) { el.textContent = c.name; });
+    document.querySelectorAll('[data-currency-name]').forEach(function (el) {
+      el.textContent = c.currency === 'INR' ? 'Indian rupees, including all messages to Indian numbers' : 'US dollars';
+    });
+
+    heads.innerHTML = '<th scope="col"></th>' + c.plans.map(function (p) {
+      var price = money(p.price, c.currency, { whole: true }) + ' <small>/ month</small>';
+      var tag = p.key === 'enterprise' ? '<span class="plan-tag">Most popular</span>' : '';
+      return '<th scope="col" class="plan p-' + p.key + '"><span class="plan-name">' + p.name + '</span><span class="plan-price">' + price + '</span>' + tag + '</th>';
+    }).join('');
+
+    rows.innerHTML = ROWS.map(function (row) {
+      if (row.group) return '<tr class="group"><td colspan="' + (c.plans.length + 1) + '">' + row.group + '</td></tr>';
+      return '<tr><td class="what"><strong>' + row.title + '</strong><span>' + row.note + '</span></td>' +
+        c.plans.map(function (p) { return cell(p[row.key], row, c.currency, p.key); }).join('') + '</tr>';
+    }).join('');
+
+    var table = document.getElementById('rates');
+    planSwitch.innerHTML = c.plans.map(function (p) {
+      return '<button type="button" data-plan="' + p.key + '" aria-pressed="' + (table.dataset.show === p.key) + '">' + p.name + '</button>';
+    }).join('');
+    syncTrigger();
+    rows.classList.remove('flash'); void rows.offsetWidth; rows.classList.add('flash');
+    estimate();
+  }
+
+  function estimate() {
+    var c = byCode[select.value];
+    if (!c) return;
+    var n = inputs.map(function (i) { return Math.max(0, parseFloat(i.value) || 0); });
+    var results = c.plans.map(function (p) {
+      var usage = n[0] * (p.sms || 0) + n[1] * (p.utility || 0) + n[2] * (p.marketing || 0);
+      var bspNote = '';
+      if (n[3] > 0) {
+        if (p.bsp === null || p.bsp === undefined) bspNote = '. Own-number sending needs an Enterprise plan';
+        else usage += n[3] * p.bsp;
+      }
+      return { plan: p, usage: usage, total: p.price + usage, bspNote: bspNote, eligible: !(n[3] > 0 && (p.bsp === null || p.bsp === undefined)) };
+    });
+    var eligible = results.filter(function (r) { return r.eligible; });
+    var best = eligible.reduce(function (a, b) { return b.total < a.total ? b : a; }, eligible[0]);
+    totals.innerHTML = results.map(function (r) {
+      var isBest = best && r === best;
+      return '<div class="total' + (isBest ? ' best' : '') + '">' +
+        '<span class="name">' + r.plan.name + '<span class="badge">Lowest for you</span></span>' +
+        '<span class="sum">' + money(r.total, c.currency, { whole: true }) + '</span>' +
+        '<span class="split">' + (r.plan.price === 0 ? 'No plan fee' : money(r.plan.price, c.currency, { whole: true }) + ' plan') +
+        ' + ' + money(r.usage, c.currency, { whole: true }) + ' messages' + r.bspNote + '</span></div>';
+    }).join('');
+  }
+
+  select.addEventListener('change', function () {
+    render(select.value);
+    try { history.replaceState(null, '', '?country=' + select.value); } catch (e) {}
+  });
+  inputs.forEach(function (i) { i.addEventListener('input', estimate); });
+  render(select.value);
+})();
+</script>

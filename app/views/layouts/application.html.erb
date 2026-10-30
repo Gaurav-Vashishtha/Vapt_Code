@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>COD Confirm</title>
+<!--     <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_packs_with_chunks_tag 'application', 'data-turbolinks-track': 'reload' %> -->
+    <meta name="robots" content="noindex">
+    <meta name="googlebot" content="noindex">
+    <%= javascript_pack_tag 'order_verify_react' %> 
+    <%= javascript_pack_tag 'order_prepaid_react' %> 
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>

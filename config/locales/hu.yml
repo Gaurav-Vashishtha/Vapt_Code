@@ -1,0 +1,229 @@
+#Files in the config/locales directory are used for internationalization
+#and are automatically loaded by Rails. If you want to use locales other
+#than English, add the necessary files in this directory.
+#To use the locales, use `I18n.t`:
+#I18n.t 'hello'
+#In views, this is aliased to just `t`:
+#<%= t('hello') %>
+#To use a different locale, set it with `I18n.locale`:
+#I18n.locale = :es
+#This would use the information in config/locales/es.yml.
+#The following keys must be escaped otherwise they will not be retrieved by
+#the default I18n backend:
+#true, false, on, off, yes, no
+#Instead, surround them with single quotes.
+#en:
+#'true': 'foo'
+#To learn more, please read the Rails Internationalization guide
+#available at https://guides.rubyonrails.org/i18n.html.
+hu:
+  hello: Helló világ
+  admin:
+    getting_started: Első lépések útmutató
+    watch_video_msg: Nézd meg a videót, foglaljon le egy foglalkozást vagy csevegjen velünk, hogy közvetlenül a COD King-el kezdhesse!
+    watch_video: Nézze meg a videót
+    book_session: Könyv munkamenet
+    chat_with_us: Csevegjen velünk most
+    settings: Beállítások
+    log: Napló
+    step1: 1. lépés - COD megrendelés leadva
+    step1_desc: Az ügyfél COD megrendelést helyez el. Az alkalmazás COD sorrendként azonosítja.
+    step2: 2. lépés - Az alkalmazás SMS-ben küldi az OTP-t az ügyfélnek
+    step2_desc: Az egyedi OTP-t az ügyfél mobilszámára küldjük.
+    step3: 3. lépés - OTP doboz látható Köszönöm oldal
+    step3_desc: Az ügyfél belép az OTP-be, és a kattintások ellenőrzik.
+    step4: 4. lépés - Szűrje le megrendeléseit a címke alapján.
+    step4_desc: Az ügyfél COD megrendelést helyez el. Az alkalmazás COD sorrendként azonosítja.
+    step5: 5. lépés - Szállítási költség megtakarítva
+    step5_desc: Takarítson meg szállítási költségeket a hamis megrendelések elutasításával. A megtakarított pénz a megszerzett pénz.
+    logs: Naplók
+    order_logs: Rendelési naplók
+    subscription: Előfizetés
+    settings_saved: Mentett beállítások
+    settings_saved_msg: "A változások néhány perc alatt megjelennek az üzletben."
+    activate_sms: <b>OTP</b> megerősítés aktiválása
+    activate_cod_fees: Aktiválja a <b>COD díjat</b>
+    sms_placeholder: 123456 az Ön egyszeri jelszava a COD megerősítéséhez
+    ios_code_error: A sablonnak tartalmaznia kell a „kód” kulcsszót az OTP megjelenítéséhez az iOS billentyűzeten
+    activate_ivr: <b>IVR</b> megerősítés aktiválása
+    intro_msg: Bevezető üzenet
+    intro_msg_placeholder: Köszönjük, hogy megrendelést tett.
+    order_confirm_label: Megrendelés visszaigazoló üzenet
+    order_confirm_placeholder: Kérjük, nyomja meg 1 a megrendelés megerősítéséhez.
+    order_confirm_help: Útmutató a felhasználóhoz, hogy nyomja meg az 1 gombot a megrendelés megerősítéséhez.
+    order_confirm_error: A megerősítő üzenetnek tartalmaznia kell az „1" -t a megrendelés visszaigazolásához
+    order_cancel_label: Megrendelés lemondási üzenet
+    order_cancel_placeholder: Kérjük, nyomja meg 2 a megrendelés törléséhez.
+    order_cancel_help: Útmutató a felhasználóhoz, hogy nyomja meg 2 a megrendelés törléséhez.
+    order_cancel_error: Ennek az üzenetnek tartalmaznia kell a „2" -t a megrendelés törléséhez.
+    test_sms: "SMS értesítés tesztelése"
+    enter_test_number: Adja meg a teszt számát
+    sms_sent_check_mobile: SMS elküldve. Kérjük, ellenőrizze a mobilját
+    enter_country_code: Kérjük, írja be a számot az országkóddal, miközben teszteli itt
+    number_cc_example: például. %{number}
+    send_sms: SMS küldése
+    message_template: Üzenet sablon
+    test_ivr: Tesztelje az IVR hívást
+    cod_fees: A KOI díjak összege
+    cod_fees_help: A hozzáadni kívánt pénzösszeg, ha az ügyfél COD megrendelést ad le.
+    cod_label: A KOI díjakhoz csatolandó címke
+    cod_label_help: További díjakért megjelenítendő címke
+    cod_instruction: COD szállítási utasítás
+    cod_instruction_help: Ez az üzenet megjelenik az ügyfelek számára a Köszönöm oldalon, amikor a megrendelés befejeződött.
+    please_check_mobile: Kérjük, ellenőrizze a mobilját
+    call_now: Hívj most
+    unsaved: Nem mentett módosítások
+    x_chars_used: "%{count} / %{total} használt karakter"
+    deactivate: Deaktiválás
+    save: Mentés
+    discard: Dobja el
+    free_plan: Ingyenes terv
+    pro_plan: Pro terv
+    vip_plan: Vip terv
+    feature_1: 0,02 USD-t indít SMS-ben
+    feature_2: 0,06 USD/IVR
+    feature_3: 1-től 1-ig hívás a fedélzetre
+    feature_4: Elsőbbségi támogatás
+    feature_1_pro: Az üzletek több mint 100 COD megrendelések havonta
+    custom_plan: Hálózati szolgáltató integrációs terv
+    subscribe: Feliratkozás
+    subscribed: Feliratkozott
+    recommended: Ajánlott
+    sms_template_default: "{{otp}} az ellenőrző kód, amely megerősíti a %{store}-on leadott COD megrendelést"
+    retry_template_default: "Köszönjük, hogy COD megrendelést adott %{store}. Kérjük, erősítse meg megrendelését az {{link}} birdch link meglátogatásával"
+    prepaid_template_default: "a linkre kattintva konvertálja megrendelését előre fizetetté. {{link}}"
+    order_confirm_template_default: "Köszönjük vásárlását a %{store}oldalon. Megrendelése visszaigazolásra került - Rendelési szám {{number}}"
+    fulfilment_template_default: "Rendelését %{store} honlapról szállítottuk - Rendelésének nyomon követése {{tracking_url}}oldalon"
+    ivr_introduction: "Köszönjük, hogy megrendelést tett %{domain}."
+    ivr_confirm_message: Kérjük, nyomja meg 1 a megrendelés megerősítéséhez.
+    ivr_cancel_message: Kérjük, nyomja meg 2 a megrendelés törléséhez.
+    confirmed_thank_you: Megrendelése megerősítve, Köszönöm.
+    cancelled_thank_you: Megrendelését törölték, Köszönöm.
+    invalid_thank_you: Érvénytelen választás, Kérjük, próbálja újra, Köszönöm.
+    no_logs_yet: Még nincs napló
+    try_changing_search: Próbálja meg megváltoztatni a keresési kifejezést
+    order: Rendelés
+    date: Dátum
+    customer: Ügyfél
+    total: Összesen
+    status: Állapot
+    network: Hálózat
+    prev: Előző (J)
+    next: Következő (K)
+    no_resource_found: Nem található %{resource}
+    search_resource: Keresés %{resource} rendelési számmal vagy ügyfél nevével
+    all: Mind
+    enter_valid_phone: Kérjük, adjon meg egy érvényes telefonszámot
+    enable_region: Kérjük, forduljon hozzánk, hogy engedélyezze régióját
+    x_total_orders: "%{count} összes megrendelés"
+    x_verified_orders: "%{count} ellenőrzött megrendelés"
+    x_pending_orders: "%{count} függőben lévő megbízás"
+    x_prepaid_orders: "%{count} előre fizetett megrendelés"
+    x_cancelled_orders: "%{count} törölt megrendelés"
+    order_stats: Rendelési statisztika
+    boost_checkout: Zökkenőmentes Pénztár
+    recommended_setup_to: Ajánlott beállítás a fizetési élmény javítása érdekében
+    copy: Másolás
+    copied: Másolt
+    starts: Elindul
+    ends: Véget ér
+    recommended_steps: Ajánlott lépések
+    checkout_settings: Menjen a fizetési beállításokhoz
+    additional_scripts_text_box: És illessze be az alábbi szöveget <b>További szkriptek</b> szövegmezőbe
+    one_time_pass: Egyszeri jelszó
+    customer_first_name: Ügyfél keresztneve
+    order_total_amount: Rendelés teljes összege
+    link_text: Egy kattintásos megrendelés visszaigazoló link
+    available_variables: Elérhető változók, amelyeket be lehet illeszteni az üzenetsablonba
+    free_limit_exhausted: Az ingyenes tesztelési korlát kimerült. Kérjük, vegye fel velünk a kapcsolatot a megújításhoz.
+    x_success_sms: "%{count} sms"
+    x_billed_sms: "%{count} számlázott sms"
+    x_failed_sms: "%{count} sms"
+    usage_charged_created: "Használati díj létrehozva"
+    x_ivr: "%{count} ivr"
+    refresh: Frissítés
+    complete_setup: Csak egy utolsó lépés
+    complete_setup_msg: Beállítások mentve. A beállítás befejezéséhez, kérem <b>iratkozz fel itt</b>.
+    view_plans: Tervek megtekintése
+    prepay_template: Előre fizetett sablon
+    send_payment_link: Fizetési link
+    submit: Beküldés
+    bulk_submit: Tömeges beküldés
+    amount: Összeg
+    date_time: Dátum és idő
+    mobile: Mobil
+    something_went_wrong: Valami elromlott, próbáld újra később.
+    message_sent: Üzenet elküldve
+    send: Küldés
+    cancel: Mégse
+    upto_x_orders: Upto %{count} Megrendelések havonta
+    unlimited_orders: Korlátlan számú megrendelés az ellenőrzéshez
+    export: Exportálás
+    emailed_orders: Elküldött naplók e-mailben
+    comma_separated_order_ids: Vesszővel elválasztott rendelési azonosítók
+    order_ids: "Adja meg az azonosítókat, például: 3912951169177,3912951169178,3912951169177"
+    bulk_verify: Tömeges ellenőrzés
+    bulk_verify_template: "Szia %{name}, Kérjük, kattintson a linkre %{link} hogy ellenőrizze a rendelés #%{number} %{amount} elhelyezett %{store}"
+    bulk_processing_title: Tömeges megrendelések feldolgozása
+    bulk_processing_desc: Valamikor látni fogja a megrendeléseket a naplókban.
+    bulk_processing_error: Valami elromlott
+    bulk_processing_error_desc: Kérlek próbáld újra, vagy forduljon hozzánk, ha a probléma továbbra is fennáll.
+    reach_out_title: A funkció még nincs engedélyezve.
+    reach_out_desc: Kérjük, forduljon hozzánk a funkció engedélyezéséhez.
+    order_cancelled: Megrendelését törölték
+    order_details_title: Megrendelés részletei (Kérjük, kattintson a Mégse vagy megerősítés gombra)
+    react_out_to_us: Kérjük, forduljon hozzánk ömlesztett megrendelésekhez
+    react_out_locked_title: Jóváhagyás szükséges.
+    react_out_locked_desc: 'Kérjük, forduljon hozzánk a következő címen: <b>e-mailben vagy csevegésben</b> hogy engedélyezze fiókját.'
+    view_cost: SMS költség megtekintése.
+    pricing_for_country: "Az alkalmazás alapértelmezett SMS-díja <b>%{country}</b> esetén <b>$%{charge}</b> sms-ben"
+    view_complete_pricing: Az összes ország árazási táblázatának megtekintése
+    chat_for_bulk_integration: Csevegjen velünk tömeges árképzés vagy egyéni integráció érdekében.
+    advance_settings: Speciális beállítások
+    link_settings: Ellenőrző hivatkozás beállításai
+    show_cancel_button: A Mégse gomb megjelenítése
+    show_cancel_button_help: csak a kapcsolat ellenőrzésének folyamata során támogatott.
+    auto_verify: Automatikus ellenőrzés
+    auto_verify_help: Automatikusan ellenőrizze a megrendelést az ellenőrző linkre kattintva.
+    otp_settings: OTP beállítások
+    max_retries: Max SMS újrapróbálkozás megrendelésenként
+    otp_wait_time: OTP várakozási idő újraküldése
+    otp_fallback_text: OTP támogatás vagy tartalék szöveg
+    otp_fallback_text_help: HTML támogatott
+    network_provider_integration: Hálózati szolgáltatók integrációja
+    network_provider: Hálózati szolgáltató
+    required: Kötelező
+    phone_number: Telefonszám
+    integration_cost_reduce: Az integráció csaknem egyharmadára csökkenti a teljes költséget
+    need_help: Segítségre van szüksége?
+    create_x_account: Hozzon létre %{brand} fiókot
+    x_configuration: "%{brand} Konfiguráció"
+    need_more_sms: Csevegjen velünk a feliratkozáshoz és az árképzéshez.
+    price_for_country: "%{price} $ üzenetenként %{country}"
+    sms_cost_included: SMS költség tartalmazza
+    sms_cost_extra: Az SMS-t közvetlenül a szolgáltatónak fizetheti
+    view: Kilátás
+    order_number: Rendelési szám
+    get_access_token: Hozzáférési token generálása
+    goto_orders: Menjen a megrendelésekhez
+    whatsapp_approval_request_sent: WhatsApp jóváhagyási kérelme elküldött
+    whatsapp_approval_request_sent_failure: 'Sikertelen: - A WhatsApp jóváhagyási kérelme sikertelen'
+  script:
+    submit: Küldés
+    mobile_phone_number: Telefonszám 06 nélkül
+    enter_valid_phone: Érvényes telefonszámot adj meg
+    verify_for_smooth_delivery: Kérjük, ellenőrizd telefonszámod az Utánvétes megrendelés egyszerű kézbesítéséhez
+    click_verify_link: Egy linket küldtünk a számodra - <b>%{number}</b>
+    enter_otp_msg: "Kérjük, add meg a <b>%{number}</b>"
+    enter_otp: Írja be az SMS-ben kapott kódot
+    change: Változtatás
+    invalid_otp: Érvénytelen kód, próbáld újra
+    resend_otp: Kód újraküldése
+    confirm_order: Erősítse meg megrendelését
+    sending: "Küldés..."
+    order_being_processed: A rendelését feldolgozzuk.
+    if_not_redirected: Ha a rendszer nem irányít át automatikusan, frissítsd ezt az oldalt.
+    resend_in_x_seconds: "Kód újraküldése %{count} másodperc alatt"
+    max_retries_reached: Elérted a maximális újrapróbálkozási korlátot.
+    order_details: Megrendelés részletei
+    send_code_on_whatsapp: Kód beszerzése a Whatsapp-on

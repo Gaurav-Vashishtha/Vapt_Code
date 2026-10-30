@@ -1,0 +1,21 @@
+import I18n from 'i18n-js'
+
+I18n.defaultLocal = 'en'
+
+export const availableLocales = <%= I18n.available_locales.map(&:to_s) %>;
+let documentLocale = document?.documentElement?.getAttribute('lang')?.substring(0,2)
+
+if (document?.documentElement?.getAttribute('lang')=='en-RO'){
+    documentLocale = 'ro'
+}
+
+I18n.locale = availableLocales.includes(documentLocale) ? documentLocale : I18n.defaultLocal
+
+// I18n.locale = Shopify.locale || I18n.defaultLocal
+I18n.translations = <%= I18n::JS.filtered_translations.select { |key, value| Hash[key, {script: value[:script]}] }.to_json %>;
+// const locale = I18n.locale || I18n.defaultLocal
+// import(`./i18n/${locale}`).then(translations => {
+//   I18n.translations[locale] = translations.default
+// });
+
+export default I18n

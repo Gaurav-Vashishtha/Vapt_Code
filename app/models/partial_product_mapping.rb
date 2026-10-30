@@ -1,0 +1,2 @@
+class PartialProductMapping < ApplicationRecord  
+end

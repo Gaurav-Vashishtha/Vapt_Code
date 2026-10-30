@@ -1,0 +1,329 @@
+{
+  "country": "CO",
+  "shopify_provinces": true,
+  "provinces": [
+    {
+      "code": "DC",
+      "name": "Bogotá, D.C."
+    },
+    {
+      "code": "AMA",
+      "name": "Amazonas"
+    },
+    {
+      "code": "ANT",
+      "name": "Antioquia"
+    },
+    {
+      "code": "ARA",
+      "name": "Arauca"
+    },
+    {
+      "code": "ATL",
+      "name": "Atlántico"
+    },
+    {
+      "code": "BOL",
+      "name": "Bolívar"
+    },
+    {
+      "code": "BOY",
+      "name": "Boyacá"
+    },
+    {
+      "code": "CAL",
+      "name": "Caldas"
+    },
+    {
+      "code": "CAQ",
+      "name": "Caquetá"
+    },
+    {
+      "code": "CAS",
+      "name": "Casanare"
+    },
+    {
+      "code": "CAU",
+      "name": "Cauca"
+    },
+    {
+      "code": "CES",
+      "name": "Cesar"
+    },
+    {
+      "code": "CHO",
+      "name": "Chocó"
+    },
+    {
+      "code": "COR",
+      "name": "Córdoba"
+    },
+    {
+      "code": "CUN",
+      "name": "Cundinamarca"
+    },
+    {
+      "code": "GUA",
+      "name": "Guainía"
+    },
+    {
+      "code": "GUV",
+      "name": "Guaviare"
+    },
+    {
+      "code": "HUI",
+      "name": "Huila"
+    },
+    {
+      "code": "LAG",
+      "name": "La Guajira"
+    },
+    {
+      "code": "MAG",
+      "name": "Magdalena"
+    },
+    {
+      "code": "MET",
+      "name": "Meta"
+    },
+    {
+      "code": "NAR",
+      "name": "Nariño"
+    },
+    {
+      "code": "NSA",
+      "name": "Norte de Santander"
+    },
+    {
+      "code": "PUT",
+      "name": "Putumayo"
+    },
+    {
+      "code": "QUI",
+      "name": "Quindío"
+    },
+    {
+      "code": "RIS",
+      "name": "Risaralda"
+    },
+    {
+      "code": "SAP",
+      "name": "San Andrés, Providencia y Santa Catalina"
+    },
+    {
+      "code": "SAN",
+      "name": "Santander"
+    },
+    {
+      "code": "SUC",
+      "name": "Sucre"
+    },
+    {
+      "code": "TOL",
+      "name": "Tolima"
+    },
+    {
+      "code": "VAC",
+      "name": "Valle del Cauca"
+    },
+    {
+      "code": "VAU",
+      "name": "Vaupés"
+    },
+    {
+      "code": "VID",
+      "name": "Vichada"
+    }
+  ],
+  "cities": {
+    "mode": "by_province",
+    "list": [
+
+    ],
+    "by_province": {
+      "DC": [
+        "Bogotá"
+      ],
+      "AMA": [
+        "Leticia",
+        "Puerto Nariño"
+      ],
+      "ANT": [
+        "Medellín",
+        "Bello",
+        "Itagüí",
+        "Envigado",
+        "Apartadó",
+        "Rionegro",
+        "Turbo",
+        "Sabaneta"
+      ],
+      "ARA": [
+        "Arauca",
+        "Saravena",
+        "Tame"
+      ],
+      "ATL": [
+        "Barranquilla",
+        "Soledad",
+        "Malambo",
+        "Sabanalarga",
+        "Puerto Colombia"
+      ],
+      "BOL": [
+        "Cartagena",
+        "Magangué",
+        "Turbaco",
+        "El Carmen de Bolívar",
+        "Arjona"
+      ],
+      "BOY": [
+        "Tunja",
+        "Duitama",
+        "Sogamoso",
+        "Chiquinquirá",
+        "Paipa"
+      ],
+      "CAL": [
+        "Manizales",
+        "La Dorada",
+        "Chinchiná",
+        "Villamaría",
+        "Riosucio"
+      ],
+      "CAQ": [
+        "Florencia",
+        "San Vicente del Caguán"
+      ],
+      "CAS": [
+        "Yopal",
+        "Aguazul",
+        "Villanueva"
+      ],
+      "CAU": [
+        "Popayán",
+        "Santander de Quilichao",
+        "Puerto Tejada"
+      ],
+      "CES": [
+        "Valledupar",
+        "Aguachica",
+        "Agustín Codazzi"
+      ],
+      "CHO": [
+        "Quibdó",
+        "Istmina"
+      ],
+      "COR": [
+        "Montería",
+        "Lorica",
+        "Cereté",
+        "Sahagún"
+      ],
+      "CUN": [
+        "Soacha",
+        "Fusagasugá",
+        "Facatativá",
+        "Zipaquirá",
+        "Chía",
+        "Girardot",
+        "Mosquera",
+        "Madrid"
+      ],
+      "GUA": [
+        "Inírida"
+      ],
+      "GUV": [
+        "San José del Guaviare"
+      ],
+      "HUI": [
+        "Neiva",
+        "Pitalito",
+        "Garzón",
+        "La Plata"
+      ],
+      "LAG": [
+        "Riohacha",
+        "Maicao",
+        "Uribia"
+      ],
+      "MAG": [
+        "Santa Marta",
+        "Ciénaga",
+        "Fundación"
+      ],
+      "MET": [
+        "Villavicencio",
+        "Acacías",
+        "Granada"
+      ],
+      "NAR": [
+        "Pasto",
+        "Tumaco",
+        "Ipiales"
+      ],
+      "NSA": [
+        "Cúcuta",
+        "Ocaña",
+        "Villa del Rosario",
+        "Los Patios",
+        "Pamplona"
+      ],
+      "PUT": [
+        "Mocoa",
+        "Puerto Asís",
+        "Orito"
+      ],
+      "QUI": [
+        "Armenia",
+        "Calarcá",
+        "Montenegro",
+        "La Tebaida"
+      ],
+      "RIS": [
+        "Pereira",
+        "Dosquebradas",
+        "Santa Rosa de Cabal"
+      ],
+      "SAP": [
+        "San Andrés",
+        "Providencia"
+      ],
+      "SAN": [
+        "Bucaramanga",
+        "Floridablanca",
+        "Girón",
+        "Piedecuesta",
+        "Barrancabermeja",
+        "San Gil"
+      ],
+      "SUC": [
+        "Sincelejo",
+        "Corozal",
+        "San Marcos"
+      ],
+      "TOL": [
+        "Ibagué",
+        "Espinal",
+        "Melgar",
+        "Honda"
+      ],
+      "VAC": [
+        "Cali",
+        "Buenaventura",
+        "Palmira",
+        "Tuluá",
+        "Buga",
+        "Cartago",
+        "Jamundí",
+        "Yumbo"
+      ],
+      "VAU": [
+        "Mitú"
+      ],
+      "VID": [
+        "Puerto Carreño"
+      ]
+    }
+  }
+}

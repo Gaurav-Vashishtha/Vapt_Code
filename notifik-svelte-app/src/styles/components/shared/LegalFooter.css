@@ -1,0 +1,262 @@
+/* ============================================================================
+ * LEGAL FOOTER - Reusable Legal Footer Component
+ * ============================================================================
+ * Displays legal acceptance text, links, and security information.
+ * Responsive layout that wraps gracefully on smaller screens.
+ * ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+ * CSS Custom Properties (Design Tokens)
+ * ---------------------------------------------------------------------------- */
+:root {
+  --legal-footer-text-color: #b0b0b0;
+  --legal-footer-link-color: #888888;
+  --legal-footer-link-hover-color: #404040;
+  --legal-footer-separator-color: #d0d0d0;
+  --legal-footer-font-family: var(--font-family-base);
+  --legal-footer-font-family-semibold: var(--font-family-base);
+  --legal-footer-font-size: 10px;
+  --legal-footer-line-height: 16px;
+  --legal-footer-line-height-secured: 16px;
+  --legal-footer-spacing-gap: 5px;
+  --legal-footer-spacing-secured-margin: 10px;
+  --legal-footer-spacing-padding-bottom: 12px;
+  --legal-footer-shield-icon-size: 14px;
+  --legal-footer-logo-icon-height: 10px;
+  --legal-footer-logo-icon-width: 11px;
+  --legal-footer-logo-text-height: 11.379px;
+  --legal-footer-link-underline-terms-width: 19px;
+  --legal-footer-link-underline-privacy-width: 76px;
+}
+
+/* ----------------------------------------------------------------------------
+ * Base Styles
+ * ---------------------------------------------------------------------------- */
+.legal-footer,
+.legal-footer * {
+  box-sizing: border-box;
+}
+
+.legal-footer {
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 8px 0;
+  padding-bottom: var(--legal-footer-spacing-padding-bottom);
+  background: transparent;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  overflow-x: hidden;
+  overflow-y: visible;
+  visibility: visible !important;
+  opacity: 1 !important;
+  clip-path: none !important;
+  clip: auto !important;
+  /* Avoid transform here; it can break fixed-position overlays in some browsers */
+}
+
+/* ----------------------------------------------------------------------------
+ * Content Container
+ * ---------------------------------------------------------------------------- */
+.legal-footer__content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--legal-footer-spacing-gap);
+  row-gap: var(--legal-footer-spacing-gap);
+  font-family: var(--legal-footer-font-family);
+  line-height: var(--legal-footer-line-height);
+  white-space: normal;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Brand mark hidden: T&C pinned left, Privacy Policy pinned right. */
+.legal-footer__content--no-brand {
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+/* Fixed underline widths are sized for the abbreviations; the full-text
+   labels need the underline to track the link instead. */
+.legal-footer__content--no-brand .legal-footer__link--terms .legal-footer__link-underline,
+.legal-footer__content--no-brand .legal-footer__link--privacy .legal-footer__link-underline {
+  width: 100%;
+}
+
+/* ----------------------------------------------------------------------------
+ * Text Elements
+ * ---------------------------------------------------------------------------- */
+.legal-footer__text {
+  color: var(--legal-footer-text-color);
+  font-family: var(--legal-footer-font-family);
+  font-size: var(--legal-footer-font-size);
+  line-height: var(--legal-footer-line-height);
+  font-weight: 400;
+  white-space: normal;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+/* ----------------------------------------------------------------------------
+ * Links
+ * ---------------------------------------------------------------------------- */
+.legal-footer__link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  position: relative;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.legal-footer__link-text {
+  color: var(--legal-footer-link-color);
+  font-family: var(--legal-footer-font-family-semibold);
+  font-size: var(--legal-footer-font-size);
+  line-height: var(--legal-footer-line-height);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.legal-footer__link:hover .legal-footer__link-text,
+.legal-footer__link:active .legal-footer__link-text {
+  color: var(--legal-footer-link-hover-color);
+}
+
+.legal-footer__link-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-top: -1px;
+  height: 0;
+  border-top: 1px solid var(--legal-footer-link-color);
+  transition: border-color 0.2s ease;
+}
+
+.legal-footer__link:hover .legal-footer__link-underline,
+.legal-footer__link:active .legal-footer__link-underline {
+  border-color: var(--legal-footer-link-hover-color);
+}
+
+.legal-footer__link--terms .legal-footer__link-underline {
+  width: var(--legal-footer-link-underline-terms-width);
+}
+
+.legal-footer__link--privacy .legal-footer__link-underline {
+  width: var(--legal-footer-link-underline-privacy-width);
+}
+
+/* ----------------------------------------------------------------------------
+ * Separator
+ * ---------------------------------------------------------------------------- */
+.legal-footer__separator-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: var(--legal-footer-line-height);
+  width: var(--legal-footer-line-height);
+  flex-shrink: 0;
+}
+
+.legal-footer__separator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  height: var(--legal-footer-line-height);
+  width: 0;
+  border-left: 1px solid var(--legal-footer-separator-color);
+}
+
+/* ----------------------------------------------------------------------------
+ * Security Section
+ * ---------------------------------------------------------------------------- */
+.legal-footer__secured {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  margin-left: var(--legal-footer-spacing-secured-margin);
+  white-space: nowrap;
+  flex-shrink: 0;
+  color: var(--legal-footer-text-color);
+}
+
+.legal-footer__secured-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--legal-footer-spacing-gap);
+  padding: var(--legal-footer-spacing-gap);
+  height: var(--legal-footer-line-height-secured);
+}
+
+.legal-footer__shield-icon {
+  width: var(--legal-footer-shield-icon-size);
+  height: var(--legal-footer-shield-icon-size);
+  flex-shrink: 0;
+  display: block;
+}
+
+.legal-footer__secured-text {
+  color: var(--legal-footer-text-color);
+  font-family: var(--legal-footer-font-family);
+  font-size: var(--legal-footer-font-size);
+  line-height: var(--legal-footer-line-height-secured);
+  font-weight: 400;
+  white-space: nowrap;
+  display: inline-block;
+  height: var(--legal-footer-line-height-secured);
+}
+
+/* ----------------------------------------------------------------------------
+ * Logo Container
+ * ---------------------------------------------------------------------------- */
+.legal-footer__logo-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  height: 16px;
+}
+
+.legal-footer__logo-image {
+  height: 16px;
+  width: auto;
+  max-width: 80px;
+  object-fit: contain;
+  display: block;
+  flex-shrink: 0;
+}
+
+.legal-footer__logo-image--mono {
+  /* Monochrome treatment to match React branding */
+  filter: grayscale(1) saturate(0) brightness(0.65) contrast(1.2);
+}
+
+.legal-footer__logo-text {
+  color: var(--legal-footer-text-color);
+  font-family: var(--legal-footer-font-family);
+  font-size: var(--legal-footer-font-size);
+  line-height: var(--legal-footer-line-height-secured);
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-block;
+  flex-shrink: 0;
+  height: var(--legal-footer-line-height-secured);
+}

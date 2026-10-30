@@ -1,0 +1,49 @@
+<div class="flex justify-between items-center mb-4">
+  <h2 class="text-lg font-semibold text-gray-900">Open & click stats (per rule, per day)</h2>
+  <%= link_to "← Deliveries", email_tool_deliveries_path, class: "text-sm text-blue-600 hover:text-blue-800" %>
+</div>
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <table class="min-w-full divide-y divide-gray-200">
+    <thead class="bg-gray-50">
+      <tr>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rule</th>
+        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Sent</th>
+        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Opened</th>
+        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Open rate</th>
+        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Clicked</th>
+        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Click rate</th>
+      </tr>
+    </thead>
+    <tbody class="bg-white divide-y divide-gray-200">
+      <% if @stats.present? %>
+        <% @stats.group_by(&:email_rule_id).each do |rule_id, rows| %>
+          <% rule = @rules_by_id[rule_id] %>
+          <% rows.each_with_index do |row, i| %>
+            <% date_str = row.sent_date.is_a?(String) ? row.sent_date : row.sent_date&.strftime("%Y-%m-%d") %>
+            <% clicked_count = (@clicked_count_by_key || {}).fetch([row.email_rule_id, date_str], 0) %>
+            <tr>
+              <td class="px-6 py-3 text-sm text-gray-900"><%= i == 0 ? (rule ? "#{rule.name} (#{rule.slug})" : "Rule ##{rule_id}") : "" %></td>
+              <td class="px-6 py-3 text-sm text-gray-600"><%= date_str %></td>
+              <td class="px-6 py-3 text-sm text-gray-600 text-right"><%= row.sent_count %></td>
+              <td class="px-6 py-3 text-sm text-gray-600 text-right"><%= row.opened_count %></td>
+              <td class="px-6 py-3 text-sm text-right">
+                <% rate = row.sent_count.to_i.positive? ? (100.0 * row.opened_count.to_i / row.sent_count.to_i).round(1) : 0 %>
+                <span class="<%= rate >= 50 ? 'text-green-600' : rate >= 25 ? 'text-gray-700' : 'text-gray-500' %>"><%= rate %>%</span>
+              </td>
+              <td class="px-6 py-3 text-sm text-gray-600 text-right"><%= clicked_count %></td>
+              <td class="px-6 py-3 text-sm text-right">
+                <% click_rate = row.sent_count.to_i.positive? ? (100.0 * clicked_count / row.sent_count.to_i).round(1) : 0 %>
+                <span class="<%= click_rate >= 25 ? 'text-green-600' : click_rate >= 10 ? 'text-gray-700' : 'text-gray-500' %>"><%= click_rate %>%</span>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      <% else %>
+        <tr>
+          <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-500">No sent emails yet. Stats will appear here once emails are sent.</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

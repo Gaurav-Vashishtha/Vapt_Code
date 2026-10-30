@@ -1,0 +1,139 @@
+module NetworkServices
+  class EasysellSendFulfilmentSmsService < ApplicationService
+
+
+    #NetworkServices::EasysellSendConfirmationSmsService.call(OrderConfirmation.last.id, '+919130751989','TestStore','IN','#D123','example.com')
+
+    def initialize(order_confirmation_id,  phone='', store='',country_code='',tracking_url)
+      @order_confirmation_id = order_confirmation_id
+      @phone = phone
+      @country_code = country_code
+      @store = store
+      @tracking_url=tracking_url
+    end
+
+    def call
+      @order_confirmation = OrderConfirmation.find(@order_confirmation_id)
+      @shop = @order_confirmation.shop
+
+      # sliding window checks if there are less than 3 sms in last 2 minutes
+      if !@phone.blank? 
+        if !@shop.setting.provider.blank? && !@shop.setting.provider_api_key.blank?
+          resp = @shop.setting.provider.constantize.call(
+            @shop.setting.provider_api_key,
+            @shop.setting.provider_sender_id,
+            {
+              to: @phone,
+              body: get_sms_body,
+              dlt_id: @dlt_id.blank? ? @shop.setting.dlt_template_id : @dlt_id
+            }
+          )
+        else
+          country_code = @country_code
+          if (ENV['MSG_91_SPECIAL_COUNTRIES'].include?country_code) 
+            resp = ''
+            sender_id = @shop.setting.sender
+            if sender_id.blank?
+              case 
+              when ENV['WALKER_COUNTRIES'].present? && ENV['WALKER_COUNTRIES'].split(',').include?(country_code)
+                sender_id = 'WALKER'
+              when country_code == 'AE'
+                sender_id = ENV['MSG_91_UAE_SENDER']
+              when country_code == 'SA' || country_code == 'PH'
+                sender_id = ENV['MSG91_SA_SENDER_ID']
+              when country_code == 'IN' 
+                sender_id = ENV['MSG_91_IN_SENDER']
+              else
+                sender_id = ENV['MSG91_SENDER_ID']
+              end
+            end
+            
+            auth_key = ENV['MSG91_AUTHKEY']
+            flow_id = country_code=='IN'? ENV['MSG91_FULFILMENT_URL_TEMPLATE_ID']:ENV['MSG91_FULFILMENT_URL_NON_INDIA_TEMPLATE_ID']
+            
+            # if(!@order_url.blank?)
+            #   @order_url = NetworkServices::CutlyLinkService.call(@order_url)
+            # end
+
+            resp = SmsServices::Msg91SmsConfirmationService.call(
+              { auth_key: ENV['MSG91_AUTHKEY'] },
+              {
+                flow_id: flow_id,
+                sender: sender_id,
+                to: @phone,
+                number: @order_number,
+                store: @store,
+                ur: @tracking_url
+              }
+            )
+          elsif (ENV['WAVECELL_COUNTRIES'].include?country_code) 
+            resp = SmsServices::WavecellSmsService.call(
+              ENV['WAVECELL_API_KEY'],
+              ENV['WAVECELL_SENDER_ID'],
+            {
+              to: @phone,
+              body: get_sms_body,
+              dlt_id: @dlt_id.blank? ? @shop.setting.dlt_template_id : @dlt_id
+            }
+            )
+          elsif (ENV['MOVIDER_COUNTRIES'].include?country_code) 
+            resp = SmsServices::MoviderSmsService.call(
+              "#{ENV['MOVIDER_API_KEY']}:#{ENV['MOVIDER_API_SECRET']}",
+              ENV['MOVIDER_SENDER_ID'],
+            {
+              to: @phone,
+              body: get_sms_body,
+              dlt_id: ''
+            }
+            )
+          elsif (ENV['VEEVOTECH_COUNTRIES'].include?country_code) 
+            resp = SmsServices::VeevotechSmsService.call(
+            ENV['VEEVOTECH_API_KEY'],
+            ENV['VEEVOTECH_SENDER_ID'],
+          {
+            to: @phone,
+            body: get_sms_body
+          }
+          ) 
+          else
+            resp = TwilioServices::SendOtpService.call({
+              from: ENV["TWILIO_PHONE_NUMBER"],
+              to: @phone,
+              body: get_sms_body,
+            })
+            puts "twilio resp = #{resp}"
+          end
+        end
+        TwilioLog.create(
+          sid: resp.sid,
+          ver_type: "FULFILMENT-SMS",
+          country_code: @country_code,
+          customer_number: @phone,
+          status: resp.sid ? "SUCCESS" : resp.error,
+          order_confirmation: @order_confirmation,
+          num_segment: resp.num_segments,
+          shop: @shop,
+        )
+      else
+          error = "*Error* EasySell Number: #{@customer_number} #{@store}"
+          # SlackNotifyJob.perform_async(
+          #   ":rage:  (#{Rails.env})\n  #{error}"
+          # )
+        error
+      end
+      if @phone.blank?
+        SlackNotifyJob.perform_async(
+          ":rage:  (#{Rails.env})\n EasySell Number: #{@customer_number} #{@store}"
+        )
+      end
+    end
+
+
+    private
+
+    def get_sms_body
+      body = "Thanks for your purchase on #{@store}. Your order has been confirmed - Order number #{@order_number}."
+      return body
+    end
+  end
+end

@@ -1,0 +1,172 @@
+.otp-screen,
+.otp-screen * {
+  box-sizing: border-box;
+}
+
+.otp-screen {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 4px;
+}
+
+/* "Verify phone number" heading */
+.otp-heading-shell {
+  align-self: center;
+  padding: 4px 12px;
+  margin: 4px 0 10px;
+}
+
+.otp-heading {
+  color: #121212;
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: normal;
+}
+
+/* "Enter OTP sent to +91 ... [edit]" */
+.otp-subheading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-family: var(--font-family-base);
+}
+
+.otp-sub-label {
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  line-height: 20px;
+  white-space: nowrap;
+  font-weight: 600 !important;
+}
+
+.otp-sub-phone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.otp-phone-num {
+  color: #111111;
+  white-space: nowrap;
+}
+
+.otp-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid 
+  color-mix(in srgb, var(--color-blue) 22%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-blue);
+  cursor: pointer;
+  transition: background-color 0.15s var(--ease-smooth);
+}
+
+.otp-edit-btn:hover {
+  background: color-mix(in srgb, var(--color-blue) 6%, transparent);
+}
+
+.otp-edit-btn svg {
+  display: block;
+}
+
+.otp-error {
+  color: var(--color-error, #eb0d14);
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  line-height: 16px;
+  margin: 0 0 6px;
+}
+
+.otp-boxes {
+  width: 67%;
+  margin: 2px auto 4px;
+}
+
+.otp-verifying-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--color-blue);
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  line-height: 16px;
+  margin: 8px 0 0;
+  width: 100%;
+}
+
+.otp-verifying-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(49, 115, 227, 0.25);
+  border-top-color: var(--color-blue);
+  animation: iconSpin 0.85s linear infinite;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .otp-verifying-spinner {
+    animation: none;
+  }
+}
+
+/* Resend row: timer while counting down, ResendSection once available */
+.otp-resend {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 14px 0;
+}
+
+.otp-resend-timer {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  line-height: normal;
+}
+
+.otp-timer-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-blue);
+}
+
+.otp-timer-inline svg {
+  display: block;
+}
+
+.otp-timer-secs {
+  color: var(--color-blue);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* Legal footer pinned to the bottom of the screen — same placement as login. */
+.otp-brand-footer {
+  width: 100%;
+  margin-top: auto;
+  margin-bottom: 16px;
+}
+
+/* Mobile styles are in OtpVerificationScreen.mobile.css */

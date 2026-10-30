@@ -1,0 +1,481 @@
+charge_calculation_job:
+  cron: "0 */4 * * *"
+  class: "PricingJobs::DynamicChargeCoordinatorJob"
+  queue: administration
+
+order_reports_job:
+  cron: "0 */4 * * *"
+  class: "SidekiqJobs::OrdersReport"
+  queue: administration
+
+easysell_usage_job:
+  cron: "0 2 * * *"
+  class: "PricingJobs::EasysellUsageJob"
+  queue: administration
+
+settings_lock_job:
+  cron: "0 1 * * *"
+  class: "SidekiqJobs::SettingsLockJob"
+  queue: administration
+
+provider_failover_job:
+  cron: "*/15 * * * *"
+  class: "AdminJobs::IntegrationFailoverJob"
+  queue: administration
+
+price_updation_job:
+  cron: "0 0 * * *"
+  class: "PricingJobs::CountrywisePriceJob"
+  queue: administration
+
+province_refresh_job:
+  cron: "0 0 * * *"
+  class: "ShopifyJobs::ProvinceRefreshJob"
+  queue: administration
+  
+auto_cancel_job:
+  cron: "*/3 * * * *"
+  class: "ShopifyJobs::AutoCancelJob"
+  queue: administration
+
+retry_verification_job:
+  cron: "*/3 * * * *"
+  class: "ShopifyJobs::RetryVerificationJob"
+  queue: administration
+
+abandoned_cart_schedule_job:
+  cron: "*/10 * * * *"
+  class: "NetworkJobs::AbandonedCartScheduleJob"
+  queue: administration
+
+# BSP abandoned-cart reminder scheduler. Runs alongside the MSG91 job but
+# the MSG91 path skips shops with BSP bindings, so a shop is on exactly one.
+bsp_abandoned_cart_reminders_job:
+  cron: "*/10 * * * *"
+  class: "Whatsapp::ScheduleAbandonedCartRemindersJob"
+  queue: administration
+
+
+auto_verify_job:
+  cron: "*/1 * * * *"
+  class: "ShopifyJobs::AutoVerifyJob"
+  queue: administration
+
+cod_prepaid_job:
+  cron: "*/55 * * * *"
+  class: "ShopifyJobs::CodPrepaidJob"
+  queue: administration
+
+restart_job:
+  cron: "*/30 * * * *"
+  class: "SidekiqJobs::RestartAppJob"
+  queue: restarts
+
+webhook_refresh:
+  cron: "0 1 * * *"
+  class: "SidekiqJobs::WebhookRemoveJob"
+  queue: administration
+
+sqs_consumer_job:
+  cron: "* * * * *"
+  class: "ShopifyJobs::SqsConsumerJob"
+  queue: sqs
+
+customer_create_sqs_consumer_job:
+  cron: "* * * * *"
+  class: "ShopifyJobs::CustomerCreateSqsConsumerJob"
+  queue: customer_create_sqs
+  description: "Drains the customers/create SQS queue; self-reschedules every 4s while messages exist. Kill switch: SQS_CUSTOMER_CREATE_CONSUMER_ENABLED=false"
+  
+sqs_order_create_consumer_job:
+  cron: "* * * * * *"
+  class: "ShopifyJobs::SqsOrderCreateConsumerJob"
+  queue: sqs
+
+prepaid_conversion_job:
+  cron: "*/1 * * * *"
+  class: "ShopifyJobs::PrepaidConversionJob"
+  queue: administration
+
+prepaid_fallback_conversion_job:
+  cron: "*/45 * * * *"
+  class: "ShopifyJobs::PrepaidFallbackConversionJob"
+  queue: administration
+
+scheduled_shop_reports_tick_job:
+  cron: "0 * * * *" # hourly UTC; enqueues a single drain job if none running (due sends only after local send time; no perform_at)
+  class: "ScheduledReports::TickJob"
+  queue: default
+  description: "Hourly: one drain pass for scheduled report emails (serialized mail lock; low-priority deliver queue)"
+
+refresh_recent_lightweight_metafields_job:
+  cron: "0 */2 * * *"
+  class: "ShopifyJobs::RefreshRecentLightweightMetafieldsJob"
+  queue: scheduled_report_delivery
+  description: "Every 2 hours: inline refresh lightweight settings metafields for shops updated in last 24h"
+
+customer_pull_job:
+  cron: "0 */23 * * *"
+  class: "ShopifyJobs::CustomerPullJob"
+  queue: administration
+
+customer_count_sync_job:
+  cron: "0 1 */2 * *"  # 1st hour UTC every 2 days (days 2,4,6,...,30)
+  class: "ShopifyJobs::CustomerCountSyncJob"
+  queue: global_data_pull
+  description: "Syncs customer count per shop (PH/IN), enqueues customer pull processor"
+
+email_scheduler_job:
+  cron: "0 */6 * * *"  # Every 6 hours
+  class: "EmailSchedulerJob"
+  queue: default
+  description: "Finds candidates for each email rule, re-validates and sends scheduled emails (no duplicate per rule+shop)"
+
+zip_refresh_job:
+  cron: "0 */20 * * *"
+  class: "NetworkJobs::ZipcodeRefreshJob"
+  queue: administration
+
+aws_script_copy_job:
+  cron: "0 */21 * * *"
+  class: "NetworkJobs::AwsScriptCopyJob"
+  queue: administration
+
+aws_notifik_script_copy_job:
+  cron: "0 */22 * * *"
+  class: "NetworkJobs::AwsNotifikScriptCopyJob"
+  queue: administration
+
+partial_cleanup_job:
+  cron: "*/1 * * * *"
+  class: "ShopifyJobs::PartialProductCleanupJob"
+  queue: administration
+
+preorder_abandonment_job:
+  cron: "*/15 * * * *"
+  class: "AdminJobs::PreOrderOtpAbandonmentJob"
+  queue: administration
+
+active_subscription_usage_job:
+  cron: "0 1 * * *"
+  class: "PricingJobs::SubscriptionActiveCoordinatorJob"
+  queue: administration
+
+notification_scheduler_job:
+  cron: "30 2 * * *"  # 8:00 AM IST
+  class: "SidekiqJobs::NotificationSchedulerJob"
+  queue: administration
+  description: "Sends scheduled merchant notifications every day at 3 AM IST"
+
+incorrect_setup_job:
+  cron: "30 4 * * *"  # 10:00 AM IST
+  class: "SidekiqJobs::IncorrectSetupJob"
+  queue: administration
+  description: "Finds incorrect pre order otp setup"
+
+pre_order_otp_cart_schedule_job:
+  cron: "*/30 * * * *"
+  class: "NetworkJobs::PreOrderOtpCartScheduleJob"
+  queue: administration
+  description: "Schedules Abandoned carts for pre order otps"
+
+partial_payment_check_job:
+  cron: "*/5 * * * *"
+  class: "ShopifyJobs::PartialPaymentCheckJob"
+  queue: administration
+  description: "Checks if some missed partial job"
+
+reconcile_missed_orders_job:
+  cron: "0 * * * *"
+  class: "ShopifyJobs::ReconcileMissedOrdersJob"
+  queue: administration
+  description: "Hourly: lists Shopify order IDs (last 90m) for partial-payment shops, reprocesses any with no OrderConfirmation. Kill switch: RECONCILE_MISSED_ORDERS_ENABLED=false"
+
+churn_rollup_job:
+  cron: "30 1 * * *"
+  class: "Churn::RollupJob"
+  queue: administration
+  description: "Daily: per-shop activity/MRR/risk rollups + Slack alerts + win-back enqueue for high-value at-risk shops"
+
+churn_partner_sales_sync_job:
+  cron: "0 * * * *"
+  class: "Churn::PartnerSalesSyncJob"
+  queue: administration
+  description: "Hourly: pulls subscription/usage/adjustment sales from the Shopify Partner API into partner_sales + billing_events"
+
+churn_churned_stores_sync_job:
+  cron: "45 2 * * *"
+  class: "Churn::ChurnedStoresSyncJob"
+  queue: administration
+  args: [30, "schedule"]
+  description: "Daily: rebuilds churned_stores (uninstalls, subscription cancellations, downgrades to Free) for the last 30 days with Partner API LTV + reinstall metrics"
+
+churn_weekly_digest_job:
+  cron: "0 6 * * 1"
+  class: "Churn::WeeklyDigestJob"
+  queue: administration
+  description: "Weekly (Mon 6am UTC): churn KPIs + retention + top reasons + biggest at-risk accounts to CHURN_DIGEST_RECIPIENTS"
+
+whatsapp_campaign_scheduler_job:
+  cron: "* * * * *"
+  class: "Whatsapp::CampaignSchedulerJob"
+  queue: whatsapp_bsp_campaign
+  description: "Every minute: promotes due scheduled WhatsApp campaigns to sending"
+
+whatsapp_template_translation_status_sync_job:
+  cron: "*/30 * * * *"
+  class: "Whatsapp::TemplateTranslationStatusSyncJob"
+  queue: default
+  description: "Every 30m: refreshes Meta review status of default-number WhatsApp template translations (Urdu/Arabic)"
+
+whatsapp_reattempt_dispatch_job:
+  cron: "*/5 * * * *"
+  class: "Whatsapp::ReattemptDispatchJob"
+  queue: default
+  description: "Every 5m: resends WhatsApp messages refused with a retryable code (131049) once their retry is due (MSG91_/BSP_WHATSAPP_RETRY_* env)"
+
+whatsapp_campaign_stats_reconcile_job:
+  cron: "*/15 * * * *"
+  class: "Whatsapp::CampaignStatsReconcileJob"
+  queue: whatsapp_bsp_campaign
+  description: "Every 15m: reconciles campaign counters against recipient statuses"
+partial_payment_product_fallback_cleanup_job:
+  cron: "0 2 * * *"
+  class: "ShopifyJobs::PartialPaymentCleanupJob"
+  queue: administration
+  description: "Runs a missed deletions."
+
+process_piled_up_sqs_messages:
+  cron: "*/3 * * * *"
+  class: "ShopifyJobs::SqsBatchProcessorJob"
+  queue: administration
+
+partial_discount_automatic_app_ensure_offline_job:
+  cron: "*/30 * * * *"
+  class: "OfflineJobs::EnqueuePartialDiscountAutomaticAppForPartialPaymentShopsJob"
+  queue: administration
+  description: "Ensures partial-payment shops have an automatic app discount GID stored"
+
+referral_earning_sync_job:
+  cron: "0 3 * * *"
+  class: "NetworkJobs::ReferralRevenueSyncJob"
+  queue: administration
+
+engagement_report_job:
+  cron: "0 5 * * *"  # 5:00 AM UTC (10:30 AM IST)
+  class: "SidekiqJobs::EngagementReportJob"
+  queue: administration
+  description: "Sends daily engagement report email at 5 AM UTC"
+
+subscription_charge_sync_job:
+  cron: "0 4 * * *"
+  class: "PricingJobs::SubscriptionChargeSyncJob"
+  queue: administration
+  description: "Syncs charge_id and plan from Shopify for shops with id > 40000"
+
+build_call_queue_job:
+  cron: "30 2 * * 1-6"  # 08:00 IST, Mon-Sat (no Sunday calling)
+  class: "SupportCalls::BuildDailyQueueJob"
+  queue: administration
+  description: "Builds the ranked support call queue for the day (mix + cooldown + rotation)"
+
+call_calendar_morning_email_job:
+  cron: "0 3 * * 1-6"  # 08:30 IST, Mon-Sat
+  class: "SupportCalls::MorningQueueEmailJob"
+  queue: administration
+  description: "Emails the day's call queue to WHATSAPP_APPROVERS_EMAIL_LIST"
+
+parcelx_credit_alert_job:
+  cron: "45 3 * * *"  # 09:15 IST, daily
+  class: "AdminJobs::ParcelxCreditAlertJob"
+  queue: administration
+  description: "Probes ParcelX for x-remaining-credits; emails WHATSAPP_APPROVERS_EMAIL_LIST when below PARCELX_CREDIT_ALERT_THRESHOLD (default 20000)"
+
+call_calendar_evening_report_job:
+  cron: "30 14 * * 1-6"  # 20:00 IST, Mon-Sat
+  class: "SupportCalls::EveningReportEmailJob"
+  queue: administration
+  description: "Emails end-of-day call results to WHATSAPP_APPROVERS_EMAIL_LIST"
+
+merchant_whatsapp_scheduler_job:
+  cron: "0 * * * *"  # hourly
+  class: "MerchantWhatsapp::SchedulerJob"
+  queue: administration
+  description: "Builds/dispatches scheduled merchant WhatsApp notifications (gated by MERCHANT_WA_ENABLED)"
+
+merchant_whatsapp_weekly_digest_job:
+  cron: "0 5 * * 1"  # Monday 10:30 IST
+  class: "MerchantWhatsapp::WeeklyDigestJob"
+  queue: administration
+  description: "Sends the weekly merchant digest (gated by MERCHANT_WA_ENABLED)"
+
+order_shipping_status_sync_parent_job:
+  cron: "30 21 * * *"  # 3:00 AM IST (Asia/Kolkata) daily; server cron is UTC
+  class: "ShopifyJobs::OrderShippingStatusSyncParentJob"
+  queue: default
+  description: "Syncs Shopify shipping status for order_confirmations (14d lookback, 12h shop cooldown)"
+
+rto_backfill_coordinator_job:
+  cron: "*/1 * * * *"
+  class: "Rto::BackfillCoordinatorJob"
+  queue: low
+  description: "Fans out RTO backfill across eligible shop_domains (respects BACKFILL_PARALLELISM and leases)"
+
+rto_incremental_reconcile_coordinator_job:
+  cron: "*/1 * * * *"
+  class: "Rto::IncrementalReconcileCoordinatorJob"
+  queue: low
+  description: "Fans out RTO incremental reconcile (updated_at polling) across installed shop_domains (respects BACKFILL_PARALLELISM and reconcile leases)"
+
+# prepaid_reminder_job:
+#   cron: "*/5 * * * *"
+#   class: "ShopifyJobs::PrepaidReminderJob"
+#   queue: administration
+
+# prepaid_reminder2_job:
+#   cron: "0 */1 * * *"
+#   class: "ShopifyJobs::PrepaidReminder2Job"
+#   queue: administration
+
+# prepaid_reminder3_job:
+#   cron: "0 */1 * * *"
+#   class: "ShopifyJobs::PrepaidReminder3Job"
+#   queue: administration
+
+purge_inbound_webhook_events_job:
+  cron: "17 3 * * *"
+  class: "Webhooks::PurgeInboundEventsJob"
+  queue: low
+  description: "Deletes inbound_webhook_events older than WEBHOOK_EVENT_RETENTION_DAYS (default 30)"
+
+purge_session_recordings_job:
+  cron: "23 * * * *"
+  class: "AdminJobs::PurgeSessionRecordingsJob"
+  queue: low
+  description: "Deletes rrweb session recordings older than SESSION_RECORDING_RETENTION_HOURS (default 48)"
+
+persistent_signin_flush_job:
+  cron: "*/15 * * * *"
+  class: "StatsJobs::PersistentSigninFlushJob"
+  queue: administration
+
+# ── COD Form (docs/cod-form/ARCHITECTURE.md I.1, I.4, J.2) ─────────────────────
+cod_form_analytics_rollup_job:
+  cron: "7 * * * *"
+  class: "CodForm::Analytics::RollupJob"
+  queue: low
+  description: "Hourly: recomputes today and yesterday (shop time zone) of cod_form_daily_stats for shops with form activity"
+
+cod_form_analytics_purge_job:
+  cron: "41 3 * * *"
+  class: "CodForm::Analytics::PurgeJob"
+  queue: low
+  description: "Daily: deletes cf_* form_funnel_events older than 90 days in batches of 5000 (rollups are kept)"
+
+cod_form_abandonment_sweep_job:
+  cron: "*/5 * * * *"
+  class: "CodForm::Abandonment::SweepJob"
+  queue: low
+  description: "Every 5 min: form sessions idle 15 min with a phone or email become abandoned carts (source cod_form)"
+
+cod_form_overage_billing_job:
+  cron: "30 2 * * *"
+  class: "CodForm::OverageBillingJob"
+  queue: administration
+  description: "Daily 02:30 UTC: bills form orders beyond the plan cap. Inert unless a plan_limits row has an overage_rate"
+
+# WS3 (docs/cod-form/snippets/ws3-schedule.yml.md): retention of cod_form_sessions
+cod_form_session_purge_job:
+  cron: "40 3 * * *"
+  class: "CodForm::SessionPurgeJob"
+  queue: low
+  description: "Daily 03:40 UTC: deletes form sessions older than 90 days, blanks buyer data on ordered sessions older than 30 days"
+
+cod_form_pre_upsell_refresh_job:
+  cron: "25 4 * * *"
+  class: "CodForm::PreUpsellRefreshJob"
+  queue: low
+  description: "Daily 04:25 UTC: refreshes the products of active pre-purchase upsell rules (collection rules follow their collection)"
+
+whatsapp_attribution_sweep_job:
+  cron: "*/15 * * * *"
+  class: "Whatsapp::AttributionSweepJob"
+  queue: low
+  args: [2]
+  description: "Every 15m: attributes new orders to the last delivered WhatsApp campaign or notification"
+
+whatsapp_attribution_backfill_job:
+  cron: "20 3 * * *"
+  class: "Whatsapp::AttributionSweepJob"
+  queue: low
+  args: [72]
+  description: "Daily 03:20 UTC: re-sweeps 72h of attribution to catch late delivery webhooks and cancellations"
+
+whatsapp_contact_order_stats_full_job:
+  cron: "40 2 * * *"
+  class: "Whatsapp::ContactOrderStatsJob"
+  queue: low
+  args: ["full"]
+  description: "Daily: recomputes COD/prepaid/RTO order stats on WhatsApp contacts for every shop with contacts"
+
+whatsapp_contact_order_stats_incremental_job:
+  cron: "5 * * * *"
+  class: "Whatsapp::ContactOrderStatsJob"
+  queue: low
+  args: ["incremental"]
+  description: "Hourly: refreshes contact order stats for phones whose orders or RTO status changed in the last 2h"
+
+whatsapp_account_health_sync_job:
+  cron: "*/30 * * * *"
+  class: "Whatsapp::AccountHealthSyncJob"
+  queue: administration
+  description: "Every 30m: refreshes WhatsApp number quality/messaging limit from Meta and auto-pauses campaigns on low quality"
+
+whatsapp_inbox_auto_resolve_job:
+  cron: "*/15 * * * *"
+  class: "Whatsapp::Inbox::AutoResolveJob"
+  queue: low
+  description: "Every 15m: resolves inbox conversations pending for 72h without a customer reply"
+
+whatsapp_inbox_unanswered_alert_job:
+  cron: "*/10 * * * *"
+  class: "Whatsapp::Inbox::UnansweredAlertJob"
+  queue: low
+  description: "Every 10m: emails the assignee about open conversations unanswered past the shop's threshold (opt-in)"
+
+whatsapp_inbox_media_retention_job:
+  cron: "20 3 * * *"
+  class: "Whatsapp::Inbox::MediaRetentionJob"
+  queue: low
+  description: "Daily: purges stored inbox media older than 90 days"
+
+whatsapp_ai_reconcile_recharges_job:
+  cron: "*/30 * * * *"
+  class: "Whatsapp::Ai::ReconcileRechargesJob"
+  queue: low
+  description: "Every 30m: credits AI credit packs approved in Shopify when the merchant never returned to the app"
+
+ops_gmv_rollup_job:
+  cron: "10 * * * *"
+  class: "Ops::GmvRollupJob"
+  queue: administration
+  args: [2]
+  description: "Hourly: rolls today + yesterday (IST) of order_confirmations into ops_gmv_dailies for /codk-ops"
+
+customer_pull_reaper_job:
+  cron: "20 * * * *"
+  class: "ShopifyJobs::CustomerPullReaperJob"
+  queue: administration
+  description: "Hourly: closes finished/false-failed customer pull rows, re-queues orphaned or timed-out pulls for valuable shops only (small batches). Kill switch: CUSTOMER_PULL_REAPER_ENABLED=false"
+
+customer_bulk_export_job:
+  cron: "*/10 * * * *"
+  class: "ShopifyJobs::CustomerBulkExportJob"
+  queue: administration
+  description: "Every 10m: polls Shopify bulk customer exports and starts a few new ones for valuable shops (the load job picks up finished ones). Does nothing unless CUSTOMER_BULK_EXPORT_ENABLED=true"
+
+customer_bulk_load_job:
+  cron: "3,13,23,33,43,53 * * * *"
+  class: "ShopifyJobs::CustomerBulkLoadJob"
+  queue: global_data_pull
+  description: "Every 10m: loads finished Shopify bulk customer exports into the DB straight from Shopify's file link, throttled, inside OPS_BULK_LOAD_WINDOW (IST). Does nothing unless CUSTOMER_BULK_LOAD_ENABLED=true"

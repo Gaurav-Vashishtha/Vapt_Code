@@ -1,0 +1,42 @@
+/* Desktop-specific styles for ScreenLayout component */
+/* Applied when viewport width >= 641px */
+
+@media (min-width: 641px) {
+  .phone-screen {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    align-items: stretch !important;
+    padding-top: 0;
+  }
+
+  .device-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 0% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    background: #ffffff !important;
+    border-radius: inherit !important;
+    border: 1px solid var(--hairline) !important;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .device-frame.in-bottom-sheet {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 0% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    border-radius: inherit !important;
+    border: 1px solid var(--hairline) !important;
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.08) !important;
+    overflow: visible !important;
+  }
+}

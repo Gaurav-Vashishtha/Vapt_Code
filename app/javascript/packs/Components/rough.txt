@@ -1,0 +1,36 @@
+shop - 54386
+slobberman dog
+
+
+
+id=67665
+shop=Shop.find(id)
+resp = ShopifyServices::PartialOrderEditService.call(shop, '6611612467456', ['47507309035776','47507308937472','47507309003008'])
+
+
+
+app/javascript/packs/Components/CODFeesSettings.jsx
+
+app/javascript/packs/Components/SinglePlan.jsx
+
+app/javascript/packs/Components/CheckScopeAndReauth.jsx
+
+
+
+ShopifyServices::PartialOrderEditService::BundleTwoCommit.call(order_confirmation.shop, order_confirmation.order_id)
+ShopifyServices::PartialOrderEditService::Bundle.call(order_confirmation.shop, order_confirmation.order_id)
+
+
+   resp = @shop.setting.provider.constantize.call(
+            @shop.setting.provider_api_key,
+            @shop.setting.provider_sender_id,
+            {
+              to:'+21622940625',
+              body: '1234 est votre code de vérification pour confirmer la commande COD passée sur Oneaday ',
+              dlt_id: ''
+            }
+          )
+
+
+
+          ShopifyServices::PartialOrderMappingService.call(order_confirmation.shop, order_confirmation.order_id)

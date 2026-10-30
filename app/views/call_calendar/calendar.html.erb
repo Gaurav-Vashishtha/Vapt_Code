@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Call Calendar — Month</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Call Calendar</h1>
+          <p class="text-sm text-gray-500"><%= @month.strftime("%B %Y") %> · scheduled callbacks</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <%= link_to "‹ Prev", support_dashboard_call_calendar_month_path(month: (@month - 1.month).strftime("%Y-%m")), class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Next ›", support_dashboard_call_calendar_month_path(month: (@month + 1.month).strftime("%Y-%m")), class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+          <%= link_to "Day view", support_dashboard_call_calendar_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-7 gap-px bg-gray-200 border border-gray-200 rounded-lg overflow-hidden">
+      <% %w[Sun Mon Tue Wed Thu Fri Sat].each do |label| %>
+        <div class="bg-gray-50 px-2 py-2 text-xs font-semibold text-gray-500 text-center"><%= label %></div>
+      <% end %>
+
+      <% first = @month.beginning_of_month %>
+      <% start_offset = first.wday %>
+      <% start_offset.times do %>
+        <div class="bg-white min-h-[96px]"></div>
+      <% end %>
+
+      <% (first..@month.end_of_month).each do |day| %>
+        <% reminders = @reminders_by_day[day] || [] %>
+        <% calls = @counts_by_day[day] || 0 %>
+        <div class="bg-white min-h-[96px] p-2 <%= 'bg-gray-50' if day.sunday? %>">
+          <div class="flex items-center justify-between">
+            <%= link_to day.day, support_dashboard_call_calendar_path(date: day), class: "text-xs font-semibold #{day == Date.current ? 'text-sky-600' : 'text-gray-700'} hover:underline" %>
+            <% if calls.positive? %><span class="text-[10px] text-gray-400"><%= calls %> calls</span><% end %>
+          </div>
+          <% if day.sunday? %>
+            <div class="text-[10px] text-gray-400 mt-1">No calling</div>
+          <% end %>
+          <% reminders.first(4).each do |reminder| %>
+            <div class="mt-1 text-[10px] px-1 py-0.5 rounded bg-amber-100 text-amber-800 truncate" title="<%= reminder.shopify_domain %>"><%= reminder.shopify_domain %></div>
+          <% end %>
+          <% if reminders.size > 4 %>
+            <div class="text-[10px] text-gray-400 mt-0.5">+<%= reminders.size - 4 %> more</div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,16 @@
+en:
+  activerecord:
+    models:
+      additional_setting:
+        one: "Additional setting"
+        other: "Additional settings"
+    attributes:
+      additional_setting:
+        shop_id: "Shop ID"
+        shop: "Shop ID"
+        third_party_payment_method_rules: "Third-party payment method rules"
+  helpers:
+    label:
+      additional_setting:
+        shop_id: "Shop ID"
+        third_party_payment_method_rules: "Third-party payment method rules"

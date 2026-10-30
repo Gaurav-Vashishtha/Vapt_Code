@@ -1,0 +1,7 @@
+<%= copy('heading', minutes: @minutes) %>
+
+<% if @preview.present? %>
+<%= copy('body', customer: @customer, preview: @preview) %>
+
+<% end %>
+<%= copy('cta') %>: <%= @inbox_url %>

@@ -1,0 +1,10 @@
+/* Mobile-specific styles for OtpVerificationScreen component */
+/* Applied when viewport width <= 640px */
+
+@media (max-width: 640px) {
+  .footer-wrapper {
+    padding-top: 12px;
+  }
+}
+
+

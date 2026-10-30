@@ -1,0 +1,599 @@
+/* ============================================================================
+ * ADDRESS FORM - Address Input Form Component
+ * ============================================================================
+ * Form for adding/editing shipping addresses with validation
+ * ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+ * CSS Custom Properties (Design Tokens)
+ * ---------------------------------------------------------------------------- */
+:root {
+  /* Colors */
+  --address-form-bg: #f6f8fc;
+  --address-form-border-color: var(--hairline);
+  --address-form-header-bg: #ffffff;
+  --address-form-section-bg: #ffffff;
+  --address-form-icon-bg: #f5f5f5;
+  --address-form-text-primary: #404040;
+  --address-form-text-secondary: #979797;
+  --address-form-text-error: #e00000;
+  --address-form-text-loading: #6d6d6d;
+  --address-form-input-border: var(--hairline);
+  --address-form-input-border-focus: #404040;
+  --address-form-chip-border: var(--hairline);
+  --address-form-chip-active-bg: #000000;
+  --address-form-chip-active-text: #ffffff;
+  --address-form-chip-active-border: #404040;
+
+  /* Typography */
+  --address-form-font-family: var(--font-family-base);
+  --address-form-font-family-label: var(--font-family-base);
+  --address-form-font-size-header: 16px;
+  --address-form-font-size-label: 12px;
+  --address-form-font-size-input: 14px;
+  --address-form-font-size-chip: 14px;
+  --address-form-font-size-error: 12px;
+  --address-form-line-height-header: 18px;
+  --address-form-line-height-label: 16px;
+  --address-form-font-weight-header: 600;
+  --address-form-font-weight-chip: 500;
+
+  /* Spacing */
+  --address-form-border-radius: 16px;
+  --address-form-border-radius-section: 8px;
+  --address-form-border-radius-icon: 8px;
+  --address-form-border-radius-chip: 33px;
+  --address-form-border-radius-input: 4px;
+  --address-form-padding-section: 16px;
+  --address-form-padding-input: 10px 14px;
+  --address-form-padding-chip: 8px 16px;
+  --address-form-gap-header: 7px;
+  --address-form-gap-section: 8px;
+  --address-form-gap-field: 16px;
+  --address-form-gap-field-block: 6px;
+  --address-form-gap-field-row: 12px;
+  --address-form-gap-chip: 8px;
+  --address-form-header-height: 66px;
+  --address-form-icon-container-size: 34px;
+  --address-form-icon-size: 24px;
+  --address-form-input-height: 36px;
+  --address-form-icon-border: 0.4px;
+  --address-form-icon-padding: 5px;
+}
+
+/* ----------------------------------------------------------------------------
+ * Base Form Styles
+ * ---------------------------------------------------------------------------- */
+.billing {
+  border-radius: 8px 8px 0 0;
+  box-shadow: -2px -2px 10px 0 #d0dbf726, 4px 4px 11px 0 #d0dbf726;
+  border-top-width: 0;
+  width: 100%;
+  position: relative;
+  overflow: visible;
+  font-family: var(--address-form-font-family);
+  margin-bottom: 0;
+}
+
+/* ----------------------------------------------------------------------------
+ * Header Section
+ * ---------------------------------------------------------------------------- */
+.frame-1171276521 {
+  background: var(--address-form-header-bg);
+  border-bottom: 1px solid var(--address-form-border-color);
+  width: 100%;
+  height: var(--address-form-header-height);
+  position: relative;
+  display: none;
+}
+
+.frame-1171276900 {
+  display: flex;
+  flex-direction: row;
+  gap: var(--address-form-gap-header);
+  align-items: center;
+  justify-content: flex-start;
+  position: absolute;
+  left: 16px;
+  top: 16px;
+}
+
+.depth-7-frame-3 {
+  background: var(--address-form-icon-bg);
+  border-radius: var(--address-form-border-radius-icon);
+  border: var(--address-form-icon-border) solid var(--address-form-border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--address-form-icon-container-size);
+  height: var(--address-form-icon-container-size);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.map-pin {
+  width: var(--address-form-icon-size);
+  height: var(--address-form-icon-size);
+  flex-shrink: 0;
+}
+
+.add-address {
+  color: var(--address-form-text-primary);
+  font-size: var(--address-form-font-size-header);
+  line-height: var(--address-form-line-height-header);
+  font-weight: var(--address-form-font-weight-header);
+  font-family: var(--address-form-font-family);
+  white-space: nowrap;
+}
+
+.close-link {
+  position: absolute;
+  right: 16px;
+  top: 18px;
+  background: none;
+  border: none;
+  color: var(--address-form-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--address-form-font-family);
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.close-link:hover {
+  opacity: 0.8;
+}
+
+.close-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------------------
+ * Form Content Container
+ * ---------------------------------------------------------------------------- */
+/* (intentionally no styles here) */
+
+/* ----------------------------------------------------------------------------
+ * Form Sections
+ * ---------------------------------------------------------------------------- */
+.frame-1171276906,
+.frame-11712769073,
+.frame-11712769092 {
+  background: var(--address-form-section-bg);
+  border-radius: var(--address-form-border-radius-section);
+  border: 1px solid var(--address-form-border-color);
+  padding: var(--address-form-padding-section);
+  display: flex;
+  flex-direction: column;
+  gap: var(--address-form-gap-field);
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.address,
+.customer-information,
+.save-address-as {
+  color: var(--address-form-text-primary);
+  font-size: var(--address-form-font-size-header);
+  line-height: var(--address-form-line-height-header);
+  font-weight: var(--address-form-font-weight-header);
+  font-family: var(--address-form-font-family);
+}
+
+/* ----------------------------------------------------------------------------
+ * Form Fields
+ * ---------------------------------------------------------------------------- */
+.field-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--address-form-gap-field-block);
+}
+
+.field-block label {
+  color: var(--address-form-text-secondary);
+  font-size: var(--address-form-font-size-label);
+  line-height: var(--address-form-line-height-label);
+  font-family: var(--address-form-font-family-label);
+  text-transform: none;
+  font-weight: 400;
+}
+
+.field-block label span {
+  color: var(--address-form-text-error);
+  margin-left: 4px;
+}
+
+.field-block label .optional {
+  color: var(--address-form-text-secondary);
+  font-weight: 400;
+}
+
+.field-block input {
+  border-radius: var(--address-form-border-radius-input);
+  border: 1px solid var(--address-form-input-border);
+  background: var(--address-form-section-bg);
+  height: var(--address-form-input-height);
+  padding: var(--address-form-padding-input);
+  font-size: var(--address-form-font-size-input);
+  color: var(--address-form-text-primary);
+  font-family: var(--address-form-font-family);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.field-block input:focus {
+  outline: none;
+  border-color: var(--address-form-input-border-focus);
+  box-shadow: 0 0 0 1px var(--address-form-input-border-focus);
+}
+
+.field-block input::placeholder {
+  color: var(--address-form-text-secondary);
+  opacity: 0.6;
+}
+
+.field-block.has-error label {
+  color: var(--address-form-text-error);
+}
+
+.field-block.has-error input {
+  border-color: var(--address-form-text-error);
+}
+
+.field-error {
+  margin: 0;
+  margin-top: 4px;
+  font-size: var(--address-form-font-size-error);
+  color: var(--address-form-text-error);
+  font-family: var(--address-form-font-family);
+  line-height: var(--address-form-line-height-label);
+}
+
+.field-loading {
+  margin: 4px 0 0 0;
+  font-size: var(--address-form-font-size-error);
+  color: var(--address-form-text-loading);
+  font-style: italic;
+  font-family: var(--address-form-font-family);
+}
+
+/* ----------------------------------------------------------------------------
+ * Field Row (Side by Side Fields)
+ * ---------------------------------------------------------------------------- */
+.field-row {
+  display: flex;
+  gap: var(--address-form-gap-field-row);
+  flex-wrap: wrap;
+}
+
+.field-row .field-block {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+
+/* Equal 50/50 columns (compact + professional) */
+.field-row.field-row--two .field-block {
+  flex: 1 1 0;
+}
+
+/* ----------------------------------------------------------------------------
+ * Address Type Chips
+ * ---------------------------------------------------------------------------- */
+.frame-11712769064 {
+  display: flex;
+  gap: var(--address-form-gap-chip);
+  flex-wrap: wrap;
+}
+
+.tag-chip {
+  border-radius: var(--address-form-border-radius-chip);
+  border: 1px solid var(--address-form-chip-border);
+  padding: var(--address-form-padding-chip);
+  background: var(--address-form-section-bg);
+  color: var(--address-form-text-secondary);
+  font-size: var(--address-form-font-size-chip);
+  font-weight: var(--address-form-font-weight-chip);
+  font-family: var(--address-form-font-family);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.tag-chip:hover {
+  border-color: var(--address-form-text-primary);
+  color: var(--address-form-text-primary);
+}
+
+.tag-chip.active {
+  background: var(--address-form-chip-active-bg);
+  color: var(--address-form-chip-active-text);
+  border-color: var(--address-form-chip-active-border);
+}
+
+.tag-chip.active:hover {
+  opacity: 0.9;
+}
+
+/* ----------------------------------------------------------------------------
+ * Submit Button (Hidden - handled by parent)
+ * ---------------------------------------------------------------------------- */
+.primary-action {
+  display: none;
+}
+
+/* ----------------------------------------------------------------------------
+ * Address form (floating-label design)
+ * ---------------------------------------------------------------------------- */
+.af-form {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 12px 0;
+  background: var(--surface-card);
+  /* Fill the sheet height so the submit bar can pin to the bottom */
+  flex: 1 0 auto;
+}
+
+.af-row {
+  display: flex;
+  gap: 14px;
+}
+
+.af-row .af-field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.af-field {
+  position: relative;
+  margin-top: 14px;
+}
+
+.af-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 49px;
+  padding: 12px 15px;
+  background: var(--surface-card);
+  border: 1px solid color-mix(in srgb, var(--color-blue) 20%, transparent);
+  border-radius: 6px;
+  box-shadow: 0 3px 6px rgba(224, 224, 224, 0.3);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  font-size: 16px;
+  outline: none;
+  touch-action: pan-y;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Hint placeholders stay hidden while the label rests inside the field, and
+   surface only once the label has floated up (focus / filled). */
+.af-input::placeholder {
+  color: transparent;
+  font-family: var(--font-family-base);
+  font-size: var(--address-form-font-size-input);
+}
+
+.af-input:focus::placeholder {
+  color: var(--address-form-text-secondary);
+  opacity: 0.7;
+}
+
+.af-input:focus {
+  border-color: var(--color-blue);
+}
+
+.af-input:disabled {
+  background: var(--surface-sunken);
+  color: var(--color-text-muted);
+}
+
+.af-textarea {
+  height: 50px;
+  min-height: 50px;
+  max-height: 98px;
+  resize: none;
+  overflow-y: hidden;
+  line-height: 1.3;
+}
+
+.af-label {
+  position: absolute;
+  top: -7px;
+  left: 10px;
+  z-index: 1;
+  padding: 0 5px;
+  background: var(--surface-card);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: normal;
+  pointer-events: none;
+  white-space: nowrap;
+  transition:
+    top 0.15s var(--ease-smooth, ease),
+    font-size 0.15s var(--ease-smooth, ease),
+    color 0.15s var(--ease-smooth, ease);
+}
+
+/* Empty + unfocused: the label sits inside the field and acts as the
+   placeholder, so a field never shows a label and a placeholder at once. */
+.af-input:placeholder-shown:not(:focus) + .af-label {
+  top: 16px;
+  background: transparent;
+  color: var(--address-form-text-secondary);
+  font-size: 14px;
+  font-weight: 400;
+  max-width: calc(100% - 20px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.af-textarea:placeholder-shown:not(:focus) + .af-label {
+  top: 15px;
+}
+
+.af-label--disabled {
+  background: linear-gradient(
+    to bottom,
+    var(--surface-card) 50%,
+    var(--surface-sunken) 50%
+  );
+}
+
+.af-input:placeholder-shown:not(:focus) + .af-label--disabled {
+  background: transparent;
+}
+
+.af-asterisk {
+  color: #ff4d4f;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.af-helper {
+  margin: 4px 0 0;
+  color: #717171;
+  font-size: 12px;
+}
+
+.af-error {
+  margin-top: 8px;
+  color: #dc3545;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 14px;
+}
+
+.af-field.has-error .af-input {
+  border-color: #dc3545;
+}
+
+.af-note {
+  margin-top: 6px;
+  color: #717171;
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.af-landmark-btn {
+  align-self: flex-start;
+  margin-top: 12px;
+  padding: 0 0 1px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-blue);
+  color: var(--color-blue);
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.af-type-section {
+  margin-top: 10px;
+}
+
+.af-type-title {
+  margin: 0;
+  color: #2f2f2f;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 3;
+}
+
+.af-type-options {
+  display: flex;
+}
+
+.af-type-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100px;
+  cursor: pointer;
+}
+
+.af-type-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.af-type-circle {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  border: 1px solid #b8bcc2;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: border 0.15s ease;
+}
+
+.af-type-circle.checked {
+  border: 4px solid var(--color-blue);
+}
+
+.af-type-label {
+  color: #2f2f2f;
+  font-size: 14px;
+}
+
+/* Sticky footer that keeps the submit button fixed at the bottom of the sheet.
+   margin-top:auto pins it down for short forms; position:sticky keeps it
+   visible while taller forms scroll. */
+.af-submit-bar {
+  margin: 16px -12px 0;
+  padding: 12px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+  position: sticky;
+  bottom: 0;
+  margin-top: 16px;
+  z-index: 3;
+}
+
+.af-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 42px;
+  margin-top: 0;
+  padding: 10px;
+  background: var(--color-blue);
+  border: none;
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+}
+
+.af-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ----------------------------------------------------------------------------
+ * Mobile Styles
+ * ----------------------------------------------------------------------------
+ * Mobile-specific styles are in AddressForm.mobile.css
+ */

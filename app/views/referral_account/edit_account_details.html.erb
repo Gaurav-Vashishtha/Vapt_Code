@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Account Details - Referral Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Payment Account Details</h2>
+      
+      <%= form_with model: @partner, url: update_referral_account_details_path, local: true, class: "space-y-6" do |f| %>
+        <% if @partner.errors.any? %>
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+            <h4 class="font-bold">Please fix the following errors:</h4>
+            <ul class="list-disc list-inside mt-2">
+              <% @partner.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+        
+        <!-- Account Type Selection -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-3">Account Type</label>
+          <div class="space-y-2">
+            <label class="flex items-center">
+              <%= f.radio_button :account_type, 'bank', class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" %>
+              <span class="ml-2 text-sm text-gray-900">Indian Bank Account</span>
+            </label>
+            <label class="flex items-center">
+              <%= f.radio_button :account_type, 'paypal', class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300" %>
+              <span class="ml-2 text-sm text-gray-900">PayPal Account</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Bank Account Details -->
+        <div id="bank-details" class="space-y-4" style="display: <%= @partner.account_type == 'bank' ? 'block' : 'none' %>">
+          <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">Bank Account Information</h3>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <%= f.label :bank_account_name, "Account Holder Name", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.text_field :bank_account_name,
+                              class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+            
+            <div>
+              <%= f.label :bank_name, "Bank Name", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.text_field :bank_name,
+                              class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+            
+            <div>
+              <%= f.label :bank_account_number, "Account Number", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.text_field :bank_account_number, autocomplete: "off",
+                              class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+            </div>
+            
+            <div>
+              <%= f.label :bank_ifsc_code, "IFSC Code", class: "block text-sm font-medium text-gray-700" %>
+              <%= f.text_field :bank_ifsc_code, placeholder: "e.g., SBIN0001234",
+                              class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+              <p class="mt-1 text-xs text-gray-500">11-character IFSC code of your bank branch</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- PayPal Account Details -->
+        <div id="paypal-details" class="space-y-4" style="display: <%= @partner.account_type == 'paypal' ? 'block' : 'none' %>">
+          <h3 class="text-lg font-semibold text-gray-800 border-b pb-2">PayPal Account Information</h3>
+          
+          <div>
+            <%= f.label :paypal_email, "PayPal Email Address", class: "block text-sm font-medium text-gray-700" %>
+            <%= f.email_field :paypal_email,
+                              class: "mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" %>
+            <p class="mt-1 text-xs text-gray-500">Enter the email address associated with your PayPal account</p>
+          </div>
+        </div>
+        
+        <div class="flex space-x-4">
+          <%= f.submit "Save Account Details", 
+                      class: "flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          <%= link_to "Cancel", referral_account_path,
+                      class: "flex-1 bg-gray-600 text-white py-2 px-4 rounded text-center hover:bg-gray-700" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+  
+  <script>
+    // Show/hide account details based on selection
+    document.addEventListener('DOMContentLoaded', function() {
+      const bankRadio = document.getElementById('referral_partner_account_type_bank');
+      const paypalRadio = document.getElementById('referral_partner_account_type_paypal');
+      const bankDetails = document.getElementById('bank-details');
+      const paypalDetails = document.getElementById('paypal-details');
+      
+      function toggleAccountDetails() {
+        if (bankRadio && bankRadio.checked) {
+          bankDetails.style.display = 'block';
+          paypalDetails.style.display = 'none';
+        } else if (paypalRadio && paypalRadio.checked) {
+          bankDetails.style.display = 'none';
+          paypalDetails.style.display = 'block';
+        } else {
+          bankDetails.style.display = 'none';
+          paypalDetails.style.display = 'none';
+        }
+      }
+      
+      if (bankRadio) bankRadio.addEventListener('change', toggleAccountDetails);
+      if (paypalRadio) paypalRadio.addEventListener('change', toggleAccountDetails);
+    });
+  </script>
+</body>
+</html>

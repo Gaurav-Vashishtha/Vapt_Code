@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Merchant WhatsApp — Rule</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <h1 class="text-xl font-semibold text-gray-900"><%= @rule.persisted? ? "Edit rule" : "New rule" %></h1>
+      <%= link_to "Back", merchant_whatsapp_path, class: "text-sm border border-gray-300 rounded-md px-3 py-2 text-gray-700 hover:bg-gray-50" %>
+    </div>
+  </div>
+  <%= render 'shared/support_navigation' %>
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <% if flash[:alert].present? %><div class="mb-4 rounded-md bg-red-50 border border-red-200 px-4 py-2 text-sm text-red-800"><%= flash[:alert] %></div><% end %>
+    <div class="bg-white rounded-lg border border-gray-200 p-6">
+      <%= form_tag merchant_whatsapp_save_rule_path, method: :post, class: "grid md:grid-cols-2 gap-4" do %>
+        <%= hidden_field_tag :id, @rule.id %>
+        <div><label class="block text-sm font-medium mb-1">Name</label><%= text_field_tag :name, @rule.name, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Slug (unique)</label><%= text_field_tag :slug, @rule.slug, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Category</label><%= select_tag :category, options_for_select(MerchantWhatsappRule::CATEGORIES, @rule.category), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Template</label><%= select_tag :owner_whatsapp_template_id, options_from_collection_for_select(@templates, :id, :name, @rule.owner_whatsapp_template_id), include_blank: "— none —", class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Trigger type</label><%= select_tag :trigger_type, options_for_select(MerchantWhatsappRule::TRIGGER_TYPES, @rule.trigger_type), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Target</label><%= select_tag :target, options_for_select(MerchantWhatsappRule::TARGETS, @rule.target), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Event (for event triggers)</label><%= select_tag :event_key, options_for_select([["— none —", ""]] + MerchantWhatsapp::Events::KEYS.map { |k| [k.tr("_", " "), k] }, @rule.event_key), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div></div>
+        <div class="md:col-span-2"><p class="text-xs text-gray-400"><strong>Scheduled</strong> rules run hourly and send N days/hours after the reference date. <strong>Event</strong> rules fire the moment the event happens — set the delay below (N days/hours after the event; 0 = immediately). No scheduler needed for events.</p></div>
+        <div><label class="block text-sm font-medium mb-1">Delay unit</label><%= select_tag :date_rule_type, options_for_select(MerchantWhatsappRule::DATE_RULE_TYPES, @rule.date_rule_type), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Delay value (N)</label><%= number_field_tag :date_rule_value, @rule.date_rule_value, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div><label class="block text-sm font-medium mb-1">Reference date column</label><%= text_field_tag :date_rule_column, (@rule.date_rule_column || "shops.created_at"), class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block text-sm font-medium mb-1">Send hour</label><%= number_field_tag :scheduled_hour, @rule.scheduled_hour, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+          <div><label class="block text-sm font-medium mb-1">Minute</label><%= number_field_tag :scheduled_minute, @rule.scheduled_minute, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm" %></div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium mb-2">Conditions</label>
+          <p class="text-xs text-gray-400 mb-2">Only shops matching all/any of these (evaluated in the backend). Leave a row blank to ignore it. Example: <code>shops.country_code equals IN</code> AND <code>settings.enable_pre_order_otp is true</code>.</p>
+          <% conds = @rule.conditions_array %>
+          <% op_options = [["equals", "eq"], ["not equals", "not_eq"], ["greater than", "gt"], ["≥", "gteq"], ["less than", "lt"], ["≤", "lteq"], ["is true", "true"], ["is false", "false"], ["is present", "present"], ["is blank", "blank"]] %>
+          <div class="space-y-2">
+            <% 5.times do |i| %>
+              <% c = conds[i] || {} %>
+              <div class="flex flex-wrap items-center gap-2">
+                <%= select_tag "cond_table[]", options_for_select(%w[shops settings uninstalled_shops], c["table"] || "shops"), class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+                <%= text_field_tag "cond_column[]", c["column"], list: "col-options", placeholder: "column", class: "text-xs border border-gray-300 rounded px-2 py-1 w-44" %>
+                <%= select_tag "cond_op[]", options_for_select(op_options, c["op"] || "eq"), class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+                <%= text_field_tag "cond_value[]", c["value"], placeholder: "value", class: "text-xs border border-gray-300 rounded px-2 py-1 w-28" %>
+                <%= select_tag "cond_combiner[]", options_for_select([["AND next", "and"], ["OR next", "or"]], c["combiner"] || "and"), class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+              </div>
+            <% end %>
+          </div>
+          <datalist id="col-options"><% @column_options.each do |col| %><option value="<%= col %>"></option><% end %></datalist>
+        </div>
+
+        <div class="md:col-span-2 border-t border-gray-200 pt-4">
+          <label class="block text-sm font-medium mb-2">Message preview &amp; variable binding</label>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <div id="mwa-bindings" class="space-y-2"></div>
+              <p class="text-xs text-gray-400 mt-2">Bind each <code>{{n}}</code> to a source: <code>store.name</code>, <code>owner.name</code>, <code>stats.orders_7d</code>, <code>domain</code>, or <code>literal:Your text</code>.</p>
+            </div>
+            <div>
+              <div id="mwa-preview" class="max-w-xs bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-xs text-gray-800">Select a template…</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="md:col-span-2"><label class="block text-sm font-medium mb-1">CTA config (JSON)</label><%= text_area_tag :cta_config_json, ((@rule.cta_config || {}).to_json), rows: 2, class: "w-full border border-gray-300 rounded px-3 py-2 text-sm font-mono" %></div>
+        <div class="md:col-span-2 flex items-center gap-2"><%= hidden_field_tag :active, "0" %><%= check_box_tag :active, "1", @rule.active %> <label class="text-sm">Active</label></div>
+        <div class="md:col-span-2"><%= submit_tag "Save rule", class: "bg-sky-600 text-white text-sm font-medium rounded px-4 py-2 cursor-pointer" %></div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<datalist id="binding-sources">
+  <option value="store.name"></option>
+  <option value="owner.name"></option>
+  <option value="stats.orders_7d"></option>
+  <option value="stats.period"></option>
+  <option value="domain"></option>
+  <option value="literal:"></option>
+</datalist>
+
+<script>
+(function () {
+  var templates = <%= raw @templates_json.to_json %>;
+  var mapping = <%= raw @rule_mapping.to_json %>;
+  var select = document.querySelector('select[name="owner_whatsapp_template_id"]');
+  var bindingsEl = document.getElementById("mwa-bindings");
+  var previewEl = document.getElementById("mwa-preview");
+  if (!select || !bindingsEl || !previewEl) return;
+
+  function escapeHtml(s) {
+    return (s || "").replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
+    });
+  }
+
+  function currentBindings() {
+    var vals = {};
+    bindingsEl.querySelectorAll("input[data-pos]").forEach(function (i) { vals[i.getAttribute("data-pos")] = i.value; });
+    return vals;
+  }
+
+  function renderPreview(t, vals) {
+    if (!t) { previewEl.textContent = "Select a template…"; return; }
+    var body = (t.body || "").replace(/\{\{(\d+)\}\}/g, function (m, n) { return vals[n] ? "[" + vals[n] + "]" : m; });
+    var html = "";
+    if (t.header) html += '<div style="font-weight:600;margin-bottom:4px;">' + escapeHtml(t.header) + "</div>";
+    html += "<div>" + escapeHtml(body).replace(/\n/g, "<br>") + "</div>";
+    if (t.buttons && t.buttons.length) {
+      html += '<div style="border-top:1px solid #d1fae5;margin-top:8px;padding-top:4px;">';
+      t.buttons.forEach(function (b) { html += '<div style="text-align:center;color:#0284c7;">' + escapeHtml(b || "") + "</div>"; });
+      html += "</div>";
+    }
+    previewEl.innerHTML = html;
+  }
+
+  function render() {
+    var t = templates[select.value];
+    bindingsEl.innerHTML = "";
+    if (!t) { renderPreview(null, {}); return; }
+    if (!t.positions.length) { bindingsEl.innerHTML = '<p class="text-xs text-gray-400">This template has no variables.</p>'; }
+    t.positions.forEach(function (n) {
+      var wrap = document.createElement("div");
+      wrap.className = "flex items-center gap-2";
+      var label = document.createElement("span");
+      label.className = "text-xs text-gray-500 w-12";
+      label.textContent = "{{" + n + "}}";
+      var input = document.createElement("input");
+      input.type = "text";
+      input.name = "binding[" + n + "]";
+      input.setAttribute("data-pos", n);
+      input.setAttribute("list", "binding-sources");
+      input.className = "flex-1 text-xs border border-gray-300 rounded px-2 py-1";
+      input.value = mapping[n] || "";
+      input.addEventListener("input", function () { renderPreview(t, currentBindings()); });
+      wrap.appendChild(label);
+      wrap.appendChild(input);
+      bindingsEl.appendChild(wrap);
+    });
+    renderPreview(t, currentBindings());
+  }
+
+  select.addEventListener("change", render);
+  render();
+})();
+</script>
+</body>
+</html>

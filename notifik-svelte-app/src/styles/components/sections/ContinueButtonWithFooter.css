@@ -1,0 +1,303 @@
+/* Mobile-First Approach - Base styles for mobile */
+.continue-button-footer-container,
+.continue-button-footer-container * {
+  box-sizing: border-box;
+}
+
+/* ============================================================================
+   * STICKY FOOTER SECTION - Separate Component
+   * ============================================================================
+   * This is a separate, self-contained sticky footer section component.
+   * It has a white background and sticks to the bottom of the viewport.
+   * 
+   * Structure:
+   * - ScreenLayout (device-frame with flex column)
+   *   ├── ScreenHeader (sticky at top)
+   *   ├── ScreenContent (scrollable, flex: 1)
+   *   └── ContinueButtonWithFooter (sticky at bottom) ← THIS COMPONENT
+   * ============================================================================ */
+.continue-button-footer-container {
+  /* White background - solid and opaque */
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  /* Border styling - top border only for visual separation */
+  border-top: 1px solid var(--hairline);
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
+  border-radius: 0;
+  /* Sticky positioning - exactly like screen-header, but at bottom */
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  /* Layout */
+  display: flex !important;
+  flex-direction: column;
+  gap: 0;
+  padding: 16px;
+  overflow: hidden;
+  /* Mobile: Responsive height - adapts to content */
+  height: auto !important;
+  min-height: auto !important;
+  max-height: none !important;
+  /* Shadow for visual separation from scrollable content above */
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1) !important;
+  box-sizing: border-box;
+}
+
+/* CTA Section - Mobile First */
+.cta-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+  margin: 0;
+}
+
+.button-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  justify-content: center;
+  width: 100%;
+}
+
+.continue-button {
+  background: #000000;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0px 1px 4px 0px rgba(25, 33, 61, 0.08);
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  /* Mobile: Responsive height - adapts to content and padding */
+  height: auto;
+  min-height: 44px;
+  max-height: none;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+.continue-button:active:not(:disabled) {
+  background-color: #1a1a1a;
+  transform: scale(0.98);
+}
+
+.continue-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.continue-button.loading {
+  opacity: 0.8;
+}
+
+.button-text {
+  color: #ffffff !important;
+  text-align: center;
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+  position: relative;
+}
+
+.continue-button {
+  color: #ffffff !important;
+}
+
+.continue-button .button-text {
+  color: #ffffff !important;
+}
+
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Checkbox Section - Mobile First */
+.checkbox-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.checkbox-input {
+  border: 1px solid #404040;
+  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  position: relative;
+  background: transparent;
+  min-width: 18px;
+}
+
+.checkbox-input:checked {
+  background-color: #404040;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M10 3L4.5 8.5L2 6' stroke='white' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.checkbox-label {
+  color: #404040;
+  text-align: left;
+  font-family: var(--font-family-base);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  flex: 1;
+  position: relative;
+  word-wrap: break-word;
+}
+
+/* Legal Footer Section - Mobile First */
+.legal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px;
+  padding-top: 16px;
+  /* Mobile: Responsive height */
+  height: auto;
+  min-height: auto;
+  box-sizing: border-box;
+}
+
+.legal-links {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.legal-text {
+  color: #a3a3a3;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.legal-link {
+  color: #979797;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.legal-link:active {
+  color: #404040;
+}
+
+.legal-divider {
+  width: 1px;
+  height: 12px;
+  background-color: #a3a3a3;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* Security Section - Mobile First */
+.security-section {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.security-content {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+}
+
+.shield-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: visible;
+}
+
+.secured-by-text {
+  color: #a3a3a3;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.logo-container {
+  height: 12px;
+  mix-blend-mode: luminosity;
+  opacity: 0.5;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cod-logo {
+  width: 53px;
+  height: 12px;
+  object-fit: contain;
+  object-position: center;
+  pointer-events: none;
+  max-width: none;
+}
+
+/* Desktop styles are in ContinueButtonWithFooter.desktop.css */

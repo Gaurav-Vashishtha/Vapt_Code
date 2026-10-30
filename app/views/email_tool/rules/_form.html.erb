@@ -1,0 +1,277 @@
+<%
+  date_columns = defined?(@date_columns_for_rule) ? @date_columns_for_rule : EmailRule::DATE_COLUMNS_FOR_RULE
+  shop_cols = defined?(@shop_columns_for_condition) ? @shop_columns_for_condition : EmailRule.shop_columns_for_condition_options
+  settings_cols = defined?(@settings_columns_for_condition) ? @settings_columns_for_condition : EmailRule.settings_columns_for_condition_options
+  uninstalled_shop_cols = defined?(@uninstalled_shop_columns_for_condition) ? @uninstalled_shop_columns_for_condition : EmailRule.uninstalled_shop_columns_for_condition_options
+  evaluate_url = defined?(evaluate_url) ? evaluate_url : nil
+%>
+<%= form_with model: rule, url: submit_url, local: true, class: "bg-white rounded-lg shadow p-6 max-w-2xl", data: { evaluate_url: evaluate_url } do |f| %>
+  <% if rule.errors.any? %>
+    <div class="mb-4 p-3 rounded bg-red-50 text-red-800 text-sm">
+      <%= rule.errors.full_messages.join(", ") %>
+    </div>
+  <% end %>
+  <div class="space-y-4">
+    <div>
+      <%= f.label :name, class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :name, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+    </div>
+    <div>
+      <%= f.label :slug, "Slug (unique, e.g. 3_day_nudge)", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.text_field :slug, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+    </div>
+    <div>
+      <%= f.label :email_template_id, class: "block text-sm font-medium text-gray-700" %>
+      <%= f.collection_select :email_template_id, templates, :id, :name, { prompt: "Select template" }, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+    </div>
+    <div>
+      <%= f.label :target, "Target (who to scan)", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.select :target, EmailRule::TARGETS.map { |t| [t.tr("_", " ").titleize, t] }, {}, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+    </div>
+    <div>
+      <%= f.label :date_rule_type, "Schedule by", class: "block text-sm font-medium text-gray-700" %>
+      <%= f.select :date_rule_type, EmailRule::DATE_RULE_TYPES.map { |t| [t.tr("_", " ").titleize, t] }, {}, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2", id: "email_rule_date_rule_type" %>
+      <p class="text-xs text-gray-500 mt-1">"Days after" = send on day N at a set time (or start of day). "Hours after" = send exactly N hours after the reference date.</p>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <%= f.label :date_rule_column, "Reference date field", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.select :date_rule_column, date_columns, { include_blank: "Select date field" }, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+      </div>
+      <div id="date_rule_value_wrap">
+        <%= f.label :date_rule_value, rule.date_rule_type == "hours_after_installation" ? "Hours" : "Days", class: "block text-sm font-medium text-gray-700", id: "date_rule_value_label" %>
+        <%= f.number_field :date_rule_value, min: 0, class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+      </div>
+    </div>
+    <div id="time_of_day_wrap" class="grid grid-cols-2 gap-4" data-show="<%= rule.date_rule_type != 'hours_after_installation' %>">
+      <div>
+        <%= f.label :scheduled_hour, "Send at (shop local time) — Hour (0–23)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.number_field :scheduled_hour, min: 0, max: 23, step: 1, placeholder: "e.g. 11", class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+      </div>
+      <div>
+        <%= f.label :scheduled_minute, "Minute (0–59)", class: "block text-sm font-medium text-gray-700" %>
+        <%= f.number_field :scheduled_minute, min: 0, max: 59, step: 1, placeholder: "e.g. 0", class: "mt-1 block w-full rounded-md border border-gray-300 px-3 py-2" %>
+      </div>
+    </div>
+    <p id="time_of_day_hint" class="text-xs text-gray-500" data-show="<%= rule.date_rule_type != 'hours_after_installation' %>">Leave hour/minute blank to send at start of that day. Otherwise the email is scheduled for that time in the shop’s timezone (IST if unknown).</p>
+    <div>
+      <%= f.label :active, class: "block text-sm font-medium text-gray-700" %>
+      <%= f.check_box :active, class: "rounded border-gray-300" %>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-2">Conditions (e.g. settings.enable_pre_order_otp = false)</label>
+      <div id="conditions" class="space-y-2" data-shop-columns="<%= shop_cols.to_json %>" data-settings-columns="<%= settings_cols.to_json %>" data-uninstalled-shop-columns="<%= uninstalled_shop_cols.to_json %>">
+        <% conds = rule.conditions_array.presence || [{}] %>
+        <% conds.each_with_index do |c, i| %>
+          <% current_table = c["table"].presence || "shops" %>
+          <% column_options = current_table == "settings" ? settings_cols : (current_table == "uninstalled_shops" ? uninstalled_shop_cols : shop_cols) %>
+          <div class="condition-row flex flex-wrap gap-2 items-center border border-gray-200 rounded p-2">
+            <select name="email_rule[conditions][<%= i %>][table]" class="condition-table rounded border border-gray-300 px-2 py-1 text-sm">
+              <option value="shops" <%= c["table"] == "shops" ? "selected" : "" %>>shops</option>
+              <option value="settings" <%= c["table"] == "settings" ? "selected" : "" %>>settings</option>
+              <option value="uninstalled_shops" <%= c["table"] == "uninstalled_shops" ? "selected" : "" %>>uninstalled_shops</option>
+            </select>
+            <select name="email_rule[conditions][<%= i %>][column]" class="condition-column rounded border border-gray-300 px-2 py-1 text-sm w-48">
+              <% column_options.each do |val, label| %>
+                <option value="<%= val %>" <%= c["column"] == val ? "selected" : "" %>><%= label %></option>
+              <% end %>
+            </select>
+            <select name="email_rule[conditions][<%= i %>][op]" class="condition-op rounded border border-gray-300 px-2 py-1 text-sm">
+              <option value="eq" <%= c["op"] == "eq" ? "selected" : "" %>>eq</option>
+              <option value="not_eq" <%= c["op"] == "not_eq" ? "selected" : "" %>>not_eq</option>
+              <option value="gt" <%= c["op"] == "gt" ? "selected" : "" %>>gt</option>
+              <option value="gteq" <%= c["op"] == "gteq" ? "selected" : "" %>>gteq</option>
+              <option value="lt" <%= c["op"] == "lt" ? "selected" : "" %>>lt</option>
+              <option value="lteq" <%= c["op"] == "lteq" ? "selected" : "" %>>lteq</option>
+              <option value="true" <%= c["op"] == "true" ? "selected" : "" %>>true</option>
+              <option value="false" <%= c["op"] == "false" ? "selected" : "" %>>false</option>
+              <option value="present" <%= c["op"] == "present" ? "selected" : "" %>>present</option>
+              <option value="blank" <%= c["op"] == "blank" ? "selected" : "" %>>blank</option>
+            </select>
+            <span class="condition-value-wrap" style="<%= %w[blank present true false].include?(c['op'].to_s) ? 'display: none;' : '' %>">
+              <input type="text" name="email_rule[conditions][<%= i %>][value]" value="<%= c["value"] %>" placeholder="value (eq/not_eq/gt/lt)" class="condition-value-input rounded border border-gray-300 px-2 py-1 text-sm w-24" />
+            </span>
+            <span class="condition-combiner-wrap">
+              <select name="email_rule[conditions][<%= i %>][combiner]" class="rounded border border-gray-300 px-2 py-1 text-sm">
+                <option value="and" <%= (c["combiner"].presence || "and") == "and" ? "selected" : "" %>>And</option>
+                <option value="or" <%= c["combiner"] == "or" ? "selected" : "" %>>Or</option>
+              </select>
+            </span>
+            <button type="button" class="condition-remove text-red-600 hover:text-red-800 text-sm font-medium" title="Remove condition">Remove</button>
+          </div>
+        <% end %>
+      </div>
+      <button type="button" id="add-condition" class="mt-2 text-sm font-medium text-blue-600 hover:text-blue-800">+ Add condition</button>
+      <p class="text-xs text-gray-500 mt-1">Use value "false" or "true" for booleans. Leave value empty for true/false/present/blank. Combine multiple conditions with And/Or.</p>
+    </div>
+    <div class="flex flex-wrap gap-2 items-center">
+      <%= f.submit submit_label, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+      <% if evaluate_url.present? %>
+        <button type="button" id="evaluate-rule-btn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-md text-sm font-medium">Evaluate matching count</button>
+        <span id="evaluate-result" class="text-sm text-gray-600 ml-2" style="display: none;"></span>
+      <% end %>
+      <%= link_to "Cancel", email_tool_rules_path, class: "bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium" %>
+    </div>
+  </div>
+  <script type="text/template" id="condition-row-template">
+    <div class="condition-row flex flex-wrap gap-2 items-center border border-gray-200 rounded p-2">
+      <select name="email_rule[conditions][__INDEX__][table]" class="condition-table rounded border border-gray-300 px-2 py-1 text-sm">
+        <option value="shops" selected>shops</option>
+        <option value="settings">settings</option>
+        <option value="uninstalled_shops">uninstalled_shops</option>
+      </select>
+      <select name="email_rule[conditions][__INDEX__][column]" class="condition-column rounded border border-gray-300 px-2 py-1 text-sm w-48"></select>
+      <select name="email_rule[conditions][__INDEX__][op]" class="condition-op rounded border border-gray-300 px-2 py-1 text-sm">
+        <option value="eq" selected>eq</option>
+        <option value="not_eq">not_eq</option>
+        <option value="gt">gt</option>
+        <option value="gteq">gteq</option>
+        <option value="lt">lt</option>
+        <option value="lteq">lteq</option>
+        <option value="true">true</option>
+        <option value="false">false</option>
+        <option value="present">present</option>
+        <option value="blank">blank</option>
+      </select>
+      <span class="condition-value-wrap">
+        <input type="text" name="email_rule[conditions][__INDEX__][value]" placeholder="value (eq/not_eq/gt/lt)" class="condition-value-input rounded border border-gray-300 px-2 py-1 text-sm w-24" />
+      </span>
+      <span class="condition-combiner-wrap">
+        <select name="email_rule[conditions][__INDEX__][combiner]" class="rounded border border-gray-300 px-2 py-1 text-sm">
+          <option value="and" selected>And</option>
+          <option value="or">Or</option>
+        </select>
+      </span>
+      <button type="button" class="condition-remove text-red-600 hover:text-red-800 text-sm font-medium" title="Remove condition">Remove</button>
+    </div>
+  </script>
+  <script>
+    (function() {
+      var container = document.getElementById('conditions');
+      if (!container) return;
+      var templateEl = document.getElementById('condition-row-template');
+      var shopCols = JSON.parse(container.getAttribute('data-shop-columns'));
+      var settingsCols = JSON.parse(container.getAttribute('data-settings-columns'));
+      var uninstalledShopCols = JSON.parse(container.getAttribute('data-uninstalled-shop-columns') || '[]');
+      var VALUE_LESS_OPS = ['blank', 'present', 'true', 'false'];
+      function updateValueVisibility(row) {
+        var opSelect = row.querySelector('.condition-op');
+        var valueWrap = row.querySelector('.condition-value-wrap');
+        var valueInput = row.querySelector('.condition-value-input');
+        if (!opSelect || !valueWrap) return;
+        var hide = VALUE_LESS_OPS.indexOf(opSelect.value) !== -1;
+        valueWrap.style.display = hide ? 'none' : '';
+        if (valueInput && hide) valueInput.value = '';
+      }
+      function fillColumnSelect(select, table) {
+        var opts = table === 'settings' ? settingsCols : (table === 'uninstalled_shops' ? uninstalledShopCols : shopCols);
+        var current = select.value;
+        select.innerHTML = '';
+        opts.forEach(function(pair) {
+          var opt = document.createElement('option');
+          opt.value = pair[0];
+          opt.textContent = pair[1];
+          if (pair[0] === current) opt.selected = true;
+          select.appendChild(opt);
+        });
+      }
+      function addConditionRow() {
+        var index = container.querySelectorAll('.condition-row').length;
+        var html = templateEl.innerHTML.replace(/__INDEX__/g, String(index));
+        container.insertAdjacentHTML('beforeend', html);
+        var newRow = container.querySelectorAll('.condition-row')[index];
+        var colSelect = newRow.querySelector('.condition-column');
+        fillColumnSelect(colSelect, 'shops');
+        updateValueVisibility(newRow);
+      }
+      container.addEventListener('change', function(ev) {
+        var row = ev.target.closest('.condition-row');
+        if (!row) return;
+        if (ev.target.classList.contains('condition-table')) {
+          var colSelect = row.querySelector('.condition-column');
+          if (colSelect) fillColumnSelect(colSelect, ev.target.value);
+        }
+        if (ev.target.classList.contains('condition-op')) {
+          updateValueVisibility(row);
+        }
+      });
+      container.addEventListener('click', function(ev) {
+        if (!ev.target.classList.contains('condition-remove')) return;
+        ev.preventDefault();
+        var row = ev.target.closest('.condition-row');
+        if (row) row.remove();
+      });
+      document.getElementById('add-condition').addEventListener('click', function(ev) {
+        ev.preventDefault();
+        addConditionRow();
+      });
+      container.querySelectorAll('.condition-row').forEach(function(row) {
+        var tableSelect = row.querySelector('.condition-table');
+        var colSelect = row.querySelector('.condition-column');
+        if (tableSelect && colSelect) fillColumnSelect(colSelect, tableSelect.value);
+        updateValueVisibility(row);
+      });
+    })();
+  </script>
+  <script>
+    (function() {
+      var scheduleBy = document.getElementById('email_rule_date_rule_type');
+      var timeWrap = document.getElementById('time_of_day_wrap');
+      var timeHint = document.getElementById('time_of_day_hint');
+      var valueLabel = document.getElementById('date_rule_value_label');
+      function updateScheduleUI() {
+        var isHours = scheduleBy && scheduleBy.value === 'hours_after_installation';
+        var show = !isHours;
+        if (timeWrap) { timeWrap.style.display = show ? '' : 'none'; }
+        if (timeHint) { timeHint.style.display = show ? '' : 'none'; }
+        if (valueLabel) { valueLabel.textContent = isHours ? 'Hours' : 'Days'; }
+      }
+      if (scheduleBy) scheduleBy.addEventListener('change', updateScheduleUI);
+      updateScheduleUI();
+    })();
+  </script>
+  <% if evaluate_url.present? %>
+  <script>
+    (function() {
+      var btn = document.getElementById('evaluate-rule-btn');
+      var resultEl = document.getElementById('evaluate-result');
+      var form = btn && btn.closest('form');
+      if (!btn || !form || !resultEl) return;
+      var evaluateUrl = form.getAttribute('data-evaluate-url');
+      if (!evaluateUrl) return;
+      btn.addEventListener('click', function() {
+        resultEl.style.display = 'inline';
+        resultEl.textContent = 'Evaluating…';
+        resultEl.classList.remove('text-red-600');
+        var formData = new FormData(form);
+        var csrfInput = form.querySelector('input[name="authenticity_token"]');
+        var headers = {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        };
+        if (csrfInput && csrfInput.value) {
+          headers['X-CSRF-Token'] = csrfInput.value;
+        }
+        fetch(evaluateUrl, {
+          method: 'POST',
+          body: formData,
+          headers: headers,
+          credentials: 'same-origin'
+        }).then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+          .then(function(r) {
+            if (r.ok && r.data.count !== undefined) {
+              resultEl.textContent = r.data.count + ' ' + (r.data.target === 'uninstalled_shops' ? 'uninstalled shop(s)' : 'shop(s)') + ' match the criteria.';
+            } else {
+              resultEl.textContent = r.data.error || 'Evaluation failed.';
+              resultEl.classList.add('text-red-600');
+            }
+          })
+          .catch(function() {
+            resultEl.textContent = 'Request failed.';
+            resultEl.classList.add('text-red-600');
+          });
+      });
+    })();
+  </script>
+  <% end %>
+<% end %>

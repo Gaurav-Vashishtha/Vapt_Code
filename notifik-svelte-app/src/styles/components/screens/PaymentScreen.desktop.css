@@ -1,0 +1,12 @@
+/* Desktop-specific styles for PaymentScreen component */
+/* Applied when viewport width >= 641px */
+
+@media (min-width: 641px) {
+  /* Desktop: keep footer actions sticky as well */
+  .sticky-button-container {
+    position: sticky !important;
+    bottom: 0 !important;
+    margin-top: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  }
+}

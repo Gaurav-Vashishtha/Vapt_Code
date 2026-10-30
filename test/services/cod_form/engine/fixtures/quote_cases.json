@@ -1,0 +1,684 @@
+{
+  "base_input": {
+    "currency": "HUF",
+    "stage": "quote",
+    "lines": [
+      {
+        "key": "l0",
+        "variant_id": "44111",
+        "product_id": "8111",
+        "collection_ids": [
+          "301"
+        ],
+        "vendor": "Acme",
+        "title": "Widget",
+        "variant_title": "Blue",
+        "image": "https://cdn.example.com/w.png",
+        "quantity": 1,
+        "unit_price_cents": 199900,
+        "compare_at_cents": 249900,
+        "grams": 500,
+        "requires_shipping": true,
+        "taxable": true,
+        "gift_card": false,
+        "available": true,
+        "inventory_quantity": 10,
+        "inventory_policy": "deny",
+        "properties": {
+        }
+      }
+    ],
+    "address": {
+      "country": "HU",
+      "province": "BU",
+      "city": "Budapest",
+      "zip": "1051"
+    },
+    "contact": {
+      "phone_digits": "36301234567",
+      "phone_national": "301234567",
+      "email": "anna@example.com"
+    },
+    "general": {
+      "countries": [
+
+      ],
+      "pages": {
+        "product": true,
+        "cart": true,
+        "drawer": true,
+        "quick_buy": false
+      },
+      "products": {
+        "scope": "all",
+        "include_product_ids": [
+
+        ],
+        "include_collection_ids": [
+
+        ],
+        "exclude_product_ids": [
+
+        ],
+        "exclude_collection_ids": [
+
+        ]
+      },
+      "order_total": {
+        "min_cents": null,
+        "max_cents": null,
+        "message": ""
+      },
+      "hide_out_of_stock": true,
+      "cod_only_through_form": false,
+      "cod_fee_taxable": false,
+      "otp": {
+        "mode": "before_order",
+        "risk_band": "medium"
+      },
+      "rto": {
+        "gating_enabled": false,
+        "block_band": "high",
+        "min_score": null,
+        "message": ""
+      },
+      "discounts": {
+        "code_field_enabled": false,
+        "codes_combine_with_offers": false
+      },
+      "prepaid": {
+        "show_pay_online": true,
+        "discount_label_enabled": false
+      },
+      "consent": {
+        "respect_customer_privacy": true
+      },
+      "branding": {
+        "hide_powered_by": false
+      },
+      "autocomplete": {
+        "enabled": false,
+        "google_api_key": ""
+      },
+      "abandonment": {
+        "enabled": true,
+        "delay_minutes": 15,
+        "create_draft_order": false,
+        "recovery_discount": {
+          "type": null,
+          "value": 0
+        }
+      },
+      "embedded": {
+        "enabled": false,
+        "selector": "",
+        "position": "after",
+        "form_id": null
+      },
+      "upsell_window_minutes": 5
+    },
+    "fraud": {
+      "blocked_message": "",
+      "limits": {
+        "phone": {
+          "enabled": false,
+          "max_orders": 3,
+          "window_hours": 24
+        },
+        "email": {
+          "enabled": false,
+          "max_orders": 3,
+          "window_hours": 24
+        },
+        "ip": {
+          "enabled": false,
+          "max_orders": 5,
+          "window_hours": 24
+        }
+      },
+      "limit_message": "",
+      "max_quantity_per_order": null,
+      "max_quantity_message": "",
+      "min_submit_seconds": 3,
+      "honeypot": true
+    },
+    "rules": {
+    },
+    "shipping_rates": [
+      {
+        "id": 4,
+        "name": "Standard delivery",
+        "description": "2-4 business days",
+        "price_cents": 149000,
+        "currency": "HUF",
+        "position": 0,
+        "active": true,
+        "source": "manual",
+        "conditions": {
+        }
+      }
+    ],
+    "selected_shipping_rate_id": null,
+    "offers": {
+      "quantity": [
+
+      ],
+      "bumps": [
+
+      ],
+      "downsell": null,
+      "thresholds": [
+
+      ]
+    },
+    "selected_bumps": [
+
+    ],
+    "bump_catalog": {
+    },
+    "discount_code": null,
+    "cod_fee": {
+      "enabled": false,
+      "mode": "fixed",
+      "value": 0,
+      "label": "",
+      "taxable": false,
+      "fx_rate": 1.0
+    },
+    "tax": {
+      "prices_include_tax": true,
+      "calculated": null
+    },
+    "partial_rules": [
+
+    ],
+    "risk": null,
+    "otp": {
+      "shop_enabled": false,
+      "mode": "before_order",
+      "risk_band": "medium",
+      "verified": false
+    },
+    "block": {
+      "blocked": false,
+      "reason": null
+    },
+    "is_test": false
+  },
+  "cases": [
+    {
+      "name": "plain order, no offers, no fee",
+      "input": {
+      },
+      "expected": {
+        "subtotal_cents": 199900,
+        "discount_total_cents": 0,
+        "merchandise_total_cents": 199900,
+        "shipping_cents": 149000,
+        "total_cents": 348900,
+        "savings_cents": 50000
+      }
+    },
+    {
+      "name": "percentage tier at quantity 2 with a fixed fee",
+      "input": {
+        "lines": [
+          {
+            "key": "l0",
+            "variant_id": "44111",
+            "product_id": "8111",
+            "collection_ids": [
+              "301"
+            ],
+            "vendor": "Acme",
+            "title": "Widget",
+            "variant_title": "Blue",
+            "image": "https://cdn.example.com/w.png",
+            "quantity": 2,
+            "unit_price_cents": 199900,
+            "compare_at_cents": 249900,
+            "grams": 500,
+            "requires_shipping": true,
+            "taxable": true,
+            "gift_card": false,
+            "available": true,
+            "inventory_quantity": 10,
+            "inventory_policy": "deny",
+            "properties": {
+            }
+          }
+        ],
+        "offers": {
+          "quantity": [
+            {
+              "id": 12,
+              "offer_type": "quantity",
+              "name": "Packs",
+              "status": "active",
+              "priority": 0,
+              "targeting": {
+                "scope": "selected",
+                "product_ids": [
+                  "8111"
+                ],
+                "collection_ids": [
+
+                ]
+              },
+              "config": {
+                "title": {
+                  "default": "Buy more, save more"
+                },
+                "apply_to_higher_quantities": true,
+                "tiers": [
+                  {
+                    "quantity": 1,
+                    "discount_type": "none",
+                    "value": 0,
+                    "label": {
+                      "default": "1 pack"
+                    }
+                  },
+                  {
+                    "quantity": 2,
+                    "discount_type": "percentage",
+                    "value": 10,
+                    "label": {
+                      "default": "2 packs"
+                    }
+                  },
+                  {
+                    "quantity": 3,
+                    "discount_type": "unit_price",
+                    "value": 149900,
+                    "label": {
+                      "default": "3 packs"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "bumps": [
+
+          ],
+          "downsell": null,
+          "thresholds": [
+
+          ]
+        },
+        "cod_fee": {
+          "enabled": true,
+          "mode": "fixed",
+          "value": 500.0,
+          "label": "Cash on delivery fee",
+          "taxable": false,
+          "fx_rate": 1.0
+        }
+      },
+      "expected": {
+        "subtotal_cents": 399800,
+        "discount_total_cents": 39980,
+        "merchandise_total_cents": 359820,
+        "shipping_cents": 149000,
+        "total_cents": 558820,
+        "savings_cents": 139980
+      },
+      "expected_fee_cents": 50000
+    },
+    {
+      "name": "architecture D.2 example: unit-price tier, custom bump, combinable 10% code, fixed fee",
+      "input": {
+        "lines": [
+          {
+            "key": "l0",
+            "variant_id": "44111",
+            "product_id": "8111",
+            "collection_ids": [
+              "301"
+            ],
+            "vendor": "Acme",
+            "title": "Widget",
+            "variant_title": "Blue",
+            "image": "https://cdn.example.com/w.png",
+            "quantity": 3,
+            "unit_price_cents": 199900,
+            "compare_at_cents": 249900,
+            "grams": 500,
+            "requires_shipping": true,
+            "taxable": true,
+            "gift_card": false,
+            "available": true,
+            "inventory_quantity": 10,
+            "inventory_policy": "deny",
+            "properties": {
+            }
+          }
+        ],
+        "general": {
+          "countries": [
+
+          ],
+          "pages": {
+            "product": true,
+            "cart": true,
+            "drawer": true,
+            "quick_buy": false
+          },
+          "products": {
+            "scope": "all",
+            "include_product_ids": [
+
+            ],
+            "include_collection_ids": [
+
+            ],
+            "exclude_product_ids": [
+
+            ],
+            "exclude_collection_ids": [
+
+            ]
+          },
+          "order_total": {
+            "min_cents": null,
+            "max_cents": null,
+            "message": ""
+          },
+          "hide_out_of_stock": true,
+          "cod_only_through_form": false,
+          "cod_fee_taxable": false,
+          "otp": {
+            "mode": "before_order",
+            "risk_band": "medium"
+          },
+          "rto": {
+            "gating_enabled": false,
+            "block_band": "high",
+            "min_score": null,
+            "message": ""
+          },
+          "discounts": {
+            "code_field_enabled": true,
+            "codes_combine_with_offers": true
+          },
+          "prepaid": {
+            "show_pay_online": true,
+            "discount_label_enabled": false
+          },
+          "consent": {
+            "respect_customer_privacy": true
+          },
+          "branding": {
+            "hide_powered_by": false
+          },
+          "autocomplete": {
+            "enabled": false,
+            "google_api_key": ""
+          },
+          "abandonment": {
+            "enabled": true,
+            "delay_minutes": 15,
+            "create_draft_order": false,
+            "recovery_discount": {
+              "type": null,
+              "value": 0
+            }
+          },
+          "embedded": {
+            "enabled": false,
+            "selector": "",
+            "position": "after",
+            "form_id": null
+          },
+          "upsell_window_minutes": 5
+        },
+        "offers": {
+          "quantity": [
+            {
+              "id": 12,
+              "offer_type": "quantity",
+              "name": "Packs",
+              "status": "active",
+              "priority": 0,
+              "targeting": {
+                "scope": "selected",
+                "product_ids": [
+                  "8111"
+                ],
+                "collection_ids": [
+
+                ]
+              },
+              "config": {
+                "title": {
+                  "default": "Buy more, save more"
+                },
+                "apply_to_higher_quantities": true,
+                "tiers": [
+                  {
+                    "quantity": 1,
+                    "discount_type": "none",
+                    "value": 0,
+                    "label": {
+                      "default": "1 pack"
+                    }
+                  },
+                  {
+                    "quantity": 2,
+                    "discount_type": "percentage",
+                    "value": 10,
+                    "label": {
+                      "default": "2 packs"
+                    }
+                  },
+                  {
+                    "quantity": 3,
+                    "discount_type": "unit_price",
+                    "value": 149900,
+                    "label": {
+                      "default": "3 packs"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "bumps": [
+            {
+              "id": 21,
+              "offer_type": "bump",
+              "name": "Express",
+              "status": "active",
+              "priority": 0,
+              "targeting": {
+                "scope": "all"
+              },
+              "config": {
+                "title": {
+                  "default": "Express handling"
+                },
+                "kind": "custom",
+                "variant_id": null,
+                "price_cents": 49900,
+                "quantity_picker": false,
+                "max_quantity": 1,
+                "requires_shipping": false,
+                "taxable": true
+              }
+            }
+          ],
+          "downsell": null,
+          "thresholds": [
+
+          ]
+        },
+        "selected_bumps": [
+          {
+            "offer_id": 21,
+            "quantity": 1
+          }
+        ],
+        "discount_code": {
+          "code": "WELCOME10",
+          "kind": "percentage",
+          "value": 10,
+          "applies_to": {
+            "all": true
+          },
+          "min_subtotal_cents": null,
+          "min_quantity": null
+        },
+        "cod_fee": {
+          "enabled": true,
+          "mode": "fixed",
+          "value": 500.0,
+          "label": "Cash on delivery fee",
+          "taxable": false,
+          "fx_rate": 1.0
+        }
+      },
+      "expected": {
+        "subtotal_cents": 599700,
+        "discount_total_cents": 199960,
+        "merchandise_total_cents": 449640,
+        "shipping_cents": 149000,
+        "total_cents": 648640,
+        "savings_cents": 349960
+      },
+      "expected_fee_cents": 50000,
+      "expected_code_status": "applied"
+    },
+    {
+      "name": "percentage fee on merchandise plus shipping, rounded to half a unit",
+      "input": {
+        "cod_fee": {
+          "enabled": true,
+          "mode": "percentage",
+          "value": 2.5,
+          "label": "Cash on delivery fee",
+          "taxable": false,
+          "fx_rate": 1.0
+        }
+      },
+      "expected": {
+        "subtotal_cents": 199900,
+        "discount_total_cents": 0,
+        "merchandise_total_cents": 199900,
+        "shipping_cents": 149000,
+        "total_cents": 357600,
+        "savings_cents": 50000
+      },
+      "expected_fee_cents": 8700
+    },
+    {
+      "name": "discount code refused when codes do not combine with offers",
+      "input": {
+        "lines": [
+          {
+            "key": "l0",
+            "variant_id": "44111",
+            "product_id": "8111",
+            "collection_ids": [
+              "301"
+            ],
+            "vendor": "Acme",
+            "title": "Widget",
+            "variant_title": "Blue",
+            "image": "https://cdn.example.com/w.png",
+            "quantity": 2,
+            "unit_price_cents": 199900,
+            "compare_at_cents": 249900,
+            "grams": 500,
+            "requires_shipping": true,
+            "taxable": true,
+            "gift_card": false,
+            "available": true,
+            "inventory_quantity": 10,
+            "inventory_policy": "deny",
+            "properties": {
+            }
+          }
+        ],
+        "offers": {
+          "quantity": [
+            {
+              "id": 12,
+              "offer_type": "quantity",
+              "name": "Packs",
+              "status": "active",
+              "priority": 0,
+              "targeting": {
+                "scope": "selected",
+                "product_ids": [
+                  "8111"
+                ],
+                "collection_ids": [
+
+                ]
+              },
+              "config": {
+                "title": {
+                  "default": "Buy more, save more"
+                },
+                "apply_to_higher_quantities": true,
+                "tiers": [
+                  {
+                    "quantity": 1,
+                    "discount_type": "none",
+                    "value": 0,
+                    "label": {
+                      "default": "1 pack"
+                    }
+                  },
+                  {
+                    "quantity": 2,
+                    "discount_type": "percentage",
+                    "value": 10,
+                    "label": {
+                      "default": "2 packs"
+                    }
+                  },
+                  {
+                    "quantity": 3,
+                    "discount_type": "unit_price",
+                    "value": 149900,
+                    "label": {
+                      "default": "3 packs"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "bumps": [
+
+          ],
+          "downsell": null,
+          "thresholds": [
+
+          ]
+        },
+        "discount_code": {
+          "code": "WELCOME10",
+          "kind": "percentage",
+          "value": 10,
+          "applies_to": {
+            "all": true
+          },
+          "min_subtotal_cents": null,
+          "min_quantity": null
+        }
+      },
+      "expected": {
+        "subtotal_cents": 399800,
+        "discount_total_cents": 39980,
+        "merchandise_total_cents": 359820,
+        "shipping_cents": 149000,
+        "total_cents": 508820,
+        "savings_cents": 139980
+      },
+      "expected_code_status": "not_combinable"
+    }
+  ]
+}

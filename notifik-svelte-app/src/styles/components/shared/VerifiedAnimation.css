@@ -1,0 +1,10 @@
+.verified-animation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.verified-animation img {
+  width: var(--verified-animation-width, 220px);
+  height: var(--verified-animation-height, 220px);
+  object-fit: contain;
+}

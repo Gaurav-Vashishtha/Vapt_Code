@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Shop Approvals - Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Shop Approval Management</h1>
+    
+    <!-- Tabs -->
+    <div class="mb-6">
+      <nav class="flex space-x-8" aria-label="Tabs">
+        <button onclick="showTab('pending')" id="pending-tab" class="tab-button border-b-2 border-blue-500 py-2 px-1 text-sm font-medium text-blue-600">
+          Pending Approval (<%= @pending_shops.count %>)
+        </button>
+        <button onclick="showTab('approved')" id="approved-tab" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+          Recently Approved (<%= @approved_shops.count %>)
+        </button>
+        <button onclick="showTab('rejected')" id="rejected-tab" class="tab-button border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300">
+          Rejected (<%= @rejected_shops.count %>)
+        </button>
+      </nav>
+    </div>
+    
+    <!-- Pending Shops -->
+    <div id="pending-content" class="tab-content">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b">
+          <h3 class="text-lg font-semibold text-gray-800">Shops Awaiting Approval</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Domain</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Notes</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @pending_shops.each do |shop| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= shop.shop_domain %></div>
+                    <div class="text-sm text-gray-500"><%= shop.full_domain %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= shop.referral_partner.name %></div>
+                    <div class="text-sm text-gray-500"><%= shop.referral_partner.email %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= shop.created_at.strftime('%b %d, %Y') %>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-900">
+                    <%= truncate(shop.notes, length: 50) if shop.notes.present? %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <%= form_with model: shop, url: approve_referral_admin_shop_path(shop), method: :patch, local: true, class: "inline mr-2" do |f| %>
+                      <%= f.submit "Approve", class: "bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700", 
+                                  confirm: "Are you sure you want to approve this shop?" %>
+                    <% end %>
+                    
+                    <%= form_with model: shop, url: reject_referral_admin_shop_path(shop), method: :patch, local: true, class: "inline" do |f| %>
+                      <%= text_field_tag :reason, "", placeholder: "Rejection reason", class: "text-xs px-2 py-1 border rounded mr-1", style: "width: 120px;" %>
+                      <%= f.submit "Reject", class: "bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs" %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+          
+          <% if @pending_shops.empty? %>
+            <div class="text-center py-8">
+              <p class="text-gray-500">No shops pending approval</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Approved Shops -->
+    <div id="approved-content" class="tab-content hidden">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b">
+          <h3 class="text-lg font-semibold text-gray-800">Recently Approved Shops</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Domain</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Approved By</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @approved_shops.each do |shop| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= shop.shop_domain %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= shop.referral_partner.name %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= shop.approved_at&.strftime('%b %d, %Y') %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= shop.approved_by %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Rejected Shops -->
+    <div id="rejected-content" class="tab-content hidden">
+      <div class="bg-white rounded-lg shadow">
+        <div class="px-6 py-4 border-b">
+          <h3 class="text-lg font-semibold text-gray-800">Rejected Shops</h3>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop Domain</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rejection Reason</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @rejected_shops.each do |shop| %>
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900"><%= shop.shop_domain %></div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900"><%= shop.referral_partner.name %></div>
+                  </td>
+                  <td class="px-6 py-4 text-sm text-gray-900">
+                    <%= shop.rejection_reason %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    function showTab(tabName) {
+      // Hide all tab contents
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+      });
+      
+      // Remove active styling from all tabs
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('border-blue-500', 'text-blue-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+      });
+      
+      // Show selected tab content
+      document.getElementById(tabName + '-content').classList.remove('hidden');
+      
+      // Add active styling to selected tab
+      const activeTab = document.getElementById(tabName + '-tab');
+      activeTab.classList.add('border-blue-500', 'text-blue-600');
+      activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+  </script>
+</body>
+</html>

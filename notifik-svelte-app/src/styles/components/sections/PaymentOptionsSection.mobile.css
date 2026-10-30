@@ -1,0 +1,24 @@
+/* Mobile-specific styles for PaymentOptionsSection component */
+/* Applied when viewport width <= 640px */
+
+@media (max-width: 640px) {
+  .payment-options-header {
+    padding: 10px 12px 8px;
+  }
+
+  .payment-options-content {
+    padding: 0 10px 12px;
+  }
+
+  .option-description {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .order-success-banner {
+    padding: 16px 12px;
+    font-size: 16px;
+  }
+}
+
+

@@ -1,0 +1,23 @@
+<!DOCTYPE html> <html> <body style="font-family: Arial, sans-serif; background-color: #f2f2f2;"> <div style="background-color: #ffffff; padding: 20px; border-radius: 10px;"> <h1 style="color: #ff6600; text-align: center;">Action Required!</h1> <p style="font-size: 18px;">Hello <%= @name %>,</p>
+  <p style="font-size: 18px;">
+    We hope this email finds you well. We wanted to inform you that your COD fee and COD Show hide feature on COD King has been <b>locked</b> as your free orders have been exhausted.
+  </p>
+
+  <p style="font-size: 18px;">
+    Don't worry, we have a solution for you! To continue enjoying our services without any interruptions, we highly recommend upgrading your subscription to our <b>Pro plan or higher</b> under the subscription tab.
+  </p>
+
+  <p style="font-size: 18px;">
+    If you need any help or clarification, our team is just a ping away. Click the link below to chat with us instantly!
+  </p>
+
+  <p style="text-align: center;">
+    <a href="<%= @crisp_url %>" target="_blank" style="background-color: #ff6600; color: #ffffff; padding: 10px 20px; border-radius: 5px; text-decoration: none;">Chat with us now!</a>
+  </p>
+
+  <p style="font-size: 18px;">Thank you for being a valued customer of COD King.</p>
+
+  <p style="font-size: 18px;">Best regards,</p>
+  <p style="font-size: 18px;">The COD King Team</p>
+</div>
+</body> </html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    .container { font-family: Arial, sans-serif; color: #222; }
+    .row { margin: 8px 0; }
+    .label { font-weight: 700; margin-right: 8px; }
+    .highlight { background: #e6f7ee; padding: 12px; border-radius: 6px; margin: 12px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Rabbit Express — New Interest 🚚</h2>
+
+    <div class="highlight">
+      A merchant tapped <strong>"Get early access"</strong> on the Rabbit Express
+      shipping launch-offer card (best rates, no onboarding fees) in the COD King dashboard.
+    </div>
+
+    <div class="row">
+      <span class="label">Store:</span>
+      <%= @shop&.shopify_domain || @lead.website %>
+    </div>
+    <div class="row">
+      <span class="label">Owner:</span>
+      <%= @shop&.shop_owner.presence || @shop&.owner_name || "N/A" %>
+    </div>
+    <div class="row">
+      <span class="label">Phone Number:</span>
+      <%= @lead.phone_number %>
+    </div>
+    <div class="row">
+      <span class="label">Email:</span>
+      <%= @lead.email %>
+    </div>
+    <div class="row">
+      <span class="label">Shopify Plan:</span>
+      <%= @shop&.shopify_plan || "N/A" %>
+    </div>
+    <div class="row">
+      <span class="label">App Installed:</span>
+      <%= @shop&.created_at&.strftime("%B %d, %Y") || "N/A" %>
+    </div>
+    <div class="row">
+      <span class="label">Shopify Store Created:</span>
+      <%= @shop_created_date || "N/A" %>
+    </div>
+    <div class="row">
+      <span class="label">Customer Count:</span>
+      <%= @shop&.customer_count.nil? ? "N/A" : number_with_delimiter(@shop.customer_count) %>
+    </div>
+    <div class="row">
+      <span class="label">Notes:</span>
+      <%= @lead.notes.presence || "N/A" %>
+    </div>
+    <div class="row">
+      <span class="label">Submitted At:</span>
+      <%= @lead.created_at.strftime("%B %d, %Y %I:%M %p %Z") %>
+    </div>
+  </div>
+</body>
+</html>

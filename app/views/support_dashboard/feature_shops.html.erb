@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Support Dashboard - COD Form / WhatsApp shops</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div>
+          <h1 class="text-xl font-semibold text-gray-900">Support Dashboard</h1>
+          <p class="text-sm text-gray-500">Shops using the COD Form and branded WhatsApp</p>
+        </div>
+        <%= link_to "Refresh", support_dashboard_feature_shops_path(feature: @feature),
+            class: "bg-white border border-gray-300 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50" %>
+      </div>
+    </div>
+  </div>
+
+  <%= render 'shared/support_navigation' %>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <%= link_to support_dashboard_path, class: "text-blue-600 hover:text-blue-800 text-sm" do %>
+        ← Back to Dashboard
+      <% end %>
+    </div>
+
+    <div class="bg-white rounded-lg shadow">
+      <div class="border-b border-gray-200">
+        <nav class="flex flex-wrap gap-x-6 px-6">
+          <%= render "support_dashboard/core_support_tabs", active: :feature_shops %>
+        </nav>
+      </div>
+
+      <div class="p-6">
+        <% filters = { "cod_form" => "COD Form enabled", "whatsapp_branded" => "WhatsApp branded", "both" => "Both" } %>
+        <div class="mb-6 flex flex-wrap items-center gap-2">
+          <span class="mr-2 text-sm text-gray-600">
+            COD Form orders, all shops with the form on: <span class="font-semibold text-gray-900"><%= number_with_delimiter(@form_orders_all_shops) %></span>
+          </span>
+          <% filters.each do |key, label| %>
+            <%= link_to support_dashboard_feature_shops_path(feature: key),
+                class: "px-3 py-1.5 rounded-md text-sm font-medium border #{@feature == key ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'}" do %>
+              <%= label %> (<%= @counts[key] || 0 %>)
+            <% end %>
+          <% end %>
+        </div>
+
+        <% if @shops.any? %>
+          <div class="overflow-x-auto shadow ring-1 ring-black ring-opacity-5 rounded-lg">
+            <table class="min-w-full divide-y divide-gray-300">
+              <thead class="bg-gray-50">
+                <tr>
+                  <% ["Shop", "Owner", "Plan", "COD Form", "Form orders", "WhatsApp number", "Installed at", "Actions"].each do |heading| %>
+                    <th class="py-3.5 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wide"><%= heading %></th>
+                  <% end %>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                <% @shops.each do |shop| %>
+                  <% form = shop.cod_form_shop_config %>
+                  <% form_on = form.present? && form.storefront_mode == "cod_form" %>
+                  <% numbers = shop.whatsapp_accounts.select { |account| account.status.to_s == "verified" } %>
+                  <tr class="hover:bg-gray-50">
+                    <td class="py-4 px-6">
+                      <div class="font-medium">
+                        <%= link_to shop.shopify_domain, "https://#{shop.shopify_domain}", target: "_blank",
+                            class: "text-blue-600 hover:text-blue-800 hover:underline break-all" %>
+                      </div>
+                      <div class="text-sm text-gray-500"><%= shop.country_code.presence || "—" %></div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-700">
+                      <div><%= shop.shop_owner.presence || "—" %></div>
+                      <div class="text-gray-500 break-all"><%= shop.owner_email.presence || "—" %></div>
+                      <div class="text-gray-500"><%= shop.owner_phone.presence %></div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-700"><%= shop.plan&.name || "No plan" %></td>
+                    <td class="py-4 px-6 text-sm">
+                      <% if form_on %>
+                        <span class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">On</span>
+                        <div class="text-xs text-gray-500 mt-1"><%= form.enabled_at&.strftime("%b %d, %Y") %></div>
+                      <% else %>
+                        <span class="text-gray-400">Off</span>
+                      <% end %>
+                    </td>
+                    <td class="py-4 px-6 text-sm whitespace-nowrap">
+                      <div class="font-semibold text-gray-900"><%= number_with_delimiter(@form_orders_total[shop.id].to_i) %></div>
+                      <div class="text-xs text-gray-500"><%= number_with_delimiter(@form_orders_month[shop.id].to_i) %> this month</div>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-700">
+                      <% if numbers.any? %>
+                        <% numbers.each do |account| %>
+                          <div><%= account.display_phone_number.presence || "—" %></div>
+                          <div class="text-xs text-gray-500"><%= account.verified_name %></div>
+                        <% end %>
+                      <% else %>
+                        <span class="text-gray-400">—</span>
+                      <% end %>
+                    </td>
+                    <td class="py-4 px-6 text-sm text-gray-500 whitespace-nowrap"><%= shop.created_at&.strftime("%b %d, %Y") %></td>
+                    <td class="py-4 px-6">
+                      <%= link_to "View", "/admin/shops/#{shop.id}", target: "_blank",
+                          class: "bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-md text-sm font-medium" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-6">
+            <%= paginate @shops if respond_to?(:paginate) %>
+          </div>
+        <% else %>
+          <div class="text-center py-12">
+            <h3 class="text-sm font-medium text-gray-900">No shops in this list yet</h3>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

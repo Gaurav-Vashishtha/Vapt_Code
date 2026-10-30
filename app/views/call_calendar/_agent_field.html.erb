@@ -1,0 +1,5 @@
+<% if @engineers.present? %>
+  <%= select_tag :agent, options_for_select(@engineers, @day_owner), class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+<% else %>
+  <%= text_field_tag :agent, @day_owner, placeholder: "Your name", class: "text-xs border border-gray-300 rounded px-2 py-1" %>
+<% end %>

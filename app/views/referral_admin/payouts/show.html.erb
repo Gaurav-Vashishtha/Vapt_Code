@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Payout #<%= @payout.id %> - Referral Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <%= render 'layouts/referral_admin_navigation' %>
+  
+  <div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800">Payout #<%= @payout.id %></h1>
+        <p class="text-gray-600">
+          <span class="px-3 py-1 text-sm font-semibold rounded-full 
+            <%= case @payout.status
+                when 'pending' then 'bg-yellow-100 text-yellow-800'
+                when 'processing' then 'bg-blue-100 text-blue-800'
+                when 'completed' then 'bg-green-100 text-green-800'
+                when 'failed', 'cancelled' then 'bg-red-100 text-red-800'
+                else 'bg-gray-100 text-gray-800'
+                end %>">
+            <%= @payout.status&.humanize || 'Unknown' %>
+          </span>
+        </p>
+      </div>
+      <div class="flex space-x-3">
+        <%= link_to "← Back", referral_admin_payouts_path, 
+            class: "bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700" %>
+        
+        <% if @payout.status == 'pending' %>
+          <%= link_to "Process Payout", process_payout_referral_admin_payout_path(@payout), 
+              method: :patch, 
+              class: "bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700",
+              confirm: "Process this payout for $#{number_with_precision(@payout.total_amount, precision: 2)}?" %>
+          
+          <%= link_to "Cancel Payout", cancel_referral_admin_payout_path(@payout), 
+              method: :patch, 
+              class: "bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700",
+              confirm: "Cancel this payout?" %>
+        <% end %>
+      </div>
+    </div>
+    
+    <!-- Payout Details -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Payout Information</h3>
+        <div class="space-y-4">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Partner:</span>
+            <span class="font-semibold"><%= @payout.referral_partner&.name || 'Unknown Partner' %></span>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Amount:</span>
+            <span class="font-bold text-2xl text-green-600">
+              $<%= number_with_precision(@payout.total_amount || 0, precision: 2) %>
+            </span>
+          </div>
+          
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Payout Date:</span>
+            <span class="font-medium">
+              <%= @payout.payout_date&.strftime('%B %d, %Y') || 'Not set' %>
+            </span>
+          </div>
+          
+          <% if @payout.earnings_from_date && @payout.earnings_to_date %>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600">Earnings Period:</span>
+              <span class="font-medium">
+                <%= @payout.earnings_from_date.strftime('%m/%d/%Y') %> - 
+                <%= @payout.earnings_to_date.strftime('%m/%d/%Y') %>
+              </span>
+            </div>
+          <% end %>
+          
+          <div class="flex justify-between items-center">
+            <span class="text-gray-600">Created By:</span>
+            <span class="font-medium"><%= @payout.created_by || 'System' %></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Payment Details</h3>
+        <% payment_details = @payout.payment_details_json rescue {} %>
+        <% if payment_details.present? %>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Method:</span>
+              <span class="font-medium"><%= @payout.payment_method&.humanize || 'Unknown' %></span>
+            </div>
+            
+            <% payment_details.each do |key, value| %>
+              <div class="flex justify-between">
+                <span class="text-gray-600"><%= key.to_s.humanize %>:</span>
+                <span class="font-medium">
+                  <% if key.to_s.include?('account_number') && value.present? %>
+                    ***<%= value.to_s.last(4) %>
+                  <% else %>
+                    <%= value %>
+                  <% end %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-gray-500">No payment details available</p>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Included Earnings -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b">
+        <h3 class="text-xl font-bold text-gray-800">Included Earnings (<%= @earnings&.count || 0 %> records)</h3>
+      </div>
+      
+      <% if @earnings&.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shop</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Commission</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @earnings.each do |earning| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <%= earning.earning_date&.strftime('%m/%d/%Y') || 'Unknown' %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <%= earning.referral_shop&.shop_domain || 'Unknown Shop' %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                      <%= earning.transaction_type&.humanize || 'Unknown' %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                    $<%= number_with_precision(earning.commission_amount || 0, precision: 2) %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+            <tfoot class="bg-gray-50">
+              <tr>
+                <td colspan="3" class="px-6 py-3 text-right font-bold text-gray-900">Total:</td>
+                <td class="px-6 py-3 font-bold text-green-600">
+                  $<%= number_with_precision(@earnings.sum(:commission_amount) || 0, precision: 2) %>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-12">
+          <p class="text-gray-500">No earnings associated with this payout</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</body>
+</html>

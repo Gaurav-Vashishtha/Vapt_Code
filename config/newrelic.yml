@@ -1,0 +1,30 @@
+
+# common: &default_settings
+
+#   license_key: 1b4866e576717e8df47a8580f7d2721423c3NRAL
+
+
+#   app_name: cod-confirm
+
+#   distributed_tracing:
+#     enabled: false
+
+#   log_level: info
+
+
+
+# development:
+#   <<: *default_settings
+#   app_name: cod-confirm (Development)
+
+# test:
+#   <<: *default_settings
+
+#   monitor_mode: false
+
+# staging:
+#   <<: *default_settings
+#   app_name: cod-confirm (Staging)
+
+# production:
+#   <<: *default_settings

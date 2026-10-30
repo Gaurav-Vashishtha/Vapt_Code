@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test email — <%= @definition.name %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<div class="min-h-screen bg-gray-50">
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <h1 class="text-xl font-semibold text-gray-900">Send test email</h1>
+      <p class="text-sm text-gray-500 mt-1">
+        Report: <strong><%= @definition.name %></strong>
+        (<code class="bg-gray-100 px-1 rounded"><%= @definition.slug %></code>)
+      </p>
+    </div>
+  </div>
+
+  <%= render "shared/support_navigation" %>
+
+  <div class="max-w-4xl mx-auto px-4 py-6">
+    <% if flash[:alert].present? %>
+      <div class="mb-4 rounded-md bg-red-50 p-4 text-sm text-red-800"><%= flash[:alert] %></div>
+    <% end %>
+
+    <div class="bg-white rounded-lg shadow p-6 space-y-4">
+      <p class="text-sm text-gray-600">
+        Runs this report <strong>as if</strong> it were scheduled for the shop you pick below. Does not enable the report for the merchant, update <code class="bg-gray-100 px-1 rounded">last_sent_on</code>, or require the feature flags used for real sends. Subject and body are prefixed with <strong>[TEST]</strong>.
+      </p>
+
+      <%= form_with url: send_test_deliver_support_dashboard_scheduled_report_path(@definition),
+          method: :post, local: true, class: "space-y-4" do %>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Shop domain</label>
+          <input type="text" name="shop_domain" value="<%= params[:shop_domain] %>"
+                 placeholder="e.g. kingcodtest or kingcodtest.myshopify.com"
+                 class="border border-gray-300 rounded-md px-3 py-2 text-sm w-full max-w-lg" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Shop ID (optional)</label>
+          <input type="number" name="shop_id" value="<%= params[:shop_id] %>"
+                 placeholder="Numeric ID"
+                 class="border border-gray-300 rounded-md px-3 py-2 text-sm w-40" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Test email (optional)</label>
+          <input type="email" name="test_email" value="<%= params[:test_email] %>"
+                 placeholder="Defaults to shop owner email"
+                 class="border border-gray-300 rounded-md px-3 py-2 text-sm w-full max-w-lg" />
+        </div>
+        <div class="flex gap-3">
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+            Send test
+          </button>
+          <%= link_to "Back to list", support_dashboard_scheduled_reports_path,
+              class: "px-4 py-2 rounded-md text-sm border border-gray-300 text-gray-700 hover:bg-gray-50" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+</body>
+</html>
