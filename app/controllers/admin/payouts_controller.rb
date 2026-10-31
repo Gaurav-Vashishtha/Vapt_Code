@@ -196,8 +196,8 @@ class Admin::PayoutsController < ApplicationController
       
       begin
         sync_service = ReferralRevenueSyncService.new(
-          ENV['SHOPIFY_ORGANIZATION_ID'], 
-          ENV['SHOPIFY_PARTNER_ACCESS_TOKEN']
+          ENV.fetch("SHOPIFY_ORGANIZATION_ID", nil), 
+          ENV.fetch("SHOPIFY_PARTNER_ACCESS_TOKEN", nil)
         )
         
         include_historical = params[:include_historical] == 'true'

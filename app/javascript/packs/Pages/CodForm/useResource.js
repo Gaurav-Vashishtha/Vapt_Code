@@ -86,14 +86,14 @@ const useResource = ({ load, save, prepare, deps = [], toastOnSave = true }) => 
     return Promise.resolve()
       .then(() => saveRef.current(dataRef.current))
       .then((raw) => {
-        if (!mounted.current) return true;
+        if (!mounted.current) return;
         if (raw === undefined) setOriginal(clone(dataRef.current));
         else accept(raw);
         if (toastOnSave && window.shopify && window.shopify.toast) {
           window.shopify.toast.show(I18n.t("admin.settings_saved"));
         }
-        return true;
       })
+      .then(() => true)
       .catch((err) => {
         if (mounted.current) setSaveError(parseError(err));
         return false;

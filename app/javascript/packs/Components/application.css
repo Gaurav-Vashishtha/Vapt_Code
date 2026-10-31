@@ -413,7 +413,6 @@
   line-height: 20pt  !important;;
   color: #FFFFFF;
   padding: 10px !important;
-  margin-bottom: 0px !important;
 
   width: 100%;
   border-radius: 5px;
@@ -433,7 +432,6 @@
   line-height: 25pt !important;;
   color: #FFFFFF;
   padding: 10px !important;
-  margin-bottom: 0px !important;
 
   width: 100%;
   border-radius: 5px;
@@ -887,7 +885,6 @@
   max-width: 100%!important;
   margin-top: 10px!important;
   letter-spacing: 0;
-  box-sizing: none;
   font-family: Tajawal,sans-serif!important;
   font-weight: 700;
   --border-offset: none;

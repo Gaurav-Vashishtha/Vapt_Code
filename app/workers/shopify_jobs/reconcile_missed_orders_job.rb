@@ -11,7 +11,7 @@ module ShopifyJobs
     MAX_REPROCESS_PER_SHOP = 200
 
     def perform(window_minutes = DEFAULT_WINDOW_MINUTES, auto_reprocess = true)
-      return if ENV['RECONCILE_MISSED_ORDERS_ENABLED'] == 'false'
+      return if ENV.fetch("RECONCILE_MISSED_ORDERS_ENABLED", nil) == 'false'
 
       since_iso = (Time.now.utc - window_minutes.to_i.minutes).iso8601
       shops = Shop.joins(:setting).where(settings: { partial_payment_enabled: true })

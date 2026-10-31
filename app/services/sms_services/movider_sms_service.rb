@@ -29,10 +29,10 @@ module SmsServices
         request = Net::HTTP::Post.new(uri)
 
         body = @params[:body]
-        if @sender_id==ENV['MOVIDER_SENDER_ID']
+        if @sender_id==ENV.fetch("MOVIDER_SENDER_ID", nil)
            body =  "#{@params[:body]} - #{@sender_id}"
         end
-        if @sender_id==ENV['MOVIDER_SENDER_ID_OTP'] #Have a separate OTP sender ID.
+        if @sender_id==ENV.fetch("MOVIDER_SENDER_ID_OTP", nil) #Have a separate OTP sender ID.
           # Extract verification code (number at the beginning) and transform the message
           if @params[:body] =~ /^(\d+)\s+is your verification code/
             verification_code = $1

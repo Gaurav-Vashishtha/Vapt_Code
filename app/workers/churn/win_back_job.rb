@@ -14,7 +14,7 @@ module Churn
       email = shop&.owner_email || UninstalledShop.find_by(shop_id: shop_id)&.email
       outreach.update_columns(shopify_domain: domain)
 
-      unless ENV['CHURN_WINBACK_ENABLED'] == 'true'
+      unless ENV.fetch("CHURN_WINBACK_ENABLED", nil) == 'true'
         outreach.update_columns(status: 'skipped', metadata: { reason: 'winback disabled (dry-run)' }, updated_at: Time.current)
         return
       end

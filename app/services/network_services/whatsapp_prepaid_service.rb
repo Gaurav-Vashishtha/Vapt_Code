@@ -63,17 +63,17 @@ module NetworkServices
         order_amount = ShopifyServices::PrepaidOrderService.new(nil, @order_confirmation.shop, @order_confirmation.id)
                          .get_total_amount(discount: override_discount, discount_type: override_discount_type, add_shipping: add_shipping).to_i
 
-        payment_link = "https://#{ENV['APP_HOST']}/order_confirmations/redirect_payment_link?domain=#{@shop.shopify_domain}&id=#{@order_confirmation.id}"
+        payment_link = "https://#{ENV.fetch("APP_HOST", nil)}/order_confirmations/redirect_payment_link?domain=#{@shop.shopify_domain}&id=#{@order_confirmation.id}"
         payment_link = NetworkServices::CutlyLinkService.call(payment_link) 
         
         payment_link= payment_link.gsub('https://rzp.io/','').gsub('https://cutt.ly/','')
         headers = {
           'Content-Type' => 'application/json',
-          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY'],
+          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil),
         }
         integrated_whatsapp_number = @shop.setting.branded_whatsapp_number 
         if integrated_whatsapp_number.blank?
-          integrated_whatsapp_number = ENV['WHATSAPP_NUMBER_DEFAULT']
+          integrated_whatsapp_number = ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
         end
 
         order_number = @order_confirmation.final_order_number

@@ -1,5 +1,5 @@
 import { postErrorPayload } from "./otpService";
-import { IS_BUY_NOW_BUTTON } from "./domUtils";
+import { getIsBuyNowButton } from "./domUtils";
 import { getMachineId } from "../utilities/otpUtils";
 
 // Error grouping and deduplication
@@ -29,7 +29,7 @@ class ErrorGroupingManager {
       shop: shop || "unknown",
 
       // Buy Now button context - separate grouping for cart vs buy-now flows
-      isBuyNowButton: IS_BUY_NOW_BUTTON,
+      isBuyNowButton: getIsBuyNowButton(),
 
       // Error type classification
       errorType: this.classifyErrorType(error),
@@ -251,7 +251,7 @@ export const sendErrorToAPI = async (
 
     if (shouldGroup) {
       // Skip reporting this individual error (it's part of a group)
-      const buyNowContext = IS_BUY_NOW_BUTTON ? " [BUY-NOW]" : " [CART]";
+      const buyNowContext = getIsBuyNowButton() ? " [BUY-NOW]" : " [CART]";
       console.log(
         `🔄 Error grouped for shop "${
           shopInfo.shop
@@ -351,7 +351,7 @@ export const sendErrorToAPI = async (
       // Cart info (if available) - removed cartToken for privacy
 
       // Buy Now button context - CRITICAL for debugging cart vs buy-now flows
-      isBuyNowButton: IS_BUY_NOW_BUTTON,
+      isBuyNowButton: getIsBuyNowButton(),
 
       // Session ID for tracking user sessions
       codkSessionId: getMachineId(),

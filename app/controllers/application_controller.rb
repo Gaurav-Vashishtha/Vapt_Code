@@ -17,9 +17,9 @@ class ApplicationController < ActionController::Base
       session['omniauth.state'] = "12345"
       url = "https://#{@shop.shopify_domain}/admin/oauth/authorize"
       request_params = []
-      request_params << "client_id=#{ENV['SHOPIFY_API_KEY']}"
+      request_params << "client_id=#{ENV.fetch("SHOPIFY_API_KEY", nil)}"
       request_params << "scope=#{app_scope.join(', ')}"
-      request_params << "redirect_uri=https://#{ENV['APP_HOST']}/auth/shopify/callback"
+      request_params << "redirect_uri=https://#{ENV.fetch("APP_HOST", nil)}/auth/shopify/callback"
       request_params << "state=12345"
       @scope_refresh_url = "#{url}?#{request_params.join('&')}"
     end

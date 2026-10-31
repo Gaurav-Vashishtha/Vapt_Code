@@ -22,7 +22,7 @@ module Meta
     end
 
     def call
-      raise Error, 'META_APP_ID is not configured' if ENV['META_APP_ID'].blank?
+      raise Error, 'META_APP_ID is not configured' if ENV.fetch("META_APP_ID", nil).blank?
       raise Error, 'account has no system_user_token' if account.system_user_token.blank?
 
       data = bytes || (file && file.read.b)
@@ -41,7 +41,7 @@ module Meta
     end
 
     def start_session(length)
-      url = "#{BASE}/#{version}/#{ENV['META_APP_ID']}/uploads"
+      url = "#{BASE}/#{version}/#{ENV.fetch("META_APP_ID", nil)}/uploads"
       resp = HTTParty.post(
         url,
         query: {

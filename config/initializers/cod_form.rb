@@ -51,10 +51,10 @@ Rails.application.config.after_initialize do
     Rails.logger.warn("[CodForm] ENV #{name} is not set (#{purpose})") if ENV[name].to_s.strip.empty?
   end
 
-  if ENV["COD_FORM_ORIGIN_ENFORCE"].to_s == "false"
+  if ENV.fetch("COD_FORM_ORIGIN_ENFORCE", nil).to_s == "false"
     Rails.logger.warn("[CodForm] COD_FORM_ORIGIN_ENFORCE=false: the storefront API origin check only logs")
   end
-  if ENV["COD_FORM_ALLOW_LOCALHOST"].to_s == "true"
+  if ENV.fetch("COD_FORM_ALLOW_LOCALHOST", nil).to_s == "true"
     Rails.logger.warn("[CodForm] COD_FORM_ALLOW_LOCALHOST=true: localhost origins are accepted by the storefront API")
   end
 end

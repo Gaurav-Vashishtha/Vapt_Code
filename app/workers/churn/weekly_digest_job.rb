@@ -15,7 +15,7 @@ module Churn
         waterfall: metrics.mrr_waterfall
       }
 
-      recipients = ENV['CHURN_DIGEST_RECIPIENTS'].to_s.split(',').map(&:strip).reject(&:blank?)
+      recipients = ENV.fetch("CHURN_DIGEST_RECIPIENTS", nil).to_s.split(',').map(&:strip).reject(&:blank?)
       ChurnMailer.weekly_digest(recipients, data).deliver_later if recipients.any?
 
       k = data[:kpis]

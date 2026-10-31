@@ -1,6 +1,7 @@
 import { getSessionValue } from "../services/sessionService.js";
 
 
+import { postToWindow } from "./parentMessaging";
 export const QUICK_VIEW_CONTAINERS = [
   ".quick-options-drawer",
   ".quick-add-modal",
@@ -241,7 +242,7 @@ export const attachCartDrawerLayoutMutationForButtonBlock = () => {
         typeof window !== "undefined" && window.parent !== window
           ? window.parent
           : window;
-      targetWindow.postMessage({ type: CODK_REATTACH_BUTTON_BLOCK_TYPE }, "*");
+      postToWindow(targetWindow, { type: CODK_REATTACH_BUTTON_BLOCK_TYPE });
     } catch (_e) {}
   };
 

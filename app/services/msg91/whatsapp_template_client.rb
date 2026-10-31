@@ -21,7 +21,7 @@ module Msg91
       end
     end
 
-    def initialize(authkey: ENV["MSG91_AUTHKEY"], number: ENV["WHATSAPP_NUMBER_DEFAULT"])
+    def initialize(authkey: ENV.fetch("MSG91_AUTHKEY", nil), number: ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil))
       @authkey = authkey
       @number = number.to_s.delete("+")
     end

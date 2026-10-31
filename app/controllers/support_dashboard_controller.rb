@@ -758,7 +758,7 @@ class SupportDashboardController < ApplicationController
     else
       # Fallback: generate crisp URL manually
       token = Digest::MD5.hexdigest(uninstalled_shop.shop_domain)
-      crisp_url = "https://go.crisp.chat/chat/embed/?website_id=#{ENV['CRISP_WEBSITE_ID']}&user_email=#{uninstalled_shop.email}&user_nickname=#{uninstalled_shop.owner_name}&token_id=#{token}"
+      crisp_url = "https://go.crisp.chat/chat/embed/?website_id=#{ENV.fetch("CRISP_WEBSITE_ID", nil)}&user_email=#{uninstalled_shop.email}&user_nickname=#{uninstalled_shop.owner_name}&token_id=#{token}"
       redirect_to crisp_url, allow_other_host: true
     end
   rescue => e
@@ -1361,8 +1361,8 @@ class SupportDashboardController < ApplicationController
 
   def authenticate_admin!
     http_basic_authenticate_or_request_with(
-      name: ENV['ADMIN_USER'],
-      password: ENV['ADMIN_PASS']
+      name: ENV.fetch("ADMIN_USER", nil),
+      password: ENV.fetch("ADMIN_PASS", nil)
     )
   end
   

@@ -12,7 +12,7 @@ import {
 } from "../../../utilities/otpUtils";
 import useOtpStore from "../../../stores/otpStore";
 import SlidingOrderSummary from "./DesktopSlider";
-import { IS_BUY_NOW_BUTTON } from "../../../services/domUtils";
+import { getIsBuyNowButton } from "../../../services/domUtils";
 import shallow from "zustand/shallow";
 import { shinyBackboneEffectWithColor } from "./Styles/shinyBackbone";
 import { CartRevertService } from "../../../services/CartRevertService";
@@ -106,7 +106,7 @@ const DesktopOrderSummary = ({ onExpand }) => {
         if (!isMounted) return;
         callPartialDummyVariantId();
         await CartRevertService();
-        if (IS_BUY_NOW_BUTTON && isMounted) {
+        if (getIsBuyNowButton() && isMounted) {
           await shopifyAddToCartForBuyNow();
         }
         if (isMounted) {

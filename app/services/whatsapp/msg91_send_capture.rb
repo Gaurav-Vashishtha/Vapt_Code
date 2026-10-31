@@ -55,7 +55,7 @@ module Whatsapp
     end
 
     def ttl_seconds
-      hours = ENV['MSG91_WHATSAPP_RETRY_CAPTURE_TTL_HOURS'].to_f
+      hours = ENV.fetch("MSG91_WHATSAPP_RETRY_CAPTURE_TTL_HOURS", nil).to_f
       ((hours.positive? ? hours : DEFAULT_TTL_HOURS) * 3600).round
     end
   end

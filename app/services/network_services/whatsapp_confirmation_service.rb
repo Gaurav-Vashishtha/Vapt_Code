@@ -13,9 +13,14 @@ module NetworkServices
     end
 
 
+    # Never raises, and never re-reads after a failure: a revoked token (401),
+    # a deleted order (404) or Shopify throttling resolves to nil once and the
+    # confirmation goes out with the stored OrderConfirmation values plus
+    # Notifications::Defaults, instead of being dropped.
     def get_shopify_order(order_confirmation)
-      order_confirmation.shop.init_session
-      shopify_order = ShopifyAPI::Order.find(order_confirmation.order_id)
+      return @shopify_order_memo if defined?(@shopify_order_memo)
+
+      @shopify_order_memo = ShopifyServices::SafeOrderReader.find(order_confirmation.shop, order_confirmation.order_id)
     end
 
     def fetch_and_save_order_status_url(order_confirmation,shopify_order)
@@ -26,6 +31,7 @@ module NetworkServices
     end
 
     def partial_order_created?(shopify_order)
+      return false if shopify_order.blank?
       return false unless shopify_order.note.is_a?(String)
     
       shopify_order.note.downcase.include?("partial order created".downcase)
@@ -55,7 +61,7 @@ module NetworkServices
         return
       end
 
-      if  ENV['BLACKLISTED_PHONE_NUMBERS'].split(',').include?@order_confirmation.customer_number
+      if  ENV.fetch("BLACKLISTED_PHONE_NUMBERS", nil).split(',').include?@order_confirmation.customer_number
         SlackNotifyJob.perform_async(
           ":rage:  (#{Rails.env})\n Blacklisted number found - Whatsapp - order ID #{@order_confirmation.order_id} shop #{@order_confirmation.shop.shopify_domain}"
         )
@@ -81,7 +87,7 @@ module NetworkServices
       # to get line_items / product_id / shipping_address.
       if @order_confirmation.order_id != '1234567890' &&
          requested_vars.any? { |v| %w[product_name variant_name image_url shipping_address].include?(v) }
-        shopify_order ||= get_shopify_order(order_confirmation)
+        shopify_order = get_shopify_order(order_confirmation)
       end
       
       # Determine language code based on template if not explicitly set
@@ -95,7 +101,7 @@ module NetworkServices
 
       # Ensure status URL exists (needed for button). Fetch Shopify order if status URL is missing.
       if @order_confirmation.order_id !='1234567890' && @order_confirmation.order_status_url.blank?
-        shopify_order ||= get_shopify_order(order_confirmation)
+        shopify_order = get_shopify_order(order_confirmation)
         @order_confirmation = fetch_and_save_order_status_url(@order_confirmation, shopify_order)
       end
 
@@ -105,7 +111,7 @@ module NetworkServices
       # Compute values for configured vars. If any are missing, fetch Shopify order and retry.
       values = build_configured_values(requested_vars, shopify_order)
       if @order_confirmation.order_id !='1234567890' && values.values.any?(&:blank?)
-        shopify_order ||= get_shopify_order(order_confirmation)
+        shopify_order = get_shopify_order(order_confirmation)
         values = build_configured_values(requested_vars, shopify_order)
       end
       
@@ -126,12 +132,12 @@ module NetworkServices
       if !@order_confirmation.blank? 
         integrated_whatsapp_number = @shop.setting.branded_whatsapp_number 
         if integrated_whatsapp_number.blank?
-          integrated_whatsapp_number = ENV['WHATSAPP_NUMBER_DEFAULT']
+          integrated_whatsapp_number = ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
         end
         
         headers = {
           'Content-Type' => 'application/json',
-          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY'],
+          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil),
         }
         body = {
           "integrated_number": integrated_whatsapp_number,
@@ -216,7 +222,10 @@ module NetworkServices
         "parameters": body_vars.map do |v|
           {
             "type": "text",
-            "text": values[v].to_s
+            # Meta rejects the whole send when any body parameter is empty, so a
+            # value we couldn't resolve (Shopify unreadable and nothing stored
+            # locally) goes out as a neutral placeholder instead.
+            "text": Notifications::Defaults.value(values[v])
           }
         end
       }
@@ -250,13 +259,15 @@ module NetworkServices
     def resolve_var_value(var, shopify_order)
       case var
       when "customer_name"
-        @order_confirmation.customer_name.presence || "Dear"
+        Notifications::Defaults.name(@order_confirmation.customer_name)
       when "store"
         @shop.owner_name.presence || @shop.shopify_domain.to_s
       when "order_id"
-        @order_confirmation.customer_facing_order_number.to_s.presence ||
-          shopify_order&.order_number.to_s.presence ||
-          @order_confirmation.order_id.to_s
+        Notifications::Defaults.value(
+          @order_confirmation.customer_facing_order_number.to_s.presence ||
+            shopify_order&.order_number.to_s.presence ||
+            @order_confirmation.order_id.to_s
+        )
       when "order_amount"
         if @order_confirmation.order_amount.present?
           (@order_confirmation.order_amount.to_f + (@order_confirmation.cod_fee || 0)).to_s

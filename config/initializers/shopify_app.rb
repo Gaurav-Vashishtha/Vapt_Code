@@ -73,22 +73,22 @@ ShopifyApp.configure do |config|
   # }]
   config.webhooks = [{
     topic: 'app/uninstalled',
-    address: ENV['AWS_EVENT_BRIDGE_ARN'],
+    address: ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil),
     format: 'json'
   },
   {
     topic: 'orders/create',
-    address: ENV['AWS_ORDER_CREATE_EVENT_BRIDGE_ARN'],
+    address: ENV.fetch("AWS_ORDER_CREATE_EVENT_BRIDGE_ARN", nil),
     format: 'json'
   },
   {
   topic: 'customers/create',
-  address: ENV['AWS_EVENT_BRIDGE_ARN'],
+  address: ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil),
   format: 'json'
   }
 ]
-  config.api_key = ENV['SHOPIFY_API_KEY']
-  config.secret = ENV['SHOPIFY_API_SECRET']
+  config.api_key = ENV.fetch("SHOPIFY_API_KEY", nil)
+  config.secret = ENV.fetch("SHOPIFY_API_SECRET", nil)
   if defined? Rails::Server
     raise('Missing SHOPIFY_API_KEY. See https://github.com/Shopify/shopify_app#api-keys') unless config.api_key
     raise('Missing SHOPIFY_API_SECRET. See https://github.com/Shopify/shopify_app#api-keys') unless config.secret

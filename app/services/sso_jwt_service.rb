@@ -37,7 +37,7 @@ class SsoJwtService
     private
 
     def secret
-      ENV['JWT_SSO_SECRET'].presence || raise(MissingSecretError, 'JWT_SSO_SECRET env var is not set')
+      ENV.fetch("JWT_SSO_SECRET", nil).presence || raise(MissingSecretError, 'JWT_SSO_SECRET env var is not set')
     end
   end
 end

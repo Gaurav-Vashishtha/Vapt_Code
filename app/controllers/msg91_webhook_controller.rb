@@ -21,7 +21,7 @@ class Msg91WebhookController < ApplicationController
   private
 
   def authorized?
-    expected = ENV['MSG91_WEBHOOK_TOKEN'].to_s
+    expected = ENV.fetch("MSG91_WEBHOOK_TOKEN", nil).to_s
     given = request.headers['X-Webhook-Token'].presence || params[:token].to_s
     expected.present? && ActiveSupport::SecurityUtils.secure_compare(given.to_s, expected)
   end

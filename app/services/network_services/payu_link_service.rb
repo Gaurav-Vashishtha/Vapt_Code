@@ -100,7 +100,7 @@ module NetworkServices
     end
 
     def callback_url(digest)
-      "https://#{ENV['APP_HOST']}/order/prepaid?digest=#{digest}"
+      "https://#{ENV.fetch("APP_HOST", nil)}/order/prepaid?digest=#{digest}"
     end
 
     def store_txnid(txnid)

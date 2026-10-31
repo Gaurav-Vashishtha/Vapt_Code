@@ -17,7 +17,7 @@ class WhatsappReattemptsDashboardController < ApplicationController
     @shop_query = params[:shop].to_s.strip
 
     @policies = WhatsappReattempt::FLOWS.index_with { |f| Whatsapp::ReattemptPolicy.for(f) }
-    @webhook_token_set = ENV['MSG91_WEBHOOK_TOKEN'].present?
+    @webhook_token_set = ENV.fetch("MSG91_WEBHOOK_TOKEN", nil).present?
 
     window = WhatsappReattempt.where('whatsapp_reattempts.created_at >= ?', @days.days.ago)
     window = window.where(flow: @flow) if @flow
@@ -66,6 +66,6 @@ class WhatsappReattemptsDashboardController < ApplicationController
   end
 
   def authenticate_admin!
-    http_basic_authenticate_or_request_with(name: ENV['ADMIN_USER'], password: ENV['ADMIN_PASS'])
+    http_basic_authenticate_or_request_with(name: ENV.fetch("ADMIN_USER", nil), password: ENV.fetch("ADMIN_PASS", nil))
   end
 end

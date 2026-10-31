@@ -1,7 +1,7 @@
 class LeadCollectionMailer < ApplicationMailer
   def notify_whatsapp_approvers(lead_collection_id)
     @lead = LeadCollection.find(lead_collection_id)
-    approver_emails = ENV["WHATSAPP_APPROVERS_EMAIL_LIST"].to_s
+    approver_emails = ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil).to_s
       .split(",")
       .map(&:strip)
       .reject(&:blank?)
@@ -18,7 +18,7 @@ class LeadCollectionMailer < ApplicationMailer
     @shop = Shop.find_by(id: shop_id)
     @shop_created_date = format_shop_created_date(@shop)
 
-    recipient_emails = ENV["ONE_CLICK_CHECKOUT_EMAIL_LIST"].to_s
+    recipient_emails = ENV.fetch("ONE_CLICK_CHECKOUT_EMAIL_LIST", nil).to_s
       .split(",")
       .map(&:strip)
       .reject(&:blank?)
@@ -37,7 +37,7 @@ class LeadCollectionMailer < ApplicationMailer
     @shop = Shop.find_by(id: shop_id)
     @shop_created_date = format_shop_created_date(@shop)
 
-    recipient_emails = ENV["RABBIT_EXPRESS_EMAIL_LIST"].to_s
+    recipient_emails = ENV.fetch("RABBIT_EXPRESS_EMAIL_LIST", nil).to_s
       .split(",")
       .map(&:strip)
       .reject(&:blank?)

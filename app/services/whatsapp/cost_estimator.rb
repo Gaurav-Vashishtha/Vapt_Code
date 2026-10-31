@@ -30,7 +30,7 @@ module Whatsapp
     end
 
     def rate_for(country, category)
-      override = ENV['WHATSAPP_MARKETING_RATE'].to_s.strip
+      override = ENV.fetch("WHATSAPP_MARKETING_RATE", nil).to_s.strip
       if country == 'IN' && category == 'MARKETING' && override.present?
         value = BigDecimal(override, exception: false)
         return value if value&.positive?

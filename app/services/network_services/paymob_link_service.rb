@@ -64,7 +64,7 @@ module NetworkServices
         amount_cents: amount_cents,
         reference_id: @order_confirmation.order_id,
         payment_methods: @shop.setting.payment_provider_api_secret.split(',').map(&:strip).map(&:to_i),
-        redirection_url: "https://#{ENV['APP_HOST']}/order/prepaid?digest=#{@order_confirmation.digest}",
+        redirection_url: "https://#{ENV.fetch("APP_HOST", nil)}/order/prepaid?digest=#{@order_confirmation.digest}",
         save_selection: true,
         is_live: true,
         expires_at: expiry_time

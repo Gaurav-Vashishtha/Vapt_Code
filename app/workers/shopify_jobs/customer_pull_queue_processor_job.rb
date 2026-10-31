@@ -12,6 +12,8 @@ module ShopifyJobs
     end
 
     def perform
+      return unless LegacyCustomerPull.enabled?
+
       lock_acquired = nil
       heartbeat_stop = nil
       heartbeat_thread = nil

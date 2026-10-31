@@ -42,7 +42,7 @@ module NetworkServices
             },
           headers: {
             'Content-Type' => 'application/json',
-            'Authorization' => ENV['WHATSAPP_BEARER_TOKEN']
+            'Authorization' => ENV.fetch("WHATSAPP_BEARER_TOKEN", nil)
           },
         )
         resp_hash = resp.to_h

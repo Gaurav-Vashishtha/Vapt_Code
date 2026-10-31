@@ -26,7 +26,7 @@ module SmsServices
     end
 
     def send_request
-      uri = URI.parse("https://api.twilio.com/2010-04-01/Accounts/#{ENV['TWILIO_ACCOUNT_SID']}/Messages.json")
+      uri = URI.parse("https://api.twilio.com/2010-04-01/Accounts/#{ENV.fetch("TWILIO_ACCOUNT_SID", nil)}/Messages.json")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
 

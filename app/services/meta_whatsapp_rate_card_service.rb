@@ -49,12 +49,12 @@ class MetaWhatsappRateCardService
   DEFAULT_INR_PER_USD = 95.0
 
   def self.inr_per_usd
-    value = ENV['WHATSAPP_RATE_CARD_INR_PER_USD'].to_f
+    value = ENV.fetch("WHATSAPP_RATE_CARD_INR_PER_USD", nil).to_f
     value.positive? ? value : DEFAULT_INR_PER_USD
   end
 
   def self.markup
-    value = ENV['WHATSAPP_RATE_CARD_MARKUP'].to_f
+    value = ENV.fetch("WHATSAPP_RATE_CARD_MARKUP", nil).to_f
     value.positive? ? value : 2.5
   end
 

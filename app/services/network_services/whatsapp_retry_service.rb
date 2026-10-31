@@ -6,9 +6,10 @@ module NetworkServices
 
     #resp = NetworkServices::WhatsappRetryService.call(Shop.first,OrderConfirmation.last)
 
+    # Never raises. This read only refreshes order_status_url, which the
+    # message does not even use — it must never be able to stop the send.
     def get_shopify_order(order_confirmation)
-      order_confirmation.shop.init_session
-      shopify_order = ShopifyAPI::Order.find(order_confirmation.order_id)
+      ShopifyServices::SafeOrderReader.find(order_confirmation.shop, order_confirmation.order_id)
     end
 
     def fetch_and_save_order_status_url(order_confirmation,shopify_order)
@@ -44,18 +45,18 @@ module NetworkServices
       #   end
       # end
       
-      confirmation_url = NetworkServices::CutlyLinkService.call("https://#{ENV["APP_HOST"]}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
+      confirmation_url = NetworkServices::CutlyLinkService.call("https://#{ENV.fetch("APP_HOST", nil)}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
       if !@order_confirmation.blank? 
         integrated_whatsapp_number = @shop.setting.branded_whatsapp_number 
         if integrated_whatsapp_number.blank?
-          integrated_whatsapp_number = ENV['WHATSAPP_NUMBER_DEFAULT']
+          integrated_whatsapp_number = ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
         end
 
         if @shop.shopify_domain=='bonsai-eg.myshopify.com'
           return  NetworkServices::GupshupWhatsappRetryService.call(@shop, @order_confirmation)
         end
 
-        customer_name = order_confirmation.customer_name || "there"
+        customer_name = Notifications::Defaults.name(order_confirmation.customer_name)
         language_code = ::Whatsapp::TemplateLanguage.for(@shop, @shop.setting.whatsapp_cod_verification_template.presence || 'cod_verification_link5')
         if @shop.shopify_domain=='komodoofficial.myshopify.com'
           language_code = "it"
@@ -79,7 +80,7 @@ module NetworkServices
           },
           {
           "type": "text",
-          "text": @shop.owner_name
+          "text": Notifications::Defaults.value(@shop.owner_name)
           }
           ]
           },
@@ -90,7 +91,7 @@ module NetworkServices
           "parameters": [
           {
           "type": "text",
-          "text": confirmation_url.gsub('https://cutt.ly/','')
+          "text": Notifications::Defaults.value(confirmation_url.to_s.delete_prefix('https://cutt.ly/'))
           }
           ]
           }
@@ -112,7 +113,7 @@ module NetworkServices
           "https://api.msg91.com/api/v5/whatsapp/whatsapp-outbound-message/",
           headers: {
           "Content-Type": "application/json",
-          "authkey": shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY']
+          "authkey": shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil)
           },
           body: request_body.to_json
           )

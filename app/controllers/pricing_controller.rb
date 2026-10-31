@@ -2,7 +2,7 @@
 
 class PricingController < ApplicationController
   layout "pricing", :only => [ :index ] 
-  http_basic_authenticate_with name: ENV['ADMIN_USER'], password: ENV['ADMIN_PASS'], only: :shopify_order_data
+  http_basic_authenticate_with name: ENV.fetch("ADMIN_USER", nil), password: ENV.fetch("ADMIN_PASS", nil), only: :shopify_order_data
 
   # Public pricing page. All rates are computed server-side with billing's own
   # rules (PublicPricingCatalog) and handed to the page as JSON.

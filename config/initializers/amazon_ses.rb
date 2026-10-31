@@ -7,8 +7,8 @@
 
 # https://github.com/drewblas/aws-ses/issues/78#issuecomment-811270479
 creds = Aws::Credentials.new(
-  ENV['AWS_ACCESS_KEY'],
-  ENV['AWS_SECRET_KEY'],
+  ENV.fetch("AWS_ACCESS_KEY", nil),
+  ENV.fetch("AWS_SECRET_KEY", nil),
 )
 
 Aws::Rails.add_action_mailer_delivery_method(

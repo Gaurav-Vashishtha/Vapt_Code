@@ -29,13 +29,13 @@ module PartnerApi
     attr_reader :last_truncated
 
     def self.app_gid(app_id = nil)
-      id = (app_id.presence || ENV['SHOPIFY_PARTNER_APP_ID'].presence || DEFAULT_APP_ID).to_s.strip
+      id = (app_id.presence || ENV.fetch("SHOPIFY_PARTNER_APP_ID", nil).presence || DEFAULT_APP_ID).to_s.strip
       id.start_with?('gid://') ? id : "gid://partners/App/#{id}"
     end
 
     def initialize
-      @token = ENV['SHOPIFY_PARTNER_ACCESS_TOKEN'].to_s.strip
-      @org = (ENV['SHOPIFY_PARTNER_ORGANIZATION_ID'].presence || ENV['SHOPIFY_ORGANIZATION_ID']).to_s.strip
+      @token = ENV.fetch("SHOPIFY_PARTNER_ACCESS_TOKEN", nil).to_s.strip
+      @org = (ENV.fetch("SHOPIFY_PARTNER_ORGANIZATION_ID", nil).presence || ENV.fetch("SHOPIFY_ORGANIZATION_ID", nil)).to_s.strip
       @version = ENV.fetch('SHOPIFY_PARTNER_API_VERSION', DEFAULT_API_VERSION).to_s.strip
       raise ConfigError, 'Missing SHOPIFY_PARTNER_ACCESS_TOKEN or SHOPIFY_PARTNER_ORGANIZATION_ID' if @token.blank? || @org.blank?
 

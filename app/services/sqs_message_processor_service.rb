@@ -2,9 +2,9 @@
 class SqsMessageProcessorService
     def initialize
       @sqs_client = Aws::SQS::Client.new(
-        region: ENV['AWS_SQS_Q_REGION'],
-        access_key_id: ENV['AWS_SQS_ACCESS_KEY'],
-        secret_access_key: ENV['AWS_SQS_ACCESS_SECRET']
+        region: ENV.fetch("AWS_SQS_Q_REGION", nil),
+        access_key_id: ENV.fetch("AWS_SQS_ACCESS_KEY", nil),
+        secret_access_key: ENV.fetch("AWS_SQS_ACCESS_SECRET", nil)
       )
       @total_processed = 0
       @batch_count = 0
@@ -45,7 +45,7 @@ class SqsMessageProcessorService
   
     def receive_messages
       @sqs_client.receive_message({
-        queue_url: ENV['AWS_SQS_Q_URL'],
+        queue_url: ENV.fetch("AWS_SQS_Q_URL", nil),
         max_number_of_messages: 10,
         wait_time_seconds: 2 # Short polling to avoid long waits when queue is empty
       })
@@ -143,7 +143,7 @@ class SqsMessageProcessorService
   
     def delete_processed_messages(processed_messages)
       delete_resp = @sqs_client.delete_message_batch({
-        queue_url: ENV['AWS_SQS_Q_URL'],
+        queue_url: ENV.fetch("AWS_SQS_Q_URL", nil),
         entries: processed_messages.map do |pm|
           {
             id: pm[:index].to_s,

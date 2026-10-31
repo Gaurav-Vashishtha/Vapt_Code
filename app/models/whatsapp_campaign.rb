@@ -25,7 +25,7 @@ class WhatsappCampaign < ApplicationRecord
   DEFAULT_MAX_CONCURRENT = 3
 
   def self.max_concurrent
-    value = ENV['WHATSAPP_MAX_CONCURRENT_CAMPAIGNS'].to_i
+    value = ENV.fetch("WHATSAPP_MAX_CONCURRENT_CAMPAIGNS", nil).to_i
     value.positive? ? value : DEFAULT_MAX_CONCURRENT
   end
 
@@ -92,7 +92,7 @@ class WhatsappCampaign < ApplicationRecord
       update_columns(estimated_cost: estimate[:amount].to_d.round(2), currency: estimate[:currency].presence || currency,
                      updated_at: Time.current)
     else
-      rate = ENV['WHATSAPP_MARKETING_RATE'].to_f
+      rate = ENV.fetch("WHATSAPP_MARKETING_RATE", nil).to_f
       update_columns(estimated_cost: (reach * rate).round(2), updated_at: Time.current)
     end
   end

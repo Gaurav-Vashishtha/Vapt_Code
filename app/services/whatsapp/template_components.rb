@@ -102,9 +102,9 @@ module Whatsapp
       found = [example["header_handle"], example["header_url"], component["header_url"], component["image_url"]]
               .flat_map { |v| Array(v) }.find { |v| usable_sample_url?(v) }
       return found if found
-      return ENV["WHATSAPP_TEMPLATE_SAMPLE_MEDIA_URL"].presence || DEFAULT_SAMPLE_IMAGE_URL if component["format"] == "IMAGE"
+      return ENV.fetch("WHATSAPP_TEMPLATE_SAMPLE_MEDIA_URL", nil).presence || DEFAULT_SAMPLE_IMAGE_URL if component["format"] == "IMAGE"
 
-      ENV["WHATSAPP_TEMPLATE_SAMPLE_MEDIA_URL"].presence
+      ENV.fetch("WHATSAPP_TEMPLATE_SAMPLE_MEDIA_URL", nil).presence
     end
 
     # Authentication (OTP) templates can't carry custom text: Meta writes the body in every language

@@ -18,6 +18,7 @@ import { preCreateCartsForEligibleRules as preCreateCarts } from "../utils/parti
 import { sendErrorToAPI } from "../services/errorReporter.js";
 import { otpStore, otpStore as otpStoreActions } from "../stores/otpStore.js";
 
+import { postToParent } from "../utils/parentMessaging";
 // Re-exports
 export const getMachineId = () => getMachineIdFromHelper();
 export {
@@ -68,12 +69,30 @@ export const populateCallingCodeList = (text) => {
 export function generatePassword() {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const passwordLength = 8;
+  const passwordLength = 20;
+
+  // This value becomes the customer's Shopify account password, so it must come
+  // from a CSPRNG. Math.random() is a seeded PRNG whose internal state can be
+  // recovered from a few observed outputs, which would make every password
+  // generated afterwards in the same page predictable.
+  const rng =
+    typeof globalThis !== "undefined" && globalThis.crypto ? globalThis.crypto : null;
+  if (!rng || typeof rng.getRandomValues !== "function") {
+    // Fail closed rather than silently falling back to a predictable source.
+    throw new Error("Secure random source unavailable; cannot generate account password");
+  }
+
+  // Rejection sampling: plain modulo would make the first (256 % 62) characters
+  // of the alphabet more likely than the rest.
+  const limit = 256 - (256 % chars.length);
+  const buffer = new Uint8Array(passwordLength);
   let password = "";
 
-  for (let i = 0; i < passwordLength; i++) {
-    const randomIndex = Math.floor(Math.random() * chars.length);
-    password += chars[randomIndex];
+  while (password.length < passwordLength) {
+    rng.getRandomValues(buffer);
+    for (let i = 0; i < buffer.length && password.length < passwordLength; i++) {
+      if (buffer[i] < limit) password += chars[buffer[i] % chars.length];
+    }
   }
 
   return password;
@@ -238,13 +257,10 @@ export const notifyParentToDestroyIframe = () => {
 
   try {
     // Existing listeners close modal on this string message
-    window.parent.postMessage("codk-close-modal", "*");
+    postToParent("codk-close-modal");
     // Give the parent a moment to run closeModal (which still references iframe)
     setTimeout(() => {
-      window.parent.postMessage(
-        { type: "CODK_DESTROY_IFRAME", iframeId: IFRAME_ID, source: "codk" },
-        "*",
-      );
+      postToParent({ type: "CODK_DESTROY_IFRAME", iframeId: IFRAME_ID, source: "codk" });
     }, 250);
   } catch (error) {}
 };

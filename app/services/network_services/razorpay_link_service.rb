@@ -52,7 +52,7 @@ module NetworkServices
           notes: {
             policy_name: "Order payment"
           },
-          callback_url: "https://#{ENV['APP_HOST']}/order/prepaid?digest=#{digest}",
+          callback_url: "https://#{ENV.fetch("APP_HOST", nil)}/order/prepaid?digest=#{digest}",
           callback_method: "get"
         }
 

@@ -7,7 +7,7 @@ module WebhookConsoleTest
   module_function
 
   def shop
-    @shop ||= Shop.find_by(shopify_domain: ENV['TEST_SHOP']) ||
+    @shop ||= Shop.find_by(shopify_domain: ENV.fetch("TEST_SHOP", nil)) ||
               Shop.order(:id).first ||
               raise('No shop in the database — set TEST_SHOP or create one first.')
   end

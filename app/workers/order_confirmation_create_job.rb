@@ -550,7 +550,7 @@ class OrderConfirmationCreateJob < ApplicationJob
         '/twillio/ivr_webhook'
       )
       resp = TwilioServices::IvrCallService.call({
-                                                   from: ENV['TWILIO_PHONE_NUMBER'],
+                                                   from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
                                                    to: order_confirmation.customer_number,
                                                    twiml: request
                                                  })

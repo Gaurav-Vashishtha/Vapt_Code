@@ -20,15 +20,15 @@ module NetworkServices
         request = Net::HTTP::Post.new(uri)
         request['Cache-Control'] = 'no-cache'
         request['Content-Type'] = 'application/x-www-form-urlencoded'
-        request['apikey'] = ENV['GUPSHUP_API_KEY']
+        request['apikey'] = ENV.fetch("GUPSHUP_API_KEY", nil)
   
         request.set_form_data(
           'channel' => 'whatsapp',
-          'source' => ENV['GUPSHUP_SOURCE'] || '201501635356',
+          'source' => ENV.fetch("GUPSHUP_SOURCE", nil) || '201501635356',
           'destination' => order_confirmation.customer_number,
-          'src.name' => ENV['GUPSHUP_SRC_NAME'] || 'Hatchill123',
+          'src.name' => ENV.fetch("GUPSHUP_SRC_NAME", nil) || 'Hatchill123',
           'template' => {
-            id: ENV['GUPSHUP_TEMPLATE_ID'] || 'e65be9e8-f6f7-4ef5-8148-86ce5859bad0',
+            id: ENV.fetch("GUPSHUP_TEMPLATE_ID", nil) || 'e65be9e8-f6f7-4ef5-8148-86ce5859bad0',
             params: [order_confirmation.persisted_otp]
           }.to_json
         )

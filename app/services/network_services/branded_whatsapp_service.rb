@@ -18,7 +18,7 @@ module NetworkServices
     end
 
     def call
-      blacklisted_numbers = ENV['BLACKLISTED_PHONE_NUMBERS'].split(',')
+      blacklisted_numbers = ENV.fetch("BLACKLISTED_PHONE_NUMBERS", nil).split(',')
       customer_number = (@order_confirmation && @order_confirmation.customer_number) || (@db_abandon_cart && @db_abandon_cart.phone)
       
   
@@ -161,7 +161,7 @@ module NetworkServices
         when 'Abandoned_Checkout'
           button_url = db_abandon_cart.url
         when 'COD_Prepaid'
-          button_url = "https://#{ENV['APP_HOST']}/order_confirmations/redirect_payment_link?domain=#{@shop.shopify_domain}&id=#{@order_confirmation.id}"
+          button_url = "https://#{ENV.fetch("APP_HOST", nil)}/order_confirmations/redirect_payment_link?domain=#{@shop.shopify_domain}&id=#{@order_confirmation.id}"
         when 'First_Time_Purchase'
           button_url = @shop.primary_domain || @shop.shopify_domain
       end

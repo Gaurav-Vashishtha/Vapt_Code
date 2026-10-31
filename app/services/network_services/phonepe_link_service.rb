@@ -42,7 +42,7 @@ module NetworkServices
         end
 
         order_amount = ((ShopifyServices::PrepaidOrderService.new(nil,order_confirmation.shop, order_confirmation.id).get_total_amount)*100).to_i
-        redirectUrl = "https://#{ENV['APP_HOST']}/order/prepaid?digest=#{digest}",
+        redirectUrl = "https://#{ENV.fetch("APP_HOST", nil)}/order/prepaid?digest=#{digest}",
     
         json =  "{\"merchantId\": \"#{merchantId}\",
                   \"merchantTransactionId\": \"#{merchantTransactionId}\", 

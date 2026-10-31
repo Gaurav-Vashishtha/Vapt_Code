@@ -3,9 +3,11 @@ module NetworkJobs
     
     # NetworkJobs::SendConfirmationSmsJob.perform_async(Shop.last.id,OrderConfirmation.last.id)
 
+    # Never raises: a revoked token (401), a deleted order (404) or Shopify
+    # throttling returns nil and we send the confirmation from the stored
+    # OrderConfirmation row instead of dropping the message entirely.
     def get_shopify_order(order_confirmation)
-      order_confirmation.shop.init_session
-      shopify_order = ShopifyAPI::Order.find(order_confirmation.order_id)
+      ShopifyServices::SafeOrderReader.find(order_confirmation.shop, order_confirmation.order_id)
     end
 
     def fetch_and_save_order_status_url(order_confirmation,shopify_order)
@@ -16,15 +18,22 @@ module NetworkJobs
     end
 
     def has_partial_payment_variants?(shopify_order)
-      shopify_order.note_attributes.any? do |note|
+      return false if shopify_order.blank?
+
+      Array(shopify_order.note_attributes).any? do |note|
         note.attributes["name"] == "partial_payment_variants"
       end
+    rescue StandardError
+      false
     end
 
     def is_new_partial_order(shopify_order)
+      return false if shopify_order.blank?
       return false unless shopify_order.note.is_a?(String)
 
       shopify_order.note.downcase.include?("partial order created".downcase)
+    rescue StandardError
+      false
     end
 
     # Backfill blank recipient fields on the local record from the freshly-read
@@ -89,6 +98,8 @@ module NetworkJobs
       end
       shopify_order = ''
       if order_confirmation.order_id!="1234567890"
+        # nil here means Shopify was unreadable (revoked token / 404 / throttle).
+        # Carry on with the stored record rather than skipping the confirmation.
         shopify_order = get_shopify_order(order_confirmation)
 
         if has_partial_payment_variants?(shopify_order)
@@ -129,7 +140,7 @@ module NetworkJobs
 
 
       if shop.setting.confirmation_flow_id.blank?
-        flow_id = country_code=='IN'? ENV['MSG_91_CONFIRMATION_SMS_FLOW_ID']:ENV['MSG_91_CONFIRMATION_SMS_NON_INDIA_FLOW_ID']           
+        flow_id = country_code=='IN'? ENV.fetch("MSG_91_CONFIRMATION_SMS_FLOW_ID", nil):ENV.fetch("MSG_91_CONFIRMATION_SMS_NON_INDIA_FLOW_ID", nil)           
       end
 
       if !shop.setting.provider.blank? && !shop.setting.provider_api_key.blank?
@@ -142,47 +153,44 @@ module NetworkJobs
             dlt_id: ''
           }
         )
-        elsif (ENV['MOVIDER_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("MOVIDER_COUNTRIES", nil).include?country_code) 
         resp = SmsServices::MoviderSmsService.call(
-          "#{ENV['MOVIDER_API_KEY']}:#{ENV['MOVIDER_API_SECRET']}",
-          ENV['MOVIDER_SENDER_ID'],
+          "#{ENV.fetch("MOVIDER_API_KEY", nil)}:#{ENV.fetch("MOVIDER_API_SECRET", nil)}",
+          ENV.fetch("MOVIDER_SENDER_ID", nil),
         {
           to: order_confirmation.customer_number,
           body: get_sms_body(order_confirmation,order_number),
           dlt_id: ''
         }
         )
-        elsif (ENV['SMS_COUNTRY_COUNTRIES'].include?country_code)  #Always keep above Msg91
+        elsif (ENV.fetch("SMS_COUNTRY_COUNTRIES", nil).include?country_code)  #Always keep above Msg91
         sender_id = 'BNexTECH'
-        api_key = ENV['SMS_COUNTRY_BASE_64_KEY']
+        api_key = ENV.fetch("SMS_COUNTRY_BASE_64_KEY", nil)
         # base 64 encoding for API key and token Rwid37f5wtuDfBAkbYzx:cnNsv1GYPDCdIouKj8E5Yohh6TIp6SposonpTOZ3
         params = {
           text: get_sms_body(order_confirmation,order_number),
           number:  order_confirmation.customer_number,
         }
         resp = SmsServices::SmsCountrySmsService.new(api_key, sender_id, params).call
-        elsif (ENV['MSG_91_SPECIAL_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("MSG_91_SPECIAL_COUNTRIES", nil).include?country_code) 
           sender_id = shop.setting.sender
           if sender_id.blank?
             case 
-            when ENV['WALKER_COUNTRIES'].present? && ENV['WALKER_COUNTRIES'].split(',').include?(country_code)
+            when ENV.fetch("WALKER_COUNTRIES", nil).present? && ENV.fetch("WALKER_COUNTRIES", nil).split(',').include?(country_code)
               sender_id = 'WALKER'
             when country_code == 'AE'
-              sender_id = ENV['MSG_91_UAE_SENDER']
+              sender_id = ENV.fetch("MSG_91_UAE_SENDER", nil)
             when country_code == 'SA' || country_code == 'PH'
-              sender_id = ENV['MSG91_SA_SENDER_ID']
+              sender_id = ENV.fetch("MSG91_SA_SENDER_ID", nil)
             when country_code == 'IN' 
-              sender_id = ENV['MSG_91_IN_SENDER']
+              sender_id = ENV.fetch("MSG_91_IN_SENDER", nil)
             else
-              sender_id = ENV['MSG91_SENDER_ID']
+              sender_id = ENV.fetch("MSG91_SENDER_ID", nil)
             end
           end
           
 
-          customer_name = 'Customer'
-          if !order_confirmation.customer_name.blank?
-            customer_name = order_confirmation.customer_name
-          end
+          customer_name = Notifications::Defaults.name(order_confirmation.customer_name)
 
           resp = SmsServices::Msg91SmsConfirmationService.call(
             { auth_key: shop.setting.msg91_auth_key },
@@ -192,41 +200,41 @@ module NetworkJobs
               to: order_confirmation.customer_number,
               number: order_number,
               store: shop.owner_name,
-              ur: order_confirmation.order_status_url,
+              ur: Notifications::Defaults.value(order_confirmation.order_status_url),
               name: customer_name
             }
           )
-        elsif (ENV['WAVECELL_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("WAVECELL_COUNTRIES", nil).include?country_code) 
           resp = SmsServices::WavecellSmsService.call(
-            ENV['WAVECELL_API_KEY'],
-            ENV['WAVECELL_SENDER_ID'],
+            ENV.fetch("WAVECELL_API_KEY", nil),
+            ENV.fetch("WAVECELL_SENDER_ID", nil),
           {
             to: order_confirmation.customer_number,
             body: get_sms_body(order_confirmation,order_number),
             dlt_id: ''
           }
           )
-        elsif (ENV['MOBEEP_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("MOBEEP_COUNTRIES", nil).include?country_code) 
           resp = SmsServices::MobeepSmsService.call(
-          ENV['MOBEEP_API_KEY'],
-          ENV['MOBEEP_SENDER_ID'],
+          ENV.fetch("MOBEEP_API_KEY", nil),
+          ENV.fetch("MOBEEP_SENDER_ID", nil),
         {
           to: order_confirmation.customer_number,
           body: get_sms_body(order_confirmation,order_number),
         }
         )
-        elsif (ENV['MISR_COUNTRIES'].include?country_code)
+        elsif (ENV.fetch("MISR_COUNTRIES", nil).include?country_code)
         resp = SmsServices::MisrSmsService.call(
-          ENV['MISR_API_KEY'],
-          ENV['MISR_SENDER_ID'],
+          ENV.fetch("MISR_API_KEY", nil),
+          ENV.fetch("MISR_SENDER_ID", nil),
         {
           to: order_confirmation.customer_number,
           body: get_sms_body(order_confirmation,order_number),
         }) 
-        elsif (ENV['VEEVOTECH_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("VEEVOTECH_COUNTRIES", nil).include?country_code) 
           resp = SmsServices::VeevotechSmsService.call(
-          ENV['VEEVOTECH_API_KEY'],
-          ENV['VEEVOTECH_SENDER_ID'],
+          ENV.fetch("VEEVOTECH_API_KEY", nil),
+          ENV.fetch("VEEVOTECH_SENDER_ID", nil),
         {
           to: order_confirmation.customer_number,
           body: get_sms_body(order_confirmation,order_number)
@@ -235,7 +243,7 @@ module NetworkJobs
 
         else
         resp = TwilioServices::SendOtpService.new({
-          from: ENV["TWILIO_PHONE_NUMBER"],
+          from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
           to: order_confirmation.customer_number,
           body: get_sms_body(order_confirmation,order_number),
           country_code: country_code,
@@ -257,20 +265,12 @@ module NetworkJobs
     def get_sms_body(order_confirmation,order_number)      
       body = order_confirmation.shop.setting.order_confirmation_template
     
-      customer_name=''
-      if !order_confirmation.customer_name.blank?
-        customer_name = order_confirmation.customer_name&.partition(" ")&.first
-      end
-
-      if !order_number.blank?
-        order_number = order_number.to_s
-      else
-        order_number = ""
-      end
+      customer_name = Notifications::Defaults.first_name(order_confirmation.customer_name)
+      order_number = Notifications::Defaults.value(order_number)
 
       body.gsub("{{name}}", customer_name)
-      .gsub("{{amount}}", order_confirmation.order_amount)
-      .gsub("{{store}}", order_confirmation.shop.owner_name)
+      .gsub("{{amount}}", Notifications::Defaults.value(order_confirmation.order_amount))
+      .gsub("{{store}}", order_confirmation.shop.owner_name.to_s)
       .gsub("{{store_url}}", order_confirmation.shop.shopify_domain)
       .gsub("{{number}}", order_number)
     end

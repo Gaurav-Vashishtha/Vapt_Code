@@ -23,7 +23,7 @@ module NetworkServices
     IDENTIFY_URL = "https://cdp.customer.io/v1/identify"
 
     def initialize(api_key: nil)
-      @api_key = api_key.presence || ENV["CUSTOMER_IO_CDP_API_KEY"]
+      @api_key = api_key.presence || ENV.fetch("CUSTOMER_IO_CDP_API_KEY", nil)
     end
 
     # Identify a user with traits.

@@ -127,13 +127,13 @@ module Whatsapp
       end
 
       def test_charge?(shop)
-        return true if Rails.env.development? || ENV['WHATSAPP_AI_TEST_CHARGES'].present?
+        return true if Rails.env.development? || ENV.fetch("WHATSAPP_AI_TEST_CHARGES", nil).present?
 
         TEST_SHOPIFY_PLANS.include?(shop.shopify_plan.to_s)
       end
 
       def return_url(shop)
-        handle = ENV['SHOPIFY_APP_HANDLE'].presence || (Rails.env.development? ? 'codkingamandev' : 'cod-verification')
+        handle = ENV.fetch("SHOPIFY_APP_HANDLE", nil).presence || (Rails.env.development? ? 'codkingamandev' : 'cod-verification')
         "https://#{shop.shopify_domain}/admin/apps/#{handle}/features/whatsapp/inbox/ai/credits"
       end
 

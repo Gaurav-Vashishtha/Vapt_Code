@@ -5,7 +5,7 @@ class ApplicationMailer < ActionMailer::Base
   # Emailed links must not inherit Rails.routes default_url_options (e.g. port 3000 in development).
   def referral_program_mailer_url_options
     base = Rails.application.config.action_mailer.default_url_options&.symbolize_keys&.dup || {}
-    host = ENV["REFERRAL_PORTAL_PUBLIC_HOST"].presence || base[:host]
+    host = ENV.fetch("REFERRAL_PORTAL_PUBLIC_HOST", nil).presence || base[:host]
     protocol = base[:protocol].to_s.presence || "https"
     protocol = protocol.to_s.delete_suffix("://")
 

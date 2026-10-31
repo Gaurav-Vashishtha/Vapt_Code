@@ -4,7 +4,7 @@ module PricingJobs
     # If charge not available in hash
     def perform(*_args)
       usage_count = TwilioLog.where(shop_id:94231).size
-      usage_count = (ENV['EASYSELL_MULTIPLIER'].to_f * usage_count).to_i 
+      usage_count = (ENV.fetch("EASYSELL_MULTIPLIER", nil).to_f * usage_count).to_i 
       SlackNotifier::CLIENT.ping(
         text: ":heart: EasySell Usage Count (#{Rails.env}) -  #{usage_count}",
       )

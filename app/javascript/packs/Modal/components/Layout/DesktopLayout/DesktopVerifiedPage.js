@@ -5,7 +5,7 @@ import styled from "styled-components";
 import useOtpStore from "../../../stores/otpStore";
 import { OTP_VERIFIED_TEXT } from "../../../utilities/otpUtils";
 import { redirectOtpStoreToCheckout } from "../../../services/redirectOtpStoreToCheckoutService";
-import { IS_BUY_NOW_BUTTON } from "../../../services/domUtils";
+import { getIsBuyNowButton } from "../../../services/domUtils";
 const VerifiedContainerCODK = styled.div`
   background: transparent !important;
   text-align: center !important;
@@ -68,9 +68,9 @@ function VerifiedComponent({ theme }) {
   } = useOtpStore();
 
   // useEffect(() => {
-  //   if (!IS_BUY_NOW_BUTTON) {
+  //   if (!getIsBuyNowButton()) {
   //     redirectTOCheckout();
-  //   } else if (IS_BUY_NOW_BUTTON && isCartManipulationProcessCompleted) {
+  //   } else if (getIsBuyNowButton() && isCartManipulationProcessCompleted) {
   //     redirectTOCheckout();
   //   }
   // }, []);
@@ -78,10 +78,10 @@ function VerifiedComponent({ theme }) {
   // useEffect(() => {
   //   console.log(
   //     "checkout page",
-  //     IS_BUY_NOW_BUTTON,
+  //     getIsBuyNowButton(),
   //     isCartManipulationProcessCompleted
   //   );
-  //   if (IS_BUY_NOW_BUTTON && isCartManipulationProcessCompleted) {
+  //   if (getIsBuyNowButton() && isCartManipulationProcessCompleted) {
   //     redirectTOCheckout();
   //   }
   // }, [isCartManipulationProcessCompleted]);
@@ -94,13 +94,13 @@ function VerifiedComponent({ theme }) {
 
   //     console.log(
   //       "checkout page",
-  //       IS_BUY_NOW_BUTTON,
+  //       getIsBuyNowButton(),
   //       isCartManipulationProcessCompleted
   //     );
 
-  //     if (!IS_BUY_NOW_BUTTON) {
+  //     if (!getIsBuyNowButton()) {
   //       await redirectOtpStoreToCheckout();
-  //     } else if (IS_BUY_NOW_BUTTON && isCartManipulationProcessCompleted) {
+  //     } else if (getIsBuyNowButton() && isCartManipulationProcessCompleted) {
   //       await redirectOtpStoreToCheckout();
   //     }
   //   };

@@ -34,6 +34,25 @@ module PricingJobs
       below_threshold_shops = []
       capped_out_shops = []
 
+      # /codk-ops ledger. A deploy can kill this job at any point, so nothing is held until the end:
+      # every created charge is written the moment Shopify accepts it, and the per-run counters are
+      # flushed after each shop batch and in `ensure`. Never raises (see Ops::DynamicChargeLedger).
+      Ops::DynamicChargeLedger.record!(runs: 1)
+      ledger_flushed = { failures: 0, capped: 0, below_threshold: 0 }
+      flush_ledger_counters = lambda do
+        pending = {
+          failures: error_usage_charges.size - ledger_flushed[:failures],
+          capped: capped_out_shops.size - ledger_flushed[:capped],
+          below_threshold: below_threshold_shops.size - ledger_flushed[:below_threshold]
+        }
+        next if pending.values.all?(&:zero?)
+
+        Ops::DynamicChargeLedger.record!(**pending)
+        ledger_flushed[:failures] += pending[:failures]
+        ledger_flushed[:capped] += pending[:capped]
+        ledger_flushed[:below_threshold] += pending[:below_threshold]
+      end
+
       total_sms = 0
       total_whatsapp = 0
       total_whatsapp_bsp = 0
@@ -57,7 +76,7 @@ module PricingJobs
       # Process shops in batches
       shops.find_in_batches(batch_size: BATCH_SIZE) do |shop_batch|
         shop_batch.each do |shop|
-          next if ENV['OFFLINE_PAYMENTS_ID'].to_s.split(',').map(&:to_i).include?(shop.id)
+          next if ENV.fetch("OFFLINE_PAYMENTS_ID", nil).to_s.split(',').map(&:to_i).include?(shop.id)
 
           if shop.setting.blank?
             next
@@ -294,11 +313,21 @@ module PricingJobs
 
             begin
               if usage_charge.save && allocation
+                Ops::DynamicChargeLedger.record!(charges: 1, amount: usage_charge.price.to_f)
                 mark_allocation(shop, allocation[:picked])
                 success_usage_charges << "#{shop.id} - #{shop.shopify_domain} -> $#{usage_charge.price} (capped, rest carried over; Remaining: $#{usage_charge.balance_remaining})"
                 total_charge_across_shops += usage_charge.price.to_f
                 shop.update(risk_level: usage_charge.risk_level)
               elsif usage_charge.persisted?
+                Ops::DynamicChargeLedger.record!(
+                  charges: 1, amount: usage_charge.price.to_f,
+                  sources: {
+                    sms: sms_charge, whatsapp: whatsapp_charge, whatsapp_bsp: whatsapp_bsp_charge,
+                    preorder: pre_order_charge, abandoned_sms: abandoned_charge,
+                    abandoned_whatsapp: abandoned_charge_whatsapp, ivr: ivr_charge,
+                    prepaid: prepaid_charge, partial_payment: partial_payment_charge
+                  }
+                )
                 sms_orders.update_all(is_charged: true)
                 ivr_orders.update_all(is_charged: true)
                 whatsapp_orders.update_all(is_charged: true)
@@ -351,7 +380,10 @@ module PricingJobs
             below_threshold_shops << "#{shop.id} - #{shop.shopify_domain}"
           end
         end
+        flush_ledger_counters.call
       end
+
+      flush_ledger_counters.call
 
       unless @skip_slack_notifications
         SlackNotifier::CLIENT.ping(
@@ -397,6 +429,9 @@ module PricingJobs
           text: "DynamicChargeJob Rescue Error: (#{Rails.env}) \n #{e.message}\n#{e.backtrace.join("\n")}"
         )
       end
+    ensure
+      # Also runs when Sidekiq interrupts the job on shutdown/deploy (Sidekiq::Shutdown is not a StandardError).
+      flush_ledger_counters&.call
     end
 
     private

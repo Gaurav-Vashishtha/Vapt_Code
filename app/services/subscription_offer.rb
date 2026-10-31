@@ -10,7 +10,7 @@ module SubscriptionOffer
   CHARGE_USD = 0.01
 
   def active?
-    value = ENV["FREE_SUBSCRIPTION_OFFER"].to_s.strip.downcase
+    value = ENV.fetch("FREE_SUBSCRIPTION_OFFER", nil).to_s.strip.downcase
     value.present? && !%w[0 false no off].include?(value)
   end
 
@@ -19,7 +19,7 @@ module SubscriptionOffer
     return false if shop.nil?
     return false if shop.try(:visible_plans).present?
 
-    min = ENV["FREE_SUBSCRIPTION_OFFER_MIN_SHOP_ID"].to_s.strip
+    min = ENV.fetch("FREE_SUBSCRIPTION_OFFER_MIN_SHOP_ID", nil).to_s.strip
     return true if min.blank?
 
     shop.id.to_i >= min.to_i

@@ -132,6 +132,9 @@ const GoogleSheetsPage = () => {
   // The OAuth callback page posts the outcome to its opener and closes itself.
   useEffect(() => {
     const onMessage = (event) => {
+      // The OAuth callback page that posts this outcome is served from this
+      // origin; without the check any window could fake a "connected" result.
+      if (event.origin !== window.location.origin) return;
       if (!event.data || event.data.type !== "codkf:google_sheets") return;
       clearInterval(pollRef.current);
       setWaiting(false);

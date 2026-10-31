@@ -9,20 +9,20 @@ module Whatsapp
       module_function
 
       def api_key
-        ENV['OPENAI_API_KEY'].presence
+        ENV.fetch("OPENAI_API_KEY", nil).presence
       end
 
       def model
-        ENV['WHATSAPP_AI_MODEL'].presence || DEFAULT_MODEL
+        ENV.fetch("WHATSAPP_AI_MODEL", nil).presence || DEFAULT_MODEL
       end
 
       def reasoning_effort
-        value = ENV['WHATSAPP_AI_REASONING_EFFORT'].to_s.strip
+        value = ENV.fetch("WHATSAPP_AI_REASONING_EFFORT", nil).to_s.strip
         value.empty? || value == 'default' ? nil : value
       end
 
       def enabled?
-        api_key.present? && ENV['WHATSAPP_AI_DISABLED'].blank?
+        api_key.present? && ENV.fetch("WHATSAPP_AI_DISABLED", nil).blank?
       end
 
       def price_per_million(kind)

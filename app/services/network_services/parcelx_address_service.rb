@@ -18,7 +18,7 @@ module NetworkServices
     # Production must use the ENV key; the raise is caught by the blanket
     # rescue in #call so a missing key fails safe (returns []) with a log line.
     def self.api_key
-      key = ENV['PARCELX_API_KEY'].presence
+      key = ENV.fetch("PARCELX_API_KEY", nil).presence
       return key if key
       raise KeyError, 'PARCELX_API_KEY is not set' if Rails.env.production?
 

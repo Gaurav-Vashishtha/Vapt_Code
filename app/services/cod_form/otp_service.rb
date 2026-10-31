@@ -19,11 +19,16 @@ module CodForm
       # Nothing is read from the store-wide pre-order OTP screen, which is Express checkout only.
       # Only the message text itself is the store's messaging template (sent by the shared
       # NetworkServices sender).
-      # A form that asks for the phone number first always has OTP: that step is an OTP step.
+      # "Ask for the phone number first" (steps.phone_first) is a layout choice that needs OTP:
+      # it is honoured only when OTP in the form is on (general.otp.enabled). It never turns OTP
+      # on by itself; with OTP off the form opens on the address step as usual.
       def enabled_for?(setting, form_config, general = nil)
-        return true if form_config.is_a?(Hash) && form_config.dig("steps", "phone_first") == true
-
         on?(setting, general)
+      end
+
+      # True when this form asks for the phone number first AND OTP in the form is on.
+      def phone_first?(form_config, general)
+        on?(nil, general) && form_config.is_a?(Hash) && form_config.dig("steps", "phone_first") == true
       end
 
       # The same answer without a form (order-first OTP, risk-based OTP).

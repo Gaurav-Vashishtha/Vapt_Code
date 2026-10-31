@@ -6,7 +6,7 @@ class EngagementMailer < ApplicationMailer
     @summary = EngagementTrackingService.total_engagement_summary(@date_range)
     
     # Get recipient emails from WHATSAPP_APPROVERS_EMAIL_LIST
-    recipients = ENV['WHATSAPP_APPROVERS_EMAIL_LIST'] || 'support@notifiktech.com'
+    recipients = ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil) || 'support@notifiktech.com'
     
     mail(
       to: recipients,

@@ -17,11 +17,11 @@ module Whatsapp
       module_function
 
       def enabled?
-        ENV['WHATSAPP_AI_MEDIA_DISABLED'].blank? && Config.api_key.present?
+        ENV.fetch("WHATSAPP_AI_MEDIA_DISABLED", nil).blank? && Config.api_key.present?
       end
 
       def transcribe_model
-        ENV['WHATSAPP_AI_TRANSCRIBE_MODEL'].presence || 'gpt-4o-mini-transcribe'
+        ENV.fetch("WHATSAPP_AI_TRANSCRIBE_MODEL", nil).presence || 'gpt-4o-mini-transcribe'
       end
 
       def transcript(message)

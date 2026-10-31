@@ -2,7 +2,9 @@ FROM ruby:3.2.6-slim
 
 # Install system dependencies
 RUN apt-get update -qq && \
-    apt-get install -y build-essential libpq-dev git curl nodejs
+    apt-get install -y --no-install-recommends \
+      build-essential libpq-dev git curl nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set environment variables
 ENV RAILS_ENV="production" \

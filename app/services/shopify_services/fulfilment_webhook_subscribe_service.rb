@@ -22,7 +22,7 @@ module ShopifyServices
     end
 
     def call
-      target_address = ENV['AWS_EVENT_BRIDGE_ARN']
+      target_address = ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil)
       if target_address.blank?
         Rails.logger.warn("[fulfilment_webhook] AWS_EVENT_BRIDGE_ARN missing shop=#{@shop.id}")
         return false

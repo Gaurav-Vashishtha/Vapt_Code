@@ -76,7 +76,7 @@ module CodFormAdmin
 
     def available?(provider)
       return false if GATES[provider] && !gate_allowed?(GATES[provider])
-      return ENV["GOOGLE_SHEETS_CLIENT_ID"].present? if provider == "google_sheets"
+      return ENV.fetch("GOOGLE_SHEETS_CLIENT_ID", nil).present? if provider == "google_sheets"
 
       true
     end

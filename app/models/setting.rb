@@ -106,7 +106,7 @@ class Setting < ApplicationRecord
 
   # MSG91 SMS flows: use per-shop operator auth key when set, else global env key (same pattern as WhatsApp services).
   def msg91_auth_key
-    whatsapp_operator_config.to_s.strip.presence || ENV["MSG91_AUTHKEY"]
+    whatsapp_operator_config.to_s.strip.presence || ENV.fetch("MSG91_AUTHKEY", nil)
   end
 
   # Returns the prepaid reminders (enabled-only) whose cart range covers the
@@ -396,7 +396,7 @@ class Setting < ApplicationRecord
       google_conversion_id: google_conversion_id,
       google_conversion_label: google_conversion_label,
       show_offer_and_reward: show_offer_and_reward,
-      shopify_visitor_app_id: ENV["SHOPIFY_VISITOR_APP_ID"].presence,
+      shopify_visitor_app_id: ENV.fetch("SHOPIFY_VISITOR_APP_ID", nil).presence,
       omit_whatsapp_message_ttl: omit_whatsapp_message_ttl,
       optimized_buy_now: (
         has_attribute?(:optimized_buy_now) ? (self[:optimized_buy_now] || false) : false

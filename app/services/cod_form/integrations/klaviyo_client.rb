@@ -33,7 +33,7 @@ module CodForm
           URL, body,
           headers: {
             "Authorization" => "Klaviyo-API-Key #{api_key}",
-            "revision" => ENV["KLAVIYO_API_REVISION"].presence || DEFAULT_REVISION,
+            "revision" => ENV.fetch("KLAVIYO_API_REVISION", nil).presence || DEFAULT_REVISION,
             "Accept" => "application/vnd.api+json",
             "Content-Type" => "application/vnd.api+json"
           }

@@ -12,7 +12,7 @@ class OrderConfirmation < ApplicationRecord
   # the code can't be computed from the order id visible in URLs.
   # Same range as before: 1111..9998.
   def self.derived_otp(shop_id, order_id)
-    secret = ENV['ORDER_OTP_SECRET'].presence || Rails.application.secret_key_base
+    secret = ENV.fetch("ORDER_OTP_SECRET", nil).presence || Rails.application.secret_key_base
     digest = OpenSSL::HMAC.hexdigest('SHA256', secret, "#{shop_id}:#{order_id.to_s.strip}")
     (1111 + (digest[0, 15].to_i(16) % 8888)).to_s
   end

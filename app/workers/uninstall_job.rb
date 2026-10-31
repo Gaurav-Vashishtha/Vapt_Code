@@ -7,7 +7,7 @@ class UninstallJob < ActiveJob::Base
       return
     end
 
-    client = Slack::Notifier.new  'https://hooks.slack.com/services/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'
+    client = SlackNotifier::INSTALLS_CLIENT
     uninstalled_shop = UninstalledShop.new(
     shop_id:shop.id,
     shop_domain: shop.shopify_domain,
@@ -28,7 +28,7 @@ class UninstallJob < ActiveJob::Base
     if !uninstalled_shop.save
       client.ping(
         text: ":rage: App *Uninstalled* (#{Rails.env}) \n*Store*: #{shop.primary_domain.presence || shop.shopify_domain}\nUnable to save Shop in uninstalled table",
-        channel: ENV['SLACK_INSTALLS_CHANNEL']
+        channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
       )  
     end
     # send mail
@@ -46,7 +46,7 @@ class UninstallJob < ActiveJob::Base
     
     client.ping(
       text: ":rage: App *Uninstalled* (#{Rails.env}) \n*Store*: #{shop.primary_domain.presence || shop.shopify_domain}\n*Plan*: #{shop.plan.name}\n*Installed Date*: #{shop.created_at}",
-      channel: ENV['SLACK_INSTALLS_CHANNEL']
+      channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
     )
     CodKingStat.increment_stat('uninstall_count')
   end

@@ -1,4 +1,5 @@
 <script>
+  import { postToParent } from "../../utils/parentMessaging";
   import { onMount, untrack } from "svelte";
   import { settingsStore } from "../../stores/settingsStore.js";
   import { get } from "svelte/store";
@@ -223,7 +224,7 @@
       actions.closeModal();
       try {
         if (typeof window.parent !== "undefined" && window.parent.postMessage) {
-          window.parent.postMessage("codk-close-modal", "*");
+          postToParent("codk-close-modal");
         }
       } catch (error) {
         console.error(
@@ -261,14 +262,11 @@
         typeof window.parent !== "undefined" &&
         window.parent.postMessage
       ) {
-        window.parent.postMessage(
-          {
+        postToParent({
             type: "codk-iframe-height",
             height: height,
             isMobile: false,
-          },
-          "*",
-        );
+          });
       }
     } catch (error) {
       console.warn("[MobileLayout] ⚠️ Error sending height to parent:", error);

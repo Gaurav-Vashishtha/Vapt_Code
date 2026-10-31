@@ -2,10 +2,10 @@ class ChargeActivatedJob < ActiveJob::Base
 
   def perform(shop_id)
     shop = Shop.find(shop_id)
-    client = Slack::Notifier.new  'https://hooks.slack.com/services/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'
+    client = SlackNotifier::INSTALLS_CLIENT
     client.ping(
       text: ":heart_eyes: *Charge Activated* (#{Rails.env}) <!channel>\n*Store*: ##{shop.primary_domain.presence || shop.shopify_domain}\n*Plan*: #{shop.plan.name}",
-      channel: ENV['SLACK_INSTALLS_CHANNEL']
+      channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
     )
     CodKingStat.increment_stat('charge_activations')
     CodKingStat.increment_stat("#{shop.plan.name}-activations")

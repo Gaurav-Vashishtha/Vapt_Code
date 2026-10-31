@@ -56,20 +56,20 @@ module NetworkServices
       end
       headers = {
         'Content-Type' => 'application/json',
-        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY'],
+        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil),
       }
       
       integrated_whatsapp_number = @shop.setting.branded_whatsapp_number 
       if integrated_whatsapp_number.blank?
-        integrated_whatsapp_number = ENV['WHATSAPP_NUMBER_DEFAULT']
+        integrated_whatsapp_number = ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
       end
       
       # Build components array and determine template based on image presence
       components = []
       # Fallback template names are ENV-configurable so they can be changed
       # without a deploy. Shop-level setting still takes precedence.
-      with_image_template = ENV['WHATSAPP_AC_TEMPLATE_WITH_IMAGE'].presence || 'ac5_with_image'
-      without_image_template = ENV['WHATSAPP_AC_TEMPLATE_WITHOUT_IMAGE'].presence || 'ac4_without_image'
+      with_image_template = ENV.fetch("WHATSAPP_AC_TEMPLATE_WITH_IMAGE", nil).presence || 'ac5_with_image'
+      without_image_template = ENV.fetch("WHATSAPP_AC_TEMPLATE_WITHOUT_IMAGE", nil).presence || 'ac4_without_image'
       template_name = @shop.setting.whatsapp_abandoned_cart_template.presence || ( @db_abandon_cart.featured_image.present? ? with_image_template : without_image_template )
       
       # Add header image component if featured_image is present

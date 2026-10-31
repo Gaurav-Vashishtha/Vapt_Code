@@ -75,7 +75,7 @@ module NetworkServices
                         add_shipping: add_shipping
                       ).to_i
 
-      payment_link = "https://#{ENV['APP_HOST']}/order_confirmations/redirect_payment_link?domain=#{@shop.shopify_domain}&id=#{oc.id}"
+      payment_link = "https://#{ENV.fetch("APP_HOST", nil)}/order_confirmations/redirect_payment_link?domain=#{@shop.shopify_domain}&id=#{oc.id}"
       payment_link = ::Whatsapp::ClickTracker.wrap(
         payment_link, shop_id: @shop.id, event_type_key: 'cod_to_prepaid',
         source_external_id: "codprepaid:#{oc.id}:#{send_slug}", recipient: oc.customer_number

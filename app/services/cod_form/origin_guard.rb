@@ -42,7 +42,7 @@ module CodForm
         return true if result[:allowed]
 
         log_rejection(shop, result, "cod_orders")
-        ENV["COD_ORDERS_ORIGIN_ENFORCE"].to_s != "true"
+        ENV.fetch("COD_ORDERS_ORIGIN_ENFORCE", nil).to_s != "true"
       rescue StandardError
         true
       end
@@ -99,11 +99,11 @@ module CodForm
       end
 
       def enforce?
-        ENV["COD_FORM_ORIGIN_ENFORCE"].to_s != "false"
+        ENV.fetch("COD_FORM_ORIGIN_ENFORCE", nil).to_s != "false"
       end
 
       def allow_localhost?
-        return true if ENV["COD_FORM_ALLOW_LOCALHOST"].to_s == "true"
+        return true if ENV.fetch("COD_FORM_ALLOW_LOCALHOST", nil).to_s == "true"
 
         defined?(Rails) && Rails.respond_to?(:env) && Rails.env.development?
       end

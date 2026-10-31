@@ -26,11 +26,11 @@ module PricingV3India
   module_function
 
   def min_shop_id
-    ENV["V3_PRICING_INDIA_MIN_SHOP_ID"].presence&.to_i
+    ENV.fetch("V3_PRICING_INDIA_MIN_SHOP_ID", nil).presence&.to_i
   end
 
   def inr_per_usd
-    rate = ENV["V3_PRICING_INDIA_INR_PER_USD"].to_f
+    rate = ENV.fetch("V3_PRICING_INDIA_INR_PER_USD", nil).to_f
     rate.positive? ? rate : DEFAULT_INR_PER_USD
   end
 

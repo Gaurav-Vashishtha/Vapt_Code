@@ -6,7 +6,7 @@ module ShopifyJobs
       shop.destroy
         SlackNotifier::CLIENT.ping(
           text: ":rage: Shop destroyed (#{Rails.env}) \n*Store*: #{shop.shopify_domain}\n*Plan*: #{shop.plan.name}\n",
-          channel: ENV['SLACK_INSTALLS_CHANNEL']
+          channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
         )
     end
   end

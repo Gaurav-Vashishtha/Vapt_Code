@@ -20,8 +20,8 @@ ExceptionNotification.configure do |config|
 
   # Email notifier sends notifications by email.
   config.add_notifier :slack, {
-    webhook_url: ENV['SLACK_WEBHOOK'],
-    channel: "##{ENV['SLACK_CHANNEL']}-exceptions",
+    webhook_url: ENV.fetch("SLACK_WEBHOOK", nil),
+    channel: "##{ENV.fetch("SLACK_CHANNEL", nil)}-exceptions",
     additional_parameters: {
       mrkdwn: true
     }

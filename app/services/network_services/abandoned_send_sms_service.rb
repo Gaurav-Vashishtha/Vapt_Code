@@ -11,7 +11,7 @@ module NetworkServices
     def call
       @abandoned_cart = AbandonedCart.find(@abandoned_cart_id)
       @shop = @abandoned_cart.shop
-      fallback_to_twilio = ENV['FALLBACK_TO_TWILLIO']
+      fallback_to_twilio = ENV.fetch("FALLBACK_TO_TWILLIO", nil)
       country_code = @abandoned_cart.country_code.upcase
 
       if (!@abandoned_cart.blank? && @abandoned_cart.status!='SUCCESS')
@@ -25,84 +25,84 @@ module NetworkServices
               dlt_id: @dlt_id.blank? ? @shop.setting.dlt_template_id : @dlt_id
             }
           )
-        elsif (ENV['WAVECELL_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("WAVECELL_COUNTRIES", nil).include?country_code) 
           resp = SmsServices::WavecellSmsService.call(
-            ENV['WAVECELL_API_KEY'],
-            ENV['WAVECELL_SENDER_ID'],
+            ENV.fetch("WAVECELL_API_KEY", nil),
+            ENV.fetch("WAVECELL_SENDER_ID", nil),
           {
             to: @abandoned_cart.phone,
             body: get_sms_body,
             dlt_id: @dlt_id.blank? ? @shop.setting.dlt_template_id : @dlt_id
           }
           )
-        elsif (ENV['SMS_COUNTRY_COUNTRIES'].include?country_code)  #Always keep above Msg91
+        elsif (ENV.fetch("SMS_COUNTRY_COUNTRIES", nil).include?country_code)  #Always keep above Msg91
           sender_id = 'BNexTECH'
-          api_key = ENV['SMS_COUNTRY_BASE_64_KEY']
+          api_key = ENV.fetch("SMS_COUNTRY_BASE_64_KEY", nil)
           # base 64 encoding for API key and token Rwid37f5wtuDfBAkbYzx:cnNsv1GYPDCdIouKj8E5Yohh6TIp6SposonpTOZ3
           params = {
             text: get_sms_body,
             number:  @abandoned_cart.phone
           }
           resp = SmsServices::SmsCountrySmsService.new(api_key, sender_id, params).call
-        elsif (ENV['MOVIDER_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("MOVIDER_COUNTRIES", nil).include?country_code) 
           resp = SmsServices::MoviderSmsService.call(
-            "#{ENV['MOVIDER_API_KEY']}:#{ENV['MOVIDER_API_SECRET']}",
-            ENV['MOVIDER_SENDER_ID'],
+            "#{ENV.fetch("MOVIDER_API_KEY", nil)}:#{ENV.fetch("MOVIDER_API_SECRET", nil)}",
+            ENV.fetch("MOVIDER_SENDER_ID", nil),
           {
             to: @abandoned_cart.phone,
             body: get_sms_body,
             dlt_id: @dlt_id.blank? ? @shop.setting.dlt_template_id : @dlt_id
           }
           )
-        elsif (ENV['MOBEEP_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("MOBEEP_COUNTRIES", nil).include?country_code) 
           resp = SmsServices::MobeepSmsService.call(
-          ENV['MOBEEP_API_KEY'],
-          ENV['MOBEEP_SENDER_ID'],
+          ENV.fetch("MOBEEP_API_KEY", nil),
+          ENV.fetch("MOBEEP_SENDER_ID", nil),
         {
           to: @abandoned_cart.phone,
           body: get_sms_body,
         }
         ) 
-        elsif (ENV['MISR_COUNTRIES'].include?country_code)
+        elsif (ENV.fetch("MISR_COUNTRIES", nil).include?country_code)
         resp = SmsServices::MisrSmsService.call(
-          ENV['MISR_API_KEY'],
-          ENV['MISR_SENDER_ID'],
+          ENV.fetch("MISR_API_KEY", nil),
+          ENV.fetch("MISR_SENDER_ID", nil),
         {
           to: @abandoned_cart.phone,
           body: get_sms_body,
         })         
-        elsif (ENV['VEEVOTECH_COUNTRIES'].include?country_code) 
+        elsif (ENV.fetch("VEEVOTECH_COUNTRIES", nil).include?country_code) 
           resp = SmsServices::VeevotechSmsService.call(
-          ENV['VEEVOTECH_API_KEY'],
-          ENV['VEEVOTECH_SENDER_ID'],
+          ENV.fetch("VEEVOTECH_API_KEY", nil),
+          ENV.fetch("VEEVOTECH_SENDER_ID", nil),
         {
           to: @abandoned_cart.phone,
           body: get_sms_body,
         }
         )
-        elsif (ENV['MSG_91_SPECIAL_COUNTRIES'].include?country_code) && @shop.shopify_domain!='home-in-style-loutraki.myshopify.com'
+        elsif (ENV.fetch("MSG_91_SPECIAL_COUNTRIES", nil).include?country_code) && @shop.shopify_domain!='home-in-style-loutraki.myshopify.com'
             resp = ''
             sender_id = @shop.setting.sender
             if sender_id.blank?
               case 
-              when ENV['WALKER_COUNTRIES'].present? && ENV['WALKER_COUNTRIES'].split(',').include?(country_code)
+              when ENV.fetch("WALKER_COUNTRIES", nil).present? && ENV.fetch("WALKER_COUNTRIES", nil).split(',').include?(country_code)
                 sender_id = 'WALKER'
               when country_code == 'AE'
-                sender_id = ENV['MSG_91_UAE_SENDER']
+                sender_id = ENV.fetch("MSG_91_UAE_SENDER", nil)
               when country_code == 'SA' || country_code == 'PH'
-                sender_id = ENV['MSG91_SA_SENDER_ID']
+                sender_id = ENV.fetch("MSG91_SA_SENDER_ID", nil)
               when country_code == 'IN' 
-                sender_id = ENV['MSG_91_IN_SENDER']
+                sender_id = ENV.fetch("MSG_91_IN_SENDER", nil)
               else
-                sender_id = ENV['MSG91_SENDER_ID']
+                sender_id = ENV.fetch("MSG91_SENDER_ID", nil)
               end
             end
             
-            auth_key = ENV['MSG91_AUTHKEY']
+            auth_key = ENV.fetch("MSG91_AUTHKEY", nil)
 
             flow_id = @shop.setting.ac_flow_id
             if flow_id.blank?
-              flow_id = country_code=='IN'? ENV['MSG91_ABANDONED_TEMPLATE_ID'] : ENV['MSG91_ABANDONED_NON_IN_TEMPLATE_ID']
+              flow_id = country_code=='IN'? ENV.fetch("MSG91_ABANDONED_TEMPLATE_ID", nil) : ENV.fetch("MSG91_ABANDONED_NON_IN_TEMPLATE_ID", nil)
             end  
             url = @abandoned_cart.url
             resp = SmsServices::Msg91SmsAbandonedService.call(
@@ -118,7 +118,7 @@ module NetworkServices
             )
           else
             resp = TwilioServices::SendOtpService.new({
-              from: ENV["TWILIO_PHONE_NUMBER"],
+              from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
               to: @abandoned_cart.phone,
               body: get_sms_body,
               country_code: country_code,

@@ -22,15 +22,15 @@ module PreOrderOtpCampaign
   FREE_COUNTRY_CODE = 'IN'
 
   def coupon_code
-    ENV['PRE_ORDER_OTP_CAMPAIGN_COUPON_CODE'].to_s.strip
+    ENV.fetch("PRE_ORDER_OTP_CAMPAIGN_COUPON_CODE", nil).to_s.strip
   end
 
   def start_date
-    parse_date(ENV['PRE_ORDER_OTP_CAMPAIGN_START_DATE'])
+    parse_date(ENV.fetch("PRE_ORDER_OTP_CAMPAIGN_START_DATE", nil))
   end
 
   def end_date
-    parse_date(ENV['PRE_ORDER_OTP_CAMPAIGN_END_DATE'])
+    parse_date(ENV.fetch("PRE_ORDER_OTP_CAMPAIGN_END_DATE", nil))
   end
 
   def configured?

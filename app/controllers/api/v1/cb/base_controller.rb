@@ -29,7 +29,7 @@ module Api
 
         def authenticate_api_key!
           token = bearer_token
-          partner_key = ENV['CB_PARTNER_API_KEY'].presence
+          partner_key = ENV.fetch("CB_PARTNER_API_KEY", nil).presence
 
           if token.present? && partner_key &&
              ActiveSupport::SecurityUtils.secure_compare(token, partner_key)

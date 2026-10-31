@@ -22,8 +22,8 @@ module PricingJobs
     PAGE_SIZE = 100
 
     def perform(days = 30)
-      access_token = ENV["SHOPIFY_PARTNER_ACCESS_TOKEN"].to_s.strip
-      organization_id = (ENV["SHOPIFY_PARTNER_ORGANIZATION_ID"].presence || ENV["SHOPIFY_ORGANIZATION_ID"]).to_s.strip
+      access_token = ENV.fetch("SHOPIFY_PARTNER_ACCESS_TOKEN", nil).to_s.strip
+      organization_id = (ENV.fetch("SHOPIFY_PARTNER_ORGANIZATION_ID", nil).presence || ENV.fetch("SHOPIFY_ORGANIZATION_ID", nil)).to_s.strip
       api_version = ENV.fetch("SHOPIFY_PARTNER_API_VERSION", DEFAULT_PARTNER_API_VERSION).to_s.strip
 
       if access_token.blank? || organization_id.blank?

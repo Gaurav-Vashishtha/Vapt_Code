@@ -13,7 +13,7 @@ class PersistentSigninTally
     # Off unless PERSISTANT_SIGN_IN_ENABLED=true, so hit/miss tracking stays
     # dark until we opt in.
     def enabled?
-      ActiveModel::Type::Boolean.new.cast(ENV['PERSISTANT_SIGN_IN_ENABLED']) == true
+      ActiveModel::Type::Boolean.new.cast(ENV.fetch("PERSISTANT_SIGN_IN_ENABLED", nil)) == true
     end
 
     def redis_key(date = Date.current)

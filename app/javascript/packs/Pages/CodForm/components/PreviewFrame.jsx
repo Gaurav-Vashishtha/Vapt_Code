@@ -22,7 +22,12 @@ const PreviewFrame = ({ frameUrl, assetBase, form, button, texts, locale, device
     const active = document.activeElement;
     typing.current =
       active && /^(INPUT|TEXTAREA)$/.test(active.tagName) ? { field: active, until: Date.now() + 1500 } : null;
-    // The frame is sandboxed without allow-same-origin, so its origin is opaque.
+    // The frame is sandboxed without allow-same-origin, so its origin is opaque
+    // ("null") and a specific targetOrigin can never match. "*" is required
+    // here, and is safe because the payload is the admin's own draft form
+    // config — no customer, order or credential data — and the only window that
+    // can receive it is this iframe we created. Do not widen what is sent.
+    // NOSONAR: targetOrigin cannot be pinned for an opaque-origin frame.
     frame.contentWindow.postMessage(latest.current, "*");
   };
 
@@ -31,6 +36,12 @@ const PreviewFrame = ({ frameUrl, assetBase, form, button, texts, locale, device
   useEffect(() => {
     const onMessage = (event) => {
       const frame = frameRef.current;
+      // The frame's origin is opaque (sandbox without allow-same-origin), so
+      // event.origin is "null" and cannot be compared. The window-identity
+      // check below is the stronger guarantee anyway: only the frame we hold a
+      // reference to passes it, and that reference cannot be forged by a
+      // third-party window.
+      // NOSONAR: event.origin is unusable for an opaque-origin frame.
       if (!frame || event.source !== frame.contentWindow || !event.data) return;
       if (event.data.type === "codkf:preview_ready") {
         loadedRef.current = true;

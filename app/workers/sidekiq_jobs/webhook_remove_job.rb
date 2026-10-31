@@ -8,24 +8,24 @@ module SidekiqJobs
       
       webhook1 =  {
             topic: 'app/uninstalled',
-            address: ENV['AWS_EVENT_BRIDGE_ARN'],
+            address: ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil),
             format: 'json'
           }
       webhook2 = {
             topic: 'orders/create',
-            address: ENV['AWS_ORDER_CREATE_EVENT_BRIDGE_ARN'],
+            address: ENV.fetch("AWS_ORDER_CREATE_EVENT_BRIDGE_ARN", nil),
             format: 'json'
           }
       
           webhook3 = {
             topic: 'orders/fulfilled',
-            address: ENV['AWS_EVENT_BRIDGE_ARN'],
+            address: ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil),
             format: 'json'
             }
 
             webhook4 = {
             topic: 'customers/create',
-            address: ENV['AWS_EVENT_BRIDGE_ARN'],
+            address: ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil),
           format: 'json'
             }
 

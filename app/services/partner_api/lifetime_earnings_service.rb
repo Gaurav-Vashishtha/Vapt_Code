@@ -172,11 +172,11 @@ module PartnerApi
   # - SHOPIFY_PARTNER_APP_ID (filters are not currently applied by the fetcher; kept for future compatibility)
   class LifetimeEarningsService
     def initialize(
-      organization_id: ENV["SHOPIFY_ORGANIZATION_ID"],
-      access_token: ENV["SHOPIFY_PARTNER_ACCESS_TOKEN"],
-      start_date: ENV["SHOPIFY_PARTNER_EARNINGS_START_DATE"],
+      organization_id: ENV.fetch("SHOPIFY_ORGANIZATION_ID", nil),
+      access_token: ENV.fetch("SHOPIFY_PARTNER_ACCESS_TOKEN", nil),
+      start_date: ENV.fetch("SHOPIFY_PARTNER_EARNINGS_START_DATE", nil),
       end_date: Date.current,
-      app_id: ENV["SHOPIFY_PARTNER_APP_ID"]
+      app_id: ENV.fetch("SHOPIFY_PARTNER_APP_ID", nil)
     )
       @organization_id = organization_id.to_s.strip
       @access_token = access_token.to_s.strip

@@ -14,31 +14,15 @@ module NetworkServices
     end
 
 
+    # Never raises, and never re-reads after a failure. SafeOrderReader already
+    # retries Shopify throttling and rotates a rejected offline token once; when
+    # it still can't read the order (token revoked and unrecoverable, order
+    # deleted, Shopify down) it returns nil and the fulfilment message goes out
+    # from the stored OrderConfirmation values rather than being dropped.
     def get_shopify_order(order_confirmation)
-      shop = order_confirmation.shop
-      shop.init_session
-      attempts = 0
-      begin
-        ShopifyAPI::Order.find(order_confirmation.order_id)
-      rescue ActiveResource::TooManyRequests => e
-        attempts += 1
-        if attempts <= 3
-          sleep(10)
-          retry
-        end
-        raise
-      rescue ActiveResource::UnauthorizedAccess => e
-        # Token looked fresh in our DB (expires_at in the future) but Shopify
-        # rejected it anyway — revoked out of band (reinstall, scope change,
-        # or an old API secret revoked before this shop's token refreshed
-        # under the new one). Clear the stale metadata so the next embedded
-        # admin load re-mints it via token exchange, and alert once/shop/day
-        # via the existing throttled notifier rather than spamming Slack with
-        # a raw backtrace+params dump for every background job that hits it.
-        ShopifyServices::OfflineTokenService.invalidate!(shop, failed_token: shop.shopify_token)
-        shop.notify_token_reauth_needed_once("401 on Order.find (order_id=#{order_confirmation.order_id}) — token revoked out of band")
-        nil
-      end
+      return @shopify_order_memo if defined?(@shopify_order_memo)
+
+      @shopify_order_memo = ShopifyServices::SafeOrderReader.find(order_confirmation.shop, order_confirmation.order_id)
     end
 
     def fetch_and_save_order_status_url(order_confirmation,shopify_order)
@@ -49,15 +33,22 @@ module NetworkServices
     end
 
     def has_partial_payment_variants(shopify_order)
-      shopify_order.note_attributes.any? do |note|
+      return false if shopify_order.blank?
+
+      Array(shopify_order.note_attributes).any? do |note|
         note.attributes["name"] == "partial_payment_variants"
       end
+    rescue StandardError
+      false
     end
 
     def is_new_partial_order(shopify_order)
+      return false if shopify_order.blank?
       return false unless shopify_order.note.is_a?(String)
     
       shopify_order.note.downcase.include?("partial order created".downcase)
+    rescue StandardError
+      false
     end
 
     def get_order_amount(order_confirmation)
@@ -99,7 +90,7 @@ module NetworkServices
         return
       end
       
-      if  ENV['BLACKLISTED_PHONE_NUMBERS'].split(',').include?@order_confirmation.customer_number
+      if  ENV.fetch("BLACKLISTED_PHONE_NUMBERS", nil).split(',').include?@order_confirmation.customer_number
         SlackNotifyJob.perform_async(
           ":rage:  (#{Rails.env})\n Blacklisted number found - Whatsapp - order ID #{@order_confirmation.order_id} shop #{@order_confirmation.shop.shopify_domain}"
         )
@@ -111,28 +102,43 @@ module NetworkServices
         @order_confirmation = fetch_and_save_order_status_url(@order_confirmation,shopify_order)
       end
         
-      url_to_shorten = @tracking_url || @order_confirmation.order_status_url
+      url_to_shorten = @tracking_url.presence || @order_confirmation.order_status_url
       cutly_url = NetworkServices::CutlyLinkService.call(url_to_shorten)
       if cutly_url.blank? #this could be due to invalid @tracking url format...
         cutly_url =  NetworkServices::CutlyLinkService.call(@order_confirmation.order_status_url)
       end
+      # Last resort: send the full URL. Shortening is a nicety; a nil here used
+      # to blow up on #gsub and lose the message.
+      cutly_url = url_to_shorten.presence || @order_confirmation.order_status_url if cutly_url.blank?
 
-      name = @order_confirmation.customer_name.presence || 'Dear'
+      # The template's URL button needs a real link; there is no placeholder Meta
+      # would accept. Bail out loudly instead of firing a send that's certain to
+      # be rejected (mirrors WhatsappFulfilmentService).
+      if cutly_url.blank?
+        Rails.logger.warn(
+          "[whatsapp_fulfilment] no tracking or order status URL for order=#{@order_confirmation.order_id} " \
+          "shop=#{@shop.shopify_domain} — skipping WhatsApp fulfilment send"
+        )
+        return
+      end
+
+      name = Notifications::Defaults.name(@order_confirmation.customer_name)
       
-      order_number=@order_confirmation.final_order_number
+      order_number = Notifications::Defaults.value(@order_confirmation.final_order_number)
 
-      order_amount = get_order_amount(@order_confirmation)
+      order_amount = Notifications::Defaults.value(get_order_amount(@order_confirmation))
+      tracking_number = Notifications::Defaults.value(@tracking_number)
 
       template = @shop.setting.whatsapp_fulfilment_template.presence || 'order_fulfilment_with_tracking_number'
       
       if !@order_confirmation.blank? 
         integrated_whatsapp_number = @shop.setting.branded_whatsapp_number 
         if integrated_whatsapp_number.blank?
-          integrated_whatsapp_number = ENV['WHATSAPP_NUMBER_DEFAULT']
+          integrated_whatsapp_number = ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
         end
         headers = {
           'Content-Type' => 'application/json',
-          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY'],
+          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil),
         }
         
         body = {
@@ -169,7 +175,7 @@ module NetworkServices
                     },
                     {
                       "type": "text",
-                      "text": @tracking_number
+                      "text": tracking_number
                     }
                   ]
                 },
@@ -180,7 +186,7 @@ module NetworkServices
                   "parameters": [
                     {
                       "type": "text",
-                      "text": cutly_url.gsub('https://cutt.ly/','')
+                      "text": cutly_url.to_s.delete_prefix('https://cutt.ly/')
                     }
                   ]
                 }

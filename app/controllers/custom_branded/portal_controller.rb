@@ -12,9 +12,9 @@ module CustomBranded
     def connect
       @accounts = @client.whatsapp_accounts.order(is_default: :desc, id: :asc)
       assign_branding
-      @meta_app_id = ENV['META_APP_ID']
-      @meta_config_id = ENV['META_CONFIG_ID']
-      @meta_graph_api_version = ENV['META_GRAPH_API_VERSION'].presence || 'v22.0'
+      @meta_app_id = ENV.fetch("META_APP_ID", nil)
+      @meta_config_id = ENV.fetch("META_CONFIG_ID", nil)
+      @meta_graph_api_version = ENV.fetch("META_GRAPH_API_VERSION", nil).presence || 'v22.0'
     end
 
     # Brand page: connected numbers (view + connect more — a brand can have
@@ -24,9 +24,9 @@ module CustomBranded
     def show
       assign_branding
       @accounts = @client.whatsapp_accounts.order(is_default: :desc, id: :asc)
-      @meta_app_id = ENV['META_APP_ID']
-      @meta_config_id = ENV['META_CONFIG_ID']
-      @meta_graph_api_version = ENV['META_GRAPH_API_VERSION'].presence || 'v22.0'
+      @meta_app_id = ENV.fetch("META_APP_ID", nil)
+      @meta_config_id = ENV.fetch("META_CONFIG_ID", nil)
+      @meta_graph_api_version = ENV.fetch("META_GRAPH_API_VERSION", nil).presence || 'v22.0'
 
       @page = [params[:page].to_i, 1].max
       scope = @client.whatsapp_templates.includes(:whatsapp_account, :custom_branded_template_event).order(:name)
@@ -40,8 +40,8 @@ module CustomBranded
     private
 
     def assign_branding
-      @brand_logo = ENV['CB_BRAND'].presence
-      @brand_name = ENV['CB_BRAND_NAME'].presence || 'ParcelX WhatsApp Automation Panel'
+      @brand_logo = ENV.fetch("CB_BRAND", nil).presence
+      @brand_name = ENV.fetch("CB_BRAND_NAME", nil).presence || 'ParcelX WhatsApp Automation Panel'
     end
   end
 end

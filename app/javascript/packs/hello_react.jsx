@@ -7,6 +7,7 @@ import enTranslations from "@shopify/polaris/locales/en.json";
 import Home from "./Pages/Home";
 import StoreProvicer from "./Context/Store";
 import SettingUp from "./SettingUp";
+import ReconnectedNotice from "./ReconnectedNotice";
 import { installHubUrlRewrite } from "./Pages/SettingsHub/hubUrl";
 
 // Before anything navigates: settings URLs are shown under /settings-hub.
@@ -24,6 +25,7 @@ const Hello = (props) => {
       ) : (
         <StoreProvicer {...props}>
           <Home />
+          {props.reconnected ? <ReconnectedNotice /> : null}
         </StoreProvicer>
       )}
     </AppProvider>

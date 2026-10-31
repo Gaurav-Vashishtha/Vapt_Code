@@ -21,7 +21,7 @@ module ShopifyJobs
     TZ = 'Asia/Kolkata'
 
     def perform
-      return unless flag_on? && in_window?
+      return unless flag_on? && in_window? && !CustomerSyncControl.killed?
       return unless JobLock.lock!(LOCK_KEY, stale_after: LOCK_STALE_AFTER)
 
       locked = true
@@ -35,7 +35,10 @@ module ShopifyJobs
         return
       end
 
+      rows_before = export.rows_loaded
       run_slice(export)
+      export.reload
+      CustomerBulkExport.where(id: export.id).update_all(load_attempts: 0) if export.rows_loaded > rows_before
       self.class.perform_in(NEXT_SLICE_DELAY) if more_work?
     rescue StandardError => e
       Rails.logger.error("[CustomerBulkLoadJob] #{e.class}: #{e.message}")
@@ -61,7 +64,7 @@ module ShopifyJobs
       deadline = Time.current + ENV.fetch('OPS_BULK_LOAD_RUN_SECONDS', 240).to_i
       keep_going = lambda do
         JobLock.touch!(LOCK_KEY)
-        flag_on? && in_window?
+        flag_on? && in_window? && !CustomerSyncControl.killed?
       end
       ShopifyServices::CustomerBulkLoader.new(
         export,
@@ -73,7 +76,7 @@ module ShopifyJobs
     end
 
     def more_work?
-      flag_on? && in_window? && CustomerBulkExport.loadable.exists?
+      flag_on? && in_window? && !CustomerSyncControl.killed? && CustomerBulkExport.loadable.exists?
     end
 
     # Resume a half-loaded file first, then paying shops, then most recently active.

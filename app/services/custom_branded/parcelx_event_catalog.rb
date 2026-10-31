@@ -98,11 +98,11 @@ module CustomBranded
     private
 
     def access_token
-      @client&.metadata.to_h['parcelx_access_token'].presence || ENV['PARCELX_ACCESS_TOKEN'].to_s
+      @client&.metadata.to_h['parcelx_access_token'].presence || ENV.fetch("PARCELX_ACCESS_TOKEN", nil).to_s
     end
 
     def endpoint
-      ENV['PARCELX_EVENTS_URL'].presence || DEFAULT_URL
+      ENV.fetch("PARCELX_EVENTS_URL", nil).presence || DEFAULT_URL
     end
 
     def cache_key(kind)

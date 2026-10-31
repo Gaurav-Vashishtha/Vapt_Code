@@ -47,7 +47,7 @@ module ShopifyServices
 
 
     def get_auto_inventory_domains
-      domains_env = ENV['AUTO_INVENTORY_DOMAINS'] || ''
+      domains_env = ENV.fetch("AUTO_INVENTORY_DOMAINS", nil) || ''
       
       # Split by comma and clean up whitespace
       domains = domains_env.split(',').map(&:strip).reject(&:empty?)

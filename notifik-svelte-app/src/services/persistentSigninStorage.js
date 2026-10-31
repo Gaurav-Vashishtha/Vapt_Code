@@ -157,7 +157,7 @@ export async function loadPersistentData(shopDomain, settings) {
   if (!shopDomain) return null;
 
   try {
-    const storageKey = getStorageKey(shopDomain);
+    const storageKey = getStorageKey();
     const stored = localStorage.getItem(storageKey);
     if (!stored) return null;
 

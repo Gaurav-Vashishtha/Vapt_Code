@@ -6,7 +6,7 @@ class Whatsapp::AutoApprovalPolicyTest < ActiveSupport::TestCase
   FakeShop = Struct.new(:country_code, :shop_created_date, :customer_count, :shopify_domain)
 
   def with_countries(value)
-    old = ENV["WHATSAPP_AUTO_APPROVE_COUNTRIES"]
+    old = ENV.fetch("WHATSAPP_AUTO_APPROVE_COUNTRIES", nil)
     value.nil? ? ENV.delete("WHATSAPP_AUTO_APPROVE_COUNTRIES") : ENV["WHATSAPP_AUTO_APPROVE_COUNTRIES"] = value
     yield
   ensure

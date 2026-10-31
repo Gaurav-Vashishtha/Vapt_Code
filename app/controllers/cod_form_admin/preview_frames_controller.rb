@@ -10,7 +10,7 @@ module CodFormAdmin
           "img-src https: data:; frame-ancestors https://admin.shopify.com https://*.myshopify.com 'self'"
 
     def show
-      @asset_base = self.class.safe_asset_base(params[:asset_base], ENV["COD_FORM_EXTENSION_UUID"])
+      @asset_base = self.class.safe_asset_base(params[:asset_base], ENV.fetch("COD_FORM_EXTENSION_UUID", nil))
       response.set_header("Content-Security-Policy", CSP)
       response.headers.delete("X-Frame-Options") # frame-ancestors above is the rule
       response.set_header("Cache-Control", "no-store")

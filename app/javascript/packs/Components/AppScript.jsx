@@ -351,8 +351,14 @@ const VerifyField = ({
       .then((resp) => {
         if (resp.status === 200) {
           onVerify();
+          // The merchant-supplied `customScript` used to be eval'd here, which
+          // executed arbitrary JavaScript from a settings field in the
+          // storefront page context. The post-purchase script-tag surface this
+          // served is gone, so the hook is removed rather than sandboxed.
           if (resp?.data.status === "COD-Verified" && settings.customScript) {
-            eval(settings.customScript);
+            console.warn(
+              "[COD King] customScript is set but no longer executed; this setting is deprecated."
+            );
           }
         }
       })

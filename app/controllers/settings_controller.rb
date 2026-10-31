@@ -150,7 +150,7 @@ class SettingsController < AuthenticatedController
             setting.shop.init_session
             webhook = {
             topic: 'orders/create',
-            address: "https://#{ENV['APP_HOST']}/order_confirmations",
+            address: "https://#{ENV.fetch("APP_HOST", nil)}/order_confirmations",
             format: 'json'
             }
             ShopifyAPI::Webhook.new(webhook).save 
@@ -945,7 +945,7 @@ class SettingsController < AuthenticatedController
         params[:ivr_cancel_message]
       )
       resp = TwilioServices::IvrCallService.call({
-                                                   from: ENV["TWILIO_PHONE_NUMBER"],
+                                                   from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
                                                    to: params[:customer_number],
                                                    twiml: request,
                                                  })
@@ -981,10 +981,10 @@ class SettingsController < AuthenticatedController
     elsif @shop.test_notif_count < MAX_TEST_TRIES
       if @shop.country_code == 'IN'
         resp = SmsServices::Msg91SmsService.call(
-          { auth_key: ENV['MSG91_AUTHKEY'] },
+          { auth_key: ENV.fetch("MSG91_AUTHKEY", nil) },
           {
-            flow_id: ENV['MSG91_FLOW_ID'],
-            sender: ENV['MSG91_SENDER_ID'],
+            flow_id: ENV.fetch("MSG91_FLOW_ID", nil),
+            sender: ENV.fetch("MSG91_SENDER_ID", nil),
             to: params[:customer_number],
             otp: '2135',
             store: @shop.owner_name
@@ -992,7 +992,7 @@ class SettingsController < AuthenticatedController
         )
       else
         resp = TwilioServices::SendOtpService.new({
-          from: ENV["TWILIO_PHONE_NUMBER"],
+          from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
           to: params[:customer_number],
           body: get_sms_body,
           country_code: @shop.country_code,
@@ -1015,7 +1015,7 @@ class SettingsController < AuthenticatedController
   def get_sms_body
     body = params[:template]
     if body.include? "{{link}}"
-      token = ENV["BITLY_TOKEN"].split(",")[0] # Picks always first Bitly token as this is not heavily called...
+      token = ENV.fetch("BITLY_TOKEN", nil).split(",")[0] # Picks always first Bitly token as this is not heavily called...
       client = Bitly::API::Client.new(token: token)
       bitlink = client.shorten(long_url: "https://apps.shopify.com/cash-on-delivery-cod-order-confirmation")
       body = body.gsub("{{link}}", bitlink.link)

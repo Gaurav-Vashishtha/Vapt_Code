@@ -15,7 +15,7 @@ class SendPreOrderOtpJob < ApplicationJob
         # fall back to the legacy MSG91 branded path otherwise.
         sid = NetworkServices::PreOrderOtpBspService.call(@shop, @params['phone'], @params['otp'])
         if sid.blank?
-          if (ENV['WHATSAPP_COUNTRIES'].split(",").include? country_code)
+          if (ENV.fetch("WHATSAPP_COUNTRIES", nil).split(",").include? country_code)
             resp = NetworkServices::PreWhatsappService.call(@shop, @params['phone'], @params['otp'])
             sid = resp['request_id']
           else
@@ -39,10 +39,10 @@ class SendPreOrderOtpJob < ApplicationJob
         )
       
       # Movider SMS service
-      elsif (ENV['MOVIDER_COUNTRIES'].include? country_code)
+      elsif (ENV.fetch("MOVIDER_COUNTRIES", nil).include? country_code)
         resp = SmsServices::MoviderSmsService.call(
-          "#{ENV['MOVIDER_API_KEY']}:#{ENV['MOVIDER_API_SECRET']}",
-          ENV['MOVIDER_SENDER_ID'],
+          "#{ENV.fetch("MOVIDER_API_KEY", nil)}:#{ENV.fetch("MOVIDER_API_SECRET", nil)}",
+          ENV.fetch("MOVIDER_SENDER_ID", nil),
           {
             to: @params['phone'],
             body: get_sms_body,
@@ -51,9 +51,9 @@ class SendPreOrderOtpJob < ApplicationJob
         )
       
       # SMS Country service
-      elsif (ENV['SMS_COUNTRY_COUNTRIES'].include? country_code)
+      elsif (ENV.fetch("SMS_COUNTRY_COUNTRIES", nil).include? country_code)
         sender_id = 'BNexTECH'
-        api_key = ENV['SMS_COUNTRY_BASE_64_KEY']
+        api_key = ENV.fetch("SMS_COUNTRY_BASE_64_KEY", nil)
         sms_params = {
           text: get_sms_body,
           number: @params['phone']
@@ -61,7 +61,7 @@ class SendPreOrderOtpJob < ApplicationJob
         resp = SmsServices::SmsCountrySmsService.new(api_key, sender_id, sms_params).call
       
       # MSG91 special countries
-      elsif (ENV['MSG_91_SPECIAL_COUNTRIES'].include? country_code)
+      elsif (ENV.fetch("MSG_91_SPECIAL_COUNTRIES", nil).include? country_code)
         sender_id = get_msg91_sender_id(country_code)
         auth_key = @shop.setting.msg91_auth_key
         flow_id = get_msg91_flow_id(country_code)
@@ -79,10 +79,10 @@ class SendPreOrderOtpJob < ApplicationJob
         )
       
       # Wavecell SMS service
-      elsif (ENV['WAVECELL_COUNTRIES'].include? country_code)
+      elsif (ENV.fetch("WAVECELL_COUNTRIES", nil).include? country_code)
         resp = SmsServices::WavecellSmsService.call(
-          ENV['WAVECELL_API_KEY'],
-          ENV['WAVECELL_SENDER_ID'],
+          ENV.fetch("WAVECELL_API_KEY", nil),
+          ENV.fetch("WAVECELL_SENDER_ID", nil),
           {
             to: @params['phone'],
             body: get_sms_body,
@@ -91,10 +91,10 @@ class SendPreOrderOtpJob < ApplicationJob
         )
       
       # Veevotech SMS service
-      elsif (ENV['VEEVOTECH_COUNTRIES'].include? country_code)
+      elsif (ENV.fetch("VEEVOTECH_COUNTRIES", nil).include? country_code)
         resp = SmsServices::VeevotechSmsService.call(
-          ENV['VEEVOTECH_API_KEY'],
-          ENV['VEEVOTECH_SENDER_ID'],
+          ENV.fetch("VEEVOTECH_API_KEY", nil),
+          ENV.fetch("VEEVOTECH_SENDER_ID", nil),
           {
             to: @params['phone'],
             body: get_sms_body,
@@ -103,10 +103,10 @@ class SendPreOrderOtpJob < ApplicationJob
         )
       
       # Mobeep SMS service
-      elsif (ENV['MOBEEP_COUNTRIES'].include? country_code)
+      elsif (ENV.fetch("MOBEEP_COUNTRIES", nil).include? country_code)
         resp = SmsServices::MobeepSmsService.call(
-          ENV['MOBEEP_API_KEY'],
-          ENV['MOBEEP_SENDER_ID'],
+          ENV.fetch("MOBEEP_API_KEY", nil),
+          ENV.fetch("MOBEEP_SENDER_ID", nil),
           {
             to: @params['phone'],
             body: get_sms_body
@@ -114,10 +114,10 @@ class SendPreOrderOtpJob < ApplicationJob
         )
       
       # Misr SMS service
-      elsif (ENV['MISR_COUNTRIES'].include? country_code)
+      elsif (ENV.fetch("MISR_COUNTRIES", nil).include? country_code)
         resp = SmsServices::MisrSmsService.call(
-          ENV['MISR_API_KEY'],
-          ENV['MISR_SENDER_ID'],
+          ENV.fetch("MISR_API_KEY", nil),
+          ENV.fetch("MISR_SENDER_ID", nil),
           {
             to: @params['phone'],
             body: get_sms_body
@@ -132,7 +132,7 @@ class SendPreOrderOtpJob < ApplicationJob
         end
         
         resp = TwilioServices::SendOtpService.new({
-          from: ENV["TWILIO_PHONE_NUMBER"],
+          from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
           to: phone_number,
           body: get_sms_body,
           country_code: @params['country_code'],
@@ -191,16 +191,16 @@ class SendPreOrderOtpJob < ApplicationJob
     
     if sender_id.blank?
       case
-      when ENV['WALKER_COUNTRIES'].present? && ENV['WALKER_COUNTRIES'].split(',').include?(country_code)
+      when ENV.fetch("WALKER_COUNTRIES", nil).present? && ENV.fetch("WALKER_COUNTRIES", nil).split(',').include?(country_code)
         sender_id = 'WALKER'
       when country_code == 'AE'
-        sender_id = ENV['MSG_91_UAE_SENDER']
+        sender_id = ENV.fetch("MSG_91_UAE_SENDER", nil)
       when country_code == 'SA' || country_code == 'PH'
-        sender_id = ENV['MSG91_SA_SENDER_ID']
+        sender_id = ENV.fetch("MSG91_SA_SENDER_ID", nil)
       when country_code == 'IN'
-        sender_id = ENV['MSG_91_IN_SENDER']
+        sender_id = ENV.fetch("MSG_91_IN_SENDER", nil)
       else
-        sender_id = ENV['MSG91_SENDER_ID']
+        sender_id = ENV.fetch("MSG91_SENDER_ID", nil)
       end
     end
     
@@ -211,7 +211,7 @@ class SendPreOrderOtpJob < ApplicationJob
     if !@shop.setting.dlt_template_id.blank?
       @shop.setting.dlt_template_id
     else
-      country_code == 'IN' ? ENV['MSG91_FLOW_ID'] : ENV['MSG91_SPECIAL_FLOW_ID']
+      country_code == 'IN' ? ENV.fetch("MSG91_FLOW_ID", nil) : ENV.fetch("MSG91_SPECIAL_FLOW_ID", nil)
     end
   end
 

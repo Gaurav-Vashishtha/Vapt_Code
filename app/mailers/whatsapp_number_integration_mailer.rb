@@ -4,7 +4,7 @@ class WhatsappNumberIntegrationMailer < ApplicationMailer
     @integration_request = WhatsappNumberIntegrationRequest.find(integration_request_id)
     
     # Get approver emails from settings or environment
-    approver_emails = ENV['WHATSAPP_APPROVERS_EMAIL_LIST']&.split(',')
+    approver_emails = ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil)&.split(',')
     
     mail(
       to: approver_emails,

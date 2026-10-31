@@ -30,7 +30,7 @@ module Admin
       private
 
       def set_cod_form_audit_context
-        ::CodForm::Current.actor = "admin:#{ENV['ADMIN_USER']}"
+        ::CodForm::Current.actor = "admin:#{ENV.fetch("ADMIN_USER", nil)}"
         ::CodForm::Current.ip = request.remote_ip
       end
 

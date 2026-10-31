@@ -56,11 +56,11 @@ module NetworkServices
 
       headers = {
         'Content-Type' => 'application/json',
-        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY'],
+        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil),
       }
       integrated_whatsapp_number = @shop.setting.branded_whatsapp_number 
       if integrated_whatsapp_number.blank?
-        integrated_whatsapp_number = ENV['WHATSAPP_NUMBER_DEFAULT']
+        integrated_whatsapp_number = ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
       end
 
       # Build components array and determine template based on image presence.
@@ -68,9 +68,9 @@ module NetworkServices
       # without a deploy (same as the real abandoned-cart flow). Shop-level
       # setting still takes precedence.
       components = []
-      with_image_template = ENV['WHATSAPP_AC_DISCOUNT_TEMPLATE_WITH_IMAGE'].presence || 'ac_with_discount_with_image'
-      with_image_template_alt = ENV['WHATSAPP_AC_DISCOUNT_TEMPLATE_WITH_IMAGE_ALT'].presence || 'ac_with_discount_with_image2'
-      without_image_template = ENV['WHATSAPP_AC_DISCOUNT_TEMPLATE_WITHOUT_IMAGE'].presence || 'ac_with_discount'
+      with_image_template = ENV.fetch("WHATSAPP_AC_DISCOUNT_TEMPLATE_WITH_IMAGE", nil).presence || 'ac_with_discount_with_image'
+      with_image_template_alt = ENV.fetch("WHATSAPP_AC_DISCOUNT_TEMPLATE_WITH_IMAGE_ALT", nil).presence || 'ac_with_discount_with_image2'
+      without_image_template = ENV.fetch("WHATSAPP_AC_DISCOUNT_TEMPLATE_WITHOUT_IMAGE", nil).presence || 'ac_with_discount'
       template_name = @shop.setting.whatsapp_abandoned_cart_template.presence || begin
         if @db_abandon_cart.featured_image.present?
           @shop.setting.branded_whatsapp_number.present? ? with_image_template : with_image_template_alt

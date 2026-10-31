@@ -5,7 +5,7 @@ class JobsController < AuthenticatedController
   def status
     if params[:job_id]
       data = Sidekiq::Status::get_all params[:job_id]
-      if data and data["status"]
+      if data && data["status"]
         render json: data
       else
         render json: { error: 'STATUS_DATA_EXPIRED' }

@@ -20,9 +20,9 @@ module MetaEvents
     end
 
     def self.secret
-      ENV["WEB_PIXEL_SHARED_SECRET"].presence ||
-        ENV["WEB_PIXEL_CHECKOUT_SECRET"].presence ||
-        ENV["SHOPIFY_API_SECRET"].presence ||
+      ENV.fetch("WEB_PIXEL_SHARED_SECRET", nil).presence ||
+        ENV.fetch("WEB_PIXEL_CHECKOUT_SECRET", nil).presence ||
+        ENV.fetch("SHOPIFY_API_SECRET", nil).presence ||
         Rails.application.secret_key_base.to_s
     end
     private_class_method :secret

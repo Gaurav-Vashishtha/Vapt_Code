@@ -20,6 +20,6 @@ class CallCalendarMailer < ApplicationMailer
   private
 
   def recipients
-    ENV["WHATSAPP_APPROVERS_EMAIL_LIST"].presence || "support@notifiktech.com"
+    ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil).presence || "support@notifiktech.com"
   end
 end

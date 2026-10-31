@@ -26,7 +26,7 @@ class WebhookEndpoint < ApplicationRecord
   end
 
   def ingest_url
-    host = ENV['APP_HOST'].presence || ENV['HOST'].presence || 'app.codking.tech'
+    host = ENV.fetch("APP_HOST", nil).presence || ENV.fetch("HOST", nil).presence || 'app.codking.tech'
     "https://#{host.sub(%r{\Ahttps?://}, '')}#{ingest_path}"
   end
 

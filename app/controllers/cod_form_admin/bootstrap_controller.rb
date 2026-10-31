@@ -30,7 +30,7 @@ module CodFormAdmin
         # Plans page: COD Form orders per month of each plan that sets a limit ({"Pro" => 500}).
         "plan_form_orders" => enabled ? plan_form_orders : {},
         "preview" => {
-          "asset_base" => @config.asset_base.presence || ENV["COD_FORM_ASSET_BASE"].presence,
+          "asset_base" => @config.asset_base.presence || ENV.fetch("COD_FORM_ASSET_BASE", nil).presence,
           "frame_url" => "/cod_form/preview_frame"
         }
       }

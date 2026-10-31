@@ -10,7 +10,7 @@
 // } from "../../utilities/otpUtils";
 // // import useModalStore from "../../stores/modalStore";
 // import { getCart } from "../../services/otpService";
-// import { IS_BUY_NOW_BUTTON } from "../../services/domUtils";
+// import { getIsBuyNowButton } from "../../services/domUtils";
 // import useOtpStore from "../../stores/otpStore";
 
 // const Container = styled.div`
@@ -313,7 +313,7 @@
 //    * Handles cart creation for Buy Now or regular cart flow
 //    */
 //   async function handleCartCreation(selected, phone) {
-//     const cartVariables = IS_BUY_NOW_BUTTON
+//     const cartVariables = getIsBuyNowButton()
 //       ? createBuyNowCartVariables(selected, phone)
 //       : await createRegularCartVariables(selected, phone);
 

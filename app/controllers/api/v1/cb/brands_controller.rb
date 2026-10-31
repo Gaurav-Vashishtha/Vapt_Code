@@ -63,8 +63,8 @@ module Api
         end
 
         def signed_url(client, exp, suffix)
-          sig = OpenSSL::HMAC.hexdigest('SHA256', ENV['CB_PARTNER_SIGNING_SECRET'].to_s, "#{client.domain}|#{exp}")
-          "https://#{ENV['APP_HOST']}/cb/#{client.domain}#{suffix}?exp=#{exp}&sig=#{sig}"
+          sig = OpenSSL::HMAC.hexdigest('SHA256', ENV.fetch("CB_PARTNER_SIGNING_SECRET", nil).to_s, "#{client.domain}|#{exp}")
+          "https://#{ENV.fetch("APP_HOST", nil)}/cb/#{client.domain}#{suffix}?exp=#{exp}&sig=#{sig}"
         end
       end
     end

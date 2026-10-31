@@ -30,7 +30,7 @@ module NetworkServices
       
         url = URI.parse("https://cutt.ly/api/api.php")
         params = {
-          key: ENV['CUTLY_API_KEY'],
+          key: ENV.fetch("CUTLY_API_KEY", nil),
           short: @long_url,
           public: 1
         }

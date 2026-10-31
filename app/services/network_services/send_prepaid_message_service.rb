@@ -23,7 +23,7 @@ module NetworkServices
           if @order_confirmation.digest.blank?
             NetworkServices::PhonepeLinkService.call(@shop,@order_confirmation)
           end
-          prepaid_link =  NetworkServices::CutlyLinkService.call("https://#{ENV['APP_HOST']}/order_confirmations/redirect_to_prepaid_link/?digest=#{@order_confirmation.digest}")
+          prepaid_link =  NetworkServices::CutlyLinkService.call("https://#{ENV.fetch("APP_HOST", nil)}/order_confirmations/redirect_to_prepaid_link/?digest=#{@order_confirmation.digest}")
           @order_confirmation.update(prepaid_link:prepaid_link)
         elsif @shop.setting.payment_provider=='PAYMOB'
           NetworkServices::PaymobLinkService.call(@shop,@order_confirmation)
@@ -63,7 +63,7 @@ module NetworkServices
     def send_without_bsp(setting)
       if @shop.shopify_domain =='zenithxx.myshopify.com'
         NetworkServices::WhatsappPrepaidZenithService.call(@shop,@order_confirmation)
-      elsif setting.whatsapp_enabled && (ENV['WHATSAPP_COUNTRIES'].split(",").include? 'IN')
+      elsif setting.whatsapp_enabled && (ENV.fetch("WHATSAPP_COUNTRIES", nil).split(",").include? 'IN')
         NetworkServices::WhatsappPrepaidService.call(@shop,@order_confirmation, reminder: @reminder)
       else
         send_msg91_sms(setting)
@@ -71,9 +71,9 @@ module NetworkServices
     end
 
     def send_msg91_sms(setting)
-      sender_id = ENV['MSG_91_IN_SENDER']
-      auth_key = ENV['MSG91_AUTHKEY']
-      flow_id =  (setting.prepaid_discount==0) ? ENV['MSG91_PREPAID_ZERO_TEMPLATE_ID']: ENV['MSG91_PREPAID_REMINDER_TEMPLATE_ID']
+      sender_id = ENV.fetch("MSG_91_IN_SENDER", nil)
+      auth_key = ENV.fetch("MSG91_AUTHKEY", nil)
+      flow_id =  (setting.prepaid_discount==0) ? ENV.fetch("MSG91_PREPAID_ZERO_TEMPLATE_ID", nil): ENV.fetch("MSG91_PREPAID_REMINDER_TEMPLATE_ID", nil)
 
       order_discount = (ShopifyServices::PrepaidOrderService.new(nil,order_confirmation.shop, order_confirmation.id).get_discount_amount(
         discount: (@reminder && @reminder['discount']),

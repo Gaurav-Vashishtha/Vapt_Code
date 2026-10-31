@@ -11,7 +11,7 @@ module NetworkServices
     attr_reader :phone
 
     def initialize(phone = nil)
-      @phone = phone.presence || ENV['PARCELX_CREDIT_PROBE_PHONE'].presence || DEFAULT_PROBE_PHONE
+      @phone = phone.presence || ENV.fetch("PARCELX_CREDIT_PROBE_PHONE", nil).presence || DEFAULT_PROBE_PHONE
     end
 
     def call

@@ -25,7 +25,7 @@ import {
 } from "../utilities/otpUtils";
 import OtpVerifiedMessage from "./OTPVerifiedMessage";
 import { shopifyAddToCartForBuyNow } from "../services/cartService";
-import { IS_BUY_NOW_BUTTON } from "../services/domUtils";
+import { getIsBuyNowButton } from "../services/domUtils";
 const OtpForm = ({ onClose }) => {
   // const { phone } = useAppContext();
   const {
@@ -89,7 +89,7 @@ const OtpForm = ({ onClose }) => {
       try {
         if (!isMounted) return;
 
-        if (IS_BUY_NOW_BUTTON && isMounted) {
+        if (getIsBuyNowButton() && isMounted) {
           await shopifyAddToCartForBuyNow();
         }
         if (isMounted) {

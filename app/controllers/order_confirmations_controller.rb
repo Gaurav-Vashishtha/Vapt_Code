@@ -66,7 +66,7 @@ class OrderConfirmationsController < ApiController
     end
     if !@order_confirmation 
       if @shop
-        if ENV['SAVE_ORDER_SYNC']=="true"
+        if ENV.fetch("SAVE_ORDER_SYNC", nil)=="true"
           render json: FetchOrderAndCreateOrderConfirmationJob.new.perform(order_id,JSON.parse(params.to_json).to_h,  @shop.id,true), except: %i[order_status_url persisted_otp shipping_address]
           return
         else
@@ -997,7 +997,7 @@ class OrderConfirmationsController < ApiController
   end
 
   def initiate_s3_backup
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -1009,7 +1009,7 @@ class OrderConfirmationsController < ApiController
   end 
 
   def review_whatsapp
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -1027,7 +1027,7 @@ class OrderConfirmationsController < ApiController
   end 
 
   def pending_whatsapp
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -1042,7 +1042,7 @@ class OrderConfirmationsController < ApiController
   end 
 
   def refresh_payment_customization
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -1064,7 +1064,7 @@ class OrderConfirmationsController < ApiController
 
 
   def restart_web_dynos
-    if params['clientToken']==ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']==ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       SidekiqJobs::RestartAppJob.perform_later
       render text: 'Restart triggered'
     else
@@ -1079,7 +1079,7 @@ class OrderConfirmationsController < ApiController
       return  
     end
 
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -1095,7 +1095,7 @@ class OrderConfirmationsController < ApiController
       return  
     end
 
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -1110,7 +1110,7 @@ class OrderConfirmationsController < ApiController
       return  
     end
 
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -1125,7 +1125,7 @@ class OrderConfirmationsController < ApiController
       return  
     end
 
-    if params['clientToken']!=ENV['EASY_SELL_AUTH_TOKEN']
+    if params['clientToken']!=ENV.fetch("EASY_SELL_AUTH_TOKEN", nil)
       render json: {status: 'Error', message:'Unauthorized access'}
       return  
     end
@@ -2535,7 +2535,7 @@ end
         '/twillio/ivr_webhook'
       )
       resp = TwilioServices::IvrCallService.call({
-                                                   from: ENV['TWILIO_PHONE_NUMBER'],
+                                                   from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
                                                    to: order_confirmation.customer_number,
                                                    twiml: request
                                                  })
@@ -2590,7 +2590,7 @@ end
 
   def verify_webhook
     calculated_hmac = Base64.strict_encode64(
-      OpenSSL::HMAC.digest('sha256', ENV['SHOPIFY_API_SECRET'], request.raw_post)
+      OpenSSL::HMAC.digest('sha256', ENV.fetch("SHOPIFY_API_SECRET", nil), request.raw_post)
     )
     verified = ActiveSupport::SecurityUtils.secure_compare(
       calculated_hmac, request.headers['HTTP_X_SHOPIFY_HMAC_SHA256']

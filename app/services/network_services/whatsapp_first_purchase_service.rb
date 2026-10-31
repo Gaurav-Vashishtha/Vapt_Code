@@ -50,11 +50,11 @@ module NetworkServices
 
         headers = {
           'Content-Type' => 'application/json',
-          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY'],
+          'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil),
         }
         integrated_whatsapp_number = @shop.setting.branded_whatsapp_number 
         if integrated_whatsapp_number.blank?
-          integrated_whatsapp_number = ENV['WHATSAPP_NUMBER_DEFAULT']
+          integrated_whatsapp_number = ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
         end
         
         body = {

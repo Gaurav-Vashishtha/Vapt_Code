@@ -7,7 +7,7 @@ module NetworkJobs
         def perform
             s3_bucket = 'codkingscript'  # replace with your S3 bucket name
 
-            s3_client = Aws::S3::Client.new(region: 'us-west-2',  access_key_id: ENV['AWS_SQS_ACCESS_KEY'],secret_access_key: ENV['AWS_SQS_ACCESS_SECRET'] ) 
+            s3_client = Aws::S3::Client.new(region: 'us-west-2',  access_key_id: ENV.fetch("AWS_SQS_ACCESS_KEY", nil),secret_access_key: ENV.fetch("AWS_SQS_ACCESS_SECRET", nil) ) 
 
             manifest_path = Rails.root.join('public', 'notifik-svelte-app', 'manifest.json')
             

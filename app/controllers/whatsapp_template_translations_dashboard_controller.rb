@@ -17,8 +17,8 @@ class WhatsappTemplateTranslationsDashboardController < ApplicationController
     @template_names = (@in_use + @rows_by_template.keys).uniq.sort
     @counts = rows.group_by(&:language).transform_values { |list| list.group_by(&:status).transform_values(&:size) }
     @country_languages = WhatsappCountryLanguage.order(:country_code).to_a
-    @ai_ready = ENV["ANTHROPIC_API_KEY"].present?
-    @msg91_ready = ENV["MSG91_AUTHKEY"].present? && ENV["WHATSAPP_NUMBER_DEFAULT"].present?
+    @ai_ready = ENV.fetch("ANTHROPIC_API_KEY", nil).present?
+    @msg91_ready = ENV.fetch("MSG91_AUTHKEY", nil).present? && ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil).present?
   end
 
   def refresh
@@ -151,6 +151,6 @@ class WhatsappTemplateTranslationsDashboardController < ApplicationController
   end
 
   def authenticate_admin!
-    http_basic_authenticate_or_request_with(name: ENV["ADMIN_USER"], password: ENV["ADMIN_PASS"])
+    http_basic_authenticate_or_request_with(name: ENV.fetch("ADMIN_USER", nil), password: ENV.fetch("ADMIN_PASS", nil))
   end
 end

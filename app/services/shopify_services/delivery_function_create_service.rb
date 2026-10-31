@@ -12,7 +12,7 @@ module ShopifyServices
     end
 
     def create_delivery_function
-      function_id = ENV['DELIVERY_FUNCTION_ID'] # 👈 Read from ENV
+      function_id = ENV.fetch("DELIVERY_FUNCTION_ID", nil) # 👈 Read from ENV
     
       query = @client.parse <<-'GRAPHQL'
         mutation($input: DeliveryCustomizationInput!) {

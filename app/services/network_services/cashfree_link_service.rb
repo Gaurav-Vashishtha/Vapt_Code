@@ -104,7 +104,7 @@ module NetworkServices
     end
 
     def callback_url(digest)
-      "https://#{ENV['APP_HOST']}/order/prepaid?digest=#{digest}"
+      "https://#{ENV.fetch("APP_HOST", nil)}/order/prepaid?digest=#{digest}"
     end
 
     # Store the Cashfree link_id in phonepe_transaction_ids (the shared

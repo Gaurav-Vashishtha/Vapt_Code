@@ -157,6 +157,26 @@ module ShopifyServices
         invalidated
       end
 
+      # Call after an Admin API 401. If the shop still holds a usable refresh
+      # token, rotate it and return true so the caller can retry ONCE with the
+      # new token. Otherwise clear the stale metadata (invalidate!) and return
+      # false: only the merchant re-opening the app can fix it.
+      def recover_from_unauthorized!(shop, failed_token: nil)
+        shop.reload
+        if refresh_token_usable?(shop) && (failed_token.nil? || shop.shopify_token == failed_token)
+          begin
+            shop.with_lock { refresh!(shop) }
+            return true
+          rescue Error => e
+            Rails.logger.warn("[OfflineToken] recover refresh failed shop=#{shop.shopify_domain}: #{e.message}")
+          end
+        elsif failed_token.present? && shop.shopify_token != failed_token
+          return true # a sibling request already minted a replacement
+        end
+        invalidate!(shop, failed_token: failed_token)
+        false
+      end
+
       # Set only after a mint SUCCEEDS, so a shop that comes back asking for
       # another one is telling us the fresh token failed too — minting again
       # would just bounce the merchant around the bootstrap/reload cycle.
@@ -219,6 +239,11 @@ module ShopifyServices
           ShopInstallation.active.where(shop_id: shop.id).update_all(access_token: access_token, updated_at: now)
         rescue => e
           Rails.logger.warn("[OfflineToken] ShopInstallation sync failed shop=#{shop.shopify_domain}: #{e.message}")
+        end
+        begin
+          CustomerSyncState.schedule_recheck(shop.id)
+        rescue => e
+          Rails.logger.warn("[OfflineToken] customer sync recheck not scheduled shop=#{shop.shopify_domain}: #{e.message}")
         end
       end
 

@@ -114,16 +114,11 @@ refresh_recent_lightweight_metafields_job:
   queue: scheduled_report_delivery
   description: "Every 2 hours: inline refresh lightweight settings metafields for shops updated in last 24h"
 
-customer_pull_job:
-  cron: "0 */23 * * *"
-  class: "ShopifyJobs::CustomerPullJob"
-  queue: administration
-
 customer_count_sync_job:
-  cron: "0 1 */2 * *"  # 1st hour UTC every 2 days (days 2,4,6,...,30)
+  cron: "30 19 * * *"
   class: "ShopifyJobs::CustomerCountSyncJob"
-  queue: global_data_pull
-  description: "Syncs customer count per shop (PH/IN), enqueues customer pull processor"
+  queue: administration
+  description: "01:00 IST daily: syncs the Shopify customer count of active installed shops into customer_sync_states (unloaded = Shopify count - loaded baseline)"
 
 email_scheduler_job:
   cron: "0 */6 * * *"  # Every 6 hours
@@ -462,20 +457,14 @@ ops_gmv_rollup_job:
   args: [2]
   description: "Hourly: rolls today + yesterday (IST) of order_confirmations into ops_gmv_dailies for /codk-ops"
 
-customer_pull_reaper_job:
-  cron: "20 * * * *"
-  class: "ShopifyJobs::CustomerPullReaperJob"
-  queue: administration
-  description: "Hourly: closes finished/false-failed customer pull rows, re-queues orphaned or timed-out pulls for valuable shops only (small batches). Kill switch: CUSTOMER_PULL_REAPER_ENABLED=false"
-
 customer_bulk_export_job:
-  cron: "*/10 * * * *"
+  cron: "* * * * *"
   class: "ShopifyJobs::CustomerBulkExportJob"
   queue: administration
-  description: "Every 10m: polls Shopify bulk customer exports and starts a few new ones for valuable shops (the load job picks up finished ones). Does nothing unless CUSTOMER_BULK_EXPORT_ENABLED=true"
+  description: "Every minute, single instance via JobLock: polls and terminates stuck Shopify bulk exports, starts new ones for the shops with the most unloaded customers. Does nothing unless CUSTOMER_BULK_EXPORT_ENABLED=true; stopped by the customer_sync_controls kill switch"
 
 customer_bulk_load_job:
-  cron: "3,13,23,33,43,53 * * * *"
+  cron: "* * * * *"
   class: "ShopifyJobs::CustomerBulkLoadJob"
   queue: global_data_pull
-  description: "Every 10m: loads finished Shopify bulk customer exports into the DB straight from Shopify's file link, throttled, inside OPS_BULK_LOAD_WINDOW (IST). Does nothing unless CUSTOMER_BULK_LOAD_ENABLED=true"
+  description: "Every minute, single instance via JobLock: loads finished Shopify bulk customer exports into the DB, throttled, inside OPS_BULK_LOAD_WINDOW (IST). Does nothing unless CUSTOMER_BULK_LOAD_ENABLED=true; stopped by the customer_sync_controls kill switch"

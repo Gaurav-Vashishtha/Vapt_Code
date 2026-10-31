@@ -27,7 +27,7 @@ module Ops
 
     def self.cached(from:, to:)
       overview = new(from: from, to: to)
-      Rails.cache.fetch("codk_ops:overview:v2:#{overview.from}:#{overview.to}", expires_in: 5.minutes) { overview.call }
+      Rails.cache.fetch("codk_ops:overview:v3:#{overview.from}:#{overview.to}", expires_in: 5.minutes) { overview.call }
     end
 
     def call
@@ -35,6 +35,7 @@ module Ops
         range: { from: from.to_s, to: to.to_s, days: dates.size, timezone: TZ },
         generated_at: Time.current.iso8601,
         revenue: revenue,
+        dynamic_charges: dynamic_charges,
         subscriptions: subscriptions,
         gmv: gmv,
         active_subscriptions: active_subscriptions,
@@ -80,22 +81,39 @@ module Ops
                   .pluck(date_sql, :sale_type, Arel.sql('SUM(net_amount)'), Arel.sql('SUM(gross_amount)'), Arel.sql('COUNT(*)'))
       currency = scope.group(:currency).order(Arel.sql('COUNT(*) DESC')).limit(1).pluck(:currency).first || 'USD'
 
-      by_day = dates.index_with { { usage: 0.0, subscription: 0.0, adjustment: 0.0, gross: 0.0, usage_count: 0 } }
+      by_day = dates.index_with { { usage: 0.0, subscription: 0.0, adjustment: 0.0, gross: 0.0, usage_gross: 0.0, usage_count: 0 } }
       rows.each do |day, type, net, gross, count|
         bucket = by_day[day.to_date] or next
         key = %w[usage subscription].include?(type) ? type.to_sym : :adjustment
         bucket[key] += net.to_f
         bucket[:gross] += gross.to_f
-        bucket[:usage_count] += count.to_i if type == 'usage'
+        if type == 'usage'
+          bucket[:usage_count] += count.to_i
+          bucket[:usage_gross] += gross.to_f
+        end
       end
 
       days = by_day.map do |day, b|
         net = b[:usage] + b[:subscription] + b[:adjustment]
         { date: day.to_s, usage: b[:usage].round(2), subscription: b[:subscription].round(2),
-          adjustment: b[:adjustment].round(2), net: net.round(2), gross: b[:gross].round(2) }
+          adjustment: b[:adjustment].round(2), net: net.round(2), gross: b[:gross].round(2),
+          usage_gross: b[:usage_gross].round(2), usage_count: b[:usage_count] }
       end
       totals = %i[usage subscription adjustment net gross].index_with { |k| days.sum { |d| d[k] }.round(2) }
       { currency: currency, days: days, totals: totals }
+    end
+
+    # ---- 1a. Usage charges created by DynamicChargeJob (our own ledger) ----
+    # The job never stored this; Ops::DynamicChargeLedger started recording it at the first run after deploy.
+    def dynamic_charges
+      rows = OpsDynamicChargeDaily.where(stat_date: from..to).index_by(&:stat_date)
+      keys = %i[amount charges failed_charges capped_shops below_threshold runs] + OpsDynamicChargeDaily::SOURCES
+      days = dates.map do |day|
+        row = rows[day]
+        { date: day.to_s }.merge(keys.index_with { |k| row ? row[k].to_f.round(2) : 0 })
+      end
+      totals = keys.index_with { |k| days.sum { |d| d[k] }.round(2) }
+      { days: days, totals: totals, tracking_since: OpsDynamicChargeDaily.minimum(:stat_date)&.to_s }
     end
 
     # ---- 1b. Subscriptions bought / cancelled + installs / uninstalls ------

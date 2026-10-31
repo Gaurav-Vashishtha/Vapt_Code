@@ -24,7 +24,7 @@ module Whatsapp
     HTTP_TIMEOUT = 5 # seconds — a slow consumer must not back up the queue
 
     def perform(raw_payload)
-      forward_url = ENV['CB_WEBHOOK_FORWARD_URL'].to_s
+      forward_url = ENV.fetch("CB_WEBHOOK_FORWARD_URL", nil).to_s
       return if forward_url.blank?
 
       data = raw_payload.is_a?(String) ? JSON.parse(raw_payload) : raw_payload
@@ -126,7 +126,7 @@ module Whatsapp
         'Content-Type' => 'application/json',
         'X-CB-Shop-Domain' => client.domain
       }
-      secret = ENV['CB_WEBHOOK_FORWARD_SECRET'].to_s
+      secret = ENV.fetch("CB_WEBHOOK_FORWARD_SECRET", nil).to_s
       if secret.present?
         headers['X-CB-Signature'] = "sha256=#{OpenSSL::HMAC.hexdigest('SHA256', secret, body)}"
       end

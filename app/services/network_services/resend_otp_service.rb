@@ -13,7 +13,7 @@ module NetworkServices
       msg_count = @order_confirmation.twilio_logs.where(status:'SUCCESS').count
 
       if (msg_count< (@shop.setting.max_retries || MAX_TRIES))
-        if ((ENV['WHATSAPP_COUNTRIES'].split(",").include? @order_confirmation.country_code) && (@shop.setting.whatsapp_enabled==true))
+        if ((ENV.fetch("WHATSAPP_COUNTRIES", nil).split(",").include? @order_confirmation.country_code) && (@shop.setting.whatsapp_enabled==true))
           NetworkServices::WhatsappRetryService.call(@shop,@order_confirmation)
         else  
           NetworkServices::SendSmsService.call(@order_confirmation.id, @shop.setting.retry_template, '',true)

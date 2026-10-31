@@ -5,13 +5,13 @@ module MerchantWhatsapp
     module_function
 
     def enabled?
-      ENV["MERCHANT_WA_ENABLED"].to_s.strip.downcase.in?(%w[1 true yes on])
+      ENV.fetch("MERCHANT_WA_ENABLED", nil).to_s.strip.downcase.in?(%w[1 true yes on])
     end
 
     def dry_run?
       return true unless enabled?
 
-      ENV["MERCHANT_WA_DRY_RUN"].to_s.strip.downcase.in?(%w[1 true yes on])
+      ENV.fetch("MERCHANT_WA_DRY_RUN", nil).to_s.strip.downcase.in?(%w[1 true yes on])
     end
 
     def live?
@@ -26,7 +26,7 @@ module MerchantWhatsapp
     # Send-window restriction is disabled for now — set
     # MERCHANT_WA_QUIET_HOURS_ENABLED=true to re-enable it.
     def quiet_hours_enabled?
-      ENV["MERCHANT_WA_QUIET_HOURS_ENABLED"].to_s.strip.downcase.in?(%w[1 true yes on])
+      ENV.fetch("MERCHANT_WA_QUIET_HOURS_ENABLED", nil).to_s.strip.downcase.in?(%w[1 true yes on])
     end
 
     def quiet_hours_start
@@ -38,7 +38,7 @@ module MerchantWhatsapp
     end
 
     def test_domains
-      ENV["MERCHANT_WA_TEST_DOMAINS"].to_s.split(",").map(&:strip).reject(&:blank?)
+      ENV.fetch("MERCHANT_WA_TEST_DOMAINS", nil).to_s.split(",").map(&:strip).reject(&:blank?)
     end
 
     def restricted_to_test_domains?

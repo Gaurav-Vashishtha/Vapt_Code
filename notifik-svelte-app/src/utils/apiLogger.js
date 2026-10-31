@@ -7,6 +7,7 @@
 
 const API_LOG_PREFIX = "[API LOG]";
 const LOG_STORAGE_KEY = "codk_api_logs";
+const MAX_STORED_LOG_CHARS = 256 * 1024;
 
 // Maximum number of logs to keep in memory
 const MAX_LOGS = 500;
@@ -68,39 +69,55 @@ function getModalState() {
 }
 
 /**
- * Sanitize sensitive data from logs
+ * Sanitize sensitive data from logs.
+ *
+ * Walks nested objects and arrays: these entries are persisted to
+ * sessionStorage (and the storefront page can read that), so redacting only
+ * the top level left customer data from nested payloads — an order's
+ * `customer.phone`, an address list — stored in the clear.
  */
-function sanitizeData(data) {
+const SENSITIVE_KEYS = [
+  "phone", "phonenumber", "phone_number",
+  "email", "customeremail", "customer_email",
+  "otp", "otpcode", "otp_code",
+  "ip_address", "ipaddress",
+  "device_id", "deviceid",
+  "token", "access_token", "session_id",
+  "password", "password_hash",
+  "address1", "address2", "zip", "postcode", "postal_code",
+];
+
+const MAX_SANITIZE_DEPTH = 6;
+
+function maskValue(value) {
+  if (typeof value === "string" && value.length > 4) {
+    return value.substring(0, 2) + "****" + value.substring(value.length - 2);
+  }
+  return "****";
+}
+
+function isSensitiveKey(key) {
+  const lowerKey = String(key).toLowerCase();
+  return SENSITIVE_KEYS.some((sk) => lowerKey.includes(sk));
+}
+
+function sanitizeData(data, depth = 0) {
   if (!data || typeof data !== "object") return data;
-  
-  const sensitiveKeys = [
-    "phone", "phoneNumber", "phone_number",
-    "email", "customerEmail", "customer_email",
-    "otp", "otpCode", "otp_code",
-    "ip_address", "ipAddress",
-    "device_id", "deviceId",
-    "token", "access_token", "session_id",
-    "password", "password_hash"
-  ];
-  
-  const sanitized = { ...data };
-  
-  for (const key in sanitized) {
-    const lowerKey = key.toLowerCase();
-    if (sensitiveKeys.some(sk => lowerKey.includes(sk.toLowerCase()))) {
-      if (typeof sanitized[key] === "string" && sanitized[key].length > 0) {
-        const value = sanitized[key];
-        if (value.length > 4) {
-          sanitized[key] = value.substring(0, 2) + "****" + value.substring(value.length - 2);
-        } else {
-          sanitized[key] = "****";
-        }
-      } else {
-        sanitized[key] = "****";
-      }
+  if (depth >= MAX_SANITIZE_DEPTH) return "[truncated]";
+
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitizeData(item, depth + 1));
+  }
+
+  const sanitized = {};
+  for (const key in data) {
+    if (!Object.prototype.hasOwnProperty.call(data, key)) continue;
+    if (isSensitiveKey(key)) {
+      sanitized[key] = maskValue(data[key]);
+    } else {
+      sanitized[key] = sanitizeData(data[key], depth + 1);
     }
   }
-  
   return sanitized;
 }
 
@@ -153,7 +170,14 @@ export function logApiCall({
   
   // Save to sessionStorage (async, non-blocking)
   try {
-    sessionStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(apiLogs));
+    const serialized = JSON.stringify(apiLogs);
+    // Don't let a large response push a multi-megabyte blob into the
+    // storefront's sessionStorage; the in-memory log above is unaffected.
+    if (serialized.length <= MAX_STORED_LOG_CHARS) {
+      sessionStorage.setItem(LOG_STORAGE_KEY, serialized);
+    } else {
+      sessionStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(apiLogs.slice(-5)));
+    }
   } catch (e) {
     // Ignore storage errors (might be full)
   }

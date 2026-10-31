@@ -53,10 +53,13 @@ export const VariableButtons = ({ variables, onInsert }) => (
   </BlockStack>
 );
 
-const newRuleId = () =>
-  typeof crypto !== "undefined" && crypto.randomUUID
-    ? crypto.randomUUID()
-    : `rule-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+const newRuleId = () => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  // Same CSPRNG requirement as the primary path; no Math.random() fallback.
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  return `rule-${Date.now()}-${[...bytes].map((b) => b.toString(16).padStart(2, "0")).join("")}`;
+};
 
 export const ruleErrors = (rule) => {
   const errors = {};

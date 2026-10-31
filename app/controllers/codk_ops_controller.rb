@@ -24,6 +24,20 @@ class CodkOpsController < ActionController::Base
     render json: Ops::Overview.cached(from: params[:from], to: params[:to])
   end
 
+  def customer_sync
+    render json: Ops::CustomerBulkSummary.new.call
+  end
+
+  def customer_sync_mode
+    return head(:bad_request) unless request.headers['X-Ops-Action'] == '1'
+
+    mode = params[:mode].to_s
+    return render(json: { error: 'invalid mode' }, status: :unprocessable_entity) unless CustomerSyncControl::MODES.include?(mode)
+
+    CustomerSyncControl.set!(mode, reason: params[:reason].to_s.strip.truncate(200).presence, by: 'codk-ops')
+    render json: Ops::CustomerBulkSummary.new.call
+  end
+
   # Serves the Svelte SPA: real files from the build dir, index.html otherwise.
   def app
     return render(plain: 'ops-dashboard build not found (run npm run build in ops-dashboard/)', status: :service_unavailable) unless BUILD_DIR.join('index.html').file?
@@ -44,8 +58,8 @@ class CodkOpsController < ActionController::Base
   private
 
   def require_basic_auth
-    user = ENV['CODK_OPS_USER'].to_s
-    password = ENV['CODK_OPS_PASSWORD'].to_s
+    user = ENV.fetch("CODK_OPS_USER", nil).to_s
+    password = ENV.fetch("CODK_OPS_PASSWORD", nil).to_s
     return head(:service_unavailable) if user.blank? || password.length < MIN_PASSWORD_LENGTH
 
     authenticate_or_request_with_http_basic('COD King Ops') do |u, p|

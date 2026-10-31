@@ -5,13 +5,13 @@ module ShopifyJobs
       def perform(cron_triggered = true)
         puts 'Kicking in SqsOrderCreateConsumerJob'
         
-        sqs = Aws::SQS::Client.new(region: ENV['AWS_SQS_Q_REGION'],
-        access_key_id: ENV['AWS_SQS_ACCESS_KEY'],
-        secret_access_key: ENV['AWS_SQS_ACCESS_SECRET']
+        sqs = Aws::SQS::Client.new(region: ENV.fetch("AWS_SQS_Q_REGION", nil),
+        access_key_id: ENV.fetch("AWS_SQS_ACCESS_KEY", nil),
+        secret_access_key: ENV.fetch("AWS_SQS_ACCESS_SECRET", nil)
         )
   
         result = sqs.receive_message({
-          queue_url: ENV['AWS_SQS_ORDER_CREATE'],
+          queue_url: ENV.fetch("AWS_SQS_ORDER_CREATE", nil),
           max_number_of_messages: 10
         })
   
@@ -33,7 +33,7 @@ module ShopifyJobs
           process_message(message)
         end
         resp = sqs.delete_message_batch({
-          queue_url: ENV['AWS_SQS_ORDER_CREATE'],
+          queue_url: ENV.fetch("AWS_SQS_ORDER_CREATE", nil),
           entries: result.messages.map.with_index do |message, index|
             {
               id: index.to_s,

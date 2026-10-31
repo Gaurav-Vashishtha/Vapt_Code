@@ -29,7 +29,7 @@ module Api
 
       def phone_first?
         form = form_session.cod_form_id ? CodForm::Form.find_by(id: form_session.cod_form_id, shop_id: shop.id) : nil
-        form&.published_config.is_a?(Hash) && form.published_config.dig("steps", "phone_first") == true
+        CodForm::OtpService.phone_first?(form&.published_config, shop_config.general)
       end
     end
   end

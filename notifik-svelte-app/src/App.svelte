@@ -1,4 +1,5 @@
 <script>
+  import { isFromParent, postToParent } from "./utils/parentMessaging";
   import { onMount } from "svelte";
   import { settingsStore } from "./stores/settingsStore.js";
   import { appStore, actions } from "./stores/buttonManager.js";
@@ -41,6 +42,9 @@
     // Cross-origin iframe: parent storefront holds Meta fbp/fbc in localStorage; request via postMessage.
     const onMetaAttributionMessage = (e) => {
       try {
+        // Attribution flows into order creation, so only the embedding
+        // storefront may set it — not any window that can reach this frame.
+        if (!isFromParent(e)) return;
         if (!e?.data || typeof e.data !== "object") return;
         if (e.data.type !== "CODK_SET_META_ATTRIBUTION") return;
         const p = e.data.payload;
@@ -57,7 +61,7 @@
       window.addEventListener("message", onMetaAttributionMessage);
       try {
         if (window.parent && window.parent !== window) {
-          window.parent.postMessage({ type: "CODK_REQUEST_META_ATTRIBUTION" }, "*");
+          postToParent({ type: "CODK_REQUEST_META_ATTRIBUTION" });
         }
       } catch (_e) {}
     }
@@ -202,7 +206,7 @@
 
     try {
       if (typeof window.parent !== "undefined" && window.parent.postMessage) {
-        window.parent.postMessage("codk-close-modal", "*");
+        postToParent("codk-close-modal");
       }
     } catch (_error) {}
   }

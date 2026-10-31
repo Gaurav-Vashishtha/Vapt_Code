@@ -32,6 +32,8 @@ module ShopifyJobs
     COUNTRIES = %w[IN PH].freeze
 
     def perform
+      return unless LegacyCustomerPull.enabled?
+
       return unless enabled?
 
       slack_fixed = close_slack_false_failures

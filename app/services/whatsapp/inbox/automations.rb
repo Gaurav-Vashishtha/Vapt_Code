@@ -6,7 +6,7 @@ module Whatsapp
       module_function
 
       def on_inbound(message, conversation_created:)
-        return nil if ENV['WHATSAPP_INBOX_DISABLED'].present?
+        return nil if ENV.fetch("WHATSAPP_INBOX_DISABLED", nil).present?
         return nil unless message&.inbound? && message.shop_id
 
         shop = Shop.find_by(id: message.shop_id)

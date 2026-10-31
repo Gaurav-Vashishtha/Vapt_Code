@@ -236,7 +236,7 @@ module CodForm
           "available" => availability[:available] == true,
           "mode_off" => availability[:mode_off] == true,
           "has_preview_token" => config.preview_token.present?,
-          "api_host" => ENV["APP_HOST"],
+          "api_host" => ENV.fetch("APP_HOST", nil),
           "shop_domain" => shop.shopify_domain,
           "version" => config.config_version,
           "general" => CodFormAdmin::Validators::General.complete(config.general, engine_default(:general)),
@@ -247,8 +247,7 @@ module CodForm
           "active_offer_types" => active_offers.distinct.pluck(:offer_type),
           "gates" => gates,
           "cap_state" => cap_state(shop),
-          "otp_enabled" => CodForm::OtpService.on?(setting, config.general) ||
-            CodForm::Form.where(shop_id: shop.id).active.pluck(:published_config).any? { |form| CodForm::OtpService.enabled_for?(nil, form) },
+          "otp_enabled" => CodForm::OtpService.on?(setting, config.general),
           "partial_enabled" => CodForm::PartialRulesAdapter::ENABLED && setting.present? && setting.partial_payment_enabled == true,
           "has_pixels" => CodForm::TrackingPixel.where(shop_id: shop.id, enabled: true).exists? ||
             (setting.present? && setting.pixel_id.present?),

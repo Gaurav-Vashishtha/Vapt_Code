@@ -81,7 +81,7 @@ module NetworkServices
       language_code = dynamic_config['language_code'].presence || 'en'
 
       body = {
-        integrated_number: shop.setting.branded_whatsapp_number.presence || ENV['WHATSAPP_NUMBER_DEFAULT'],
+        integrated_number: shop.setting.branded_whatsapp_number.presence || ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil),
         content_type: "template",
         payload: {
           to: db_abandon_cart.phone,
@@ -100,7 +100,7 @@ module NetworkServices
 
       headers = {
         'Content-Type' => 'application/json',
-        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY']
+        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil)
       }
       # Log the request for debugging
       Rails.logger.info "WhatsApp Template Request: #{body.to_json}"

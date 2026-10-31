@@ -21,16 +21,16 @@ module ShopifyJobs
     def perform(_cron_triggered = true)
       return unless enabled?
 
-      queue_url = ENV['AWS_SQS_CUSTOMER_CREATE_Q_URL']
+      queue_url = ENV.fetch("AWS_SQS_CUSTOMER_CREATE_Q_URL", nil)
       if queue_url.blank?
         Rails.logger.warn('[CustomerCreateSqsConsumerJob] AWS_SQS_CUSTOMER_CREATE_Q_URL not set; aborting')
         return
       end
 
       sqs = Aws::SQS::Client.new(
-        region: ENV['AWS_SQS_Q_REGION'],
-        access_key_id: ENV['AWS_SQS_ACCESS_KEY'],
-        secret_access_key: ENV['AWS_SQS_ACCESS_SECRET']
+        region: ENV.fetch("AWS_SQS_Q_REGION", nil),
+        access_key_id: ENV.fetch("AWS_SQS_ACCESS_KEY", nil),
+        secret_access_key: ENV.fetch("AWS_SQS_ACCESS_SECRET", nil)
       )
 
       result = sqs.receive_message(queue_url: queue_url, max_number_of_messages: MAX_MESSAGES)

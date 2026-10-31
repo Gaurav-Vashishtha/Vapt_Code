@@ -195,8 +195,8 @@ class EmailToolController < ApplicationController
 
   def authenticate_admin!
     http_basic_authenticate_or_request_with(
-      name: ENV["ADMIN_USER"],
-      password: ENV["ADMIN_PASS"]
+      name: ENV.fetch("ADMIN_USER", nil),
+      password: ENV.fetch("ADMIN_PASS", nil)
     )
   end
 

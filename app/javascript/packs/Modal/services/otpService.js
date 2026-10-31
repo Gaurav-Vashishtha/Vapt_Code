@@ -1,5 +1,5 @@
 import axios from "axios";
-import { IS_BUY_NOW_BUTTON } from "../services/domUtils";
+import { getIsBuyNowButton } from "../services/domUtils";
 import { sendErrorToAPI } from "./errorReporter";
 import {
   getSessionValue,
@@ -250,7 +250,7 @@ export const verifyOtpRequest = ({
 };
 
 export const manageBuyNowSkipButton = () => {
-  if (IS_BUY_NOW_BUTTON) {
+  if (getIsBuyNowButton()) {
     let variantID = null;
     let quantity = 1; // default quantity
 
@@ -341,7 +341,7 @@ export const manageBuyNowSkipButton = () => {
         console.error("Error:", error);
         sendErrorToAPI(error, "manageBuyNowSkipButton", "error", {
           operation: "manageBuyNowSkipButton",
-          isBuyNowButton: IS_BUY_NOW_BUTTON,
+          isBuyNowButton: getIsBuyNowButton(),
         });
       });
   }

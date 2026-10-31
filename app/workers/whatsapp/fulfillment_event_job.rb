@@ -30,14 +30,28 @@ module Whatsapp
       order_id = event['order_id'].presence
       return nil unless order_id
 
-      shop.init_session
-      order = JSON.parse(ShopifyAPI::Order.find(order_id).to_json)
-      order = order['order'] if order.is_a?(Hash) && order.key?('order') && order.size == 1
+      # A 401 (token revoked out of band), a 404 or Shopify throttling must not
+      # cost the customer their delivery update: SafeOrderReader returns nil
+      # instead of raising, and we rebuild the order from the stored
+      # OrderConfirmation row so the message still goes out.
+      order = ShopifyServices::SafeOrderReader.find_hash(shop, order_id)
+      order ||= Notifications::OrderFallback.for(shop, order_id)
       return nil unless order.is_a?(Hash) && order['id'].present?
 
       fulfillments = Array(order['fulfillments'])
       fulfillment = fulfillments.find { |f| f['id'].to_s == event['fulfillment_id'].to_s } ||
                     fulfillments.max_by { |f| f['updated_at'] || f['created_at'] || '' } || {}
+      # Tracking details live on the Shopify fulfilment; when the order came
+      # from stored data, take whatever the carrier event itself carried.
+      if order['from_stored_data']
+        fulfillment = fulfillment.merge(
+          {
+            'tracking_number'  => event['tracking_number'].presence,
+            'tracking_url'     => event['tracking_url'].presence,
+            'tracking_company' => event['tracking_company'].presence
+          }.compact
+        )
+      end
 
       {
         'order' => order,
@@ -49,7 +63,8 @@ module Whatsapp
           'estimated_label' => date_label(event['estimated_delivery_at'])
         }
       }
-    rescue ActiveResource::ResourceNotFound
+    rescue StandardError => e
+      Rails.logger.warn("[whatsapp/fulfillment_event] payload build failed shop=#{shop&.shopify_domain} order=#{event['order_id']}: #{e.class}: #{e.message}")
       nil
     end
 

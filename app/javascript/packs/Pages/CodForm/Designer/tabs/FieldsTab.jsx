@@ -188,11 +188,11 @@ const FieldsTab = ({ config, setConfig, defaultsTexts, locale }) => {
             onChange={(value) => setConfig((current) => ({ ...current, steps: { ...(current.steps || {}), phone_first: value } }))}
           />
           {config.steps && config.steps.phone_first && bootstrap && !bootstrap.otpEnabled && (
-            <Banner tone="info">
+            <Banner tone="warning">
               <p>
                 {t(
-                  "designer.phone_first_turns_otp_on",
-                  "OTP verification is off for your store. Because this option is on, this form will ask buyers for an OTP once you save. Each OTP sent uses your message credits.",
+                  "designer.phone_first_needs_otp",
+                  "OTP in the form is off, so this option has no effect and the address form opens first. To use it, turn on \"Ask buyers to verify their phone number with a code\" in COD Form setup.",
                 )}
               </p>
             </Banner>

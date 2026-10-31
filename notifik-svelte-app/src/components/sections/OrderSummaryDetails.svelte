@@ -1,4 +1,5 @@
 <script>
+  import { postToParent } from "../../utils/parentMessaging";
   /**
    * OrderSummaryDetails - Displays detailed order summary with items and billing
    * @component
@@ -107,7 +108,7 @@
     } catch (_e) {}
     actions.closeModal();
     try {
-      window.parent?.postMessage("codk-close-modal", "*");
+      postToParent("codk-close-modal");
     } catch (_e) {}
   }
 

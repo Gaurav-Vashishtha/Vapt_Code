@@ -3,6 +3,8 @@ module ShopifyJobs
   class CustomerPullJob < ApplicationJob
     sidekiq_options queue: 'db_backup', retry: false, concurrency: 1
     def perform
+      return unless LegacyCustomerPull.enabled?
+
       puts 'Customer Pull job started'
       success = 0
       processed_shops = [] 

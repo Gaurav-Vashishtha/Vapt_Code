@@ -238,7 +238,7 @@ module SupportCalls
     end
 
     def parse_mix
-      raw = ENV["CALL_MIX"].to_s.split(",").map { |n| n.strip.to_i }
+      raw = ENV.fetch("CALL_MIX", nil).to_s.split(",").map { |n| n.strip.to_i }
       return DEFAULT_MIX if raw.size != 3 || raw.sum.zero?
 
       { "new_install" => raw[0], "active" => raw[1], "churned" => raw[2] }

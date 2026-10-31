@@ -20,8 +20,8 @@ module CustomBranded
     TABS = %w[stats webhooks keys docs].freeze
 
     def show
-      @brand_logo = ENV['CB_BRAND'].presence
-      @brand_name = ENV['CB_BRAND_NAME'].presence || 'ParcelX WhatsApp Automation Panel'
+      @brand_logo = ENV.fetch("CB_BRAND", nil).presence
+      @brand_name = ENV.fetch("CB_BRAND_NAME", nil).presence || 'ParcelX WhatsApp Automation Panel'
       @tab = TABS.include?(params[:tab]) ? params[:tab] : 'stats'
 
       @clients = CustomBrandedClient.order(:domain)
@@ -59,8 +59,8 @@ module CustomBranded
     end
 
     def load_webhooks
-      @webhook_forward_url = ENV['CB_WEBHOOK_FORWARD_URL'].presence
-      @webhook_secret_set = ENV['CB_WEBHOOK_FORWARD_SECRET'].present?
+      @webhook_forward_url = ENV.fetch("CB_WEBHOOK_FORWARD_URL", nil).presence
+      @webhook_secret_set = ENV.fetch("CB_WEBHOOK_FORWARD_SECRET", nil).present?
       @webhook_deliveries =
         if ActiveRecord::Base.connection.table_exists?(:custom_branded_webhook_deliveries)
           scope = CustomBrandedWebhookDelivery.recent
@@ -73,7 +73,7 @@ module CustomBranded
     end
 
     def ensure_enabled!
-      return if ActiveModel::Type::Boolean.new.cast(ENV['CB_PORTAL_ENABLED'])
+      return if ActiveModel::Type::Boolean.new.cast(ENV.fetch("CB_PORTAL_ENABLED", nil))
 
       head :not_found
     end

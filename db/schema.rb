@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_10_27_100000) do
+ActiveRecord::Schema[7.2].define(version: 2026_10_28_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -722,6 +722,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_27_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "bytes_loaded", default: 0, null: false
+    t.bigint "expected_count"
+    t.datetime "progress_at"
     t.index ["shop_id", "status"], name: "index_customer_bulk_exports_on_shop_id_and_status"
     t.index ["status"], name: "index_customer_bulk_exports_on_status"
   end
@@ -768,6 +770,36 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_27_100000) do
     t.string "predicted_spend_tier"
     t.string "lifetime_duration"
     t.index ["customer_id"], name: "index_customer_shop_mappings_on_customer_id"
+  end
+
+  create_table "customer_sync_controls", force: :cascade do |t|
+    t.string "name", default: "global", null: false
+    t.string "mode", default: "running", null: false
+    t.string "reason"
+    t.string "changed_by"
+    t.datetime "changed_at"
+    t.datetime "coordinator_heartbeat_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_customer_sync_controls_on_name", unique: true
+  end
+
+  create_table "customer_sync_states", force: :cascade do |t|
+    t.bigint "shop_id", null: false
+    t.bigint "shopify_customer_count", default: 0, null: false
+    t.bigint "baseline_count", default: 0, null: false
+    t.virtual "unloaded_count", type: :bigint, as: "GREATEST((shopify_customer_count - baseline_count), (0)::bigint)", stored: true
+    t.datetime "count_synced_at"
+    t.string "status", default: "idle", null: false
+    t.datetime "last_attempt_at"
+    t.datetime "last_success_at"
+    t.datetime "next_attempt_at"
+    t.integer "consecutive_failures", default: 0, null: false
+    t.string "last_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_id"], name: "index_customer_sync_states_on_shop_id", unique: true
+    t.index ["status", "unloaded_count"], name: "index_customer_sync_states_on_status_and_unloaded_count"
   end
 
   create_table "customers", force: :cascade do |t|
@@ -1215,6 +1247,28 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_27_100000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["stat_date"], name: "index_ops_daily_snapshots_on_stat_date", unique: true
+  end
+
+  create_table "ops_dynamic_charge_dailies", force: :cascade do |t|
+    t.date "stat_date", null: false
+    t.integer "runs", default: 0, null: false
+    t.integer "charges", default: 0, null: false
+    t.integer "failed_charges", default: 0, null: false
+    t.integer "capped_shops", default: 0, null: false
+    t.integer "below_threshold", default: 0, null: false
+    t.decimal "amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "sms", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "whatsapp", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "whatsapp_bsp", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "preorder", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "abandoned_sms", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "abandoned_whatsapp", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "ivr", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "prepaid", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "partial_payment", precision: 12, scale: 2, default: "0.0", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stat_date"], name: "idx_ops_dynamic_charge_dailies_date", unique: true
   end
 
   create_table "ops_gmv_dailies", force: :cascade do |t|
@@ -3301,6 +3355,7 @@ ActiveRecord::Schema[7.2].define(version: 2026_10_27_100000) do
   add_foreign_key "customer_addresses", "customers"
   add_foreign_key "customer_pull_job_queues", "shops"
   add_foreign_key "customer_shop_mappings", "customers"
+  add_foreign_key "customer_sync_states", "shops"
   add_foreign_key "discounts", "shops"
   add_foreign_key "email_click_redirects", "scheduled_emails"
   add_foreign_key "email_rules", "email_templates"

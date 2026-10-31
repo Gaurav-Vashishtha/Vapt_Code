@@ -10,7 +10,7 @@ module Whatsapp
       module_function
 
       def s3?
-        ENV['WHATSAPP_MEDIA_S3_BUCKET'].present?
+        ENV.fetch("WHATSAPP_MEDIA_S3_BUCKET", nil).present?
       end
 
       # Production web and worker dynos do not share a disk, so Disk storage
@@ -48,7 +48,7 @@ module Whatsapp
       end
 
       def proxy_url(message, expires_in)
-        host = ENV['APP_HOST'].presence || 'app.codking.tech'
+        host = ENV.fetch("APP_HOST", nil).presence || 'app.codking.tech'
         "https://#{host}/whatsapp_inbox_media/#{token_for(message, expires_in)}"
       end
 

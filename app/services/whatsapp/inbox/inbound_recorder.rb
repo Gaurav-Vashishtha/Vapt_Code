@@ -6,7 +6,7 @@ module Whatsapp
       NO_ATTENTION_KINDS = %w[reaction system].freeze
 
       def self.disabled?
-        ENV['WHATSAPP_INBOX_DISABLED'].present?
+        ENV.fetch("WHATSAPP_INBOX_DISABLED", nil).present?
       end
 
       def initialize(inbound, profile_name: nil, backfill: false)

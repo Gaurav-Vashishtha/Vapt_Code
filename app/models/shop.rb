@@ -41,6 +41,7 @@ class Shop < ActiveRecord::Base
   after_destroy :cleanup_related_records
   after_update :cleanup_related_records 
   has_many :customer_pull_job_queues, dependent: :delete_all
+  has_one :customer_sync_state, dependent: :delete
   has_many :scheduled_emails, dependent: :destroy
   has_many :scheduled_shop_reports, dependent: :destroy
   has_many :scheduled_report_deliveries, dependent: :destroy
@@ -108,16 +109,18 @@ class Shop < ActiveRecord::Base
   # cache_at :setting
 
 
-  after_create :enqueue_customer_pull
   after_create :enqueue_scheduled_report_subscriptions_sync
   after_commit :bootstrap_rto_intelligence_on_install, on: %i[create update]
+  after_commit :resync_customer_count_on_new_token, on: :update
 
-  def enqueue_customer_pull
-    # Only skip if there is already a pending or processing job (cancelled/done/failed allow a new one)
-    return if CustomerPullJobQueue.where(shop_id: id).where(status: %w[pending processing]).exists?
+  def resync_customer_count_on_new_token
+    return unless saved_change_to_shopify_token?
+    return if placeholder_install?
 
-    CustomerPullJobQueue.create!(shop: self)
-    ShopifyJobs::CustomerPullQueueProcessorJob.perform_async
+    CustomerSyncState.schedule_recheck(id)
+  rescue StandardError => e
+    Rails.logger.warn("[CustomerSync] could not enqueue count sync shop_id=#{id} #{e.class}: #{e.message}")
+    nil
   end
 
   def enqueue_scheduled_report_subscriptions_sync
@@ -340,13 +343,13 @@ end
   def crisp_url
     token = Digest::MD5.hexdigest(shopify_domain)
     begin
-      url = "https://go.crisp.chat/chat/embed/?website_id=#{ENV['CRISP_WEBSITE_ID']}&user_email=#{URI.encode_www_form_component(owner_email || '')}&user_nickname=#{URI.encode_www_form_component(shop_owner || '')}&token_id=#{token}"
+      url = "https://go.crisp.chat/chat/embed/?website_id=#{ENV.fetch("CRISP_WEBSITE_ID", nil)}&user_email=#{URI.encode_www_form_component(owner_email || '')}&user_nickname=#{URI.encode_www_form_component(shop_owner || '')}&token_id=#{token}"
       uri = URI.parse(url)
       uri.to_s
     rescue URI::InvalidURIError => e
       Rails.logger.error "Error parsing Crisp URL: #{e.message}"
       # Return a simple fallback URL
-      "https://go.crisp.chat/chat/embed/?website_id=#{ENV['CRISP_WEBSITE_ID']}&token_id=#{token}"
+      "https://go.crisp.chat/chat/embed/?website_id=#{ENV.fetch("CRISP_WEBSITE_ID", nil)}&token_id=#{token}"
     end
   end
 
@@ -415,7 +418,7 @@ end
       promoBannerColor: settings['promo_banner_color'],
       promoTextColor: settings['promo_text_color'],
       showOfferAndReward: settings['show_offer_and_reward'],
-      shopifyVisitorAppId: ENV["SHOPIFY_VISITOR_APP_ID"].presence,
+      shopifyVisitorAppId: ENV.fetch("SHOPIFY_VISITOR_APP_ID", nil).presence,
       conversionTracking:
         settings.key?('conversion_tracking') ? settings['conversion_tracking'] != false : true
     }

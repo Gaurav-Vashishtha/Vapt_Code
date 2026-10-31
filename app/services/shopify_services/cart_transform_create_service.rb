@@ -9,7 +9,7 @@ module ShopifyServices
   
       def create_cart_transform
         # You need the function ID, not handle
-        function_id = ENV['CART_TRANSFORM_FUNCTION_ID'] #'019a2974-8599-7393-b606-05f6d6a25399' for production Should be like "01J5XXXXXXXXXXXXXX"
+        function_id = ENV.fetch("CART_TRANSFORM_FUNCTION_ID", nil) #'019a2974-8599-7393-b606-05f6d6a25399' for production Should be like "01J5XXXXXXXXXXXXXX"
       
         query = @client.parse <<-'GRAPHQL'
           mutation($functionId: String!, $blockOnFailure: Boolean) {

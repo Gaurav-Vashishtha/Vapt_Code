@@ -14,7 +14,7 @@ class ScriptController < ApplicationController
 
     redirect_to "https://#{request.host}#{script_js_file}?v=#{params['version']}&shop=#{params['shop']}"
     else
-      redirect_to "#{ENV['SCRIPT_JS_URL']}"
+      redirect_to "#{ENV.fetch("SCRIPT_JS_URL", nil)}"
     end 
   end
 
@@ -83,7 +83,7 @@ class ScriptController < ApplicationController
 
     redirect_to "https://#{request.host}#{script_js_file}?v=#{params['version']}&shop=#{params['shop']}"
     else
-      redirect_to "#{ENV['SCRIPT_JS_NEW_URL']}"
+      redirect_to "#{ENV.fetch("SCRIPT_JS_NEW_URL", nil)}"
     end 
     
   end
@@ -109,7 +109,7 @@ class ScriptController < ApplicationController
     manifest_path = Rails.root.join('public', 'notifik-svelte-app', 'manifest.json')
 
     if Rails.env.production?
-      redirect_to "#{ENV['SCRIPT_JS_SVELTE_URL']}"
+      redirect_to "#{ENV.fetch("SCRIPT_JS_SVELTE_URL", nil)}"
   
     elsif File.exist?(manifest_path)
       manifest = JSON.parse(File.read(manifest_path))
@@ -140,7 +140,7 @@ class ScriptController < ApplicationController
 
   def notifik_svelte_css
     if Rails.env.production?
-      redirect_to "#{ENV['SCRIPT_JS_SVELTE_CSS_URL']}"
+      redirect_to "#{ENV.fetch("SCRIPT_JS_SVELTE_CSS_URL", nil)}"
       return
     end
 
@@ -211,7 +211,7 @@ class ScriptController < ApplicationController
   # change this endpoint's answer.
   def cod_form_privacy_webhook
     signature = request.headers['HTTP_X_SHOPIFY_HMAC_SHA256'].to_s
-    secret = ENV['SHOPIFY_API_SECRET'].to_s
+    secret = ENV.fetch("SHOPIFY_API_SECRET", nil).to_s
     return if signature.blank? || secret.blank?
 
     expected = Base64.strict_encode64(OpenSSL::HMAC.digest('sha256', secret, request.raw_post))

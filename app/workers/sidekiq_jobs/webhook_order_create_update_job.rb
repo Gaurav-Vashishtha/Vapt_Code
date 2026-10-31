@@ -17,13 +17,13 @@ module SidekiqJobs
         if webhooks.count > 0
           webhooks.each do |webhook|
             puts "Webhook #{webhook.topic}"
-            if webhook.topic == 'orders/create' && webhook.address != ENV['AWS_ORDER_CREATE_EVENT_BRIDGE_ARN']
-              webhook.address = ENV['AWS_ORDER_CREATE_EVENT_BRIDGE_ARN']
+            if webhook.topic == 'orders/create' && webhook.address != ENV.fetch("AWS_ORDER_CREATE_EVENT_BRIDGE_ARN", nil)
+              webhook.address = ENV.fetch("AWS_ORDER_CREATE_EVENT_BRIDGE_ARN", nil)
               webhook.save
               success_count += 1
               puts "Order create updated successfully - #{success_count} - #{count}"
-            elsif webhook.topic != 'orders/create' && webhook.address != ENV['AWS_EVENT_BRIDGE_ARN']
-              webhook.address = ENV['AWS_EVENT_BRIDGE_ARN']
+            elsif webhook.topic != 'orders/create' && webhook.address != ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil)
+              webhook.address = ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil)
               webhook.save
               success_count += 1
               puts "#{webhook.topic} updated successfully - #{success_count} - #{count}"

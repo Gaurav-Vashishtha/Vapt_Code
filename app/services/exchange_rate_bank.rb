@@ -34,7 +34,7 @@ module ExchangeRateBank
 
   def live_bank
     bank = Money::Bank::OpenExchangeRatesBank.new
-    bank.app_id = ENV['OPEN_EXCHANGE_RATES_APP_ID']
+    bank.app_id = ENV.fetch("OPEN_EXCHANGE_RATES_APP_ID", nil)
     bank.cache = proc do |text|
       if text
         Rails.cache.write(FRESH_KEY, text, expires_in: FRESH_TTL)

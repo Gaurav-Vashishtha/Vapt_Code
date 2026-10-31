@@ -35,36 +35,36 @@ module NetworkServices
           )
         else
           country_code = @country_code
-          if (ENV['MSG_91_SPECIAL_COUNTRIES'].include?country_code) 
+          if (ENV.fetch("MSG_91_SPECIAL_COUNTRIES", nil).include?country_code) 
             resp = ''
             sender_id = @shop.setting.sender
             if sender_id.blank?
               case 
-              when ENV['WALKER_COUNTRIES'].present? && ENV['WALKER_COUNTRIES'].split(',').include?(country_code)
+              when ENV.fetch("WALKER_COUNTRIES", nil).present? && ENV.fetch("WALKER_COUNTRIES", nil).split(',').include?(country_code)
                 sender_id = 'WALKER'
               when country_code == 'AE'
-                sender_id = ENV['MSG_91_UAE_SENDER']
+                sender_id = ENV.fetch("MSG_91_UAE_SENDER", nil)
               when country_code == 'SA' || country_code == 'PH'
-                sender_id = ENV['MSG91_SA_SENDER_ID']
+                sender_id = ENV.fetch("MSG91_SA_SENDER_ID", nil)
               when country_code == 'IN' 
-                sender_id = ENV['MSG_91_IN_SENDER']
+                sender_id = ENV.fetch("MSG_91_IN_SENDER", nil)
               else
-                sender_id = ENV['MSG91_SENDER_ID']
+                sender_id = ENV.fetch("MSG91_SENDER_ID", nil)
               end
             end
             
-            auth_key = ENV['MSG91_AUTHKEY']
+            auth_key = ENV.fetch("MSG91_AUTHKEY", nil)
             flow_id = ''
             if (!@shop.setting.dlt_template_id.blank?)
               flow_id = @shop.setting.dlt_template_id
             else
-              flow_id = country_code=='IN'? ENV['MSG91_EASY_IN_FLOW_ID']:ENV['MSG91_EASYSELL_SPECIAL_FLOW_ID']
+              flow_id = country_code=='IN'? ENV.fetch("MSG91_EASY_IN_FLOW_ID", nil):ENV.fetch("MSG91_EASYSELL_SPECIAL_FLOW_ID", nil)
             end
             
-            link_flow_id= country_code=='IN'? ENV['MSG91_LINK_FLOW_ID']:ENV['MSG91_SPECIAL_LINK_FLOW_ID']
+            link_flow_id= country_code=='IN'? ENV.fetch("MSG91_LINK_FLOW_ID", nil):ENV.fetch("MSG91_SPECIAL_LINK_FLOW_ID", nil)
 
               if @is_retry
-              redirect = ShopifyServices::CreateRedirectService.call(@order_confirmation.shop,"https://#{ENV["APP_HOST"]}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
+              redirect = ShopifyServices::CreateRedirectService.call(@order_confirmation.shop,"https://#{ENV.fetch("APP_HOST", nil)}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
               resp = SmsServices::Msg91SmsRetryService.call(
                 { auth_key: auth_key },
                 {
@@ -88,29 +88,29 @@ module NetworkServices
                 }
               )
             end
-          elsif (ENV['MOVIDER_COUNTRIES'].include?country_code) 
+          elsif (ENV.fetch("MOVIDER_COUNTRIES", nil).include?country_code) 
             resp = SmsServices::MoviderSmsService.call(
-              "#{ENV['MOVIDER_API_KEY']}:#{ENV['MOVIDER_API_SECRET']}",
-              ENV['MOVIDER_SENDER_ID'],
+              "#{ENV.fetch("MOVIDER_API_KEY", nil)}:#{ENV.fetch("MOVIDER_API_SECRET", nil)}",
+              ENV.fetch("MOVIDER_SENDER_ID", nil),
             {
               to: @phone,
               body: get_sms_body,
               dlt_id: ''
             }
             )
-          elsif (ENV['VEEVOTECH_COUNTRIES'].include?country_code) 
+          elsif (ENV.fetch("VEEVOTECH_COUNTRIES", nil).include?country_code) 
             resp = SmsServices::VeevotechSmsService.call(
-            ENV['VEEVOTECH_API_KEY'],
-            ENV['VEEVOTECH_SENDER_ID'],
+            ENV.fetch("VEEVOTECH_API_KEY", nil),
+            ENV.fetch("VEEVOTECH_SENDER_ID", nil),
           {
             to: @phone,
             body: get_sms_body
           }
           )
-          elsif (ENV['WAVECELL_COUNTRIES'].include?country_code) 
+          elsif (ENV.fetch("WAVECELL_COUNTRIES", nil).include?country_code) 
             resp = SmsServices::WavecellSmsService.call(
-              ENV['WAVECELL_API_KEY'],
-              ENV['WAVECELL_SENDER_ID'],
+              ENV.fetch("WAVECELL_API_KEY", nil),
+              ENV.fetch("WAVECELL_SENDER_ID", nil),
             {
               to: @order_confirmation.customer_number,
               body: get_sms_body,
@@ -119,7 +119,7 @@ module NetworkServices
             )
           else
             resp = TwilioServices::SendOtpService.call({
-              from: ENV["TWILIO_PHONE_NUMBER"],
+              from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
               to: @phone,
               body: get_sms_body,
             })

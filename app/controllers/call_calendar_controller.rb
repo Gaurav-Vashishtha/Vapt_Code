@@ -317,8 +317,8 @@ class CallCalendarController < ApplicationController
 
   def authenticate_admin!
     http_basic_authenticate_or_request_with(
-      name: ENV["ADMIN_USER"],
-      password: ENV["ADMIN_PASS"]
+      name: ENV.fetch("ADMIN_USER", nil),
+      password: ENV.fetch("ADMIN_PASS", nil)
     )
   end
 
@@ -571,7 +571,7 @@ class CallCalendarController < ApplicationController
     return shop.crisp_url if shop.respond_to?(:crisp_url) && shop&.crisp_url.present?
 
     email = shop&.owner_email || uninstalled&.email
-    website_id = ENV["CRISP_WEBSITE_ID"]
+    website_id = ENV.fetch("CRISP_WEBSITE_ID", nil)
     return nil if website_id.blank? || email.blank?
 
     "https://go.crisp.chat/chat/embed/?website_id=#{website_id}&user_email=#{CGI.escape(email)}"

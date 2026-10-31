@@ -8,6 +8,8 @@ module ShopifyJobs
     sidekiq_options queue: 'db_backup', retry: false, concurrency: 1
 
     def perform(shop_id)
+      return unless LegacyCustomerPull.enabled?
+
       shop = Shop.find_by(id: shop_id)
       unless shop
         SlackNotifier::CLIENT.ping(

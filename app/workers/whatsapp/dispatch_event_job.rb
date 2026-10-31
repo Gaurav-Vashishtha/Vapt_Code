@@ -142,7 +142,11 @@ module Whatsapp
       # synced on app load) — the domain is only a fallback for shops that
       # haven't completed that sync yet.
       if payload_hash.is_a?(Hash) && payload_hash.delete(REFETCH_ORDER_KEY)
-        live = fetch_live_order(shop, payload_hash.dig('order', 'id'))
+        order_id = payload_hash.dig('order', 'id')
+        # Shopify unreadable (revoked token / 404 / throttle) is not a reason to
+        # drop the message — rebuild the order from the stored
+        # OrderConfirmation row and send with whatever we have.
+        live = fetch_live_order(shop, order_id) || Notifications::OrderFallback.for(shop, order_id)
         return Rails.logger.info("[whatsapp/dispatch] shop=#{shop.id} event=#{dispatch_event_type_key} order gone before delayed send") unless live
 
         payload_hash['order'] = live
@@ -485,10 +489,7 @@ module Whatsapp
     def fetch_live_order(shop, order_id)
       return nil if order_id.blank?
 
-      shop.init_session
-      hash = JSON.parse(ShopifyAPI::Order.find(order_id).to_json)
-      hash = hash['order'] if hash.is_a?(Hash) && hash.key?('order') && hash.size == 1
-      hash.is_a?(Hash) && hash['id'].present? ? hash : nil
+      ShopifyServices::SafeOrderReader.find_hash(shop, order_id)
     rescue StandardError => e
       Rails.logger.warn("[whatsapp/dispatch] live order fetch failed shop=#{shop.id} order=#{order_id}: #{e.class}: #{e.message}")
       nil

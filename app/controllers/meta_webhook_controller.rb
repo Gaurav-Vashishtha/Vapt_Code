@@ -6,7 +6,7 @@ class MetaWebhookController < ApplicationController
     token = params['hub.verify_token']
     challenge = params['hub.challenge']
 
-    if mode == 'subscribe' && ActiveSupport::SecurityUtils.secure_compare(token.to_s, ENV['META_WEBHOOK_VERIFY_TOKEN'].to_s)
+    if mode == 'subscribe' && ActiveSupport::SecurityUtils.secure_compare(token.to_s, ENV.fetch("META_WEBHOOK_VERIFY_TOKEN", nil).to_s)
       render plain: challenge, status: :ok
     else
       render plain: 'Forbidden', status: :forbidden
@@ -44,7 +44,7 @@ class MetaWebhookController < ApplicationController
       # job (the job itself filters to branded shops and no-ops when the ENV
       # URL is unset) so a slow partner endpoint can never slow this response —
       # Meta disables webhooks that respond slowly.
-      if ENV['CB_WEBHOOK_FORWARD_URL'].present?
+      if ENV.fetch("CB_WEBHOOK_FORWARD_URL", nil).present?
         Whatsapp::ForwardWebhookJob.perform_async(raw)
       end
     rescue => e

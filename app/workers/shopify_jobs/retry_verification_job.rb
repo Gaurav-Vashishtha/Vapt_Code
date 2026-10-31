@@ -27,7 +27,7 @@ module ShopifyJobs
           end
           order = ShopifyAPI::Order.find(order_confirmation.order_id)
           if !order.blank? 
-            if ((ENV['WHATSAPP_COUNTRIES'].split(",").include?order_confirmation.country_code) && (setting.whatsapp_enabled==true))
+            if ((ENV.fetch("WHATSAPP_COUNTRIES", nil).split(",").include?order_confirmation.country_code) && (setting.whatsapp_enabled==true))
               NetworkServices::WhatsappRetryService.call(setting.shop,order_confirmation)
             else  
               NetworkServices::SendSmsService.call(order_confirmation.id, setting.retry_template, '',true)

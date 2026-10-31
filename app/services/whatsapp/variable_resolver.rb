@@ -10,7 +10,10 @@ module Whatsapp
       @payload = payload.respond_to?(:to_h) ? payload.to_h.deep_stringify_keys : (payload || {})
     end
 
-    BLANK_FALLBACK = '—'.freeze
+    BLANK_FALLBACK = Notifications::Defaults::PLACEHOLDER
+    # Recipient-name slots read badly as "-"; a neutral noun is what every
+    # template expects there ("Hi Customer, your order ...").
+    NAME_VAR_KEYS = %w[customer.first customer.last customer.name].freeze
 
     def call
       # Drive the parameter list off the BODY's actual {{N}} placeholders, not
@@ -58,8 +61,9 @@ module Whatsapp
 
         text = value.to_s
         if text.empty?
-          Rails.logger.warn("[whatsapp/variables] template=#{template.id} position=#{position} var=#{var_key.inspect} resolved to blank — substituting '#{BLANK_FALLBACK}'")
-          text = BLANK_FALLBACK
+          fallback = NAME_VAR_KEYS.include?(var_key.to_s) ? Notifications::Defaults::NAME : BLANK_FALLBACK
+          Rails.logger.warn("[whatsapp/variables] template=#{template.id} position=#{position} var=#{var_key.inspect} resolved to blank — substituting '#{fallback}'")
+          text = fallback
         end
 
         { 'type' => 'text', 'text' => text }

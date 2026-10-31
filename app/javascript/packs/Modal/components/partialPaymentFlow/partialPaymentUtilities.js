@@ -4,7 +4,7 @@ import {
   shopifyAddToCart,
   updateBuyerIdentity,
 } from "../../services/cartService";
-import { IS_BUY_NOW_BUTTON } from "../../services/domUtils";
+import { getIsBuyNowButton } from "../../services/domUtils";
 import {
   callPartialRuleSets,
   clearCart,
@@ -64,7 +64,7 @@ function saveRuleVariantArrayToSession() {
 //       }
 //     };
 
-//     if (IS_BUY_NOW_BUTTON) {
+//     if (getIsBuyNowButton()) {
 //       await observeModalState(); // Check before processing
 //       const result = await processBuyNow(cartData);
 //       await observeModalState(); // Check after processing
@@ -83,7 +83,7 @@ function saveRuleVariantArrayToSession() {
 
 //   // Function to reset the state when modal closes
 //   async function resetState() {
-//     if (IS_BUY_NOW_BUTTON) {
+//     if (getIsBuyNowButton()) {
 //       await clearCart();
 //     }
 //     setIsPartialPaymentCartReadyAndUpdated(false);
@@ -187,7 +187,7 @@ function saveRuleVariantArrayToSession() {
 
 //   // Helper function to reset state. This also clears the cart if in Buy Now flow.
 //   async function resetState() {
-//     if (IS_BUY_NOW_BUTTON) {
+//     if (getIsBuyNowButton()) {
 //       await clearCart();
 //     }
 //     setIsPartialPaymentCartReadyAndUpdated(false);
@@ -321,7 +321,7 @@ const rebuildCartWithPartialVariants = async (cart, partialCartItems) => {
 
 export const checkPartialPayment = async () => {
   const isPartialEnabled = settings?.partialPaymentEnabled === true;
-  if (!IS_BUY_NOW_BUTTON && isPartialEnabled) {
+  if (!getIsBuyNowButton() && isPartialEnabled) {
     try {
       const cart = await getCart(true);
 

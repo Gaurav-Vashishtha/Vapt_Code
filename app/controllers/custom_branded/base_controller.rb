@@ -31,13 +31,13 @@ module CustomBranded
     private
 
     def ensure_enabled!
-      return if ActiveModel::Type::Boolean.new.cast(ENV['CB_PORTAL_ENABLED'])
+      return if ActiveModel::Type::Boolean.new.cast(ENV.fetch("CB_PORTAL_ENABLED", nil))
 
       head :not_found
     end
 
     def signing_secret
-      ENV['CB_PARTNER_SIGNING_SECRET'].to_s
+      ENV.fetch("CB_PARTNER_SIGNING_SECRET", nil).to_s
     end
 
     def portal_domain_param
@@ -79,7 +79,7 @@ module CustomBranded
 
     # Soft signal only — never a gate.
     def log_referer_mismatch
-      allowed = ENV['CB_PARTNER_ALLOWED_REFERERS'].to_s.split(',').map(&:strip).reject(&:blank?)
+      allowed = ENV.fetch("CB_PARTNER_ALLOWED_REFERERS", nil).to_s.split(',').map(&:strip).reject(&:blank?)
       return if allowed.empty?
 
       referer_host = URI.parse(request.referer.to_s).host rescue nil

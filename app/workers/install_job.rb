@@ -8,10 +8,11 @@ class InstallJob < ActiveJob::Base
     end
     wallet = Wallet.find_or_initialize_by(shopify_domain:shop.shopify_domain)
     wallet.save
-    # Fetch and store customer count at install time
     count = ShopifyServices::CustomerCountFetchService.call(shop)
-    shop.update_column(:customer_count, count) if count.is_a?(Integer)
-    #ShopifyJobs::InitialCustomerPullJob.perform_async(shop.id)
+    if count.is_a?(Integer)
+      shop.update_column(:customer_count, count)
+      CustomerSyncState.record_count!(shop, count)
+    end
 
     # Create the cart transform (partial payment) here in the background so it's
     # ready well before checkout and doesn't depend on the merchant re-opening
@@ -25,10 +26,10 @@ class InstallJob < ActiveJob::Base
       Rails.logger.warn("[InstallJob] cart transform setup failed shop=#{shop.shopify_domain}: #{e.class}: #{e.message}")
     end
     shopify_shop = ShopifyAPI::Shop.current
-    client = Slack::Notifier.new  'https://hooks.slack.com/services/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'
+    client = SlackNotifier::INSTALLS_CLIENT
     client.ping(
       text: ":sunglasses: App *Installed* (#{Rails.env}) \n*Store*: #{shop.primary_domain.presence || shop.shopify_domain}\n*country code* #{shop.country_code}\n*Customer count* #{shop.customer_count}\n*Shopify plan* #{shopify_shop.plan_name}  \n*Shop created date* #{shopify_shop.created_at} \n*Password enabled* #{shopify_shop.password_enabled}",
-      channel: ENV['SLACK_INSTALLS_CHANNEL']
+      channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
     )
     CodKingStat.increment_stat('install_count')
     # owner_phone can still be blank if Shopify has no store phone — backfill

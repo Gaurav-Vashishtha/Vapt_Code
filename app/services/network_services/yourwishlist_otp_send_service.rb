@@ -27,7 +27,7 @@ module NetworkServices
       @phone  = phone.to_s.strip
       # Storefront session cookie; override per environment via ENV so we don't
       # depend on the baked-in default session, which expires.
-      @cookie = cookie.presence || ENV['YOURWISHLIST_OTP_COOKIE'].presence || DEFAULT_COOKIE
+      @cookie = cookie.presence || ENV.fetch("YOURWISHLIST_OTP_COOKIE", nil).presence || DEFAULT_COOKIE
     end
 
     def call

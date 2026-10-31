@@ -43,8 +43,8 @@ class ReferralDashboardController < ApplicationController
   
   def sync_earnings
     sync_service = ReferralRevenueSyncService.new(
-      ENV['SHOPIFY_ORGANIZATION_ID'], 
-      ENV['SHOPIFY_PARTNER_ACCESS_TOKEN']
+      ENV.fetch("SHOPIFY_ORGANIZATION_ID", nil), 
+      ENV.fetch("SHOPIFY_PARTNER_ACCESS_TOKEN", nil)
     )
     # Only sync approved shops
     @sync_results = sync_service.sync_partner_earnings(current_referral_partner, approved_only: true)

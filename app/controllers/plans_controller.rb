@@ -109,10 +109,10 @@ class PlansController < AuthenticatedController
     
     if recurring_charge.save
       CountryPlanOfferRedemption.record_pending!(country_offer, @shop, recurring_charge.id) if country_offer
-      client = Slack::Notifier.new  'https://hooks.slack.com/services/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'
+      client = SlackNotifier::INSTALLS_CLIENT
       client.ping(
         text: "*Charge Initiated* \n Store: #{@shop.primary_domain.presence || @shop.shopify_domain} \n Plan: #{plan.name} \n Amount: #{charge_price} \n Capped Amount: #{capped_amt} #{country_offer ? "\n Offer: #{country_offer.name} (trial #{trial_days} days)" : ''}",
-        channel: ENV['SLACK_INSTALLS_CHANNEL']
+        channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
       )
       @shop.update({
         max_orders: params[:orders]

@@ -4,7 +4,7 @@ module ShopifyJobs
     LOOK_BACK_DAYS = 1
     def perform
       puts 'Retry job started'
-      shop_ids = ENV['AUTO_VERIFY_SHOPS'].split(",")
+      shop_ids = ENV.fetch("AUTO_VERIFY_SHOPS", nil).split(",")
       shop_ids.each do |shop_id|
         Shop.find(shop_id).order_confirmations.where(status:'Pending').
                           where('created_at < ?', Time.now-15.minutes).

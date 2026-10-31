@@ -12,18 +12,18 @@ module Rto
   # Both are pure arithmetic on counts already stored in global_*_stats.
   class Scorer
     # --- Tunables (override via ENV; estimate from data — see design doc §6) ---
-    GLOBAL_RTO_RATE = (ENV["RTO_GLOBAL_RATE"] || 0.22).to_f  # mu : global bad/RTO rate
-    K_CUST          = (ENV["RTO_K_CUST"]      || 8).to_f     # prior strength, customer
-    K_ZIP           = (ENV["RTO_K_ZIP"]       || 40).to_f    # prior strength, pincode
+    GLOBAL_RTO_RATE = (ENV.fetch("RTO_GLOBAL_RATE", nil) || 0.22).to_f  # mu : global bad/RTO rate
+    K_CUST          = (ENV.fetch("RTO_K_CUST", nil)      || 8).to_f     # prior strength, customer
+    K_ZIP           = (ENV.fetch("RTO_K_ZIP", nil)       || 40).to_f    # prior strength, pincode
 
-    W_BASE = (ENV["RTO_W_BASE"] || 1.0).to_f
-    W_CUST = (ENV["RTO_W_CUST"] || 1.0).to_f
-    W_ZIP  = (ENV["RTO_W_ZIP"]  || 0.7).to_f
-    W_VAL  = (ENV["RTO_W_VAL"]  || 0.5).to_f
+    W_BASE = (ENV.fetch("RTO_W_BASE", nil) || 1.0).to_f
+    W_CUST = (ENV.fetch("RTO_W_CUST", nil) || 1.0).to_f
+    W_ZIP  = (ENV.fetch("RTO_W_ZIP", nil)  || 0.7).to_f
+    W_VAL  = (ENV.fetch("RTO_W_VAL", nil)  || 0.5).to_f
 
     # score (0..100) -> action cutoffs. Override per call (per-shop) if needed.
-    MEDIUM_AT = (ENV["RTO_MEDIUM_AT"] || 30).to_i
-    HIGH_AT   = (ENV["RTO_HIGH_AT"]   || 60).to_i
+    MEDIUM_AT = (ENV.fetch("RTO_MEDIUM_AT", nil) || 30).to_i
+    HIGH_AT   = (ENV.fetch("RTO_HIGH_AT", nil)   || 60).to_i
 
     Result = Struct.new(
       :probability, :score, :band, :cod_allowed, :reasons, keyword_init: true

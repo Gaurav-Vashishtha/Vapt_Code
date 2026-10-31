@@ -17,7 +17,7 @@ module Whatsapp
     # everyone. Cached so the per-order cost is a Redis hit, not a query.
     def enabled_for?(shop)
       return false unless shop
-      return true if ENV['WHATSAPP_CONTACT_BOOK_ALL_SHOPS'].to_s == 'true'
+      return true if ENV.fetch("WHATSAPP_CONTACT_BOOK_ALL_SHOPS", nil).to_s == 'true'
 
       Rails.cache.fetch("whatsapp:contact_book:enabled:#{shop.id}", expires_in: 10.minutes) do
         WhatsappAccount.where(shop_id: shop.id).exists?

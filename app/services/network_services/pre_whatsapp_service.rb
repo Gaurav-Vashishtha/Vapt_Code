@@ -18,14 +18,14 @@ module NetworkServices
 
       headers = {
         'Content-Type' => 'application/json',
-        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY'],
+        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil),
       }
 
-      whatsapp_number = @shop.setting.branded_whatsapp_number.presence || ENV['WHATSAPP_NUMBER_DEFAULT']
+      whatsapp_number = @shop.setting.branded_whatsapp_number.presence || ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil)
       template_name = @shop.setting.whatsapp_pre_verify_otp_template.presence ||
-                      (whatsapp_number == ENV['WHATSAPP_NUMBER_DEFAULT'] ? 'pre_verify_otp1' : 'pre_verify_otp')
+                      (whatsapp_number == ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil) ? 'pre_verify_otp1' : 'pre_verify_otp')
       
-      template_namespace = ENV['MSG91_TEMPLATE_NAMESPACE'] || '42f54ee8_898d_4edf_953e_7209c3f37deb'
+      template_namespace = ENV.fetch("MSG91_TEMPLATE_NAMESPACE", nil) || '42f54ee8_898d_4edf_953e_7209c3f37deb'
       
 
       body = {

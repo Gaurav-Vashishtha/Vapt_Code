@@ -19,7 +19,7 @@ module Api
         private
 
         def ensure_inbox_enabled
-          render_error('not_found', 'Not found', :not_found) if ENV['WHATSAPP_INBOX_DISABLED'].present?
+          render_error('not_found', 'Not found', :not_found) if ENV.fetch("WHATSAPP_INBOX_DISABLED", nil).present?
         end
 
         def current_agent

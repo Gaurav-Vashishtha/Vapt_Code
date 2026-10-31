@@ -1,5 +1,8 @@
 module NetworkJobs
   class SendFulfilmentSmsJob < ApplicationJob
+    REAUTH_MAX_RETRIES = 4
+    REAUTH_RETRY_DELAY = 30.minutes
+
     def add_fulfilment_webhook_temp 
       Shop.all.each do |shop|
         begin
@@ -7,7 +10,7 @@ module NetworkJobs
         shop.init_session
         webhook = {
         topic: 'orders/fulfilled',
-        address: "https://#{ENV['APP_HOST']}/order_confirmations/order_fulfilled",
+        address: "https://#{ENV.fetch("APP_HOST", nil)}/order_confirmations/order_fulfilled",
         format: 'json'
         }
         if ShopifyAPI::Webhook.new(webhook).save 
@@ -71,8 +74,10 @@ module NetworkJobs
                                    order_confirmation.customer_number.present? &&
                                    order_confirmation.country_code.present?
 
-      shop.init_session
-      shopify_order = ShopifyAPI::Order.find(params['id'])
+      # SafeOrderReader never raises: a revoked token (401), a deleted order or
+      # Shopify throttling returns nil and we keep whatever the webhook and the
+      # stored record gave us.
+      shopify_order = ShopifyServices::SafeOrderReader.find(shop, params['id'])
       return order_confirmation if shopify_order.blank?
 
       attrs = {}
@@ -168,16 +173,22 @@ module NetworkJobs
 
       @sms_tracking_url = tracking_url.presence || order_confirmation.order_status_url.presence || params['order_status_url']
       if !@sms_tracking_url.blank?
-        redirect = ShopifyServices::CreateRedirectService.call(shop, @sms_tracking_url)
-        @sms_tracking_url = redirect if !redirect.blank?
+        # Creating the short redirect is a Shopify write, so it 401s on a revoked
+        # token too. Keep the long URL rather than losing the whole SMS.
+        begin
+          redirect = ShopifyServices::CreateRedirectService.call(shop, @sms_tracking_url)
+          @sms_tracking_url = redirect if !redirect.blank?
+        rescue StandardError => e
+          Rails.logger.warn("[send_fulfilment_sms] redirect create failed order=#{params['id']}: #{e.class}: #{e.message}")
+        end
       end
 
       flow_id = shop.setting.fulfilment_flow_id
       if shop.setting.fulfilment_flow_id.blank?
         if tracking_url.blank?
-          flow_id = country_code=='IN'? ENV['MSG91_FULFILMENT_TEMPLATE_ID']:ENV['MSG91_FULFILMENT_NON_INDIA_TEMPLATE_ID']
+          flow_id = country_code=='IN'? ENV.fetch("MSG91_FULFILMENT_TEMPLATE_ID", nil):ENV.fetch("MSG91_FULFILMENT_NON_INDIA_TEMPLATE_ID", nil)
         else
-          flow_id = country_code=='IN'? ENV['MSG91_FULFILMENT_URL_TEMPLATE_ID']:ENV['MSG91_FULFILMENT_URL_NON_INDIA_TEMPLATE_ID']
+          flow_id = country_code=='IN'? ENV.fetch("MSG91_FULFILMENT_URL_TEMPLATE_ID", nil):ENV.fetch("MSG91_FULFILMENT_URL_NON_INDIA_TEMPLATE_ID", nil)
         end      
       end
   
@@ -191,46 +202,43 @@ module NetworkJobs
             dlt_id: ''
           }
         )
-      elsif (ENV['MOVIDER_COUNTRIES'].include?country_code) 
+      elsif (ENV.fetch("MOVIDER_COUNTRIES", nil).include?country_code) 
         resp = SmsServices::MoviderSmsService.call(
-          "#{ENV['MOVIDER_API_KEY']}:#{ENV['MOVIDER_API_SECRET']}",
-          ENV['MOVIDER_SENDER_ID'],
+          "#{ENV.fetch("MOVIDER_API_KEY", nil)}:#{ENV.fetch("MOVIDER_API_SECRET", nil)}",
+          ENV.fetch("MOVIDER_SENDER_ID", nil),
         {
           to: phone,
           body: get_sms_body(order_confirmation,params,order_number),
           dlt_id: ''
         }
         )
-      elsif (ENV['SMS_COUNTRY_COUNTRIES'].include?country_code)  #Always keep above Msg91
+      elsif (ENV.fetch("SMS_COUNTRY_COUNTRIES", nil).include?country_code)  #Always keep above Msg91
         sender_id = 'BNexTECH'
-        api_key = ENV['SMS_COUNTRY_BASE_64_KEY']
+        api_key = ENV.fetch("SMS_COUNTRY_BASE_64_KEY", nil)
         # base 64 encoding for API key and token Rwid37f5wtuDfBAkbYzx:cnNsv1GYPDCdIouKj8E5Yohh6TIp6SposonpTOZ3
         params = {
           text: get_sms_body(order_confirmation,params,order_number),
           number:  phone,
         }
         resp = SmsServices::SmsCountrySmsService.new(api_key, sender_id, params).call
-      elsif (ENV['MSG_91_SPECIAL_COUNTRIES'].include?country_code) 
+      elsif (ENV.fetch("MSG_91_SPECIAL_COUNTRIES", nil).include?country_code) 
         sender_id = shop.setting.sender
         if sender_id.blank?
           case 
-          when ENV['WALKER_COUNTRIES'].present? && ENV['WALKER_COUNTRIES'].split(',').include?(country_code)
+          when ENV.fetch("WALKER_COUNTRIES", nil).present? && ENV.fetch("WALKER_COUNTRIES", nil).split(',').include?(country_code)
             sender_id = 'WALKER'
           when country_code == 'AE'
-            sender_id = ENV['MSG_91_UAE_SENDER']
+            sender_id = ENV.fetch("MSG_91_UAE_SENDER", nil)
           when country_code == 'SA' || country_code == 'PH'
-            sender_id = ENV['MSG91_SA_SENDER_ID']
+            sender_id = ENV.fetch("MSG91_SA_SENDER_ID", nil)
           when country_code == 'IN' 
-            sender_id = ENV['MSG_91_IN_SENDER']
+            sender_id = ENV.fetch("MSG_91_IN_SENDER", nil)
           else
-            sender_id = ENV['MSG91_SENDER_ID']
+            sender_id = ENV.fetch("MSG91_SENDER_ID", nil)
           end
         end
         
-        customer_name = 'Customer'
-        if !order_confirmation.customer_name.blank?
-          customer_name = order_confirmation.customer_name
-        end
+        customer_name = Notifications::Defaults.name(order_confirmation.customer_name)
         
         resp = SmsServices::Msg91SmsConfirmationService.call(
           { auth_key: shop.setting.msg91_auth_key },
@@ -238,44 +246,44 @@ module NetworkJobs
             flow_id: flow_id,
             sender: sender_id,
             to: phone,
-            number: order_number,
-            store: shop.owner_name,
-            tracking_number: tracking_number,
-            ur: @sms_tracking_url,
+            number: Notifications::Defaults.value(order_number),
+            store: shop.owner_name.to_s,
+            tracking_number: Notifications::Defaults.value(tracking_number),
+            ur: Notifications::Defaults.value(@sms_tracking_url),
             name: customer_name
           }
         )
-      elsif (ENV['WAVECELL_COUNTRIES'].include?country_code) 
+      elsif (ENV.fetch("WAVECELL_COUNTRIES", nil).include?country_code) 
         resp = SmsServices::WavecellSmsService.call(
-          ENV['WAVECELL_API_KEY'],
-          ENV['WAVECELL_SENDER_ID'],
+          ENV.fetch("WAVECELL_API_KEY", nil),
+          ENV.fetch("WAVECELL_SENDER_ID", nil),
         {
           to: phone,
           body: get_sms_body(order_confirmation,params,order_number),
           dlt_id: ''
         }
         )
-      elsif (ENV['MOBEEP_COUNTRIES'].include?country_code) 
+      elsif (ENV.fetch("MOBEEP_COUNTRIES", nil).include?country_code) 
         resp = SmsServices::MobeepSmsService.call(
-        ENV['MOBEEP_API_KEY'],
-        ENV['MOBEEP_SENDER_ID'],
+        ENV.fetch("MOBEEP_API_KEY", nil),
+        ENV.fetch("MOBEEP_SENDER_ID", nil),
       {
         to: phone,
         body: get_sms_body(order_confirmation,params,order_number),
       }
       )  
-      elsif (ENV['MISR_COUNTRIES'].include?country_code)
+      elsif (ENV.fetch("MISR_COUNTRIES", nil).include?country_code)
       resp = SmsServices::MisrSmsService.call(
-        ENV['MISR_API_KEY'],
-        ENV['MISR_SENDER_ID'],
+        ENV.fetch("MISR_API_KEY", nil),
+        ENV.fetch("MISR_SENDER_ID", nil),
       {
         to: phone,
         body: get_sms_body(order_confirmation,params,order_number),
       })
-      elsif (ENV['VEEVOTECH_COUNTRIES'].include?country_code) 
+      elsif (ENV.fetch("VEEVOTECH_COUNTRIES", nil).include?country_code) 
         resp = SmsServices::VeevotechSmsService.call(
-        ENV['VEEVOTECH_API_KEY'],
-        ENV['VEEVOTECH_SENDER_ID'],
+        ENV.fetch("VEEVOTECH_API_KEY", nil),
+        ENV.fetch("VEEVOTECH_SENDER_ID", nil),
       {
         to: phone,
         body: get_sms_body(order_confirmation,params,order_number),
@@ -283,7 +291,7 @@ module NetworkJobs
       )
       else
         resp = TwilioServices::SendOtpService.new({
-          from: ENV["TWILIO_PHONE_NUMBER"],
+          from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
           to: phone,
           body: get_sms_body(order_confirmation,params,order_number),
           country_code: country_code,
@@ -299,6 +307,18 @@ module NetworkJobs
         order_confirmation: order_confirmation,
         shop: shop 
       )
+    rescue ShopifyServices::OfflineTokenService::NeedsReauth => e
+      # Shopify rejected this shop's token. Retry after the merchant has had a
+      # chance to re-open the app (which re-mints the token); give up quietly
+      # after REAUTH_MAX_RETRIES (the throttled reauth alert already fired).
+      retry_key = "fulfilment_reauth_retry/#{shop_id}/#{params['id']}"
+      tries = Rails.cache.read(retry_key).to_i
+      if tries < REAUTH_MAX_RETRIES
+        Rails.cache.write(retry_key, tries + 1, expires_in: 2.days)
+        self.class.perform_in(REAUTH_RETRY_DELAY, params, shop_id, mode)
+      else
+        Rails.logger.warn("[SendFulfilmentSmsJob] giving up after #{tries} reauth retries shop=#{shop_id} order=#{params['id']}: #{e.message}")
+      end
     rescue Exception => e
       SlackNotifyJob.perform_async(
         ":rage:  (#{Rails.env})\n  *Error in fulfillment sms #{e} #{e.backtrace} #{params} "
@@ -318,28 +338,25 @@ module NetworkJobs
     def get_sms_body(order_confirmation,params,order_number)      
       body = order_confirmation.shop.setting.fulfilment_template
 
-      if !order_number.blank?
-        order_number = order_number.to_s
-      else
-        order_number = ""
-      end
+      order_number = Notifications::Defaults.value(order_number)
     
-      customer_name=''
-      if !order_confirmation.customer_name.blank?
-        customer_name = order_confirmation.customer_name&.partition(" ")&.first
-      end
+      customer_name = Notifications::Defaults.first_name(order_confirmation.customer_name)
 
       tracking_number=''
       if !params['fulfillments'].blank? && (!params['fulfillments'].first['tracking_number'].blank?)
         tracking_number = params['fulfillments'].first['tracking_number']
       end
+      tracking_number = Notifications::Defaults.value(tracking_number)
 
       tracking_company=''
       if !params['fulfillments'].blank? && (!params['fulfillments'].first['tracking_company'].blank?)
         tracking_company = params['fulfillments'].first['tracking_company']
       end
 
-      tracking_url = @sms_tracking_url.presence || get_tracking_url(params).presence || order_confirmation.order_status_url.presence || params['order_status_url']
+      tracking_url = Notifications::Defaults.value(
+        @sms_tracking_url.presence || get_tracking_url(params).presence ||
+          order_confirmation.order_status_url.presence || params['order_status_url']
+      )
       # total_price=''
       # if !params['total_price'].blank?
       #   total_price = params['total_price'].to_s
@@ -350,7 +367,7 @@ module NetworkJobs
       # .gsub("{{tracking_company}}", tracking_company)
       .gsub("{{tracking_url}}", tracking_url)
       # .gsub("{{amount}}", total_price)
-      .gsub("{{store}}", order_confirmation.shop.owner_name)
+      .gsub("{{store}}", order_confirmation.shop.owner_name.to_s)
       .gsub("{{store_url}}", order_confirmation.shop.shopify_domain)
       .gsub("{{number}}", order_number)
     end

@@ -20,7 +20,7 @@ module Whatsapp
               "polite and short."
     }.freeze
 
-    def initialize(api_key: ENV["ANTHROPIC_API_KEY"], model: ENV["ANTHROPIC_TRANSLATION_MODEL"].presence || DEFAULT_MODEL)
+    def initialize(api_key: ENV.fetch("ANTHROPIC_API_KEY", nil), model: ENV.fetch("ANTHROPIC_TRANSLATION_MODEL", nil).presence || DEFAULT_MODEL)
       @api_key = api_key
       @model = model
     end

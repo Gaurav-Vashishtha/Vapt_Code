@@ -55,12 +55,12 @@ module TwilioServices
     end
 
     def send_request
-      uri = URI.parse("https://api.twilio.com/2010-04-01/Accounts/#{ENV['TWILIO_ACCOUNT_SID']}/Messages.json")
+      uri = URI.parse("https://api.twilio.com/2010-04-01/Accounts/#{ENV.fetch("TWILIO_ACCOUNT_SID", nil)}/Messages.json")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
 
       request = Net::HTTP::Post.new(uri.path)
-      request.basic_auth(ENV['TWILIO_ACCOUNT_SID'], ENV['TWILIO_AUTH_TOKEN'])
+      request.basic_auth(ENV.fetch("TWILIO_ACCOUNT_SID", nil), ENV.fetch("TWILIO_AUTH_TOKEN", nil))
 
       request.set_form_data(
         'From' => @params[:from],

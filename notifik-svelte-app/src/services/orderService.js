@@ -15,6 +15,7 @@ import {
 import { getShopDomain, getMachineId } from "../utils/helpers.js";
 import { getCampaignAttributionPayload, isMetaConversionEnabled } from "../utils/campaignAttribution.js";
 
+import { postToParent } from "../utils/parentMessaging";
 function readCookieFromDoc(doc, name) {
   try {
     const all = doc && typeof doc.cookie === "string" ? doc.cookie : "";
@@ -68,7 +69,7 @@ function readLocalStorage(key) {
 function requestMetaAttributionFromParent() {
   try {
     if (typeof window !== "undefined" && window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: "CODK_REQUEST_META_ATTRIBUTION" }, "*");
+      postToParent({ type: "CODK_REQUEST_META_ATTRIBUTION" });
     }
   } catch (_e) {}
 }

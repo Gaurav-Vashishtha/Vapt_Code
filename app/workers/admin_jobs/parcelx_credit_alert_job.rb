@@ -23,7 +23,7 @@ module AdminJobs
     end
 
     def self.threshold
-      Integer(ENV['PARCELX_CREDIT_ALERT_THRESHOLD'].to_s.strip, exception: false) || DEFAULT_THRESHOLD
+      Integer(ENV.fetch("PARCELX_CREDIT_ALERT_THRESHOLD", nil).to_s.strip, exception: false) || DEFAULT_THRESHOLD
     end
   end
 end

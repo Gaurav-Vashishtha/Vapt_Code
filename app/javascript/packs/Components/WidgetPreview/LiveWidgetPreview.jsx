@@ -179,6 +179,9 @@ const LiveWidgetPreview = ({ setting: settingProp, screen }) => {
 
   useEffect(() => {
     const onMessage = (event) => {
+      // The host page (/script/widget_preview) is served from this origin, so
+      // anything arriving from elsewhere is not our preview frame.
+      if (event.origin !== window.location.origin) return;
       if (event.source !== frameRef.current?.contentWindow) return;
       const data = event.data;
       if (!data || data.source !== CHANNEL_IN) return;

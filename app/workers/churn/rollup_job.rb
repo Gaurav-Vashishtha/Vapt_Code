@@ -5,7 +5,7 @@ module Churn
   class RollupJob < ApplicationJob
     sidekiq_options queue: 'administration', retry: 1
 
-    HIGH_VALUE_MRR = (ENV['CHURN_HIGH_VALUE_MRR'] || '15').to_f
+    HIGH_VALUE_MRR = (ENV.fetch("CHURN_HIGH_VALUE_MRR", nil) || '15').to_f
 
     def perform(as_of = nil)
       today = (as_of ? Date.parse(as_of.to_s) : Date.current)

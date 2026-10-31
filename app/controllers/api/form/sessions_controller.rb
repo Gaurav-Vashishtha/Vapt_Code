@@ -222,7 +222,7 @@ module Api
       # The storefront reports where the extension assets are served from; only Shopify's CDN
       # path of our own extension is accepted (B.1 asset_base).
       def remember_asset_base
-        base = CodFormAdmin::PreviewFramesController.safe_asset_base(body["assets_base"], ENV["COD_FORM_EXTENSION_UUID"])
+        base = CodFormAdmin::PreviewFramesController.safe_asset_base(body["assets_base"], ENV.fetch("COD_FORM_EXTENSION_UUID", nil))
         return if base.nil? || base == shop_config.asset_base
 
         shop_config.update_columns(asset_base: base)

@@ -11,8 +11,8 @@ module NetworkJobs
         
         begin
           # Get organization_id and partner_access_token from environment or settings
-          organization_id = ENV['SHOPIFY_ORGANIZATION_ID']
-          partner_access_token = ENV['SHOPIFY_PARTNER_ACCESS_TOKEN']
+          organization_id = ENV.fetch("SHOPIFY_ORGANIZATION_ID", nil)
+          partner_access_token = ENV.fetch("SHOPIFY_PARTNER_ACCESS_TOKEN", nil)
           
           if organization_id.blank? || partner_access_token.blank?
             error_msg = "Missing required environment variables: SHOPIFY_PARTNER_ORGANIZATION_ID or SHOPIFY_PARTNER_ACCESS_TOKEN"

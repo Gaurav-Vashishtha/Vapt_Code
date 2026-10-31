@@ -10,7 +10,7 @@ module Whatsapp
     DEFAULT_AUTO_APPROVE_COUNTRIES = %w[EG].freeze
 
     def self.auto_approve_countries
-      raw = ENV["WHATSAPP_AUTO_APPROVE_COUNTRIES"]
+      raw = ENV.fetch("WHATSAPP_AUTO_APPROVE_COUNTRIES", nil)
       return DEFAULT_AUTO_APPROVE_COUNTRIES if raw.nil?
       return [] if raw.strip.casecmp?("none")
 

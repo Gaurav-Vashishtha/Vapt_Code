@@ -4,8 +4,8 @@ class ReferralAdmin::ApplicationController < ApplicationController
     # When REFERRAL_APP_HOST is set in .env, all URLs in referral admin (links, forms, redirects)
     # use this host so you can run locally but point to prod backend.
     def default_url_options
-      return super unless ENV["REFERRAL_APP_HOST"].to_s.present?
-      host = ENV["REFERRAL_APP_HOST"].to_s.strip.sub(/\Ahttps?:\/\//, "")
+      return super unless ENV.fetch("REFERRAL_APP_HOST", nil).to_s.present?
+      host = ENV.fetch("REFERRAL_APP_HOST", nil).to_s.strip.sub(/\Ahttps?:\/\//, "")
       { host: host, protocol: "https" }
     end
 

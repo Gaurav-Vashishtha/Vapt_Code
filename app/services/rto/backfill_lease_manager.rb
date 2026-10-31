@@ -5,7 +5,7 @@ module Rto
     DEFAULT_TTL = 30.minutes
 
     def self.parallelism
-      (ENV["BACKFILL_PARALLELISM"].presence || "5").to_i.clamp(1, 100)
+      (ENV.fetch("BACKFILL_PARALLELISM", nil).presence || "5").to_i.clamp(1, 100)
     end
 
     def self.acquire_for!(shop_domain_id, ttl: DEFAULT_TTL)

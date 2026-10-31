@@ -6,6 +6,8 @@ module ShopifyJobs
                     retry: 3
 
     def perform(shop_id)
+      return unless LegacyCustomerPull.enabled?
+
       shop = Shop.find_by(id: shop_id)
       return unless shop
       return if shop.initial_customer_pull_completed.present?

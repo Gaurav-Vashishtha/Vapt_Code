@@ -156,8 +156,8 @@ class ReferralAdmin::ReferralPartnersController < ReferralAdmin::ApplicationCont
   # Fetches "real" earnings from Shopify Partner API for this partner's approved shops
   # over the last 30 days and caches the result for display on the index.
   def fetch_real_earnings_last_30_days
-    token = ENV["SHOPIFY_PARTNER_ACCESS_TOKEN"].to_s.strip
-    org_id = ENV["SHOPIFY_ORGANIZATION_ID"].to_s.strip
+    token = ENV.fetch("SHOPIFY_PARTNER_ACCESS_TOKEN", nil).to_s.strip
+    org_id = ENV.fetch("SHOPIFY_ORGANIZATION_ID", nil).to_s.strip
 
     if token.blank? || org_id.blank?
       msg = "Missing SHOPIFY_PARTNER_ACCESS_TOKEN or SHOPIFY_ORGANIZATION_ID env var."

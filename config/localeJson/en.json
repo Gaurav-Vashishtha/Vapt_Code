@@ -5861,7 +5861,7 @@
       "logo_remove": "Remove",
       "publish_help_live": "Saving publishes the form to your store. If a setting needs fixing, it stays a draft until it is fixed.",
       "full_name": "Full name",
-      "phone_first_turns_otp_on": "OTP verification is off for your store. Because this option is on, this form will ask buyers for an OTP once you save. Each OTP sent uses your message credits.",
+      "phone_first_needs_otp": "OTP in the form is off, so this option has no effect and the address form opens first. To use it, turn on \"Ask buyers to verify their phone number with a code\" in COD Form setup.",
       "one_name_note": "Buyers enter their name in one Full name field. Turn on Last name to ask for first and last name separately.",
       "two_names_note": "Buyers enter first and last name separately. Hide Last name to ask for one Full name instead."
     },

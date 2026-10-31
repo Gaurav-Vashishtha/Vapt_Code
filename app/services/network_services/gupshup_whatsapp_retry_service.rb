@@ -16,20 +16,20 @@ module NetworkServices
   
       def send_whatsapp_template
         uri = URI.parse('https://api.gupshup.io/wa/api/v1/template/msg')
-        confirmation_url = NetworkServices::CutlyLinkService.call("https://#{ENV["APP_HOST"]}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
+        confirmation_url = NetworkServices::CutlyLinkService.call("https://#{ENV.fetch("APP_HOST", nil)}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
       
         request = Net::HTTP::Post.new(uri)
         request['Cache-Control'] = 'no-cache'
         request['Content-Type'] = 'application/x-www-form-urlencoded'
-        request['apikey'] = ENV['GUPSHUP_API_KEY']
+        request['apikey'] = ENV.fetch("GUPSHUP_API_KEY", nil)
       
         request.set_form_data(
           'channel' => 'whatsapp',
-          'source' => ENV['GUPSHUP_SOURCE'] || '201501635356',
+          'source' => ENV.fetch("GUPSHUP_SOURCE", nil) || '201501635356',
           'destination' => order_confirmation.customer_number,
-          'src.name' => ENV['GUPSHUP_SRC_NAME'] || 'Hatchill123',
+          'src.name' => ENV.fetch("GUPSHUP_SRC_NAME", nil) || 'Hatchill123',
           'template' => {
-            id: ENV['GUPSHUP_TEMPLATE_ID'] || 'f1e4e2b8-7d1b-416c-b3ac-7cd62e620613',
+            id: ENV.fetch("GUPSHUP_TEMPLATE_ID", nil) || 'f1e4e2b8-7d1b-416c-b3ac-7cd62e620613',
             params: [confirmation_url.gsub('https://cutt.ly/', '')] # Fixed: wrap in array
           }.to_json
         )

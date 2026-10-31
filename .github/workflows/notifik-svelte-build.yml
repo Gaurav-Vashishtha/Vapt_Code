@@ -30,7 +30,9 @@ jobs:
       # 4️⃣ Install dependencies
       - name: Install dependencies
         working-directory: notifik-svelte-app
-        run: npm ci
+        # --ignore-scripts stops a dependency's install hooks running in CI,
+        # where they would execute with the workflow's token in scope.
+        run: npm ci --ignore-scripts
 
       # 5️⃣ Run production build
       - name: Build production bundle

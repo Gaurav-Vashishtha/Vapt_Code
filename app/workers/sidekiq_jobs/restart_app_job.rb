@@ -10,13 +10,13 @@ module SidekiqJobs
         attr_accessor :state
 
         def self.connection
-        if ENV['RESTART_API_KEY']
-            @@connection ||= PlatformAPI.connect_oauth(ENV['RESTART_API_KEY'])
+        if ENV.fetch("RESTART_API_KEY", nil)
+            @@connection ||= PlatformAPI.connect_oauth(ENV.fetch("RESTART_API_KEY", nil))
         end
         end
 
         def self.dynos
-        connection.dyno.list(ENV['APP_NAME']).map do |dyno_info|
+        connection.dyno.list(ENV.fetch("APP_NAME", nil)).map do |dyno_info|
             Dyno.new(dyno_info)
         end
         end
@@ -38,7 +38,7 @@ module SidekiqJobs
         end
 
         def restart!
-        connection.dyno.restart(ENV['APP_NAME'], name)
+        connection.dyno.restart(ENV.fetch("APP_NAME", nil), name)
         end
 
         def initialize(info)

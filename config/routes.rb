@@ -2,7 +2,7 @@ require 'sidekiq/web'
 require 'sidekiq/cron/web'
 
 Sidekiq::Web.use Rack::Auth::Basic do |username, password|
-  username == ENV['ADMIN_USER'] && password == ENV['ADMIN_PASS']
+  username == ENV.fetch("ADMIN_USER", nil) && password == ENV.fetch("ADMIN_PASS", nil)
 end
 
 Rails.application.routes.draw do
@@ -18,7 +18,7 @@ Rails.application.routes.draw do
   # mount ActionCable.server => '/cable'
 
   # view cache
-  if ENV['MOUNT_RAILS_WEB_CACHE'] == 'true'
+  if ENV.fetch("MOUNT_RAILS_WEB_CACHE", nil) == 'true'
     mount RailsWebCache::Engine => '/rails_web_cache'
   end
 
@@ -991,6 +991,8 @@ end
   get '/wa/r/:token', to: 'whatsapp_link_redirects#show', as: :whatsapp_link_redirect
   # Internal ops dashboard (HTTP Basic auth from ENV, see CodkOpsController)
   get '/codk-ops/api/overview', to: 'codk_ops#overview', defaults: { format: :json }
+  get '/codk-ops/api/customer-sync', to: 'codk_ops#customer_sync', defaults: { format: :json }
+  post '/codk-ops/api/customer-sync/mode', to: 'codk_ops#customer_sync_mode', defaults: { format: :json }
   get '/codk-ops', to: 'codk_ops#app'
   get '/codk-ops/*path', to: 'codk_ops#app', format: false
   mount ShopifyApp::Engine, at: '/'

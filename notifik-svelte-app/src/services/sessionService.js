@@ -11,6 +11,14 @@ export const getShopDomain = () => getShopDomainFromHelper();
  */
 
 const DEBUG_MODE = true;
+
+// Storage keys are application constants. Rejecting anything else stops a key
+// derived from untrusted input (a URL parameter, a message payload) from
+// writing to an arbitrary slot in the storefront's sessionStorage, which this
+// service also writes to via the parent window.
+const SAFE_STORAGE_KEY = /^[A-Za-z0-9_.-]{1,128}$/;
+
+const isSafeKey = (key) => typeof key === "string" && SAFE_STORAGE_KEY.test(key);
 const stringifyValue = (value) =>
   typeof value === "string" ? value : JSON.stringify(value);
 
@@ -74,6 +82,10 @@ export const getSessionValue = (key, defaultValue = null) => {
  */
 export const setSessionValue = (key, value) => {
   if (typeof window === "undefined" || typeof sessionStorage === "undefined") {
+    return false;
+  }
+
+  if (!isSafeKey(key)) {
     return false;
   }
 

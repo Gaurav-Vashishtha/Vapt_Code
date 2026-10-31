@@ -20,12 +20,12 @@ module CodConfirm
     config.middleware.insert_after ActionDispatch::Static, Rack::Deflater
     config.active_job.queue_adapter = :sidekiq
 
-    if ENV['DB_ENCRYPTION_PRIMARY_KEY'].present? &&
-       ENV['DB_ENCRYPTION_DETERMINISTIC_KEY'].present? &&
-       ENV['DB_ENCRYPTION_KEY_DERIVATION_SALT'].present?
-      config.active_record.encryption.primary_key = ENV['DB_ENCRYPTION_PRIMARY_KEY']
-      config.active_record.encryption.deterministic_key = ENV['DB_ENCRYPTION_DETERMINISTIC_KEY']
-      config.active_record.encryption.key_derivation_salt = ENV['DB_ENCRYPTION_KEY_DERIVATION_SALT']
+    if ENV.fetch("DB_ENCRYPTION_PRIMARY_KEY", nil).present? &&
+       ENV.fetch("DB_ENCRYPTION_DETERMINISTIC_KEY", nil).present? &&
+       ENV.fetch("DB_ENCRYPTION_KEY_DERIVATION_SALT", nil).present?
+      config.active_record.encryption.primary_key = ENV.fetch("DB_ENCRYPTION_PRIMARY_KEY", nil)
+      config.active_record.encryption.deterministic_key = ENV.fetch("DB_ENCRYPTION_DETERMINISTIC_KEY", nil)
+      config.active_record.encryption.key_derivation_salt = ENV.fetch("DB_ENCRYPTION_KEY_DERIVATION_SALT", nil)
     end
 
     config.before_initialize do

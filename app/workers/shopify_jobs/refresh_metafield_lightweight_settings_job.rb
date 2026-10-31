@@ -5,7 +5,7 @@ module ShopifyJobs
     queue_as :scheduled_report_delivery
 
     def perform(setting_id)
-      if ENV['SKIP_LIGHTWEIGHT_METAFIELDS_QUEUE'] == 'true'
+      if ENV.fetch("SKIP_LIGHTWEIGHT_METAFIELDS_QUEUE", nil) == 'true'
         return
       end
       setting = Setting.find_by(id: setting_id)

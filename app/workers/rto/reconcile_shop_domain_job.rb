@@ -12,7 +12,7 @@ module Rto
     PAGE_SIZE = 50
     MAX_PAGES = 200
     # Keep per-shop request rate low to avoid 429s ("Exceeded 2 calls per second for api client").
-    PAGE_FETCH_SLEEP_SECONDS = (ENV["RTO_RECONCILE_PAGE_FETCH_SLEEP_SECONDS"].presence || "0.6").to_f
+    PAGE_FETCH_SLEEP_SECONDS = (ENV.fetch("RTO_RECONCILE_PAGE_FETCH_SLEEP_SECONDS", nil).presence || "0.6").to_f
     TOO_MANY_REQUESTS_RETRY_AFTER = 5.minutes
     # Small overlap at the left bound so we do not miss orders at the boundary.
     BOUNDARY_OVERLAP = 1.second

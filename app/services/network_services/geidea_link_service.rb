@@ -74,7 +74,7 @@ module NetworkServices
             }
           ],
           merchantReferenceId: @order_confirmation.order_id.to_s,
-          callbackUrl: "https://#{ENV['APP_HOST']}/order/prepaid?digest=#{@order_confirmation.digest}",
+          callbackUrl: "https://#{ENV.fetch("APP_HOST", nil)}/order/prepaid?digest=#{@order_confirmation.digest}",
           type: "Detailed",
           language: "EN"
         }

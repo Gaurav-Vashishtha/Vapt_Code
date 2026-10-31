@@ -39,11 +39,11 @@ module Whatsapp
     end
 
     def disabled?
-      ENV['WHATSAPP_CLICK_TRACKING_DISABLED'].present? || ENV['APP_HOST'].blank?
+      ENV.fetch("WHATSAPP_CLICK_TRACKING_DISABLED", nil).present? || ENV.fetch("APP_HOST", nil).blank?
     end
 
     def host
-      ENV['APP_HOST']
+      ENV.fetch("APP_HOST", nil)
     end
 
     def encryptor

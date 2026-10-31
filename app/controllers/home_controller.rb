@@ -42,6 +42,8 @@ class HomeController < ApplicationController
     end
     @shop.init_session()
 
+    existing_install = @shop.primary_locale.present?
+
     begin
       load_dashboard
     rescue ActiveResource::UnauthorizedAccess => e
@@ -55,7 +57,10 @@ class HomeController < ApplicationController
         return bootstrap_after_dead_token
       end
     end
-    ShopifyServices::OfflineTokenService.clear_remint_marker(@shop) if @admin_api_verified
+    if @admin_api_verified
+      @reconnected = existing_install && ShopifyServices::OfflineTokenService.remint_attempted?(@shop)
+      ShopifyServices::OfflineTokenService.clear_remint_marker(@shop)
+    end
   end
 
   # POST /update_permissions
@@ -76,9 +81,9 @@ class HomeController < ApplicationController
     session['omniauth.state'] = "12345"
     url = "https://#{@shop.shopify_domain}/admin/oauth/authorize"
     request_params = []
-    request_params << "client_id=#{ENV['SHOPIFY_API_KEY']}"
+    request_params << "client_id=#{ENV.fetch("SHOPIFY_API_KEY", nil)}"
     request_params << "scope=#{ERB::Util.url_encode(ShopifyApp.configuration.scope)}"
-    request_params << "redirect_uri=#{ERB::Util.url_encode("https://#{ENV['APP_HOST']}/auth/shopify/callback")}"
+    request_params << "redirect_uri=#{ERB::Util.url_encode("https://#{ENV.fetch("APP_HOST", nil)}/auth/shopify/callback")}"
     request_params << "state=12345"
     scope_refresh_url = "#{url}?#{request_params.join('&')}"
 
@@ -99,9 +104,9 @@ class HomeController < ApplicationController
     app_scope = ShopifyApp.configuration.scope
     url = "https://#{@shop&.shopify_domain || 'unknown'}/admin/oauth/authorize"
     request_params = []
-    request_params << "client_id=#{ENV['SHOPIFY_API_KEY']}"
+    request_params << "client_id=#{ENV.fetch("SHOPIFY_API_KEY", nil)}"
     request_params << "scope=#{ERB::Util.url_encode(app_scope)}"
-    request_params << "redirect_uri=#{ERB::Util.url_encode("https://#{ENV['APP_HOST']}/auth/shopify/callback")}"
+    request_params << "redirect_uri=#{ERB::Util.url_encode("https://#{ENV.fetch("APP_HOST", nil)}/auth/shopify/callback")}"
     request_params << "state=12345"
     scope_refresh_url = "#{url}?#{request_params.join('&')}"
     render json: { 

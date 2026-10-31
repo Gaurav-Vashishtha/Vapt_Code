@@ -79,7 +79,7 @@ module CodForm
         {
           # Shopify's documented deep link is activateAppId={api_key}/{handle}: it opens App embeds
           # with the COD Form embed switched on and in focus (the extension id is the older form).
-          "theme_editor_url" => theme_editor_url(shop.shopify_domain, ENV["SHOPIFY_API_KEY"].presence || ENV["COD_FORM_EXTENSION_UUID"]),
+          "theme_editor_url" => theme_editor_url(shop.shopify_domain, ENV.fetch("SHOPIFY_API_KEY", nil).presence || ENV.fetch("COD_FORM_EXTENSION_UUID", nil)),
           "legacy_theme_editor_url" => theme_editor_url(shop.shopify_domain, nil)
         }
       end
@@ -89,7 +89,7 @@ module CodForm
         value = asset.is_a?(Hash) ? asset.dig("asset", "value") : nil
         return unknown if value.nil?
 
-        parse(value, extension_uuid: ENV["COD_FORM_EXTENSION_UUID"]).merge("checked_at" => Time.current.utc.iso8601)
+        parse(value, extension_uuid: ENV.fetch("COD_FORM_EXTENSION_UUID", nil)).merge("checked_at" => Time.current.utc.iso8601)
       rescue StandardError => e
         Rails.logger.warn("[CodForm::EmbedStatusService] shop_id=#{shop.id} #{e.class}")
         unknown

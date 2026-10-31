@@ -187,11 +187,20 @@ export const resetTimer = (
 };
 
 function uuidv4() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c == "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  // Backs getMachineId(), which is used for device identity — same CSPRNG
+  // requirement as the other id generators in this bundle.
+  const rng =
+    typeof globalThis !== "undefined" && globalThis.crypto ? globalThis.crypto : null;
+  if (rng && typeof rng.randomUUID === "function") return rng.randomUUID();
+  if (rng && typeof rng.getRandomValues === "function") {
+    const bytes = new Uint8Array(16);
+    rng.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = [...bytes].map((b) => b.toString(16).padStart(2, "0"));
+    return `${hex.slice(0,4).join("")}-${hex.slice(4,6).join("")}-${hex.slice(6,8).join("")}-${hex.slice(8,10).join("")}-${hex.slice(10,16).join("")}`;
+  }
+  throw new Error("Secure random source unavailable; cannot generate id");
 }
 export function getMachineId() {
   let machineId = getSessionValue("MachineId");
@@ -289,12 +298,30 @@ export function removeLocalValue(key) {
 export function generatePassword() {
   const chars =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  const passwordLength = 8;
+  const passwordLength = 20;
+
+  // This value becomes the customer's Shopify account password, so it must come
+  // from a CSPRNG. Math.random() is a seeded PRNG whose internal state can be
+  // recovered from a few observed outputs, which would make every password
+  // generated afterwards in the same page predictable.
+  const rng =
+    typeof globalThis !== "undefined" && globalThis.crypto ? globalThis.crypto : null;
+  if (!rng || typeof rng.getRandomValues !== "function") {
+    // Fail closed rather than silently falling back to a predictable source.
+    throw new Error("Secure random source unavailable; cannot generate account password");
+  }
+
+  // Rejection sampling: plain modulo would make the first (256 % 62) characters
+  // of the alphabet more likely than the rest.
+  const limit = 256 - (256 % chars.length);
+  const buffer = new Uint8Array(passwordLength);
   let password = "";
 
-  for (let i = 0; i < passwordLength; i++) {
-    const randomIndex = Math.floor(Math.random() * chars.length);
-    password += chars[randomIndex];
+  while (password.length < passwordLength) {
+    rng.getRandomValues(buffer);
+    for (let i = 0; i < buffer.length && password.length < passwordLength; i++) {
+      if (buffer[i] < limit) password += chars[buffer[i] % chars.length];
+    }
   }
 
   return password;

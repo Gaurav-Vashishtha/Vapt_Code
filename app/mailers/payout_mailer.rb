@@ -21,7 +21,7 @@ class PayoutMailer < ApplicationMailer
     @payout_date = payout.payout_date
     @payment_method = payout.payment_method
 
-    admin_emails = ENV['WHATSAPP_APPROVERS_EMAIL_LIST'].to_s.strip
+    admin_emails = ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil).to_s.strip
     return if admin_emails.blank?
 
     mail(

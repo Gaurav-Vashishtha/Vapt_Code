@@ -6,7 +6,7 @@ module ShopifyJobs
       ShopifyServices::ProductDeleteService.call(shop, "gid://shopify/Product/#{product_id.gsub("gid://shopify/Product/","")}")
         SlackNotifier::CLIENT.ping(
           text: ":heart: Product destroyed (#{Rails.env}) \n*Store*: #{shop.shopify_domain}",
-          channel: ENV['SLACK_INSTALLS_CHANNEL']
+          channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
         )
     end
   end

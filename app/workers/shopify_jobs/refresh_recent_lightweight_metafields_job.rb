@@ -8,7 +8,7 @@ module ShopifyJobs
     # Runs inline (does NOT enqueue ShopifyJobs::RefreshMetafieldLightweightSettingsJob).
     # Criteria: genuine lightweight-settings change detected, but metafields not refreshed after that change.
     def perform
-      return if ENV["SKIP_LIGHTWEIGHT_METAFIELDS_QUEUE"] == "true"
+      return if ENV.fetch("SKIP_LIGHTWEIGHT_METAFIELDS_QUEUE", nil) == "true"
 
       processed = 0
       successes = 0

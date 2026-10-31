@@ -110,7 +110,7 @@ module NetworkServices
         return { "error" => "Conversion ID must be the full resource name (e.g. customers/1234567890/conversionActions/555666777)" }
       end
 
-      developer_token = ENV["GOOGLE_ADS_DEVELOPER_TOKEN"].to_s.presence
+      developer_token = ENV.fetch("GOOGLE_ADS_DEVELOPER_TOKEN", nil).to_s.presence
       if developer_token.blank?
         Rails.logger.warn "GoogleConversionService: GOOGLE_ADS_DEVELOPER_TOKEN not set; request may fail"
       end

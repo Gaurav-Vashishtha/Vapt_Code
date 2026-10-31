@@ -60,7 +60,7 @@ class CallTarget < ApplicationRecord
   def crisp_url
     return shop.crisp_url if segment != "churned" && shop.respond_to?(:crisp_url) && shop&.crisp_url.present?
 
-    website_id = ENV["CRISP_WEBSITE_ID"]
+    website_id = ENV.fetch("CRISP_WEBSITE_ID", nil)
     return nil if website_id.blank? || contact_email.blank?
 
     "https://go.crisp.chat/chat/embed/?website_id=#{website_id}&user_email=#{CGI.escape(contact_email)}"

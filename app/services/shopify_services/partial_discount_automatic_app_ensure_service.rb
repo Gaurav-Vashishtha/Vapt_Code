@@ -18,7 +18,7 @@ module ShopifyServices
 
       Rails.logger.info("[PartialDiscountAutomaticAppEnsureService] shop=#{@shop.shopify_domain} starting")
 
-      discount_function_id = ENV["PARTIAL_PAYMENT_DISCOUNT_FUNCTION_ID"].to_s.strip
+      discount_function_id = ENV.fetch("PARTIAL_PAYMENT_DISCOUNT_FUNCTION_ID", nil).to_s.strip
       if discount_function_id.blank?
         Rails.logger.warn("[PartialDiscountAutomaticAppEnsureService] shop=#{@shop.shopify_domain} missing PARTIAL_PAYMENT_DISCOUNT_FUNCTION_ID")
         return { ok: false, skipped: true, reason: "missing_discount_function_id" }

@@ -1,0 +1,48 @@
+# Keep build inputs, keep secrets and history out of the image.
+#
+# Dockerfile does `COPY . .`, so without this file the production image carried
+# .env (every credential the app has) and the whole .git history. Nothing in
+# here is needed at build or run time:
+#   - dotenv-rails is a development/test gem and BUNDLE_WITHOUT drops it, so
+#     .env is never even read in the image.
+#   - node_modules and public/packs are deliberately NOT ignored: webpacker
+#     compiles assets during the build from the context.
+
+# Secrets
+.env
+.env.*
+config/master.key
+config/credentials/*.key
+*.pem
+*.p12
+*.key
+
+# Version control and CI
+.git
+.gitignore
+.github
+
+# Local and editor state
+.DS_Store
+.vscode
+.idea
+*.swp
+
+# Runtime and build leftovers
+log/*
+tmp/*
+storage/*
+coverage
+.byebug_history
+yarn-error.log
+yarn-debug.log*
+stats.json
+
+# Docker's own files
+Dockerfile
+.dockerignore
+
+# Docs and scratch
+docs
+plans
+*.md

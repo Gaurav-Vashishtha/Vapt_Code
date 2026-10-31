@@ -159,8 +159,8 @@ module Meta
     # debug_token must be called with the APP access token, so we use a
     # throwaway client built from app credentials.
     def resolve_waba_from_token(access_token)
-      app_id = ENV['META_APP_ID']
-      app_secret = ENV['META_APP_SECRET']
+      app_id = ENV.fetch("META_APP_ID", nil)
+      app_secret = ENV.fetch("META_APP_SECRET", nil)
       return nil if app_id.blank? || app_secret.blank?
 
       app_client = Meta::GraphClient.new(token: "#{app_id}|#{app_secret}")

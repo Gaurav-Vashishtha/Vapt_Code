@@ -28,7 +28,7 @@ import {
   buildBuyerIdentityPayload,
   getStorefrontCartId,
 } from "../utilities/otpUtils";
-import { IS_BUY_NOW_BUTTON } from "../services/domUtils";
+import { getIsBuyNowButton } from "../services/domUtils";
 import {
   updateBuyerIdentity,
   removeDiscountCodeAndAttribute,
@@ -459,7 +459,7 @@ const useOtpStore = create((set, get) => ({
     set((state) => ({
       otpData: { ...state.otpData, isLoading: true },
     }));
-    if (IS_BUY_NOW_BUTTON) {
+    if (getIsBuyNowButton()) {
       manageBuyNowSkipButton();
       set((state) => ({ otpData: { ...state.otpData, isLoading: false } }));
     } else {
@@ -564,7 +564,7 @@ const useOtpStore = create((set, get) => ({
       console.error("Error skipping:", error);
       sendErrorToAPI(error, "otpStore.handleSkip", "error", {
         operation: "handleSkip",
-        isBuyNowButton: IS_BUY_NOW_BUTTON,
+        isBuyNowButton: getIsBuyNowButton(),
       });
     } finally {
       set({ isSkipLoading: false });

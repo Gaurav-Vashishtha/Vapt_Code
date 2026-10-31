@@ -21,7 +21,7 @@ module CustomBranded
     def call
       raise Error, "unknown event #{@event.inspect} — use one of: #{EVENTS.join(', ')}" unless EVENTS.include?(@event)
 
-      url = ENV['CB_WEBHOOK_FORWARD_URL'].to_s
+      url = ENV.fetch("CB_WEBHOOK_FORWARD_URL", nil).to_s
       raise Error, 'CB_WEBHOOK_FORWARD_URL is not configured' if url.blank?
 
       payload = build_payload
@@ -32,7 +32,7 @@ module CustomBranded
         'X-CB-Shop-Domain' => client.domain,
         'X-CB-Test' => 'true'
       }
-      secret = ENV['CB_WEBHOOK_FORWARD_SECRET'].to_s
+      secret = ENV.fetch("CB_WEBHOOK_FORWARD_SECRET", nil).to_s
       headers['X-CB-Signature'] = "sha256=#{OpenSSL::HMAC.hexdigest('SHA256', secret, body)}" if secret.present?
 
       delivery = record_delivery(payload)

@@ -13,7 +13,7 @@ module NetworkJobs
               s3_bucket_name = 'codkingdata' # change this to your S3 bucket name
               region = 'us-west-2'
               s3 = Aws::S3::Resource.new(region: region)
-              s3_client = Aws::S3::Client.new(region: 'us-west-2', access_key_id: ENV['AWS_SQS_ACCESS_KEY'], secret_access_key: ENV['AWS_SQS_ACCESS_SECRET'])
+              s3_client = Aws::S3::Client.new(region: 'us-west-2', access_key_id: ENV.fetch("AWS_SQS_ACCESS_KEY", nil), secret_access_key: ENV.fetch("AWS_SQS_ACCESS_SECRET", nil))
         
               # Read script_js_file from S3
               script_js_file_url = s3_url

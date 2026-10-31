@@ -60,10 +60,33 @@ function readLocalStorage(key) {
   return "";
 }
 
+// The modal is embedded by the merchant's theme, so the parent origin varies
+// per shop and is not known at build time. Resolve it at runtime rather than
+// posting to "*": ancestorOrigins is the browser's own answer (Chromium,
+// WebKit), the referrer's origin covers Firefox, and "*" is kept only as a last
+// resort so a stripped referrer degrades to the previous behaviour instead of
+// breaking attribution. The payload below is a bare request with no data in it.
+let parentOriginCache;
+
+function parentTargetOrigin() {
+  if (parentOriginCache !== undefined) return parentOriginCache;
+  parentOriginCache = "*";
+  try {
+    const ancestors = window.location.ancestorOrigins;
+    if (ancestors && ancestors.length > 0 && ancestors[0] && ancestors[0] !== "null") {
+      parentOriginCache = ancestors[0];
+    } else if (typeof document !== "undefined" && document.referrer) {
+      const origin = new URL(document.referrer).origin;
+      if (origin && origin !== "null") parentOriginCache = origin;
+    }
+  } catch (_e) {}
+  return parentOriginCache;
+}
+
 function requestMetaAttributionFromParent() {
   try {
     if (typeof window !== "undefined" && window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: "CODK_REQUEST_META_ATTRIBUTION" }, "*");
+      window.parent.postMessage({ type: "CODK_REQUEST_META_ATTRIBUTION" }, parentTargetOrigin());
     }
   } catch (_e) {}
 }

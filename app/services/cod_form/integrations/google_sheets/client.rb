@@ -26,7 +26,7 @@ module CodForm
         class RequestError < Error; end
 
         def self.configured?
-          ENV["GOOGLE_SHEETS_CLIENT_ID"].present? && ENV["GOOGLE_SHEETS_CLIENT_SECRET"].present?
+          ENV.fetch("GOOGLE_SHEETS_CLIENT_ID", nil).present? && ENV.fetch("GOOGLE_SHEETS_CLIENT_SECRET", nil).present?
         end
 
         def initialize(integration)
@@ -42,7 +42,7 @@ module CodForm
 
           response = CodForm::Tracking::Http.post_form(
             TOKEN_URL,
-            { "client_id" => ENV["GOOGLE_SHEETS_CLIENT_ID"], "client_secret" => ENV["GOOGLE_SHEETS_CLIENT_SECRET"],
+            { "client_id" => ENV.fetch("GOOGLE_SHEETS_CLIENT_ID", nil), "client_secret" => ENV.fetch("GOOGLE_SHEETS_CLIENT_SECRET", nil),
               "refresh_token" => refresh_token, "grant_type" => "refresh_token" }
           )
           raise TransientError, "token refresh: #{response.summary}" if response.retryable?

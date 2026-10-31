@@ -12,7 +12,7 @@ module ShopifyServices
     end
 
     def create_payment_function
-      function_id = ENV['PAYMENT_FUNCTION_ID'] # 👈 from env
+      function_id = ENV.fetch("PAYMENT_FUNCTION_ID", nil) # 👈 from env
     
       query = @client.parse <<-'GRAPHQL'
         mutation($input: PaymentCustomizationInput!) {

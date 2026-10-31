@@ -36,9 +36,9 @@ module NetworkServices
       ).length
 
       msg_count = @order_confirmation.twilio_logs.count
-      fallback_to_twilio = ENV['FALLBACK_TO_TWILLIO']
+      fallback_to_twilio = ENV.fetch("FALLBACK_TO_TWILLIO", nil)
     
-      if  ENV['BLACKLISTED_PHONE_NUMBERS'].split(',').include?@order_confirmation.customer_number
+      if  ENV.fetch("BLACKLISTED_PHONE_NUMBERS", nil).split(',').include?@order_confirmation.customer_number
         SlackNotifyJob.perform_async(
           ":rage:  (#{Rails.env})\n Blacklisted number found order ID #{@order_confirmation.order_id} shop #{@order_confirmation.shop.shopify_domain}"
         )
@@ -60,39 +60,39 @@ module NetworkServices
         else
           country_code = @order_confirmation.country_code.upcase
           network_provider = get_network_provider(country_code)
-          if (ENV['SMS_COUNTRY_COUNTRIES'].include?country_code) 
+          if (ENV.fetch("SMS_COUNTRY_COUNTRIES", nil).include?country_code) 
             sender_id = 'BNexTECH'
-            api_key = ENV['SMS_COUNTRY_BASE_64_KEY']
+            api_key = ENV.fetch("SMS_COUNTRY_BASE_64_KEY", nil)
             # base 64 encoding for API key and token Rwid37f5wtuDfBAkbYzx:cnNsv1GYPDCdIouKj8E5Yohh6TIp6SposonpTOZ3
             params = {
               text: get_sms_body,
               number:  @order_confirmation.customer_number
             }
             resp = SmsServices::SmsCountrySmsService.new(api_key, sender_id, params).call
-          elsif (ENV['MSG_91_SPECIAL_COUNTRIES'].include?country_code) && ((country_code=='PH' && network_provider=='MSG_91') || country_code!='PH')
+          elsif (ENV.fetch("MSG_91_SPECIAL_COUNTRIES", nil).include?country_code) && ((country_code=='PH' && network_provider=='MSG_91') || country_code!='PH')
             resp = ''
             sender_id = @shop.setting.sender
             if sender_id.blank?
               case 
-              when ENV['WALKER_COUNTRIES'].present? && ENV['WALKER_COUNTRIES'].split(',').include?(country_code)
+              when ENV.fetch("WALKER_COUNTRIES", nil).present? && ENV.fetch("WALKER_COUNTRIES", nil).split(',').include?(country_code)
                 sender_id = 'WALKER'
               when country_code == 'AE'
-                sender_id = ENV['MSG_91_UAE_SENDER']
+                sender_id = ENV.fetch("MSG_91_UAE_SENDER", nil)
               when country_code == 'SA' || country_code == 'PH'
-                sender_id = ENV['MSG91_SA_SENDER_ID']
+                sender_id = ENV.fetch("MSG91_SA_SENDER_ID", nil)
               when country_code == 'IN' 
-                sender_id = ENV['MSG_91_IN_SENDER']
+                sender_id = ENV.fetch("MSG_91_IN_SENDER", nil)
               else
-                sender_id = ENV['MSG91_SENDER_ID']
+                sender_id = ENV.fetch("MSG91_SENDER_ID", nil)
               end
             end
             
-            auth_key = ENV['MSG91_AUTHKEY']
+            auth_key = ENV.fetch("MSG91_AUTHKEY", nil)
             flow_id = ''
             if (!@shop.setting.dlt_template_id.blank?)
               flow_id = @shop.setting.dlt_template_id
             else
-              flow_id = country_code=='IN'? ENV['MSG91_FLOW_ID']:ENV['MSG91_SPECIAL_FLOW_ID']
+              flow_id = country_code=='IN'? ENV.fetch("MSG91_FLOW_ID", nil):ENV.fetch("MSG91_SPECIAL_FLOW_ID", nil)
             end
             
             customer_name = 'Customer'
@@ -100,12 +100,12 @@ module NetworkServices
               customer_name = @order_confirmation.customer_name
             end
             
-            redirect = ShopifyServices::CreateRedirectService.call(@order_confirmation.shop,"https://#{ENV["APP_HOST"]}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
+            redirect = ShopifyServices::CreateRedirectService.call(@order_confirmation.shop,"https://#{ENV.fetch("APP_HOST", nil)}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
             if @is_retry
               
               link_flow_id = @shop.setting.retry_flow_id
               if link_flow_id.blank?
-                link_flow_id= country_code=='IN'? ENV['MSG91_LINK_FLOW_ID']:ENV['MSG91_SPECIAL_LINK_FLOW_ID']
+                link_flow_id= country_code=='IN'? ENV.fetch("MSG91_LINK_FLOW_ID", nil):ENV.fetch("MSG91_SPECIAL_LINK_FLOW_ID", nil)
               end  
 
               resp = SmsServices::Msg91SmsRetryService.call(
@@ -135,47 +135,47 @@ module NetworkServices
                 }
               )
             end
-          elsif (ENV['WAVECELL_COUNTRIES'].include?country_code) 
+          elsif (ENV.fetch("WAVECELL_COUNTRIES", nil).include?country_code) 
             resp = SmsServices::WavecellSmsService.call(
-              ENV['WAVECELL_API_KEY'],
-              ENV['WAVECELL_SENDER_ID'],
+              ENV.fetch("WAVECELL_API_KEY", nil),
+              ENV.fetch("WAVECELL_SENDER_ID", nil),
             {
               to: @order_confirmation.customer_number,
               body: get_sms_body,
               dlt_id: @dlt_id.blank? ? @shop.setting.dlt_template_id : @dlt_id
             }
             )
-          elsif (ENV['MOBEEP_COUNTRIES'].include?country_code) 
+          elsif (ENV.fetch("MOBEEP_COUNTRIES", nil).include?country_code) 
             resp = SmsServices::MobeepSmsService.call(
-            ENV['MOBEEP_API_KEY'],
-            ENV['MOBEEP_SENDER_ID'],
+            ENV.fetch("MOBEEP_API_KEY", nil),
+            ENV.fetch("MOBEEP_SENDER_ID", nil),
           {
             to: @order_confirmation.customer_number,
             body: get_sms_body
           }
           )
-          elsif (ENV['MISR_COUNTRIES'].include?country_code)
+          elsif (ENV.fetch("MISR_COUNTRIES", nil).include?country_code)
           resp = SmsServices::MisrSmsService.call(
-            ENV['MISR_API_KEY'],
-            ENV['MISR_SENDER_ID'],
+            ENV.fetch("MISR_API_KEY", nil),
+            ENV.fetch("MISR_SENDER_ID", nil),
           {
             to: @order_confirmation.customer_number,
             body: get_sms_body
           })
-          elsif (ENV['MOVIDER_COUNTRIES'].include?country_code) && ((country_code=='PH' && network_provider=='MOVIDER') || country_code!='PH')
+          elsif (ENV.fetch("MOVIDER_COUNTRIES", nil).include?country_code) && ((country_code=='PH' && network_provider=='MOVIDER') || country_code!='PH')
             resp = SmsServices::MoviderSmsService.call(
-              "#{ENV['MOVIDER_API_KEY']}:#{ENV['MOVIDER_API_SECRET']}",
-              ENV['MOVIDER_SENDER_ID_OTP'],
+              "#{ENV.fetch("MOVIDER_API_KEY", nil)}:#{ENV.fetch("MOVIDER_API_SECRET", nil)}",
+              ENV.fetch("MOVIDER_SENDER_ID_OTP", nil),
             {
               to: @order_confirmation.customer_number,
               body: get_sms_body,
               dlt_id: ''
             }
             )
-          elsif (ENV['VEEVOTECH_COUNTRIES'].include?country_code) 
+          elsif (ENV.fetch("VEEVOTECH_COUNTRIES", nil).include?country_code) 
               resp = SmsServices::VeevotechSmsService.call(
-              ENV['VEEVOTECH_API_KEY'],
-              ENV['VEEVOTECH_SENDER_ID'],
+              ENV.fetch("VEEVOTECH_API_KEY", nil),
+              ENV.fetch("VEEVOTECH_SENDER_ID", nil),
             {
               to: @order_confirmation.customer_number,
               body: get_sms_body
@@ -183,7 +183,7 @@ module NetworkServices
             ) 
           else
             resp = TwilioServices::SendOtpService.new({
-              from: ENV["TWILIO_PHONE_NUMBER"],
+              from: ENV.fetch("TWILIO_PHONE_NUMBER", nil),
               to: @order_confirmation.customer_number,
               body: get_sms_body,
               country_code: @order_confirmation.country_code,
@@ -222,9 +222,11 @@ module NetworkServices
 
     private
 
+    # Never raises. A dead offline token (401), a deleted order or Shopify
+    # throttling returns nil, and the verification SMS still goes out with the
+    # order_status_url we already stored.
     def get_shopify_order(order_confirmation)
-      order_confirmation.shop.init_session
-      shopify_order = ShopifyAPI::Order.find(order_confirmation.order_id)
+      ShopifyServices::SafeOrderReader.find(order_confirmation.shop, order_confirmation.order_id)
     end
 
     def fetch_and_save_order_status_url(order_confirmation,shopify_order)
@@ -254,24 +256,17 @@ module NetworkServices
 
        shopify_order = get_shopify_order(@order_confirmation)
        fetch_and_save_order_status_url(@order_confirmation,shopify_order)
-        redirect = ShopifyServices::CreateRedirectService.call(@order_confirmation.shop,"https://#{ENV["APP_HOST"]}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
+        redirect = ShopifyServices::CreateRedirectService.call(@order_confirmation.shop,"https://#{ENV.fetch("APP_HOST", nil)}/order/verify?order_id=#{@order_confirmation.order_id}&code=#{@order_confirmation.persisted_otp}&id=#{@order_confirmation.shop.id}")
         if !redirect.blank?
           body = body.gsub("{{link}}", redirect)
         end
       end
-      customer_name=''
-      if !@order_confirmation.customer_name.blank?
-        customer_name = @order_confirmation.customer_name&.partition(" ")&.first
-      end
+      customer_name = Notifications::Defaults.first_name(@order_confirmation.customer_name)
+      order_number = Notifications::Defaults.value(@order_confirmation.order_number)
 
-      order_number=''
-      if !@order_confirmation.order_number.blank?
-        order_number = @order_confirmation.order_number
-      end
-
-      body.gsub("{{otp}}", @order_confirmation.persisted_otp)
+      body.gsub("{{otp}}", @order_confirmation.persisted_otp.to_s)
           .gsub("{{name}}", customer_name)
-          .gsub("{{amount}}", @order_confirmation.order_amount)
+          .gsub("{{amount}}", Notifications::Defaults.value(@order_confirmation.order_amount))
           .gsub("{{store_url}}", @order_confirmation.shop.shopify_domain)
           .gsub("{{store_url}}", @order_confirmation.shop.shopify_domain)
           .gsub("{{number}}", order_number)

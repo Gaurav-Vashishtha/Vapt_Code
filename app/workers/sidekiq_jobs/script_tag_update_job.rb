@@ -26,7 +26,7 @@ module SidekiqJobs
                 event: 'onload',
                 display_scope: 'order_status',
                 cache: Rails.env.production?,
-                src:   "https://#{ENV['APP_HOST']}/script.js" 
+                src:   "https://#{ENV.fetch("APP_HOST", nil)}/script.js" 
               }
               st = ShopifyAPI::ScriptTag.new(scripttag)
               if st.save

@@ -42,7 +42,7 @@ class Api::ActiveSubscriptionsController < ActionController::API
 
   def authenticate_client_token!
     supplied = params[:clientToken].presence || request.headers['X-Client-Token'].presence
-    expected = ENV['EASY_SELL_AUTH_TOKEN'].presence
+    expected = ENV.fetch("EASY_SELL_AUTH_TOKEN", nil).presence
     return if supplied && expected && ActiveSupport::SecurityUtils.secure_compare(supplied.to_s, expected)
 
     render json: { status: 'Error', message: 'Unauthorized access' }, status: :unauthorized

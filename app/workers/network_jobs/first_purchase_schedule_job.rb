@@ -12,7 +12,19 @@ module NetworkJobs
             shop,
             order_confirmation.order_id
           )
-          numberOfOrders = params.dig('customer','numberOfOrders') && params.dig('customer','numberOfOrders').to_i 
+          # params is nil whenever Shopify was unreadable (dead token, deleted
+          # order). Fall back to the orders we hold for this customer rather
+          # than dying on nil, and skip entirely when even that is unavailable
+          # — better no message than a "first purchase" greeting to a repeat
+          # buyer.
+          numberOfOrders = params&.dig('customer','numberOfOrders')
+          numberOfOrders = numberOfOrders.present? ? numberOfOrders.to_i : local_orders_count(shop, order_confirmation)
+          if numberOfOrders.blank?
+            Rails.logger.warn(
+              "[first_purchase] cannot determine order count shop=#{shop.shopify_domain} order=#{order_confirmation.order_id} — skipping"
+            )
+            return
+          end
           if numberOfOrders <= 1
             # Schedule it according to configuration.
             if !shop.setting.first_purchase_schedule.blank?
@@ -27,6 +39,20 @@ module NetworkJobs
       else
         return
       end
+    end
+
+    # Lower bound on how many orders this customer has placed with this shop,
+    # from our own records — exactly what the `<= 1` first-purchase test needs:
+    # if we already hold two orders for the number, it isn't their first.
+    # nil when there's no phone number to count by.
+    def local_orders_count(shop, order_confirmation)
+      number = order_confirmation.customer_number
+      return nil if number.blank?
+
+      shop.order_confirmations.where(customer_number: number).count
+    rescue StandardError => e
+      Rails.logger.warn("[first_purchase] local order count failed shop=#{shop&.id}: #{e.class}: #{e.message}")
+      nil
     end
   end
 end

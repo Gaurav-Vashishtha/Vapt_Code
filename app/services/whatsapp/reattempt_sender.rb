@@ -22,7 +22,7 @@ module Whatsapp
 
       response = HTTParty.post(
         url,
-        headers: { 'Content-Type' => 'application/json', 'authkey' => ENV['MSG91_AUTHKEY'].to_s },
+        headers: { 'Content-Type' => 'application/json', 'authkey' => ENV.fetch("MSG91_AUTHKEY", nil).to_s },
         body: body.to_json,
         timeout: 20
       )

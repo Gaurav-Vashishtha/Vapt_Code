@@ -22,7 +22,7 @@ module NetworkServices
 
       headers = {
         'Content-Type' => 'application/json',
-        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV['MSG91_AUTHKEY']
+        'authkey' => shop.setting.whatsapp_operator_config.presence || ENV.fetch("MSG91_AUTHKEY", nil)
       }
 
       payload = build_payload
@@ -62,7 +62,7 @@ module NetworkServices
     end
 
     def blacklisted_number?
-      ENV['BLACKLISTED_PHONE_NUMBERS'].to_s.split(',').include?(@order_confirmation.customer_number).tap do |blacklisted|
+      ENV.fetch("BLACKLISTED_PHONE_NUMBERS", nil).to_s.split(',').include?(@order_confirmation.customer_number).tap do |blacklisted|
         if blacklisted
           SlackNotifyJob.perform_async(":rage:  (#{Rails.env})\n Blacklisted number found - Whatsapp - order ID #{@order_confirmation.order_id} shop #{@shop.shopify_domain}")
         end
@@ -70,12 +70,12 @@ module NetworkServices
     end
 
     def otp_template_name
-      @shop.setting.whatsapp_pre_verify_otp_template.presence || ENV['MSG91_TEMPLATE_NAME'] || 'pre_verify_otp'
+      @shop.setting.whatsapp_pre_verify_otp_template.presence || ENV.fetch("MSG91_TEMPLATE_NAME", nil) || 'pre_verify_otp'
     end
 
     def build_payload
       {
-        integrated_number: @shop.setting.branded_whatsapp_number.presence || ENV['WHATSAPP_NUMBER_DEFAULT'],
+        integrated_number: @shop.setting.branded_whatsapp_number.presence || ENV.fetch("WHATSAPP_NUMBER_DEFAULT", nil),
         content_type: 'template',
         payload: {
           messaging_product: 'whatsapp',
@@ -86,7 +86,7 @@ module NetworkServices
               code: ::Whatsapp::TemplateLanguage.for(@shop, otp_template_name),
               policy: 'deterministic'
             },
-            namespace: ENV['MSG91_TEMPLATE_NAMESPACE'] || '42f54ee8_898d_4edf_953e_7209c3f37deb',
+            namespace: ENV.fetch("MSG91_TEMPLATE_NAMESPACE", nil) || '42f54ee8_898d_4edf_953e_7209c3f37deb',
             to_and_components: [
               {
                 to: [@order_confirmation.customer_number],
@@ -109,7 +109,7 @@ module NetworkServices
     end
 
     def generate_tracking_url
-      "#{ENV['OTP_TRACKING_BASE_URL']}/track/#{@order_confirmation.order_id}"
+      "#{ENV.fetch("OTP_TRACKING_BASE_URL", nil)}/track/#{@order_confirmation.order_id}"
     end
 
     def log_response(response, payload = nil)

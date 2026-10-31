@@ -8,7 +8,7 @@ import {
   setSessionValue,
 } from "../utilities/otpUtils"; // Adjust path if necessary
 import useOtpStore from "../stores/otpStore";
-import { IS_BUY_NOW_BUTTON } from "../services/domUtils";
+import { getIsBuyNowButton } from "../services/domUtils";
 
 // Helper function to check if the product details trigger is active
 
@@ -53,9 +53,9 @@ const OtpVerifiedMessage = ({ onClose }) => {
       if (isRedirecting) return; // Prevent duplicate calls
       isRedirecting = true;
 
-      if (IS_BUY_NOW_BUTTON && triggerActive == true) {
+      if (getIsBuyNowButton() && triggerActive == true) {
         handleBuyNowFlow();
-      } else if (!IS_BUY_NOW_BUTTON) {
+      } else if (!getIsBuyNowButton()) {
         redirectTOCheckout();
         debugLog(
           "Non 'Buy Now' flow detected. Redirecting to checkout immediately..."

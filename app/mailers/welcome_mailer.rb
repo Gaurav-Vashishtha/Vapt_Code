@@ -84,7 +84,7 @@ class WelcomeMailer < ApplicationMailer
     @admin_panel_url = referral_admin_referral_partners_url(**referral_program_mailer_url_options)
     
     mail(
-      to: ENV['WHATSAPP_APPROVERS_EMAIL_LIST'] || 'adbhatia1989@gmail.com,support@notifiktech.com', # Set your admin email
+      to: ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil) || 'adbhatia1989@gmail.com,support@notifiktech.com', # Set your admin email
       subject: "New Referral Partner Signup - #{@partner.name}"
     )
   end
@@ -238,7 +238,7 @@ class WelcomeMailer < ApplicationMailer
     crisp_url_init(shop.owner_email)
     mail(
       to: shop.owner_email,
-      cc: ENV['WHATSAPP_APPROVERS_EMAIL_LIST'],
+      cc: ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil),
       subject: "WhatsApp Approval Request | #{Date.today}"
     )
   end
@@ -255,7 +255,7 @@ class WelcomeMailer < ApplicationMailer
     crisp_url_init(shop.owner_email)
     mail(
       to: shop.owner_email,
-      cc: ENV['WHATSAPP_APPROVERS_EMAIL_LIST'],
+      cc: ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil),
       subject: "Free upgrade to Branded SMS - Sender ID registeration - COD King"
     )
   end
@@ -270,7 +270,7 @@ class WelcomeMailer < ApplicationMailer
     crisp_url_init(shop.owner_email)
     mail(
       to: shop.owner_email,
-      cc: ENV['WHATSAPP_APPROVERS_EMAIL_LIST'],
+      cc: ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil),
       subject: "Congratulations - COD King WhatsApp account Approved"
     )
   end
@@ -284,7 +284,7 @@ class WelcomeMailer < ApplicationMailer
     crisp_url_init(shop.owner_email)
     mail(
       to: shop.owner_email,
-      bcc: ENV['WHATSAPP_APPROVERS_EMAIL_LIST'],
+      bcc: ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil),
       subject: "Important - COD King WhatsApp account could not be approved "
     )
   end
@@ -319,7 +319,7 @@ class WelcomeMailer < ApplicationMailer
     @shopify_domain = "https://#{shop.shopify_domain}/admin/apps/cod-verification"
     @name = shop.shop_owner
     crisp_url_init(shop.owner_email)
-    mail(to: shop.owner_email, bcc: ENV['WHATSAPP_APPROVERS_EMAIL_LIST'], subject: "COD King SMS/Whatsapp Locked")
+    mail(to: shop.owner_email, bcc: ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil), subject: "COD King SMS/Whatsapp Locked")
   end
 
   def whatsapp_branding_removed_downgrade(shop_id)
@@ -336,7 +336,7 @@ class WelcomeMailer < ApplicationMailer
     @shopify_domain = shop.shopify_domain
     @shop_name = shop.owner_name.presence || shop.shopify_domain
     @previous_whatsapp_number = previous_whatsapp_number
-    approver_emails = ENV['WHATSAPP_APPROVERS_EMAIL_LIST'].to_s.strip
+    approver_emails = ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil).to_s.strip
     approver_emails = 'support@notifiktech.com' if approver_emails.blank?
     mail(to: approver_emails, subject: "COD King – Remove WhatsApp number from Operator (#{shop.shopify_domain})")
   end
@@ -363,7 +363,7 @@ class WelcomeMailer < ApplicationMailer
     @shop_name = @shop.owner_name
     crisp_url_init(@shop.owner_email)
 
-    approver_emails = ENV["WHATSAPP_APPROVERS_EMAIL_LIST"].to_s.strip
+    approver_emails = ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil).to_s.strip
     approver_emails = "support@notifiktech.com" if approver_emails.blank?
 
     mail(
@@ -376,7 +376,7 @@ class WelcomeMailer < ApplicationMailer
   private
   def crisp_url_init(sender_mail)
     token = Digest::MD5.hexdigest(@shopify_domain)
-    @crisp_url="https://go.crisp.chat/chat/embed/?website_id=#{ENV['CRISP_WEBSITE_ID']}&user_email=#{sender_mail}&user_nickname=#{@name}&token_id=#{token}"
+    @crisp_url="https://go.crisp.chat/chat/embed/?website_id=#{ENV.fetch("CRISP_WEBSITE_ID", nil)}&user_email=#{sender_mail}&user_nickname=#{@name}&token_id=#{token}"
   end
 end
 

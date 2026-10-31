@@ -57,12 +57,17 @@ export const injectCustomCode = (openModal) => {
   openModal();
 };
 
-export let IS_BUY_NOW_BUTTON = false;
+// Module state read by several components. Exposed through a getter rather than
+// an exported `let`, so the mutation happens in one place instead of consumers
+// relying on live-binding semantics.
+let isBuyNowButton = false;
+export const getIsBuyNowButton = () => isBuyNowButton;
+
 export const checkAndAddBuyNow = (clickedButton) => {
-  IS_BUY_NOW_BUTTON = checkShopifyBuyNowButtons(clickedButton);
-  debugLog("IS_BUY_NOW_BUTTON", IS_BUY_NOW_BUTTON);
+  isBuyNowButton = checkShopifyBuyNowButtons(clickedButton);
+  debugLog("isBuyNowButton", isBuyNowButton);
   // adding the data in cart for buy now button
-  // if (IS_BUY_NOW_BUTTON) {
+  // if (isBuyNowButton) {
   //   shopifyAddToCartForBuyNow();
   // }
 };

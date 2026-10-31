@@ -5,7 +5,7 @@ class RedirectMiddleware
   
     def call(env)
       if !Rails.env.development? && env['PATH_INFO'] == '/script.js'
-        return redirect("#{ENV['SCRIPT_JS_URL']}", 302)
+        return redirect("#{ENV.fetch("SCRIPT_JS_URL", nil)}", 302)
       end
       @app.call(env)
     end

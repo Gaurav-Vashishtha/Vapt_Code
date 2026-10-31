@@ -15,7 +15,7 @@ module TwilioHelper
     request = Twilio::TwiML::VoiceResponse.new do |r|
       2.times {
         r.gather(
-          action: "https://#{ENV['APP_HOST']}#{webhook_path}",
+          action: "https://#{ENV.fetch("APP_HOST", nil)}#{webhook_path}",
           numDigits: '1',
           method: 'POST'
         ) do |g|

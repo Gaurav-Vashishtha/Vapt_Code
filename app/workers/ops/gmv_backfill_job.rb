@@ -59,7 +59,7 @@ module Ops
     end
 
     def earliest_date(zone)
-      configured = ENV['OPS_GMV_BACKFILL_FROM'].presence && Date.parse(ENV['OPS_GMV_BACKFILL_FROM'])
+      configured = ENV.fetch("OPS_GMV_BACKFILL_FROM", nil).presence && Date.parse(ENV.fetch("OPS_GMV_BACKFILL_FROM", nil))
       return configured if configured
 
       first = OrderConfirmation.order(:id).limit(1).pick(:created_at)

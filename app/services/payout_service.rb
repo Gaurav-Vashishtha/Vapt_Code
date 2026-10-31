@@ -363,7 +363,7 @@ class PayoutService
     end
 
     # Email to admin(s) - ENV['WHATSAPP_APPROVERS_EMAIL_LIST'] (comma-separated)
-    if ENV['WHATSAPP_APPROVERS_EMAIL_LIST'].to_s.strip.present?
+    if ENV.fetch("WHATSAPP_APPROVERS_EMAIL_LIST", nil).to_s.strip.present?
       begin
         PayoutMailer.payout_completed_to_admin(payout).deliver_now
         Rails.logger.info "✅ Payout notification sent to admin(s)"

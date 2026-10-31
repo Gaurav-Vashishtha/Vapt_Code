@@ -19,6 +19,21 @@ import WhatsappErrorBanner from "../WhatsappErrorBanner";
 import { navigateTo } from "../../../utils/navigate";
 
 import I18n from "../../i18n-lang";
+
+// Meta serves the WhatsApp Embedded Signup dialog from several hosts
+// (facebook.com, www., web., business., and localised variants), so match on the
+// hostname rather than a fixed list. Checking the parsed hostname — not a string
+// suffix — is what keeps a lookalike such as https://evilfacebook.com out: its
+// hostname neither equals "facebook.com" nor ends with ".facebook.com".
+const isFacebookOrigin = (origin) => {
+  try {
+    const url = new URL(origin);
+    if (url.protocol !== "https:") return false;
+    return url.hostname === "facebook.com" || url.hostname.endsWith(".facebook.com");
+  } catch (_e) {
+    return false;
+  }
+};
 const META_APP_ID = process.env.META_APP_ID;
 const META_CONFIG_ID = process.env.META_CONFIG_ID;
 const META_GRAPH_API_VERSION = process.env.META_GRAPH_API_VERSION || "v22.0";
@@ -125,7 +140,9 @@ const WhatsappAccountsTab = () => {
 
   useEffect(() => {
     const onMessage = (event) => {
-      if (!event.origin.endsWith("facebook.com")) return;
+      // Embedded Signup is hosted by Meta; only accept the WABA / phone ids
+      // from Facebook itself.
+      if (!isFacebookOrigin(event.origin)) return;
       try {
         const data = typeof event.data === "string" ? JSON.parse(event.data) : event.data;
         if (data?.type === "WA_EMBEDDED_SIGNUP") {

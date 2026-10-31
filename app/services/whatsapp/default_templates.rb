@@ -34,18 +34,18 @@ module Whatsapp
       when "fulfilment" then %w[order_fulfilment order_fulfilment_with_tracking_number]
       when "abandoned_cart"
         [
-          ENV["WHATSAPP_AC_TEMPLATE_WITH_IMAGE"].presence || "ac5_with_image",
-          ENV["WHATSAPP_AC_TEMPLATE_WITHOUT_IMAGE"].presence || "ac4_without_image"
+          ENV.fetch("WHATSAPP_AC_TEMPLATE_WITH_IMAGE", nil).presence || "ac5_with_image",
+          ENV.fetch("WHATSAPP_AC_TEMPLATE_WITHOUT_IMAGE", nil).presence || "ac4_without_image"
         ]
       when "abandoned_cart_discount"
         [
           # Discount reminders on the default number use the _ALT image template.
-          ENV["WHATSAPP_AC_DISCOUNT_TEMPLATE_WITH_IMAGE_ALT"].presence || "ac_with_discount_with_image2",
-          ENV["WHATSAPP_AC_DISCOUNT_TEMPLATE_WITHOUT_IMAGE"].presence || "ac_with_discount"
+          ENV.fetch("WHATSAPP_AC_DISCOUNT_TEMPLATE_WITH_IMAGE_ALT", nil).presence || "ac_with_discount_with_image2",
+          ENV.fetch("WHATSAPP_AC_DISCOUNT_TEMPLATE_WITHOUT_IMAGE", nil).presence || "ac_with_discount"
         ]
       when "cod_verification" then ["cod_verification_link5"]
       when "first_purchase" then ["first_purchase"]
-      when "pre_verify_otp" then ["pre_verify_otp1", ENV["MSG91_TEMPLATE_NAME"].presence || "pre_verify_otp"]
+      when "pre_verify_otp" then ["pre_verify_otp1", ENV.fetch("MSG91_TEMPLATE_NAME", nil).presence || "pre_verify_otp"]
       when "prepaid" then ["order_tracking_new", *Whatsapp::PrepaidTemplateLibrary.all.map { |e| e[:msg91_template_name] }]
       else []
       end.uniq

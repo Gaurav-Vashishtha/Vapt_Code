@@ -25,7 +25,7 @@ module SidekiqJobs
           webhook_removed.push(shop.shopify_domain)
           webhook1 =  {
             topic: 'app/uninstalled',
-            address: "https://#{ENV['APP_HOST']}/webhooks/uninstall",
+            address: "https://#{ENV.fetch("APP_HOST", nil)}/webhooks/uninstall",
             format: 'json'
           }
        

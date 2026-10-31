@@ -4,7 +4,7 @@
   import Chart from './lib/Chart.svelte';
   import DataTable from './lib/DataTable.svelte';
   import { timeChart } from './lib/charts.js';
-  import { fetchOverview } from './lib/api.js';
+  import { fetchOverview, fetchCustomerSync, setCustomerSyncMode } from './lib/api.js';
   import { num, inr, inrExact, usd, shortDate, dateTime, isoDate } from './lib/fmt.js';
 
   const today = () => new Date();
@@ -39,7 +39,44 @@
     load();
   }
 
-  onMount(load);
+  let sync = $state(null);
+  let syncError = $state('');
+  let syncBusy = $state(false);
+
+  async function loadSync() {
+    try {
+      sync = await fetchCustomerSync();
+      syncError = '';
+    } catch (e) {
+      syncError = e.message;
+    }
+  }
+
+  async function changeMode(mode) {
+    const prompts = {
+      killed: 'KILL all customer loading now? Running Shopify exports are cancelled and loading stops.',
+      paused: 'Pause? No new exports start; loads already staged keep going.',
+      running: 'Resume customer loading?'
+    };
+    if (!confirm(prompts[mode])) return;
+    const reason = mode === 'running' ? null : prompt('Reason (optional)') || null;
+    syncBusy = true;
+    try {
+      sync = await setCustomerSyncMode(mode, reason);
+      syncError = '';
+    } catch (e) {
+      syncError = e.message;
+    } finally {
+      syncBusy = false;
+    }
+  }
+
+  onMount(() => {
+    load();
+    loadSync();
+    const timer = setInterval(loadSync, 20000);
+    return () => clearInterval(timer);
+  });
 
   const dates = $derived(data ? data.revenue.days.map((d) => d.date) : []);
   const activePreset = $derived(
@@ -48,10 +85,11 @@
 
   const kpis = $derived.by(() => {
     if (!data) return [];
-    const r = data.revenue.totals, s = data.subscriptions.totals, g = data.gmv.totals, a = data.active_subscriptions.latest;
+    const r = data.revenue.totals, s = data.subscriptions.totals, g = data.gmv.totals, a = data.active_subscriptions.latest, dc = data.dynamic_charges;
     return [
       { label: 'Net revenue', value: usd(r.net), sub: `Gross ${usd(r.gross)}` },
       { label: 'Usage charges', value: usd(r.usage), sub: 'AppUsageSale, net' },
+      { label: 'Created by job', value: dc.tracking_since ? usd(dc.totals.amount, 2) : '—', sub: dc.tracking_since ? `${num(dc.totals.charges)} charges · DynamicChargeJob` : 'Tracking starts at next job run' },
       { label: 'Subscription revenue', value: usd(r.subscription), sub: 'AppSubscriptionSale, net' },
       { label: 'GMV via COD King', value: inr(g.gmv), sub: `${num(g.orders)} orders` },
       { label: 'Active subscriptions', value: a ? num(a.count) : '—', sub: a ? `${usd(a.mrr_usd)} MRR · ${shortDate(a.date)}` : 'No snapshot yet' },
@@ -69,6 +107,9 @@
     else if (g.coverage_from > data.range.from) out.push(`GMV is complete only from ${shortDate(g.coverage_from)} (history backfill still running). Earlier days show zero.`);
     if (g.unconverted.length) out.push(`GMV totals exclude currencies without an INR rate: ${g.unconverted.map((u) => `${u.currency} (${num(u.orders)} orders)`).join(', ')}. Add rates in OPS_FX_RATES.`);
     if (g.unparsed_orders) out.push(`${num(g.unparsed_orders)} orders had a missing or non-numeric amount and are counted in orders but not in GMV.`);
+    const dcs = data.dynamic_charges.tracking_since;
+    if (!dcs) out.push('Job-created usage charges are recorded from the first DynamicChargeJob run after this deploy. Nothing to show yet.');
+    else if (dcs > data.range.from) out.push(`Job-created usage charges are tracked from ${shortDate(dcs)}; earlier days show zero (the job never stored them). Shopify's own figure is in the revenue chart.`);
     if (data.revenue.totals.gross === 0 && data.revenue.totals.net === 0) out.push('No partner sales in this range. They sync hourly from the Shopify Partner API.');
     return out;
   });
@@ -176,7 +217,56 @@
     { key: 'at', label: 'When', fmt: dateTime },
     { key: 'error', label: 'Error' }
   ];
+  const bulkQueueCols = [
+    { key: 'domain', label: 'Shop' },
+    { key: 'unloaded', label: 'Unloaded', align: 'right', fmt: num },
+    { key: 'shopify_customers', label: 'On Shopify', align: 'right', fmt: num },
+    { key: 'loaded', label: 'Loaded', align: 'right', fmt: num },
+    { key: 'status', label: 'Status' },
+    { key: 'failures', label: 'Failures', align: 'right', fmt: num }
+  ];
+  const bulkRecentCols = [
+    { key: 'domain', label: 'Shop' },
+    { key: 'kind', label: 'Type' },
+    { key: 'loaded', label: 'Customers', align: 'right', fmt: num },
+    { key: 'failed_rows', label: 'Failed rows', align: 'right', fmt: num },
+    { key: 'loaded_at', label: 'Loaded', fmt: dateTime }
+  ];
   const bulkStatusOrder = ['requested', 'running', 'completed', 'loading', 'loaded', 'failed'];
+  const dcChart = $derived((t) => timeChart(t, {
+    dates,
+    series: [
+      { name: 'Created by DynamicChargeJob', data: data.dynamic_charges.days.map((d) => d.amount) },
+      { name: 'Recorded by Shopify (gross usage)', data: data.revenue.days.map((d) => d.usage_gross) }
+    ],
+    fmt: (v) => usd(v, 2), yFmt: (v) => usd(v)
+  }));
+  const dcRows = $derived(
+    data
+      ? data.dynamic_charges.days.map((d, i) => {
+          const shopify = data.revenue.days[i]?.usage_gross ?? 0;
+          return { ...d, shopify, diff: Math.round((d.amount - shopify) * 100) / 100 };
+        })
+      : []
+  );
+  const dcCols = [
+    { key: 'date', label: 'Date', fmt: shortDate },
+    { key: 'amount', label: 'Created', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'shopify', label: 'Shopify gross', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'diff', label: 'Diff', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'charges', label: 'Charges', align: 'right', fmt: num },
+    { key: 'failed_charges', label: 'Failed', align: 'right', fmt: num },
+    { key: 'capped_shops', label: 'Capped', align: 'right', fmt: num },
+    { key: 'sms', label: 'SMS', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'whatsapp', label: 'WA (MSG91)', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'whatsapp_bsp', label: 'WA (BSP)', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'preorder', label: 'Pre-order OTP', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'abandoned_sms', label: 'Abandoned SMS', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'abandoned_whatsapp', label: 'Abandoned WA', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'prepaid', label: 'Prepaid %', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'partial_payment', label: 'Partial pay', align: 'right', fmt: (v) => usd(v, 2) },
+    { key: 'runs', label: 'Runs', align: 'right', fmt: num }
+  ];
   const planRows = $derived(
     data?.active_subscriptions.latest
       ? Object.entries(data.active_subscriptions.latest.plans || {}).map(([plan, v]) => ({ plan, count: v.count, revenue: v.revenue }))
@@ -233,6 +323,13 @@
         <Card title="Revenue per day" note="Shopify Partner API, net of Shopify's share · USD">
           {#snippet chart()}<Chart build={revenueChart} label="Stacked bars of daily usage, subscription and adjustment revenue" />{/snippet}
           {#snippet table()}<DataTable columns={revenueCols} rows={data.revenue.days} />{/snippet}
+        </Card>
+      </div>
+
+      <div class="span2">
+        <Card title="Usage charges created by DynamicChargeJob" note="From our own ledger, written at the end of each job run · compared with what Shopify recorded the same day (gross, all usage sources) · USD · IST days">
+          {#snippet chart()}<Chart build={dcChart} label="Daily usage charges created by the job versus recorded by Shopify" />{/snippet}
+          {#snippet table()}<DataTable columns={dcCols} rows={dcRows} />{/snippet}
         </Card>
       </div>
 
@@ -296,12 +393,18 @@
         </Card>
       </div>
 
-      {#if data.customer_bulk}
+      {#if sync || data.customer_bulk}
         <div class="span2">
-          <Card title="Bulk customer import" note="Shopify builds the customer file → we load it at a throttled pace. Works through the address pipeline backlog">
+          <Card title="Bulk customer import" note="One coordinator picks the shop with the most unloaded customers; Shopify builds the file, we load it throttled">
             {#snippet chart()}
-              {@const b = data.customer_bulk}
+              {@const b = sync || data.customer_bulk}
               <div class="chips">
+                <span class="chip" class:ok={b.control.mode === 'running'} class:bad={b.control.mode === 'killed'} class:warn={b.control.mode === 'paused'}>
+                  {b.control.mode === 'killed' ? 'KILLED' : b.control.mode === 'paused' ? 'PAUSED' : 'RUNNING'}
+                </span>
+                <span class="chip" class:ok={b.control.coordinator_alive} class:bad={!b.control.coordinator_alive}>
+                  Coordinator {b.control.coordinator_alive ? `alive · ${b.control.coordinator_age_seconds}s ago` : 'not ticking'}
+                </span>
                 <span class="chip" class:ok={b.config.export_enabled} class:off={!b.config.export_enabled}>
                   Export {b.config.export_enabled ? 'on' : 'off'}
                 </span>
@@ -310,12 +413,32 @@
                 </span>
                 <span class="chip">Window {b.config.load_window} IST</span>
                 <span class="chip">{b.config.batch} rows / {b.config.pause_ms} ms</span>
+                {#if b.config.legacy_pull_enabled}<span class="chip bad">Legacy pull ON</span>{/if}
               </div>
+              {#if sync}
+                <div class="actions">
+                  {#if sync.control.mode === 'running'}
+                    <button type="button" disabled={syncBusy} onclick={() => changeMode('paused')}>Pause</button>
+                    <button type="button" class="danger" disabled={syncBusy} onclick={() => changeMode('killed')}>Kill switch</button>
+                  {:else}
+                    <button type="button" disabled={syncBusy} onclick={() => changeMode('running')}>Resume</button>
+                    {#if sync.control.mode === 'paused'}
+                      <button type="button" class="danger" disabled={syncBusy} onclick={() => changeMode('killed')}>Kill switch</button>
+                    {/if}
+                    <span class="muted">{sync.control.reason || ''} {sync.control.changed_by ? `· ${sync.control.changed_by}` : ''}</span>
+                  {/if}
+                  {#if syncError}<span class="muted">{syncError}</span>{/if}
+                </div>
+              {/if}
               <div class="stats">
-                <div><b>{num(b.pending_queue)}</b><span>shops pending in queue</span></div>
-                <div><b>{num(b.staged_rows_remaining)}</b><span>customers staged, not loaded</span></div>
-                <div><b>{num(b.today.customers_loaded)}</b><span>customers loaded today ({num(b.today.exports_loaded)} shops)</span></div>
+                <div><b>{num(b.totals.shopify_customers)}</b><span>customers on Shopify ({num(b.totals.shops_tracked)} shops)</span></div>
+                <div><b>{num(b.totals.loaded_customers)}</b><span>loaded ({b.totals.loaded_pct}%)</span></div>
+                <div><b>{num(b.totals.unloaded_customers)}</b><span>unloaded ({num(b.totals.shops_with_backlog)} shops waiting)</span></div>
+                <div><b>{num(b.staged_rows_remaining)}</b><span>staged at Shopify files, not loaded</span></div>
+                <div><b>{num(b.today.customers_loaded)}</b><span>loaded today ({num(b.today.shops_processed)} shops)</span></div>
                 <div><b>{num(b.today.rows_failed)}</b><span>rows failed today</span></div>
+                <div><b>{num(b.totals.shops_needing_attention)}</b><span>shops needing attention</span></div>
+                {#if b.totals.shops_unreachable != null}<div><b>{num(b.totals.shops_unreachable)}</b><span>shops skipped (uninstalled or token revoked)</span></div>{/if}
               </div>
               <p class="muted statuses">
                 {#each bulkStatusOrder.filter((k) => b.counts[k]) as k}<span>{k} {num(b.counts[k])}</span>{/each}
@@ -323,6 +446,10 @@
               </p>
               <h3>In flight</h3>
               <div class="scroll"><DataTable columns={bulkActiveCols} rows={b.active} empty="Nothing in flight." /></div>
+              <h3>Up next (most unloaded first)</h3>
+              <div class="scroll"><DataTable columns={bulkQueueCols} rows={b.queue} empty="No shop has unloaded customers." /></div>
+              <h3>Recently loaded</h3>
+              <div class="scroll"><DataTable columns={bulkRecentCols} rows={b.recent_loaded} empty="Nothing loaded yet." /></div>
               {#if b.failures.length}
                 <h3>Recent failures</h3>
                 <div class="scroll"><DataTable columns={bulkFailCols} rows={b.failures} /></div>
@@ -346,6 +473,12 @@
   .chip { font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--text-2); background: var(--bg); }
   .chip.ok { color: var(--series-3); border-color: var(--series-3); }
   .chip.off { color: var(--text-3); }
+  .chip.bad { color: #b42318; border-color: #b42318; }
+  .chip.warn { color: #b54708; border-color: #b54708; }
+  .actions { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .actions button { border: 1px solid var(--border); background: var(--bg); border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+  .actions button.danger { color: #fff; background: #b42318; border-color: #b42318; }
+  .actions button:disabled { opacity: 0.5; cursor: default; }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 10px; }
   .stats div { display: flex; flex-direction: column; gap: 2px; }
   .stats b { font-size: 20px; font-weight: 650; font-variant-numeric: tabular-nums; }

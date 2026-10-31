@@ -8,7 +8,7 @@ def perform(shop_domain, params)
       return
     end
 
-    client = Slack::Notifier.new  'https://hooks.slack.com/services/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'
+    client = SlackNotifier::INSTALLS_CLIENT
 
     # Snapshot the feature state BEFORE settings are deleted / shop destroyed.
     # (This was missing here — only the legacy UninstallJob captured it — so every
@@ -62,11 +62,11 @@ def perform(shop_domain, params)
     if !uninstalled_shop.save
       client.ping(
         text: ":rage: App *Uninstalled* (#{Rails.env}) \n*Store*: #{shop.primary_domain.presence || shop.shopify_domain}\nUnable to save Shop in uninstalled table",
-        channel: ENV['SLACK_INSTALLS_CHANNEL']
+        channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
       )  
     end
     # send mail
-    survey_url = (Rails.application.routes.url_helpers.uninstall_survey_url(token: survey_token, host: ENV["APP_HOST"], protocol: "https") rescue nil)
+    survey_url = (Rails.application.routes.url_helpers.uninstall_survey_url(token: survey_token, host: ENV.fetch("APP_HOST", nil), protocol: "https") rescue nil)
     survey_url = nil unless uninstalled_shop.persisted? # the link only works if the snapshot saved
     WelcomeMailer.uninstall_feedback(shop.owner_email, {
       name: shop.shop_owner,
@@ -89,7 +89,7 @@ def perform(shop_domain, params)
     
     client.ping(
       text: ":rage: App *Uninstalled* (#{Rails.env}) \n*Store*: #{shop.primary_domain.presence || shop.shopify_domain}\n*Plan*: #{shop.plan&.name}\n*Installed Date*: #{shop.created_at}",
-      channel: ENV['SLACK_INSTALLS_CHANNEL']
+      channel: ENV.fetch("SLACK_INSTALLS_CHANNEL", nil)
     )
     CodKingStat.increment_stat('uninstall_count')
   end

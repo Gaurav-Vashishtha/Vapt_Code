@@ -29,7 +29,7 @@ module CodFormAdmin
     def auth_url
       state = self.class.verifier.generate({ "shop_id" => @shop.id }, expires_in: STATE_TTL, purpose: :google_sheets)
       query = {
-        client_id: ENV["GOOGLE_SHEETS_CLIENT_ID"], redirect_uri: redirect_uri, response_type: "code",
+        client_id: ENV.fetch("GOOGLE_SHEETS_CLIENT_ID", nil), redirect_uri: redirect_uri, response_type: "code",
         scope: SCOPES.join(" "), access_type: "offline", prompt: "consent", include_granted_scopes: "true",
         state: state
       }
@@ -87,13 +87,13 @@ module CodFormAdmin
 
     def require_google_sheets!
       gate!("google_sheets")
-      return if ENV["GOOGLE_SHEETS_CLIENT_ID"].present? && ENV["GOOGLE_SHEETS_CLIENT_SECRET"].present?
+      return if ENV.fetch("GOOGLE_SHEETS_CLIENT_ID", nil).present? && ENV.fetch("GOOGLE_SHEETS_CLIENT_SECRET", nil).present?
 
       render json: { "error" => "not_available" }, status: :unprocessable_entity
     end
 
     def redirect_uri
-      "https://#{ENV['APP_HOST']}/cod_form/google/callback"
+      "https://#{ENV.fetch("APP_HOST", nil)}/cod_form/google/callback"
     end
 
     # => token hash, or nil. Never logs the code or the tokens.
@@ -102,8 +102,8 @@ module CodFormAdmin
       response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 5, read_timeout: 10) do |http|
         request = Net::HTTP::Post.new(uri)
         request.set_form_data(
-          "code" => code, "client_id" => ENV["GOOGLE_SHEETS_CLIENT_ID"],
-          "client_secret" => ENV["GOOGLE_SHEETS_CLIENT_SECRET"], "redirect_uri" => redirect_uri,
+          "code" => code, "client_id" => ENV.fetch("GOOGLE_SHEETS_CLIENT_ID", nil),
+          "client_secret" => ENV.fetch("GOOGLE_SHEETS_CLIENT_SECRET", nil), "redirect_uri" => redirect_uri,
           "grant_type" => "authorization_code"
         )
         http.request(request)

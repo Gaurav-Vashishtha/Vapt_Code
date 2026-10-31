@@ -8,7 +8,7 @@ module SidekiqJobs
       
       webhook3 = {
         topic: 'app/uninstalled',
-        address: ENV['AWS_EVENT_BRIDGE_ARN'],
+        address: ENV.fetch("AWS_EVENT_BRIDGE_ARN", nil),
         format: 'json'
         }
 

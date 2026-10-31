@@ -56,7 +56,7 @@ module WebPixels
     end
 
     def call
-      if ENV["WEB_PIXEL_AUTO_ACTIVATE"].to_s == "false"
+      if ENV.fetch("WEB_PIXEL_AUTO_ACTIVATE", nil).to_s == "false"
         Rails.logger.info("[WebPixels] skip shop=#{@shop.shopify_domain} reason=WEB_PIXEL_AUTO_ACTIVATE=false")
         return
       end
@@ -87,7 +87,7 @@ module WebPixels
     private
 
     def public_app_origin
-      host = ENV["APP_HOST"].to_s.strip
+      host = ENV.fetch("APP_HOST", nil).to_s.strip
       return "" if host.blank?
 
       base = host.match?(%r{\Ahttps?://}) ? host : "https://#{host}"
