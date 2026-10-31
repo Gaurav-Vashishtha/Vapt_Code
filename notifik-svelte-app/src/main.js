@@ -416,5 +416,11 @@ if (window.codkSvelteAppMounted || parentWindow.codkSvelteAppMounted) {
   }
 }
 
-// Export app (null if already mounted, otherwise the mounted app)
-export default app;
+// `app` is assigned during bootstrap, so `export default app` would freeze the
+// binding at its initial null. Export a getter: this module is only loaded as
+// the Vite entry (index.html), nothing imports the default.
+export default {
+  get app() {
+    return app;
+  },
+};

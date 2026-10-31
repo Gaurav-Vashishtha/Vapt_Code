@@ -161,7 +161,7 @@ export async function loadPersistentData(shopDomain, settings) {
     const stored = localStorage.getItem(storageKey);
     if (!stored) return null;
 
-    const key = await deriveKey(shopDomain);
+    const key = await deriveKey();
     const plaintext = await decrypt(stored, key);
     const payload = JSON.parse(plaintext);
     if (payload?.version !== PAYLOAD_VERSION) return null;

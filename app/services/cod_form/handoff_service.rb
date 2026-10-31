@@ -93,6 +93,9 @@ module CodForm
       # usual `_codkDiscounts` entry and discount code. The first such option wins (rule order).
       # No matching rule, or a rule without a discount -> nil (hand-off without a rule, as before).
       def prepaid_discount_rule(shop, quote)
+        offer = quote["prepaid_offer"]
+        return CodForm::PartialRulesAdapter.find(shop, offer["rule_id"]) if offer.is_a?(Hash) && offer["rule_id"]
+
         option = Array(quote.dig("payment_options", "options")).find do |o|
           o.is_a?(Hash) && o["kind"].to_s == "prepaid" && o["rule_id"] && o["discount_cents"].to_i.positive?
         end

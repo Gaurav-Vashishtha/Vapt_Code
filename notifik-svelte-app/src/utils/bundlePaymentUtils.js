@@ -195,18 +195,33 @@ const safeNum = (v, fallback = 0) => {
 };
 
 const getCartPricingInfo = (cart) => {
-  const totalPriceCents = safeNum(cart?.total_price, 0);
-  const cartTotalDecimal = totalPriceCents / 100;
-  // Prefer original_total_price when available (pre-discount subtotal)
-  const originalCartTotalDecimal =
-    typeof cart?.original_total_price === "number"
-      ? safeNum(cart.original_total_price, 0) / 100
-      : Math.max(0, cartTotalDecimal + safeNum(cart?.total_discount, 0) / 100);
   const currencyCode = cart?.currency || "INR";
   const cartItems = cart?.items || [];
+  const giftItems = cartItems.filter(isGiftLine);
+  const giftOriginalCents = giftItems.reduce(
+    (sum, item) => sum + safeNum(item?.original_line_price ?? item?.line_price, 0),
+    0,
+  );
+  const giftFinalCents = giftItems.reduce(
+    (sum, item) => sum + safeNum(item?.final_line_price ?? item?.line_price, 0),
+    0,
+  );
+
+  const totalPriceCents = safeNum(cart?.total_price, 0);
+  const cartTotalDecimal = Math.max(0, totalPriceCents - giftFinalCents) / 100;
+  // Prefer original_total_price when available (pre-discount subtotal)
+  const rawOriginalCartTotalDecimal =
+    typeof cart?.original_total_price === "number"
+      ? safeNum(cart.original_total_price, 0) / 100
+      : Math.max(0, totalPriceCents / 100 + safeNum(cart?.total_discount, 0) / 100);
+  const originalCartTotalDecimal = Math.max(
+    0,
+    rawOriginalCartTotalDecimal - giftOriginalCents / 100,
+  );
 
   // True line-level discounts (exclude order-level allocations that Shopify spreads across lines)
   const lineLevelDiscountDecimal = (cartItems || []).reduce((sum, item) => {
+    if (isGiftLine(item)) return sum;
     const hasLineLevelDiscounts =
       item?.line_level_discount_allocations &&
       item.line_level_discount_allocations.length > 0;

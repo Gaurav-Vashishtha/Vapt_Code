@@ -20,7 +20,7 @@ import {
   prepaidDiscountAttribute,
 } from "./bundlePaymentUtils.js";
 import { cartFetch } from "./shopifyCartApi.js";
-import { giftDiscountCents } from "../services/freeGiftService.js";
+import { giftDiscountCents, giftFinalCents, giftOriginalCents, isGiftLine } from "../services/freeGiftService.js";
 
 /**
  * Calculate tax amounts for a rule based on stored tax data
@@ -316,7 +316,7 @@ const handleSimpleFlow = async (
       });
     }
     const currentCartState = get(otpStore)?.cart;
-    const total = (currentCartState?.total_price || 0) / 100;
+    const total = ((currentCartState?.total_price || 0) - giftFinalCents(currentCartState?.items)) / 100;
     const existingDisc = ((currentCartState?.total_discount || 0) - giftDiscountCents(currentCartState?.items)) / 100;
     const originalTotal = total + existingDisc;
     const ruleDisc = calcRuleDiscount(selectedRuleObj, originalTotal);
@@ -328,11 +328,12 @@ const handleSimpleFlow = async (
     const attributes = { _codkSessionId: getMachineId() || "", _codkPrepaidDiscount: "" };
     try {
       const effectiveCart = currentCartState || cart || {};
-      const baseTotal =
+      const rawBaseTotal =
         typeof effectiveCart?.original_total_price === "number"
           ? effectiveCart.original_total_price / 100
           : ((effectiveCart?.total_price || 0) + (effectiveCart?.total_discount || 0)) / 100;
-      const lineDisc = lineLevelDiscountCents(effectiveCart?.items);
+      const baseTotal = Math.max(0, rawBaseTotal - giftOriginalCents(effectiveCart?.items) / 100);
+      const lineDisc = lineLevelDiscountCents((effectiveCart?.items || []).filter((item) => !isGiftLine(item)));
       const valNum = parseFloat(String(selectedRuleObj?.discount_value ?? "0"));
       const type = selectedRuleObj?.discount_type || "";
       const ruleCode = (selectedRuleObj?.discount_code || "").trim();
@@ -414,7 +415,7 @@ export const handlePartialPaymentBundleFlow = async (
   const actualDiscountCodes = Number(actualDiscountValue) > 0 ? rawCodes : [];
   const freeVariantsValue = getFreeVariantIds(cart?.items || []);
   const discountValueMatch = cartResult?.discountValueMatch ?? false;
-  const currentTotal = (cart.total_price || 0) / 100;
+  const currentTotal = ((cart.total_price || 0) - giftFinalCents(cart.items)) / 100;
   const existingCartDiscountValueDecimal = parseFloat(String(actualDiscountValue || "0"));
   const originalCartTotalDecimal = currentTotal + existingCartDiscountValueDecimal;
   const ruleDiscountValue = calcRuleDiscount(selectedRuleObj, originalCartTotalDecimal);

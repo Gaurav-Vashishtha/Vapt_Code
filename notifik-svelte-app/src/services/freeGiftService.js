@@ -12,6 +12,12 @@ export const isGiftLine = (item) => Boolean(item?.properties?.[FREE_GIFT_PROPERT
 export const giftDiscountCents = (items = []) =>
   (items || []).filter(isGiftLine).reduce((sum, item) => sum + (item.total_discount || 0), 0);
 
+export const giftOriginalCents = (items = []) =>
+  (items || []).filter(isGiftLine).reduce((sum, item) => sum + Number(item.original_line_price ?? item.line_price ?? 0), 0);
+
+export const giftFinalCents = (items = []) =>
+  (items || []).filter(isGiftLine).reduce((sum, item) => sum + Number(item.final_line_price ?? item.line_price ?? 0), 0);
+
 export const cartSummary = (items = []) => {
   const lines = items.filter((item) => !isGiftLine(item));
   return {

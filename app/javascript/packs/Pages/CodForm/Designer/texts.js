@@ -78,11 +78,11 @@ export const allTextKeys = (config, defaultsTexts) => {
 };
 
 export const TEXT_GROUPS = [
-  { id: "general", prefixes: ["title", "close", "loading", "powered_by", "secure_note", "summary_", "quantity", "item_", "you_save", "out_of_stock", "contact_title", "address_title"] },
+  { id: "general", prefixes: ["title", "close", "loading", "powered_by", "secure_note", "summary_", "quantity", "item_", "you_save", "saved_so_far", "out_of_stock", "contact_title", "address_title"] },
   { id: "labels", prefixes: ["label_"] },
   { id: "placeholders", prefixes: ["placeholder_"] },
   { id: "errors", prefixes: ["error_"] },
-  { id: "shipping", prefixes: ["shipping_", "discount_", "subtotal", "discount", "shipping", "cod_fee", "tax", "total", "savings"] },
+  { id: "shipping", prefixes: ["shipping_", "discount_", "subtotal", "discount", "shipping", "cod_fee", "tax", "total", "savings", "bill_summary"] },
   { id: "submit", prefixes: ["submit", "pay_online", "processing_", "exit_"] },
   { id: "otp", prefixes: ["otp_"] },
   { id: "payment", prefixes: ["payment_", "bump_", "upsell_"] },

@@ -42,6 +42,7 @@ const EMPTY_FORM = {
   enabled: false,
   maxItems: 5,
   showQuantitySelector: false,
+  verticalLayout: false,
   products: [],
   collections: [],
 };
@@ -105,6 +106,7 @@ const toForm = (data) => {
     enabled: config.enabled === true,
     maxItems: config.maxItems || 5,
     showQuantitySelector: config.showQuantitySelector === true,
+    verticalLayout: config.verticalLayout === true,
     products: items
       .filter((i) => i.type === "product" && products[i.shopifyId])
       .map((i) => productRow(products[i.shopifyId], i.variantIds || [], i.autoAdd === true)),
@@ -118,6 +120,7 @@ const toConfig = (form) => ({
   enabled: form.enabled,
   maxItems: form.maxItems,
   showQuantitySelector: form.showQuantitySelector,
+  verticalLayout: form.verticalLayout,
   items: [
     ...form.products.map((p) => ({
       type: "product",
@@ -516,6 +519,23 @@ export default function UpsellSettings() {
                   labelHidden
                   checked={form.showQuantitySelector}
                   onChange={(showQuantitySelector) => update({ showQuantitySelector })}
+                />
+              }
+            />
+          </SectionCard>
+        </Layout.Section>
+
+        <Layout.Section>
+          <SectionCard>
+            <SettingRow
+              title={t("vertical_layout", "Show products vertically")}
+              description={t("vertical_layout_help", "Stacks upsell products in a vertical list instead of a horizontal slider.")}
+              control={
+                <Checkbox
+                  label={t("vertical_layout", "Show products vertically")}
+                  labelHidden
+                  checked={form.verticalLayout}
+                  onChange={(verticalLayout) => update({ verticalLayout })}
                 />
               }
             />

@@ -84,11 +84,38 @@ module CodForm
           "form" => { "id" => form.id, "version" => form.published_version, "config" => form.published_config },
           "countries" => CodForm::CatalogService.countries_for({ "countries" => codes }, codes.first),
           "schemas" => codes.to_h { |code| [code, CodForm::CatalogService.country_schema(code)] },
-          "any_country" => any_country
+          "any_country" => any_country,
+          "pricing" => early_pricing(shop, form)
         }
         JSON.generate(early).bytesize > EARLY_MAX_BYTES ? nil : early
       rescue StandardError => e
         Rails.logger.warn("[CodForm::MetafieldSyncService] early form skipped shop_id=#{shop.id} #{e.class}")
+        nil
+      end
+
+      # What the browser needs to price the first view before the session answers: the COD fee and
+      # the shipping rates when every rate depends only on the address and the subtotal (weight,
+      # quantity or product conditions need the server, so "rates" is then nil). Shop currency only.
+      DEVICE_RATE_KEYS = %w[countries provinces subtotal_min_cents subtotal_max_cents].freeze
+
+      def early_pricing(shop, form)
+        setting = shop.setting
+        rates = CodForm::ShippingRate.where(shop_id: shop.id).active.ordered.map(&:to_engine_hash)
+        device = rates.all? do |rate|
+          cond = rate["conditions"].is_a?(Hash) ? rate["conditions"] : {}
+          cond.all? do |key, value|
+            DEVICE_RATE_KEYS.include?(key.to_s) || value.blank? ||
+              (key.to_s == "products" && value.is_a?(Hash) && Array(value["product_ids"]).empty? && Array(value["collection_ids"]).empty?)
+          end
+        end
+        {
+          "currency" => shop.try(:currency).to_s.upcase.presence,
+          "fee" => CodForm::CodFeeAdapter.from_setting(setting, currency: nil, shop_currency: nil).slice("enabled", "mode", "value", "label"),
+          "rates" => device ? rates.map { |rate| rate.slice("id", "name", "description", "price_cents", "currency", "position", "conditions") } : nil,
+          "hide_single" => ((form.published_config || {})["design"] || {})["hide_shipping_selector_when_single"] != false
+        }
+      rescue StandardError => e
+        Rails.logger.warn("[CodForm::MetafieldSyncService] early pricing skipped shop_id=#{shop.id} #{e.class}")
         nil
       end
 

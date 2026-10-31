@@ -295,11 +295,12 @@ export default function AddPaymentOptions({
     !!(initialRtoEngine && initialRtoEngine.enabled),
   );
   const [rtoHideAtBand, setRtoHideAtBand] = useState(
-    initialRtoEngine?.hide_at_band || "high",
+    initialRtoEngine?.hide_at_band || initialRtoEngine?.hideAtBand || "high",
   );
+  const initialRtoMinScore = initialRtoEngine?.min_score ?? initialRtoEngine?.minScore;
   const [rtoMinScore, setRtoMinScore] = useState(
-    initialRtoEngine?.min_score !== null && initialRtoEngine?.min_score !== undefined
-      ? String(initialRtoEngine.min_score)
+    initialRtoMinScore !== null && initialRtoMinScore !== undefined
+      ? String(initialRtoMinScore)
       : "",
   );
 

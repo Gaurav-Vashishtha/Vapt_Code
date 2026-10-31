@@ -15,6 +15,7 @@
   let config = $derived($settingsStore?.upsellConfig ?? $settingsStore?.upsell_config ?? null);
   let title = $derived(T("upsell_title"));
   let showQuantity = $derived(config?.show_quantity_selector === true || config?.showQuantitySelector === true);
+  let vertical = $derived(config?.vertical_layout === true || config?.verticalLayout === true);
   let sheetBannerColor = $derived.by(() => {
     const s = /** @type {any} */ ($otpStore?.settings || {});
     return s.promoBannerColor || s.promo_banner_color || "";
@@ -141,7 +142,7 @@
 {#if showDisplay && config?.enabled && (loading || products.length)}
   <Card variant="elevated" padding="md" class="cu-section">
     <div class="cu-heading">{title}</div>
-    <div class="cu-slider">
+    <div class="cu-slider" class:cu-slider--vertical={vertical}>
       {#if loading}
         {#each [0, 1] as i (i)}
           <div class="cu-card cu-card--skeleton" aria-hidden="true">
@@ -273,6 +274,13 @@
   }
   .cu-slider::-webkit-scrollbar {
     display: none;
+  }
+  .cu-slider--vertical {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+  .cu-slider--vertical .cu-card {
+    width: 100%;
   }
 
   .cu-card {

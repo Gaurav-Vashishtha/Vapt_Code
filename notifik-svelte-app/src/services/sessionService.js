@@ -19,6 +19,22 @@ const DEBUG_MODE = true;
 const SAFE_STORAGE_KEY = /^[A-Za-z0-9_.-]{1,128}$/;
 
 const isSafeKey = (key) => typeof key === "string" && SAFE_STORAGE_KEY.test(key);
+
+// Values written here are read back and trusted by the widget (settings,
+// customer ids, cart state) and are also mirrored into the storefront's own
+// sessionStorage, so the serialized value is validated before it is stored —
+// not just the key. Anything oversized or carrying control characters (which
+// would let a poisoned value break out when it is re-parsed or echoed into the
+// DOM) is rejected outright rather than truncated.
+const MAX_STORED_VALUE_CHARS = 512 * 1024;
+const CONTROL_CHARS = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/;
+
+const sanitizeStorageValue = (raw) => {
+  if (typeof raw !== "string") return null;
+  if (raw.length === 0 || raw.length > MAX_STORED_VALUE_CHARS) return null;
+  if (CONTROL_CHARS.test(raw)) return null;
+  return raw;
+};
 const stringifyValue = (value) =>
   typeof value === "string" ? value : JSON.stringify(value);
 
@@ -89,10 +105,14 @@ export const setSessionValue = (key, value) => {
     return false;
   }
 
+  const safeValue = sanitizeStorageValue(stringifyValue(value));
+  if (safeValue === null) {
+    return false;
+  }
+
   let success = false;
   try {
-    const stringValue = stringifyValue(value);
-    sessionStorage.setItem(key, stringValue);
+    sessionStorage.setItem(key, safeValue);
     success = true;
   } catch (error) {
 
@@ -101,7 +121,7 @@ export const setSessionValue = (key, value) => {
   try {
     const parentStorage = getParentSessionStorage();
     if (parentStorage) {
-      parentStorage.setItem(key, stringifyValue(value));
+      parentStorage.setItem(key, safeValue);
       success = true;
     }
   } catch (error) {

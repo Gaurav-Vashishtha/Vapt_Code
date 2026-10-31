@@ -170,13 +170,19 @@ export function logApiCall({
   
   // Save to sessionStorage (async, non-blocking)
   try {
-    const serialized = JSON.stringify(apiLogs);
-    // Don't let a large response push a multi-megabyte blob into the
-    // storefront's sessionStorage; the in-memory log above is unaffected.
-    if (serialized.length <= MAX_STORED_LOG_CHARS) {
-      sessionStorage.setItem(LOG_STORAGE_KEY, serialized);
-    } else {
-      sessionStorage.setItem(LOG_STORAGE_KEY, JSON.stringify(apiLogs.slice(-5)));
+    // The log carries request/response fragments, so the serialized payload is
+    // validated before it reaches the storefront's sessionStorage: oversized or
+    // control-character-bearing output is dropped rather than stored. The
+    // in-memory log above is unaffected either way.
+    const store = (payload) => {
+      if (typeof payload !== "string") return false;
+      if (payload.length > MAX_STORED_LOG_CHARS) return false;
+      if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(payload)) return false;
+      sessionStorage.setItem(LOG_STORAGE_KEY, payload);
+      return true;
+    };
+    if (!store(JSON.stringify(apiLogs))) {
+      store(JSON.stringify(apiLogs.slice(-5)));
     }
   } catch (e) {
     // Ignore storage errors (might be full)

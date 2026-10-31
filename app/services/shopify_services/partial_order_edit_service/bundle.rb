@@ -627,6 +627,11 @@ module ShopifyServices
         { line_discounts: line_discount_map, order_level: order_level_discount }
       end
 
+      def free_gift_line?(node)
+        attrs = node.try(:custom_attributes) || node.try(:customAttributes)
+        Array(attrs).any? { |attr| attr.try(:key) == FreeGifts::LINE_PROPERTY && attr.try(:value).present? }
+      end
+
       def is_free_gift_variant?(variant_id_numeric, order_custom_attributes)
         # Check if variant is listed in _codkFreeVariants
         codk_free_variants = order_custom_attributes['_codkFreeVariants']
@@ -867,11 +872,11 @@ module ShopifyServices
               quantity = node.quantity
               
               # Check if variant is a free gift (listed in _codkFreeVariants)
-              free_variant = is_free_gift_variant?(variant_id_numeric, order_custom_attributes)
+              free_variant = is_free_gift_variant?(variant_id_numeric, order_custom_attributes) || free_gift_line?(node)
 
               # Use discount from _codkDiscounts if available, otherwise fall back to build_discount_info
               discount_info = nil
-              if line_discount_map[variant_id_numeric].present?
+              if !free_variant && line_discount_map[variant_id_numeric].present?
                 # Use exact discount amount from _codkDiscounts
                 discount_data = line_discount_map[variant_id_numeric]
                 discount_code = discount_data[:code]

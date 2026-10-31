@@ -89,6 +89,7 @@ module CodForm
           "cod_fee" => CodForm::CodFeeAdapter.from_setting(setting, currency: currency, shop_currency: shop_info["currency"], general: general),
           "tax" => { "prices_include_tax" => prices_include_tax, "calculated" => nil },
           "partial_rules" => partial_rules,
+          "prepaid_rules" => CodForm::PartialRulesAdapter.prepaid_discount_rules(shop),
           "risk" => risk,
           "otp" => {
             "shop_enabled" => CodForm::OtpService.enabled_for?(setting, session.form&.published_config, general),

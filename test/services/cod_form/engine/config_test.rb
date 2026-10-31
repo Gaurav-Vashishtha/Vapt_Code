@@ -305,7 +305,7 @@ class CodFormEngineButtonConfigTest < Minitest::Test
     assert_includes codes, ["button.placement.selector", "invalid_selector"]
     assert_includes codes, ["button.labels.default", "required"]
     style = result["config"]["button"]["style"]
-    assert_equal ["#111111", "none", 40], style.values_at("bg", "animation", "radius")
+    assert_equal ["#1c1c1e", "none", 40], style.values_at("bg", "animation", "radius")
     assert_equal({ "default" => "Buy with COD", "hu" => "Fizetés utánvéttel" }, result["config"]["button"]["labels"])
     refute result["config"].key?("extra")
     assert_equal "B", result["preset"]

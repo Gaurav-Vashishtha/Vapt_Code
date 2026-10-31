@@ -75,9 +75,9 @@ module CodForm
         # The Express look (the COD King checkout widget's colours), as the designer's Express theme
         # sets it (FORM_THEMES.express in the admin).
         def express_design
-          design.merge("theme" => "express", "primary" => "#000000", "on_primary" => "#ffffff", "text" => "#2f2f2f",
+          design.merge("theme" => "express", "primary" => "#3173e3", "on_primary" => "#ffffff", "text" => "#2f2f2f",
                        "muted" => "#7e7e7e", "background" => "#ffffff", "surface" => "#f6f8fc", "border" => "#e2e6ee",
-                       "error" => "#e00000", "radius" => 12, "field_radius" => 4)
+                       "error" => "#e00000", "radius" => 12, "field_radius" => 4, "sticky_submit" => false)
         end
 
         # Config of a form created from now on (a store's first form, a new blank form): the
@@ -93,8 +93,8 @@ module CodForm
               "labels" => { "default" => "Buy with COD" },
               "subtitles" => { "default" => "" },
               "style" => {
-                "bg" => "#111111", "color" => "#ffffff", "border_color" => "#111111", "border_width" => 0, "radius" => 8,
-                "shadow" => "md", "font_size" => 18, "bold" => true, "height" => 56, "full_width" => true,
+                "bg" => "#1c1c1e", "color" => "#ffffff", "border_color" => "#1c1c1e", "border_width" => 0, "radius" => 6,
+                "shadow" => "sm", "font_size" => 16, "bold" => true, "height" => 50, "full_width" => true,
                 "icon" => "cart", "animation" => "none"
               },
               "placement" => { "position" => "below", "selector" => "" },

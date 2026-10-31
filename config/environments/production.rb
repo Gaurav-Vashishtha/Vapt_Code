@@ -14,8 +14,8 @@ Rails.application.configure do
   # Full error reports are disabled and caching is turned on.
   config.consider_all_requests_local       = false
   config.action_controller.perform_caching = true
-  config.action_controller.asset_host =  "https://#{ENV['CLOUDFRONT_ENDPOINT']}"
-  config.asset_host =  "https://#{ENV['CLOUDFRONT_ENDPOINT']}"
+  config.action_controller.asset_host =  "https://#{ENV.fetch("CLOUDFRONT_ENDPOINT", nil)}"
+  config.asset_host =  "https://#{ENV.fetch("CLOUDFRONT_ENDPOINT", nil)}"
 
   # Ensures that a master key has been made available in either ENV["RAILS_MASTER_KEY"]
   # or in config/master.key. This key is used to decrypt credentials (and other encrypted files).
@@ -23,7 +23,7 @@ Rails.application.configure do
 
   # Disable serving static files from the `/public` folder by default since
   # Apache or NGINX already handles this.
-  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  config.public_file_server.enabled = ENV.fetch("RAILS_SERVE_STATIC_FILES", nil).present?
 
   # Compress CSS using a preprocessor.
   # config.assets.css_compressor = :sass
@@ -32,9 +32,9 @@ Rails.application.configure do
   config.assets.compile = false
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
-  config.action_controller.asset_host = "https://#{ENV['APP_HOST']}"
+  config.action_controller.asset_host = "https://#{ENV.fetch("APP_HOST", nil)}"
 
-  config.web_socket_server_url = "wss://#{ENV['APP_HOST']}/cable"
+  config.web_socket_server_url = "wss://#{ENV.fetch("APP_HOST", nil)}/cable"
 
   config.action_cable.disable_request_forgery_protection = true
   
@@ -63,7 +63,7 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   # config.cache_store = :redis_cache_store, { url: ENV['REDISTOGO_URL'] }
-  cache_servers = %W{#{ENV['REDIS_URL']}}
+  cache_servers = %W{#{ENV.fetch("REDIS_URL", nil)}}
 
   config.cache_store = :redis_cache_store, { url: cache_servers,
     ssl_params: { verify_mode: OpenSSL::SSL::VERIFY_NONE },
@@ -105,7 +105,7 @@ Rails.application.configure do
   # require 'syslog/logger'
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
 
-  if ENV["RAILS_LOG_TO_STDOUT"].present?
+  if ENV.fetch("RAILS_LOG_TO_STDOUT", nil).present?
     logger           = ActiveSupport::Logger.new(STDOUT)
     logger.formatter = config.log_formatter
     config.logger    = ActiveSupport::TaggedLogging.new(logger)

@@ -29,7 +29,7 @@ import {
   prepaidDiscountAttribute,
 } from "./bundlePaymentUtils.js";
 import { executePost } from "../services/otpService.js";
-import { giftDiscountCents } from "../services/freeGiftService.js";
+import { giftDiscountCents, giftFinalCents, giftOriginalCents, isGiftLine } from "../services/freeGiftService.js";
 import {
   EXISTING_CUSTOMER_KEY,
   phoneKey,
@@ -1253,7 +1253,8 @@ export const handleSimpleFlow = async (
     const ruleDiscountValueNum = parseFloat(ruleDiscountValueStr || 0);
 
     const currentCartState = get(otpStore)?.currentCartData;
-    const currentCartTotalDecimal = (currentCartState?.total_price || 0) / 100;
+    const currentCartTotalDecimal =
+      ((currentCartState?.total_price || 0) - giftFinalCents(currentCartState?.items)) / 100;
     const existingCartDiscountValueDecimal =
       ((currentCartState?.total_discount || 0) - giftDiscountCents(currentCartState?.items)) / 100;
     const originalCartTotalDecimal =
@@ -1321,15 +1322,18 @@ export const handleSimpleFlow = async (
 
     const effectiveCart = currentCartState || cart || {};
     try {
-      const baseCartTotalDecimal =
-        typeof effectiveCart?.original_total_price === "number"
+      const baseCartTotalDecimal = Math.max(
+        0,
+        (typeof effectiveCart?.original_total_price === "number"
           ? effectiveCart.original_total_price / 100
           : ((effectiveCart?.total_price || 0) +
               (effectiveCart?.total_discount || 0)) /
-            100;
+            100) - giftOriginalCents(effectiveCart?.items) / 100,
+      );
 
       const lineLevelDiscountDecimal = (effectiveCart?.items || []).reduce(
         (sum, item) => {
+          if (isGiftLine(item)) return sum;
           const hasLineLevelDiscounts =
             item?.line_level_discount_allocations &&
             item.line_level_discount_allocations.length > 0;

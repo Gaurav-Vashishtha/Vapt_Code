@@ -42,9 +42,9 @@ class CodFormMetafieldSyncServiceTest < Minitest::Test
         "labels": {"default": "Buy with COD", "hu": "Fizetés utánvéttel"},
         "subtitles": {"default": ""},
         "style": {
-          "bg": "#111111", "color": "#ffffff",
-          "border_color": "#111111", "border_width": 0, "radius": 8,
-          "shadow": "md", "font_size": 18, "bold": true, "height": 56, "full_width": true,
+          "bg": "#1c1c1e", "color": "#ffffff",
+          "border_color": "#1c1c1e", "border_width": 0, "radius": 6,
+          "shadow": "sm", "font_size": 16, "bold": true, "height": 50, "full_width": true,
           "icon": "cart", "animation": "none"
         },
         "placement": {"position": "below", "selector": ""},

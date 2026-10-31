@@ -24,8 +24,31 @@ module CodForm
         []
       end
 
+      # The store's 100 % prepaid rules that carry a discount, also while the payment step is off:
+      # "Pay online" gives the buyer the same prepaid discount as the checkout widget.
+      def prepaid_discount_rules(shop)
+        setting = shop.setting
+        return [] unless setting&.partial_payment_enabled
+
+        shop.partial_rule_sets.where(is_enabled: true).map { |rule| rule.as_json.deep_stringify_keys }.select do |rule|
+          rule["amount_type"].to_s == "percentage" && decimal(rule["amount"]) == 100 &&
+            rule["discount_code"].to_s.strip.present? && decimal(rule["discount_value"]).positive?
+        end
+      rescue StandardError => e
+        Rails.logger.warn("[CodForm::PartialRulesAdapter] prepaid shop_id=#{shop.id} #{e.class}")
+        []
+      end
+
       def find(shop, rule_id)
-        self.for(shop).find { |rule| rule["id"].to_s == rule_id.to_s }
+        (self.for(shop) + prepaid_discount_rules(shop)).find { |rule| rule["id"].to_s == rule_id.to_s }
+      end
+
+      private
+
+      def decimal(value)
+        BigDecimal(value.to_s)
+      rescue ArgumentError
+        BigDecimal("0")
       end
     end
   end

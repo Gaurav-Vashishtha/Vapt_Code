@@ -396,16 +396,21 @@ const Skin = styled(Sheet)`
   ${(p) =>
     p.$d.theme === "express" &&
     css`
-      background: var(--cf-surface);
+      --x-blue: #3173e3;
+      --x-hairline: #eceff4;
+      --x-field: rgba(49, 115, 227, 0.2);
+      background: #f9fafd;
+      color: #2f2f2f;
       font-family: Metropolis, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      border-radius: ${p.$mobile ? "16px 16px 0 0" : "16px"};
+      border-radius: ${p.$mobile ? "0" : "16px"};
 
       ${Header} {
         position: relative;
         justify-content: center;
         min-height: 52px;
         padding: 0 48px;
-        background: var(--cf-bg);
+        background: #fff;
+        border-bottom: 1px solid var(--x-hairline);
 
         strong {
           flex: 0 1 auto;
@@ -420,50 +425,122 @@ const Skin = styled(Sheet)`
 
         span[data-close] {
           position: absolute;
-          inset-inline-end: 10px;
+          inset-inline-start: 8px;
+          width: 34px;
+          height: 34px;
+          border-radius: 8px;
           background: none;
-          color: var(--cf-text);
+          color: #2f2f2f;
+        }
+
+        img + strong {
+          display: none;
         }
       }
 
+      &[dir="rtl"] span[data-close] svg {
+        transform: scaleX(-1);
+      }
+
       ${Body} {
-        padding: 14px 12px 16px;
-        gap: 12px;
+        padding: 14px;
+        gap: 16px;
       }
 
       ${Body} > * {
-        background: var(--cf-bg);
-        border: 1px solid var(--cf-border);
-        border-radius: var(--cf-radius);
-        padding: 16px;
-        box-shadow: -2px -2px 10px #d0dbf726, 4px 4px 11px #d0dbf726;
+        background: #fff;
+        border: 0;
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 4px 4px 11px #d0dbf726, -2px -2px 10px #d0dbf726;
+      }
+
+      ${Body} > ${SummaryCard} {
+        padding: 0;
+      }
+
+      ${SummaryHead} {
+        padding: 14px;
+        b { font-size: 15px; }
+        s { color: #8c8c8c; font-size: 13px; }
+      }
+
+      ${SaveStrip} {
+        padding: 5px 20px;
+        background: linear-gradient(90deg, #d8f4e1, #dcffe6);
+      }
+
+      ${SummaryHead} ${Muted}::before {
+        content: "(";
+      }
+
+      ${SummaryHead} ${Muted}::after {
+        content: ")";
+      }
+
+      ${Tiers}, ${Option} ${Check} {
+        --cf-primary: var(--x-blue);
+      }
+
+      ${Tier} {
+        border-width: 1px;
+        border-radius: 12px;
+      }
+
+      ${TierBadge} {
+        border-radius: 4px;
+        background: #3c9726;
+        color: #fff;
       }
 
       ${SectionTitle} {
         font-size: 16px;
-        margin-bottom: 14px;
+        font-weight: 600;
+        margin-bottom: 16px;
       }
 
       ${FieldsGrid} {
-        gap: 16px 12px;
+        gap: 18px 12px;
       }
 
-      ${FieldCell} label {
-        color: var(--cf-muted);
-        margin-bottom: 6px;
+      ${FieldCell} {
+        position: relative;
+      }
+
+      ${FieldCell}:has(> ${Input}) > label {
+        position: absolute;
+        top: -8px;
+        inset-inline-start: 10px;
+        z-index: 1;
+        max-width: calc(100% - 20px);
+        margin: 0;
+        padding: 0 4px;
+        background: #fff;
+        color: #6b7280;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       ${Input} {
+        min-height: 47px;
+        border-color: var(--x-field);
+        border-radius: 6px;
+        padding: 12px 14px;
         font-size: 15px;
+        color: #b0b0b0;
+        box-shadow: 0 3px 6px rgba(224, 224, 224, 0.3);
       }
 
       ${Option} {
         border: 0;
-        border-bottom: 2px dashed var(--cf-border);
+        border-bottom: 2px dashed var(--x-hairline);
         border-radius: 0;
         background: none;
         box-shadow: none;
-        padding: 12px 8px;
+        padding: 12px 4px;
+        min-height: 60px;
       }
 
       ${Option}:last-child {
@@ -472,27 +549,49 @@ const Skin = styled(Sheet)`
 
       /* Quantity tiers (side by side) keep their boxes. */
       ${Option}[style] {
-        border: 1px solid var(--cf-border);
-        border-radius: var(--cf-field-radius);
+        border: 1px solid var(--x-field);
+        border-radius: 12px;
         padding: 10px;
+        min-height: 0;
       }
 
       ${Option}[style][data-on] {
-        border-color: var(--cf-primary);
-        box-shadow: inset 0 0 0 1px var(--cf-primary);
+        border-color: var(--x-blue);
+        background: #f5f9ff;
+        box-shadow: 0 0 0 1px var(--x-blue);
+      }
+
+      ${Check} i {
+        border-color: var(--x-field);
       }
 
       ${Footer} {
-        padding: 16px;
-        border-top: 1px solid var(--cf-border);
-        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        padding: 12px 14px 10px;
+        background: #fff;
+        border-top: 1px solid var(--x-hairline);
+        box-shadow: 0 -4px 16px rgba(16, 24, 40, 0.06);
+      }
+
+      ${Footer} [data-pay] {
+        display: block;
+        padding: 11px;
+        border: 1px solid var(--x-blue);
+        border-radius: 6px;
+        color: var(--x-blue) !important;
+        text-decoration: none !important;
+        font-weight: 600;
+      }
+
+      ${Footer} ${Muted} {
+        color: #4e596f;
+        font-weight: 500;
       }
 
       ${Submit} {
-        border-radius: calc(var(--cf-field-radius) + 2px);
-        padding: 12px 16px;
-        font-size: 14px;
-        font-weight: 500;
+        border-radius: 6px;
+        padding: 14px 16px;
+        font-size: 15px;
+        font-weight: 600;
       }
     `}
 `;
@@ -620,10 +719,10 @@ const FormMock = ({
               <Muted style={{ flex: 1 }}>{fill(tx("item_singular") || "{count} item", { count: 1 })}</Muted>
               {before > FIXTURE.price_cents && <s>{money(before)}</s>}
               <strong>{money(FIXTURE.price_cents)}</strong>
-              <span aria-hidden="true" style={{ color: "var(--cf-muted)" }}>⌄</span>
+              <span aria-hidden="true" style={{ color: "var(--cf-muted)" }}>{express ? "›" : "⌄"}</span>
             </SummaryHead>
             {before > FIXTURE.price_cents && (
-              <SaveStrip>{fill(tx("you_save") || "You save {total}", { total: money(before - FIXTURE.price_cents) })} 🎉</SaveStrip>
+              <SaveStrip>{fill(tx(express ? "saved_so_far" : "you_save") || "You save {total}", { total: money(before - FIXTURE.price_cents) })} 🎉</SaveStrip>
             )}
           </SummaryCard>
         );
@@ -794,7 +893,7 @@ const FormMock = ({
     <Footer $sticky={!!design.sticky_submit}>
       <Submit>{submitLabel}</Submit>
       {config.pay_online && config.pay_online.enabled !== false && (
-        <span style={{ color: "var(--cf-primary)", textDecoration: "underline" }}>{tx("pay_online")}</span>
+        <span data-pay style={{ color: "var(--cf-primary)", textDecoration: "underline" }}>{tx("pay_online")}</span>
       )}
       {!hidePoweredBy && <Muted>{tx("powered_by")}</Muted>}
     </Footer>
@@ -804,7 +903,15 @@ const FormMock = ({
     <Header>
       {header.logo_url ? <img src={header.logo_url} alt="" /> : null}
       {header.show_title !== false ? <strong>{view === "otp" ? tx("otp_title") : view === "thankyou" ? tx("thank_you_title") : tx("title")}</strong> : <span style={{ flex: 1 }} />}
-      <span data-close aria-hidden="true">✕</span>
+      <span data-close aria-hidden="true">
+        {express ? (
+          <svg width="18" height="16" viewBox="0 0 21 19" fill="currentColor">
+            <path d="M17 11a1 1 0 000-2zM.4 9.36a1 1 0 000 1.41l6.4 6.34a1 1 0 001.4-1.42l-5.68-5.63 5.63-5.68a1 1 0 00-1.42-1.41zM17 9l-15.9.06v2L17 11z" />
+          </svg>
+        ) : (
+          "✕"
+        )}
+      </span>
     </Header>
   );
 

@@ -47,21 +47,9 @@ module Whatsapp
       # button. WhatsApp gives us no way to disable the quick-reply buttons once
       # the message is sent, so we enforce "first tap wins" here and tell the
       # buyer their later tap was ignored rather than silently dropping it.
-      if %w[COD-Verified COD-Cancelled COD-Auto-Cancelled].include?(oc.status.to_s)
+      if %w[COD-Verified COD-Cancelled COD-Auto-Cancelled].include?(oc.status.to_s) && !awaiting_first_tap?(oc)
         Rails.logger.info("[cod_verify_reply] order=#{order_id} already terminal=#{oc.status}; ignoring repeat tap")
         already = oc.status.to_s == 'COD-Verified' ? 'confirmed' : 'cancelled'
-
-        # Orders placed through the pre-order OTP checkout are saved as
-        # COD-Verified up front (OrderConfirmationCreateJob#save_pre_order_confirmation),
-        # yet still get the BSP cod_verification prompt — and their
-        # order-confirmation message is held back for this tap. So a Confirm
-        # tap on an already-verified order is the moment to send it. Safe on
-        # repeat taps: BSP order_created is deduped per order in
-        # DispatchEventJob, MSG91 via its TwilioLog checks.
-        if payload == 'cod_confirm' && oc.status.to_s == 'COD-Verified'
-          send_order_confirmation_message(shop: shop, oc: oc, payload_snapshot: log.payload_snapshot)
-        end
-
         send_reply(shop, reply_to, "Your order #{order_label} is already #{already}. No further action is needed.")
         return
       end
@@ -77,6 +65,10 @@ module Whatsapp
     end
 
     private
+
+    def awaiting_first_tap?(oc)
+      oc.status.to_s == 'COD-Verified' && oc.confirmed_at.nil?
+    end
 
     # Messages sent before payloads were keyed to labels carry positional
     # payloads, so the tapped label is the only reliable signal of intent.
@@ -134,13 +126,6 @@ module Whatsapp
       Rails.logger.info("[cod_verify_reply] order=#{oc.order_id} → COD-Verified")
 
       send_reply(shop, reply_to, "✅ Thank you! Your order #{order_label} is confirmed. We'll get it on its way soon.")
-    end
-
-    # All verification paths (this one, /order_confirmations/confirm, manual
-    # confirm) go through the same notifier so BSP-vs-MSG91 selection lives
-    # in one place.
-    def send_order_confirmation_message(shop:, oc:, payload_snapshot:)
-      Whatsapp::OrderConfirmationNotifier.call(shop: shop, order_confirmation: oc, payload_snapshot: payload_snapshot)
     end
 
     def cancel_order(shop:, oc:, reply_to:, order_label:)

@@ -19,6 +19,7 @@ module Upsells
         "enabled" => raw["enabled"] == true || raw["enabled"].to_s == "true",
         "max_items" => MAX_ITEMS.include?(raw["max_items"].to_i) ? raw["max_items"].to_i : DEFAULT_MAX_ITEMS,
         "show_quantity_selector" => raw["show_quantity_selector"] == true || raw["show_quantity_selector"].to_s == "true",
+        "vertical_layout" => raw["vertical_layout"] == true || raw["vertical_layout"].to_s == "true",
         "items" => sanitize_items(raw["items"])
       }
     end

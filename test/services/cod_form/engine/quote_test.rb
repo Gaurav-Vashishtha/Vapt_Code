@@ -84,7 +84,7 @@ class CodFormEngineQuoteTest < Minitest::Test
   def test_output_shape
     quote = build
     expected = %w[currency lines extra_lines quantity_offer discounts discount_code shipping cod_fee tax subtotal_cents discount_total_cents
-                  merchandise_total_cents shipping_cents total_cents savings_cents eligibility payment_options otp_required thresholds warnings
+                  merchandise_total_cents shipping_cents total_cents savings_cents eligibility payment_options prepaid_offer otp_required thresholds warnings
                   pre_upsell local _draft _fingerprint]
     assert_equal expected, quote.keys
     assert_equal %w[key variant_id product_id title variant_title image quantity unit_price_cents compare_at_cents line_subtotal_cents
@@ -295,6 +295,19 @@ class CodFormEngineQuoteTest < Minitest::Test
     assert_equal [0, 398_900, "Pay Ft3 989 on delivery"], options["options"][0].values_at("pay_now_cents", "pay_later_cents", "description")
     assert_equal [100_000, 298_900, "Pay Ft1 000 now and Ft2 989 on delivery"], options["options"][1].values_at("pay_now_cents", "pay_later_cents", "description")
     assert_nil build("partial_rules" => [partial_rule("min_cart_range" => "5000.0")])["payment_options"], "no matching rule, no step"
+  end
+
+  def test_prepaid_offer_from_a_prepaid_discount_rule
+    rule = partial_rule("id" => 18, "amount_type" => "percentage", "amount" => "100.0", "discount_code" => "PREPAID10",
+                        "discount_type" => "percentage", "discount_value" => "10.0")
+    quote = build("prepaid_rules" => [rule], "cod_fee" => FEE)
+    offer = quote["prepaid_offer"]
+    assert_equal 18, offer["rule_id"]
+    assert_equal (quote["subtotal_cents"] * 0.1).round, offer["discount_cents"]
+    assert_equal offer["discount_cents"] + quote["cod_fee"]["amount_cents"], offer["save_cents"]
+    assert_nil quote["payment_options"], "the payment step stays off"
+    assert_nil build("prepaid_rules" => [rule.merge("discount_code" => "", "discount_value" => "0.0")])["prepaid_offer"]
+    assert_nil build["prepaid_offer"]
   end
 
   def test_rto_gating_removes_cod_and_keeps_partial_options

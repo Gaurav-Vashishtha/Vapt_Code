@@ -24,6 +24,9 @@ module NetworkJobs
       reminder = reminder_id && shop.setting.find_prepaid_reminder(reminder_id)
       resolved = reminder ? shop.setting.resolve_prepaid_reminder(reminder) : nil
 
+      shop.init_session
+      return if rabbitpay_partial_order?(ShopifyAPI::Order.find(order_confirmation.order_id))
+
       resp = NetworkServices::SendPrepaidMessageService.call(
         shop, order_confirmation,
         reminder: resolved,
@@ -57,7 +60,6 @@ module NetworkJobs
 
         # Return false if cancelled or paid
         return false if order.cancelled_at.present? || order.financial_status == 'paid'
-        return false if rabbitpay_partial_order?(order)
 
         true
       rescue => e

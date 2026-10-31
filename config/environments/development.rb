@@ -1,6 +1,6 @@
 Rails.application.configure do
-  config.hosts << "hydrogen-carried-carroll-driving.trycloudflare.com"
-  config.hosts << ENV["APP_HOST"] if ENV["APP_HOST"].present?
+  config.hosts << "renaissance-opt-automation-assignments.trycloudflare.com"
+  config.hosts << ENV.fetch("APP_HOST", nil) if ENV.fetch("APP_HOST", nil).present?
   # Every restart of `cloudflared tunnel` hands out a new subdomain, so match
   # the whole domain rather than editing this file each time.
   config.hosts << /\A[-a-z0-9]+\.trycloudflare\.com\z/
@@ -40,7 +40,7 @@ Rails.application.configure do
     config.action_controller.perform_caching = true
     config.action_controller.enable_fragment_cache_logging = true
 
-    cache_servers = %W{#{ENV['REDIS_URL']}}
+    cache_servers = %W{#{ENV.fetch("REDIS_URL", nil)}}
 
     config.cache_store = :redis_cache_store, { url: cache_servers,
       connect_timeout:    30,  # Defaults to 20 seconds
@@ -98,9 +98,9 @@ Rails.application.configure do
   # Suppress logger output for asset requests.
   config.assets.quiet = true
 
-  config.action_controller.asset_host = "https://#{ENV['APP_HOST']}"
+  config.action_controller.asset_host = "https://#{ENV.fetch("APP_HOST", nil)}"
 
-  config.web_socket_server_url = "wss://#{ENV['APP_HOST']}/cable"
+  config.web_socket_server_url = "wss://#{ENV.fetch("APP_HOST", nil)}/cable"
 
   # Raises error for missing translations.
   # config.action_view.raise_on_missing_translations = true

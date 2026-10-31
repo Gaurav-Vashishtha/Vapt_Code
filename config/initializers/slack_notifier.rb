@@ -15,7 +15,7 @@ module SlackNotifier
   end
 
   def self.build(env_key, &block)
-    url = ENV[env_key]
+    url = ENV.fetch(env_key, nil)
     return NullNotifier.new(env_key) if url.nil? || url.strip.empty?
 
     Slack::Notifier.new(url, &block)

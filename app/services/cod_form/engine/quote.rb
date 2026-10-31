@@ -183,6 +183,7 @@ module CodForm
                                        contact: contact, risk: input["risk"])
           payment_options = PartialRules.options(rules: matched, totals: totals, cod_allowed: eligibility["cod_allowed"],
                                                  money_format: input["money_format"])
+          prepaid_offer = prepaid_offer(input, rule_cart, address, contact, totals, eligibility, fee)
 
           # (13) OTP
           otp = hash(input["otp"])
@@ -211,6 +212,7 @@ module CodForm
             "savings_cents" => savings,
             "eligibility" => eligibility,
             "payment_options" => payment_options,
+            "prepaid_offer" => prepaid_offer,
             "otp_required" => otp_required,
             "thresholds" => thresholds,
             "warnings" => warnings.uniq,
@@ -350,6 +352,21 @@ module CodForm
           reasons.uniq!
           { "cod_allowed" => reasons.empty?, "reasons" => reasons, "message_key" => message_key, "message" => message,
             "pay_online" => hash(general["prepaid"])["show_pay_online"] != false, "pending" => rules["pending"] }
+        end
+
+        # What "Pay online" saves (the widget's "Pay online (save upto …)"): the first matching
+        # 100 % prepaid rule's discount, plus the COD fee that a prepaid order does not pay.
+        def prepaid_offer(input, rule_cart, address, contact, totals, eligibility, fee)
+          return nil unless eligibility["pay_online"]
+
+          rule = PartialRules.match(rules: Array(input["prepaid_rules"]), cart: rule_cart, address: address,
+                                    contact: contact, risk: input["risk"]).first
+          return nil if rule.nil?
+
+          discount = PartialRules.amounts(rule: rule, totals: totals)["discount_cents"].to_i
+          return nil unless discount.positive?
+
+          { "rule_id" => rule["id"], "discount_cents" => discount, "save_cents" => discount + fee["amount_cents"].to_i }
         end
 
         def rto_blocks?(rto, risk)
